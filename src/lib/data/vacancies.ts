@@ -1,0 +1,378 @@
+﻿export type Dept =
+  | 'Production'
+  | 'Sales'
+  | 'Marketing'
+  | 'Logistics'
+  | 'Finance'
+  | 'Customer Service'
+  | 'Quality';
+
+export interface Vacancy {
+  id: number;
+  title: string;
+  department: Dept;
+  location: string;
+  type: 'fullTime' | 'partTime';
+  shortDescription: string;
+  overview: string;
+  responsibilities: string[];
+  requirements: string[];
+  niceToHave: string[];
+  benefits: string[];
+  salary: string;
+  postedDate: string;
+}
+
+export const VACANCIES: Vacancy[] = [
+  {
+    id: 1,
+    title: 'Production Manager',
+    department: 'Production',
+    location: 'Ashgabat, TM',
+    type: 'fullTime',
+    shortDescription:
+      'Oversee daily bottling and production operations, ensuring quality standards and efficiency targets are met across all product lines.',
+    overview:
+      'As Production Manager at RAHATLYK, you will be the engine of our manufacturing operations. You will own the end-to-end production process — from raw-material intake through to finished goods — across our flagship facility in Ashgabat. This is a senior role that combines hands-on operational leadership with strategic planning: you will set shift schedules, manage a team of 40+ operators, and drive continuous-improvement initiatives that reduce waste and increase throughput. You will work closely with Quality, Logistics, and senior management to make sure every bottle that leaves the floor meets our uncompromising standards.',
+    responsibilities: [
+      'Plan, organise and oversee daily production schedules across all filling lines',
+      'Lead, coach and develop a team of 40+ production operators and supervisors',
+      'Monitor KPIs (OEE, yield, downtime) and drive corrective action when targets are missed',
+      'Collaborate with Quality Assurance to investigate and resolve non-conformances',
+      'Manage raw-material and packaging inventory in coordination with Logistics',
+      'Ensure full compliance with food-safety regulations (HACCP, ISO 22000)',
+      'Prepare weekly production reports and present findings to the Operations Director',
+      'Lead and document continuous-improvement (Kaizen/5S) projects on the floor',
+    ],
+    requirements: [
+      "Bachelor's degree in Food Technology, Chemical Engineering, or a related field",
+      '5+ years of experience in a production or operations role in food/beverage manufacturing',
+      'Demonstrated people-management experience (teams of 20+)',
+      'Strong working knowledge of HACCP, GMP, and ISO 22000',
+      'Analytical mindset with proficiency in Excel or equivalent reporting tools',
+      'Excellent verbal and written communication in Russian or Turkmen; English is a plus',
+      'Ability to work rotating shifts when required',
+    ],
+    niceToHave: [
+      'Experience with automated high-speed filling or bottling lines',
+      'Lean / Six Sigma certification',
+      'Familiarity with ERP systems (SAP, 1C)',
+      'Previous experience in a beverage or dairy environment',
+    ],
+    benefits: [
+      'Competitive salary + performance bonus',
+      'Comprehensive medical insurance for you and your family',
+      'Annual professional development budget',
+      'Free RAHATLYK product allowance',
+      'Modern, air-conditioned facility with on-site canteen',
+    ],
+    salary: 'Competitive — disclosed at interview',
+    postedDate: 'January 10, 2026',
+  },
+  {
+    id: 2,
+    title: 'Senior Sales Manager',
+    department: 'Sales',
+    location: 'Ashgabat, TM',
+    type: 'fullTime',
+    shortDescription:
+      'Lead a regional sales team, develop client relationships, and drive market-share growth for our premium beverage portfolio.',
+    overview:
+      'This is one of the highest-impact commercial roles at RAHATLYK. As Senior Sales Manager, you will own the revenue growth strategy for the Ashgabat region and be responsible for a portfolio of key accounts spanning modern trade, HoReCa, and institutional clients. You will build and mentor a team of 8 field sales representatives, develop territory plans, and personally lead negotiations with our most strategic partners. The role reports directly to the Chief Commercial Officer and plays a central part in our ambition to double RAHATLYK\'s market share by 2028.',
+    responsibilities: [
+      'Own quarterly and annual revenue targets for the Ashgabat sales region',
+      'Build, lead, and coach a team of 8 field sales representatives',
+      'Develop and execute territory and account plans for modern trade, HoReCa, and institutional channels',
+      'Personally manage relationships with our top 20 key accounts',
+      'Identify new business opportunities and convert them through structured sales cycles',
+      'Analyse sales data (volume, value, distribution) to spot trends and optimise coverage',
+      'Collaborate with Marketing on promotions, activations, and new product launches',
+      'Represent RAHATLYK at trade events and industry forums',
+    ],
+    requirements: [
+      "Bachelor's degree in Business, Marketing, or a related discipline",
+      '6+ years of FMCG sales experience, of which at least 2 in a team leadership role',
+      'Proven track record of hitting and exceeding revenue targets',
+      'Strong negotiation and relationship-management skills',
+      'Data-driven approach with proficiency in CRM and sales-reporting tools',
+      'Driving licence (category B)',
+      'Fluency in Russian and Turkmen; English an advantage',
+    ],
+    niceToHave: [
+      'Prior experience selling beverages or food products',
+      'Established network within Ashgabat retail and HoReCa',
+      'Experience with Salesforce or similar CRM platforms',
+    ],
+    benefits: [
+      'Base salary + uncapped commission structure',
+      'Company vehicle + fuel card',
+      'Comprehensive medical insurance',
+      'Quarterly team incentives and annual sales conference',
+      'Free RAHATLYK product allowance',
+    ],
+    salary: 'Base + uncapped commission',
+    postedDate: 'January 8, 2026',
+  },
+  {
+    id: 3,
+    title: 'Quality Assurance Specialist',
+    department: 'Quality',
+    location: 'Ashgabat, TM',
+    type: 'fullTime',
+    shortDescription:
+      'Conduct rigorous testing and audits at every stage of production to ensure our products meet international safety and quality standards.',
+    overview:
+      'Quality is the cornerstone of the RAHATLYK brand, and the QA Specialist is its guardian on the factory floor. You will design and execute an end-to-end testing programme covering incoming raw materials, in-process checks, and finished-product release. When issues arise — whether a batch fails a microbiological screen or a label is misaligned — you will be the first to investigate, document, and drive resolution. This role also includes supplier audits and the ongoing maintenance of our ISO 22000 and HACCP documentation system.',
+    responsibilities: [
+      'Perform daily in-line quality checks across all production lines (filling, capping, labelling, packing)',
+      'Conduct microbiological and physicochemical testing of water, raw materials, and finished goods',
+      'Investigate and document non-conformances; manage the CAPA (corrective and preventive action) process',
+      'Maintain and update HACCP plans, SOPs, and quality-management documentation',
+      'Carry out scheduled and unannounced internal audits of production and warehousing',
+      'Coordinate external laboratory testing and manage Certificate of Analysis records',
+      'Support supplier qualification audits and approve incoming materials',
+      'Train production staff on quality and food-safety procedures',
+    ],
+    requirements: [
+      "Bachelor's degree in Food Science, Microbiology, Chemistry, or equivalent",
+      '3+ years of QA/QC experience in food or beverage manufacturing',
+      'Practical knowledge of HACCP, GMP, and ISO 22000',
+      'Hands-on laboratory experience (microbiology and basic chemistry)',
+      'Attention to detail and methodical, documentation-oriented mindset',
+      'Fluency in Russian or Turkmen; technical English reading ability required',
+    ],
+    niceToHave: [
+      'Lead auditor qualification (ISO 22000 or FSSC 22000)',
+      'Experience with statistical process control (SPC)',
+      'Knowledge of beverage-specific analytical methods (water hardness, pH, CO₂ volume)',
+    ],
+    benefits: [
+      'Competitive salary with annual performance review',
+      'Full medical insurance',
+      'Funded training and certification (HACCP, ISO lead auditor)',
+      'Free RAHATLYK product allowance',
+      'Collaborative, science-focused team environment',
+    ],
+    salary: 'Competitive — disclosed at interview',
+    postedDate: 'December 20, 2025',
+  },
+  {
+    id: 4,
+    title: 'Marketing Manager',
+    department: 'Marketing',
+    location: 'Ashgabat, TM',
+    type: 'fullTime',
+    shortDescription:
+      'Lead brand strategy and execute integrated campaigns across digital, print, and events to grow RAHATLYK\'s market presence.',
+    overview:
+      'The Marketing Manager is the creative and strategic force behind the RAHATLYK brand. You will lead a team of three (a designer, a social-media executive, and a copywriter), own the annual marketing budget, and take full accountability for brand equity, campaign effectiveness, and digital growth metrics. From seasonal activations in supermarkets to large-format outdoor campaigns and TikTok content, your fingerprints will be on everything consumers see, hear, and feel when they encounter RAHATLYK.',
+    responsibilities: [
+      'Own and execute the annual brand and marketing plan in line with business objectives',
+      'Lead, mentor, and develop a team of three marketing professionals',
+      'Manage and allocate the marketing budget (monthly reconciliation, quarterly forecasts)',
+      'Brief and oversee creative production for all ATL and BTL assets',
+      'Drive digital and social-media strategy — content calendar, paid social, SEO/SEM',
+      'Plan and execute trade activations, sampling events, and sponsorships',
+      'Manage agency and media-buying relationships',
+      'Track and report on campaign ROI, brand-health metrics, and digital KPIs',
+      'Support new product launches with full go-to-market planning',
+    ],
+    requirements: [
+      "Bachelor's degree in Marketing, Communications, or a related field",
+      '5+ years of marketing experience, including at least 2 managing a team',
+      'Demonstrated experience running integrated (digital + traditional) campaigns',
+      'Proficiency in Meta Ads Manager and Google Ads',
+      'Strong analytical skills — comfortable in Google Analytics and Excel',
+      'Outstanding written and verbal communication in Russian and/or Turkmen',
+    ],
+    niceToHave: [
+      'FMCG or beverage industry background',
+      'Experience with influencer marketing in Central Asian markets',
+      'Basic design literacy (able to brief and review Figma/Photoshop work)',
+      'English language skills for international trend research',
+    ],
+    benefits: [
+      'Competitive salary + annual bonus tied to brand KPIs',
+      'Full creative freedom within a supportive leadership structure',
+      'Annual professional-development and training budget',
+      'Comprehensive medical insurance',
+      'Free RAHATLYK product allowance',
+    ],
+    salary: 'Competitive + annual bonus',
+    postedDate: 'January 5, 2026',
+  },
+  {
+    id: 5,
+    title: 'Logistics Coordinator',
+    department: 'Logistics',
+    location: 'Multiple Locations',
+    type: 'fullTime',
+    shortDescription:
+      'Optimise distribution routes and coordinate with the fleet team to ensure on-time delivery across Turkmenistan.',
+    overview:
+      'Getting RAHATLYK products from our factory to shelves across Turkmenistan — on time, at temperature, and in perfect condition — is a complex daily challenge that the Logistics Coordinator owns. You will manage a fleet of 12 delivery vehicles, coordinate with warehouse staff, plan and optimise delivery routes, and maintain relationships with third-party carriers for inter-regional distribution. This role sits at the intersection of operations, customer service, and data analysis: you will use routing software and delivery data to continuously shorten lead times and reduce cost per case.',
+    responsibilities: [
+      'Plan and optimise daily delivery routes for the RAHATLYK fleet across all active channels',
+      'Monitor and manage on-time-in-full (OTIF) performance and escalate issues in real time',
+      'Coordinate vehicle maintenance schedules in partnership with the fleet manager',
+      'Manage relationships with third-party carriers for inter-regional and bulk deliveries',
+      'Maintain accurate dispatch and delivery documentation (waybills, PoD)',
+      'Liaise with Warehouse to ensure picking and loading are aligned with route plans',
+      'Analyse delivery-performance data and present improvement proposals monthly',
+      'Ensure cold-chain integrity for chilled product lines throughout distribution',
+    ],
+    requirements: [
+      "Bachelor's degree in Logistics, Supply Chain, or a related discipline (or equivalent experience)",
+      '3+ years in a logistics, distribution, or supply-chain coordination role',
+      'Proficiency in route-planning or TMS software',
+      'Strong organisational skills and ability to manage multiple priorities simultaneously',
+      'Driving licence (category B); category C an advantage',
+      'Fluency in Russian and/or Turkmen',
+    ],
+    niceToHave: [
+      'Experience in FMCG or cold-chain logistics',
+      'Familiarity with 1C or SAP inventory/logistics modules',
+      'Knowledge of Turkmenistan inter-city road network',
+    ],
+    benefits: [
+      'Competitive salary with performance incentives',
+      'Fuel and transport allowance',
+      'Full medical insurance',
+      'Dynamic, fast-paced team environment',
+      'Free RAHATLYK product allowance',
+    ],
+    salary: 'Competitive + performance incentive',
+    postedDate: 'December 15, 2025',
+  },
+  {
+    id: 6,
+    title: 'Financial Analyst',
+    department: 'Finance',
+    location: 'Ashgabat, TM',
+    type: 'fullTime',
+    shortDescription:
+      'Analyse financial data, prepare forecasts, and support senior management in strategic business decisions.',
+    overview:
+      'RAHATLYK is in a growth phase, and the Financial Analyst plays a critical role in ensuring that growth is profitable and sustainable. You will own the monthly management accounts pack, build rolling financial forecasts, and act as the analytical partner to departmental heads as they plan investments and assess performance. You will work directly with the CFO on strategic projects — from pricing model reviews to capex appraisals — and your analysis will directly shape decisions at the highest level of the business.',
+    responsibilities: [
+      'Prepare and distribute monthly management accounts, variance analysis, and commentary',
+      'Build and maintain the rolling 12-month financial forecast model',
+      'Conduct margin analysis by product line, channel, and customer',
+      'Support the annual budgeting process — coordination across all departments',
+      'Perform scenario modelling for new product launches, market expansions, and capex proposals',
+      'Ensure compliance with local accounting standards and tax requirements',
+      'Manage accounts payable and receivable review in coordination with the accounting team',
+      'Present financial insights to senior leadership in a clear, non-technical format',
+    ],
+    requirements: [
+      "Bachelor's degree in Finance, Accounting, or Economics",
+      '3+ years of financial analysis or management accounting experience',
+      'Advanced Excel skills (pivot tables, VLOOKUP, financial modelling)',
+      'Strong understanding of P&L, balance sheet, and cash-flow mechanics',
+      'High attention to detail and accuracy under deadline pressure',
+      'Fluency in Russian and/or Turkmen',
+    ],
+    niceToHave: [
+      'ACCA, CFA, or equivalent professional qualification (in progress or completed)',
+      'Experience with 1C or SAP financial modules',
+      'Prior work in FMCG or manufacturing finance',
+      'English language skills',
+    ],
+    benefits: [
+      'Competitive salary with annual review',
+      'Clear progression path toward Senior Analyst / Finance Manager',
+      'Full medical insurance',
+      'Support for ACCA or CFA study (exam fees and study leave)',
+      'Free RAHATLYK product allowance',
+    ],
+    salary: 'Competitive — disclosed at interview',
+    postedDate: 'January 3, 2026',
+  },
+  {
+    id: 7,
+    title: 'Graphic Designer',
+    department: 'Marketing',
+    location: 'Ashgabat, TM',
+    type: 'fullTime',
+    shortDescription:
+      'Create compelling visuals for product packaging, advertising campaigns, and our digital platforms.',
+    overview:
+      'Every RAHATLYK bottle, billboard, social post, and in-store display passes through the hands of our design team — and the Graphic Designer is the creative heart of it. You will work across brand identity, packaging, digital, and print to produce work that is consistently premium, on-brand, and visually arresting. You will collaborate daily with the Marketing Manager and Copywriter, and will occasionally brief external photographers and video producers. If you have a portfolio that mixes strategic brand thinking with flawless execution, we want to see it.',
+    responsibilities: [
+      'Design packaging concepts and artwork for new and existing product lines',
+      'Produce all digital creative assets: social-media content, display ads, emailers, website graphics',
+      'Design print collateral: posters, POS materials, brochures, exhibition stands',
+      'Maintain and evolve the RAHATLYK brand identity and visual guidelines',
+      'Manage design briefs from intake to final sign-off, hitting deadlines consistently',
+      'Brief and art-direct external photographers and videographers',
+      'Prepare print-ready files and liaise with printers and production suppliers',
+      'Participate in campaign brainstorms and contribute creative ideas',
+    ],
+    requirements: [
+      "Bachelor's degree or diploma in Graphic Design, Visual Communication, or equivalent",
+      '3+ years of professional design experience (agency or in-house)',
+      'Expert-level proficiency in Adobe Illustrator, Photoshop, and InDesign',
+      'A portfolio demonstrating both brand/identity and digital/social work',
+      'Understanding of print production, colour profiles, and file preparation',
+      'Ability to work to tight deadlines without compromising quality',
+    ],
+    niceToHave: [
+      'Motion graphics or video editing skills (After Effects, Premiere)',
+      'Experience designing for FMCG or food/beverage packaging',
+      'Proficiency in Figma for UI/digital work',
+      'Photography skills',
+    ],
+    benefits: [
+      'Competitive salary with annual performance review',
+      'Creative freedom in a brand-focused environment',
+      'Annual design-software and training budget',
+      'Full medical insurance',
+      'Free RAHATLYK product allowance',
+    ],
+    salary: 'Competitive — disclosed at interview',
+    postedDate: 'December 22, 2025',
+  },
+  {
+    id: 8,
+    title: 'Customer Service Representative',
+    department: 'Customer Service',
+    location: 'Ashgabat, TM',
+    type: 'partTime',
+    shortDescription:
+      'Be the friendly first point of contact for RAHATLYK customers — handling enquiries, resolving issues, and gathering feedback.',
+    overview:
+      'As Customer Service Representative, you are the voice of RAHATLYK to our consumers and retail partners. You will handle inbound calls, emails, and social-media messages, resolving queries ranging from product availability to delivery tracking to quality feedback. Every interaction is an opportunity to reinforce the premium, caring brand experience that sets RAHATLYK apart — your empathy, patience, and product knowledge are what make that happen. This is a part-time role (20 hours per week) with scheduling flexibility, ideal for someone studying or managing other commitments.',
+    responsibilities: [
+      'Respond promptly and professionally to customer enquiries via phone, email, and social media',
+      'Log all interactions accurately in the CRM system',
+      'Resolve complaints at first contact where possible; escalate complex issues to the appropriate team',
+      'Process customer returns and refund requests in line with company policy',
+      'Collect and document customer feedback and product suggestions; report trends to management',
+      'Support order-status enquiries by liaising with the Logistics team',
+      'Maintain a thorough, up-to-date knowledge of the full RAHATLYK product range',
+    ],
+    requirements: [
+      'High-school diploma or equivalent; higher education an advantage',
+      '1+ year of customer-facing experience (retail, hospitality, or call centre)',
+      'Warm, patient communication style — written and verbal',
+      'Computer literacy (email, basic CRM or ticketing tools)',
+      'Fluency in Turkmen and Russian; basic English a plus',
+      'Availability for a flexible 20-hour weekly schedule (including some evenings)',
+    ],
+    niceToHave: [
+      'Experience with Zendesk, Freshdesk, or similar helpdesk platforms',
+      'Social-media communication experience',
+      'Passion for food, beverages, or wellness products',
+    ],
+    benefits: [
+      'Competitive hourly rate',
+      'Flexible scheduling around studies or other commitments',
+      'Full training and product-knowledge programme',
+      'Team social events and company culture initiatives',
+      'Free RAHATLYK product allowance',
+      'Path to full-time opportunities within RAHATLYK',
+    ],
+    salary: 'Competitive hourly rate',
+    postedDate: 'January 12, 2026',
+  },
+];
