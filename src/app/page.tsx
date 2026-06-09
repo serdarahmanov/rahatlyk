@@ -8,6 +8,19 @@ import { PRODUCTS, ProductCategory } from '@/lib/data/products';
 import { ARTICLES } from '@/lib/data/news';
 import ProductVisual from '@/components/ProductVisual';
 
+/* ── Intro gate ───────────────────────────────────────────────────
+   The hero animation must NOT start until PageIntro's curtain has
+   exited. We track this with a module-level flag so it persists
+   across re-renders but resets on full page reload.              */
+let introHasCompleted = false;
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'page-intro-done',
+    () => { introHasCompleted = true; },
+    { once: true },
+  );
+}
+
 /* ── Static data ──────────────────────────────────────────────── */
 const CATEGORIES = [
   {
@@ -58,12 +71,60 @@ const CATEGORIES = [
 
 const NEWS_PREVIEW = ARTICLES.slice(0, 3);
 
+/* ── Word-level mask-reveal helper ────────────────────────────────
+   Replaces an element's text with per-word <span> pairs so GSAP
+   can stagger each word individually from behind its own mask.
+   Returns the inner spans (what GSAP animates) + a restore fn. */
+// `displayText` lets callers bypass el.textContent (which may carry stale locale
+// text after a restore() from the previous animation) and use the live translation.
+function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
+  spans: HTMLElement[];
+  restore: () => void;
+} {
+  const text  = displayText ?? (el.textContent ?? '');
+  const words = text.trim().split(/\s+/).filter(Boolean);
+
+  while (el.firstChild) el.removeChild(el.firstChild);
+
+  const spans: HTMLElement[] = [];
+
+  words.forEach((word, i) => {
+    // Per-word overflow-hidden mask
+    const mask = document.createElement('span');
+    mask.style.display       = 'inline-block';
+    mask.style.overflow      = 'hidden';
+    mask.style.verticalAlign = 'bottom';
+    mask.style.paddingBottom = '0.2em';
+    mask.style.marginBottom  = '-0.2em';
+
+    // The span GSAP slides up
+    const inner = document.createElement('span');
+    inner.style.display = 'inline-block';
+    inner.textContent   = word;
+
+    mask.appendChild(inner);
+    el.appendChild(mask);
+
+    if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+
+    spans.push(inner);
+  });
+
+  return {
+    spans,
+    restore: () => {
+      while (el.firstChild) el.removeChild(el.firstChild);
+      el.textContent = text;
+    },
+  };
+}
+
 /* ── Hero water-drop visual ───────────────────────────────────── */
 function WaterDrop() {
   return (
     <div className="relative w-64 h-80 xl:w-80 xl:h-96">
       {/* Glow behind */}
-      <div className="absolute inset-0 rounded-full bg-brand-200/40 blur-3xl scale-110 animate-pulse-glow" />
+      <div className="absolute inset-0 rounded-full bg-brand-300/30 blur-3xl scale-110 animate-pulse-glow" />
 
       {/* Main drop SVG */}
       <svg
@@ -72,12 +133,12 @@ function WaterDrop() {
       >
         <defs>
           <linearGradient id="dropMain" x1="15%" y1="0%" x2="85%" y2="100%">
-            <stop offset="0%" stopColor="#BAE6FD" />
-            <stop offset="45%" stopColor="#38BDF8" />
-            <stop offset="100%" stopColor="#0284C7" />
+            <stop offset="0%" stopColor="#e8ddd0" />
+            <stop offset="45%" stopColor="#c8ad88" />
+            <stop offset="100%" stopColor="#8a7256" />
           </linearGradient>
           <linearGradient id="dropHL" x1="0%" y1="0%" x2="60%" y2="60%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.65)" />
+            <stop offset="0%" stopColor="rgba(255,255,255,0.55)" />
             <stop offset="100%" stopColor="rgba(255,255,255,0)" />
           </linearGradient>
         </defs>
@@ -146,6 +207,199 @@ function WaterDrop() {
   );
 }
 
+/* ── Pinned horizontal-scroll section ────────────────────────────── */
+function HorizontalScrollSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef     = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let ctx: any;
+
+    const init = async () => {
+      const { gsap }          = await import('gsap');
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      gsap.registerPlugin(ScrollTrigger);
+
+      if (!containerRef.current || !trackRef.current) return;
+      const track  = trackRef.current;
+      const header = document.querySelector<HTMLElement>('header');
+
+      const hideHeader = () =>
+        gsap.to(header, { yPercent: -105, duration: 0.55, ease: 'power2.inOut', overwrite: true });
+      const showHeader = () =>
+        gsap.to(header, { yPercent: 0,    duration: 0.55, ease: 'power2.inOut', overwrite: true });
+
+      ctx = gsap.context(() => {
+        gsap.to(track, {
+          x:    () => -(track.scrollWidth - window.innerWidth),
+          ease: 'none',
+          scrollTrigger: {
+            trigger:             containerRef.current,
+            start:               'top top',
+            end:                 () => `+=${track.scrollWidth - window.innerWidth}`,
+            pin:                 true,
+            scrub:               1,
+            invalidateOnRefresh: true,
+            onEnter:     hideHeader,
+            onLeave:     showHeader,
+            onEnterBack: hideHeader,
+            onLeaveBack: showHeader,
+          },
+        });
+      });
+    };
+
+    init();
+    return () => ctx?.revert();
+  }, []);
+
+  return (
+    /* outer container — GSAP pins this; overflow-hidden clips the sliding track */
+    <div ref={containerRef} className="h-screen overflow-hidden bg-white py-4">
+
+      {/* track — flex row of variable-width panels; GSAP translates this leftward */}
+      <div
+        ref={trackRef}
+        className="flex h-full gap-4 px-4"
+        style={{ willChange: 'transform' }}
+      >
+
+        {/* ── PANEL 1 · Full-height portrait photo (~42 vw) ────────── */}
+        <div
+          className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl"
+          style={{ width: '42vw' }}
+        >
+          <Image
+            src="/reference/KarunaJuice_Photo_RainbowlFoods.jpg"
+            alt="Pure water — Rahatlyk quality"
+            fill
+            className="object-cover object-center"
+            sizes="42vw"
+          />
+        </div>
+
+        {/* ── PANEL 2 · Solid dark text panel (~28 vw) ─────────────── */}
+        <div
+          className="relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl"
+          style={{ width: '28vw', padding: '0 4vw' }}
+        >
+          <span className="block text-brand-400 text-[10px] font-bold tracking-[0.35em] uppercase mb-6">
+            PRISTINE BY NATURE
+          </span>
+          <h2
+            className="text-white font-bold leading-[1.1]"
+            style={{
+              fontFamily: 'var(--font-heading), sans-serif',
+              fontSize:   'clamp(1.6rem, 2.6vw, 3rem)',
+            }}
+          >
+            Purity you can taste — straight from the source
+          </h2>
+        </div>
+
+        {/* ── PANEL 3 · Split: product photo top + CTA bottom (~32 vw) */}
+        <div
+          className="relative h-full flex-shrink-0 flex flex-col gap-4"
+          style={{ width: '32vw' }}
+        >
+          {/* top: product shot — own rounded container */}
+          <div className="relative overflow-hidden rounded-2xl" style={{ flex: '1 1 60%' }}>
+            <Image
+              src="/reference/Smoothie-Drink-Product-Photography-Studio-in-London-Innocent-Smoothies-Neve-Studios-1.webp"
+              alt="Sarwan water poured fresh"
+              fill
+              className="object-cover object-center"
+              sizes="32vw"
+            />
+          </div>
+
+          {/* bottom: numbered CTA block — own rounded container */}
+          <div
+            className="flex-shrink-0 bg-brand-700 flex flex-col justify-center items-start overflow-hidden rounded-2xl"
+            style={{ flex: '0 0 40%', padding: '0 3.5vw' }}
+          >
+            <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center text-white/60 text-[11px] font-medium mb-4">
+              01
+            </div>
+            <p
+              className="text-white font-bold leading-snug mb-5"
+              style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}
+            >
+              Discover our story and what drives us
+            </p>
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-2 bg-white text-brand-900 text-[11px] font-bold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full hover:bg-brand-50 transition-colors duration-200"
+            >
+              Our Story
+            </Link>
+          </div>
+        </div>
+
+        {/* ── PANEL 4 · Full-bleed wide photo with text overlay (~52 vw) */}
+        <div
+          className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl"
+          style={{ width: '52vw' }}
+        >
+          <Image
+            src="/reference/New-250ml-Juice-Banner-Website.jpg"
+            alt="Every drop of Rahatlyk — centuries filtered"
+            fill
+            className="object-cover object-center"
+            sizes="52vw"
+          />
+          {/* gradient: only at the bottom so text is readable */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute bottom-14 left-[8%] right-[8%]">
+            <span className="block text-white/55 text-[10px] font-bold tracking-[0.35em] uppercase mb-4">
+              CENTURIES OF FILTRATION
+            </span>
+            <h2
+              className="text-white font-bold leading-[1.1]"
+              style={{
+                fontFamily: 'var(--font-heading), sans-serif',
+                fontSize:   'clamp(1.8rem, 3.2vw, 3.8rem)',
+              }}
+            >
+              Each sip delivers a purity you can feel
+            </h2>
+          </div>
+        </div>
+
+        {/* ── PANEL 5 · Closing light panel (~25 vw) ───────────────── */}
+        <div
+          className="relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl"
+          style={{ width: '25vw', padding: '0 3.5vw' }}
+        >
+          <span className="block text-brand-600 text-[10px] font-bold tracking-[0.35em] uppercase mb-5">
+            EXPLORE MORE
+          </span>
+          <h3
+            className="text-brand-950 font-bold leading-snug mb-8"
+            style={{
+              fontFamily: 'var(--font-heading), sans-serif',
+              fontSize:   'clamp(1.3rem, 1.9vw, 2.1rem)',
+            }}
+          >
+            Clean water, real refreshment
+          </h3>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 bg-brand-950 text-white text-[11px] font-bold tracking-[0.18em] uppercase px-6 py-3 rounded-full hover:bg-brand-700 transition-colors duration-200 w-fit"
+          >
+            Explore
+          </Link>
+        </div>
+
+        {/* Spacer — forces scrollWidth to include the right px-4 padding */}
+        <div className="flex-shrink-0 w-4" aria-hidden="true" />
+
+      </div>
+    </div>
+  );
+}
+
 /* ── Button-driven category carousel (no scroll pinning) ─────────── */
 function CollectionsSection({ cats }: { cats: Record<string, string> }) {
   const sectionRef   = useRef<HTMLDivElement>(null);
@@ -172,7 +426,12 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       if (!sectionRef.current) return;
       const header = document.querySelector('header');
       const headerH = header ? header.offsetHeight : 0;
-      sectionRef.current.style.height = `${window.innerHeight - headerH}px`;
+      const h = window.innerHeight - headerH;
+      const isMobile = window.innerWidth < 768;
+      const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
+      sectionRef.current.style.height = `${h}px`;
+      sectionRef.current.style.setProperty('--col-h', `${h}px`);
+      sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
     };
     fit();
     window.addEventListener('resize', fit);
@@ -278,44 +537,21 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
     const el = textRef.current;
     if (!el) return;
     import('gsap').then(({ gsap }) => {
-      import('gsap/SplitText').then(({ SplitText }) => {
-        gsap.registerPlugin(SplitText);
+      // reveal-block elements (tagline)
+      const blocks = el.querySelectorAll<HTMLElement>('.reveal-block');
+      gsap.fromTo(
+        blocks,
+        { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.55, stagger: 0.08, ease: 'power3.out', overwrite: 'auto' }
+      );
 
-        // Animate non-split blocks first (tag + explore link)
-        const blocks = el.querySelectorAll<HTMLElement>('.reveal-block');
-        gsap.fromTo(
-          blocks,
-          { yPercent: 115 },
-          { yPercent: 0, duration: 0.65, stagger: 0.09, ease: 'power3.out', overwrite: 'auto' }
-        );
-
-        // Per-line mask reveal for title and body paragraph
-        const splitTargets = el.querySelectorAll<HTMLElement>('.split-reveal');
-        splitTargets.forEach((target, ti) => {
-          const split = new SplitText(target, { type: 'lines', linesClass: 'line-inner' });
-          // wrap each line in an overflow-hidden div so the mask works
-          split.lines.forEach((line) => {
-            const mask = document.createElement('div');
-            mask.style.overflow = 'hidden';
-            mask.style.display  = 'block';
-            (line as HTMLElement).parentNode?.insertBefore(mask, line);
-            mask.appendChild(line);
-          });
-          gsap.fromTo(
-            split.lines,
-            { yPercent: 115 },
-            {
-              yPercent:  0,
-              duration:  0.7,
-              stagger:   0.07,
-              ease:      'power3.out',
-              overwrite: 'auto',
-              delay:     ti * 0.12,
-              onComplete: () => split.revert(),
-            }
-          );
-        });
-      });
+      // split-reveal elements (title + body) — simple fade+slide, no DOM mutation
+      const splitTargets = el.querySelectorAll<HTMLElement>('.split-reveal');
+      gsap.fromTo(
+        splitTargets,
+        { y: 14, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.09, ease: 'power3.out', overwrite: 'auto' }
+      );
     });
   }, [snapIndex]);
 
@@ -346,18 +582,23 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
           <div
             key={cat.key}
             ref={(el) => { bottleEls.current[i] = el; }}
-            className="absolute"
+            className="absolute bottom-[12%] md:bottom-[11%]"
             style={{
               left:            '50%',
-              bottom:          '12%',
+              height:          'var(--bottle-h, 480px)',
+              width:           'var(--bottle-h, 480px)',
+              display:         'flex',
+              justifyContent:  'center',
               transformOrigin: 'bottom center',
               willChange:      'transform, opacity, filter',
             }}
           >
-            <ProductVisual
-              product={product}
-              size="lg"
-              className="h-[22rem] sm:h-[30rem] lg:h-[40rem] w-auto mx-auto"
+            {/* plain img so width/height 100% is guaranteed — no Next.js fill quirks */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/products/FeatureProductImg_RTD_LT.png"
+              alt={product.name}
+              style={{ width: 'auto', height: '100%', display: 'block' }}
             />
           </div>
         );
@@ -378,46 +619,49 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
         className="
           absolute z-10 flex flex-col
           top-[8%] left-0 right-0 items-center text-center px-6
-          md:top-1/2 md:-translate-y-1/2
+          md:top-0 md:bottom-0 md:justify-between md:py-[11%]
           md:right-auto md:left-[5%] md:max-w-[280px] lg:left-[7%] lg:max-w-[320px] xl:left-[8%] xl:max-w-[360px]
           md:items-start md:text-left md:px-0
         "
       >
-        {/* Sub-label — reveal-block slides as one unit */}
-        <div className="overflow-hidden hidden md:block mb-3">
-          <span className="reveal-block block text-[10px] font-bold tracking-[0.2em] uppercase text-brand-500">
+        {/* Sub-label — pinned to top on desktop */}
+        <div className="hidden md:block">
+          <span className="block text-[10px] font-bold tracking-[0.2em] uppercase text-black/40">
             {cats.sectionTag ?? ''}
           </span>
         </div>
 
-        {/* Category name — SplitText per-line reveal */}
-        <div className="overflow-hidden mb-2 w-full">
-          <h3
-            className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-brand-950 leading-tight"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            {cats[activeCat.key] ?? ''}
-          </h3>
+        {/* Middle — changing content */}
+        <div className="flex flex-col w-full">
+          {/* Category name — SplitText per-line reveal */}
+          <div className="overflow-hidden mb-2 w-full">
+            <h3
+              className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black leading-tight"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              {cats[activeCat.key] ?? ''}
+            </h3>
+          </div>
+
+          {/* Short tagline — reveal-block */}
+          <div className="overflow-hidden mb-4 w-full">
+            <p className="reveal-block block text-black/55 text-xs lg:text-sm font-semibold tracking-wide">
+              {cats[activeCat.descKey] ?? ''}
+            </p>
+          </div>
+
+          {/* Full paragraph — SplitText per-line reveal, tablet/desktop only */}
+          <div className="overflow-hidden hidden md:block w-full">
+            <p className="split-reveal text-black/45 text-xs lg:text-sm leading-relaxed">
+              {cats[activeCat.bodyKey] ?? ''}
+            </p>
+          </div>
         </div>
 
-        {/* Short tagline — reveal-block */}
-        <div className="overflow-hidden mb-4 w-full">
-          <p className="reveal-block block text-brand-600 text-xs lg:text-sm font-semibold tracking-wide">
-            {cats[activeCat.descKey] ?? ''}
-          </p>
-        </div>
-
-        {/* Full paragraph — SplitText per-line reveal, tablet/desktop only */}
-        <div className="overflow-hidden hidden md:block mb-6 w-full">
-          <p className="split-reveal text-slate-500 text-xs lg:text-sm leading-relaxed">
-            {cats[activeCat.bodyKey] ?? ''}
-          </p>
-        </div>
-
-        {/* Explore link — no animation */}
+        {/* Explore link — pinned to bottom on desktop */}
         <Link
           href={`/products?category=${activeCat.key}`}
-          className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-brand-700 group"
+          className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-black/75 group mt-4 md:mt-0"
         >
           <span>{cats.explore}</span>
           <svg
@@ -436,9 +680,9 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
           onClick={() => goTo(snapIndex - 1)}
           disabled={snapIndex === 0}
           aria-label="Previous"
-          className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:border-slate-400 hover:text-brand-700 disabled:opacity-20 transition-all duration-200"
+          className="flex items-center justify-center text-black/60 hover:text-black disabled:opacity-20 transition-all duration-200"
         >
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
             <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
@@ -451,8 +695,8 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
               aria-label={`Category ${i + 1}`}
               className={`rounded-full transition-all duration-300 ${
                 i === snapIndex
-                  ? 'w-6 h-[4px] bg-brand-700'
-                  : 'w-[4px] h-[4px] bg-slate-300 hover:bg-slate-400'
+                  ? 'w-6 h-[4px] bg-black'
+                  : 'w-[4px] h-[4px] bg-black/25 hover:bg-black/50'
               }`}
             />
           ))}
@@ -462,9 +706,9 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
           onClick={() => goTo(snapIndex + 1)}
           disabled={snapIndex === CATEGORIES.length - 1}
           aria-label="Next"
-          className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:border-slate-400 hover:text-brand-700 disabled:opacity-20 transition-all duration-200"
+          className="flex items-center justify-center text-black/60 hover:text-black disabled:opacity-20 transition-all duration-200"
         >
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
             <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
@@ -476,37 +720,156 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
 
 /* ── Page ─────────────────────────────────────────────────────── */
 export default function HomePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   /* refs for GSAP */
-  const heroTextRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const storyRef = useRef<HTMLDivElement>(null);
-  const newsRef = useRef<HTMLDivElement>(null);
-  const dropRef = useRef<HTMLDivElement>(null);
+  // Two separate line refs instead of SplitText — avoids innerHTML conflicts with React
+  const titleLine1Ref = useRef<HTMLDivElement>(null);
+  const titleLine2Ref = useRef<HTMLDivElement>(null);
+  const heroSubRef    = useRef<HTMLParagraphElement>(null);
+  const brandRef      = useRef<HTMLElement>(null);
+  const brandLabelRef = useRef<HTMLSpanElement>(null);
+  const brandTextRef  = useRef<HTMLParagraphElement>(null);
+  const statsRef  = useRef<HTMLDivElement>(null);
+  const storyRef  = useRef<HTMLDivElement>(null);
+  const newsRef   = useRef<HTMLDivElement>(null);
 
+  // ── Hero animation — reruns from scratch on every locale change ──
   useEffect(() => {
-    let cleanupFns: (() => void)[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let tl: any = null;
+    const restores: Array<() => void> = [];
+    let introListener: (() => void) | null = null;
+
+    const run = async () => {
+      const { gsap } = await import('gsap');
+      const line1 = titleLine1Ref.current;
+      const line2 = titleLine2Ref.current;
+      const sub   = heroSubRef.current;
+      if (!line1 || !line2) return;
+
+      gsap.killTweensOf([line1, line2, ...(sub ? [sub] : [])]);
+
+      // Pass the live translation text so we always animate the correct locale,
+      // even if el.textContent was left with stale text by a previous restore().
+      const hero = t.home.hero;
+      const { spans: spans1, restore: restore1 } = splitWordsIntoSpans(line1, hero.title);
+      const { spans: spans2, restore: restore2 } = splitWordsIntoSpans(line2, hero.titleAccent);
+      restores.push(restore1, restore2);
+
+      const subSpans: HTMLElement[] = [];
+      let restore3: (() => void) | null = null;
+      if (sub) {
+        const result = splitWordsIntoSpans(sub, hero.subtitle);
+        subSpans.push(...result.spans);
+        restore3 = result.restore;
+        restores.push(restore3);
+      }
+
+      // Word spans are now in the DOM at their default position.
+      // Create the timeline first — fromTo's immediateRender:true applies
+      // yPercent:115 synchronously, hiding every word behind its mask.
+      // Only THEN reveal the container so no text is ever visible before masking.
+      tl = gsap.timeline({ delay: 0.2 });
+
+      // Headline words — staggered word-by-word
+      tl.fromTo(
+        [...spans1, ...spans2],
+        { yPercent: 115 },
+        {
+          yPercent: 0,
+          duration: 0.75,
+          stagger: 0.06,
+          ease: 'power4.out',
+          onComplete: () => {
+            restore1();
+            restore2();
+          },
+        }
+      );
+
+      // Subtitle words — follow the headline with a slight overlap, same stagger
+      if (subSpans.length) {
+        tl.fromTo(
+          subSpans,
+          { yPercent: 115 },
+          {
+            yPercent: 0,
+            duration: 0.65,
+            stagger: 0.04,
+            ease: 'power3.out',
+            onComplete: () => {
+              restore3?.();
+              restores.length = 0; // all restored — skip cleanup
+            },
+          },
+          '<0.4'
+        );
+      }
+
+      // All fromTo tweens have applied yPercent:115 (immediateRender:true) — every
+      // word is already hidden behind its overflow-hidden mask. Now it's safe to
+      // make the container visible; no text will flash before the animation begins.
+      const heroContent = document.getElementById('hero-content');
+      if (heroContent) heroContent.style.opacity = '1';
+    };
+
+    // On the very first page load the entry curtain (PageIntro) is still
+    // showing — we must NOT start the hero animation until it has finished.
+    // On subsequent locale changes the curtain is already gone, so we run
+    // immediately.
+    if (introHasCompleted) {
+      run();
+    } else {
+      introListener = () => run();
+      window.addEventListener('page-intro-done', introListener, { once: true });
+    }
+
+    return () => {
+      tl?.kill();
+      restores.forEach((r) => r()); // restore DOM if animation was cut short
+      restores.length = 0;
+      if (introListener) {
+        window.removeEventListener('page-intro-done', introListener);
+        introListener = null;
+      }
+    };
+  }, [locale]); // re-fire whenever language changes
+
+  // ── Scroll-triggered animations — run once on mount ──────────
+  useEffect(() => {
+    const cleanupFns: (() => void)[] = [];
 
     const init = async () => {
-      const { gsap } = await import('gsap');
+      const { gsap }          = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
       gsap.registerPlugin(ScrollTrigger);
 
-      // Hero entrance
-      if (heroTextRef.current) {
-        gsap.fromTo(
-          heroTextRef.current.children,
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.2 }
-        );
-      }
-      if (dropRef.current) {
-        gsap.fromTo(
-          dropRef.current,
-          { x: 60, opacity: 0 },
-          { x: 0, opacity: 1, duration: 1.2, ease: 'power3.out', delay: 0.4 }
-        );
+      // Brand statement section — word-mask reveal
+      if (brandRef.current && brandLabelRef.current && brandTextRef.current) {
+        const labelEl = brandLabelRef.current;
+        const textEl  = brandTextRef.current;
+        gsap.set([labelEl, textEl], { opacity: 0 });
+        const st0 = ScrollTrigger.create({
+          trigger: brandRef.current,
+          start: 'top 75%',
+          once: true,
+          onEnter: () => {
+            const tl = gsap.timeline();
+            // Label: single-word mask reveal
+            const { spans: lSpans, restore: lRestore } = splitWordsIntoSpans(labelEl);
+            gsap.set(labelEl, { opacity: 1 });
+            tl.fromTo(lSpans, { yPercent: 115 }, {
+              yPercent: 0, duration: 0.8, ease: 'power4.out', onComplete: lRestore,
+            });
+            // Text: simple fade+slide (preserves inline HTML like <strong>)
+            gsap.set(textEl, { opacity: 1 });
+            tl.fromTo(textEl, { y: 12, opacity: 0 }, {
+              y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
+            }, 0.15);
+          },
+        });
+        cleanupFns.push(() => st0.kill());
       }
 
       // Stats section
@@ -515,11 +878,7 @@ export default function HomePage() {
           statsRef.current.children,
           { y: 40, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.12,
-            ease: 'power3.out',
+            y: 0, opacity: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out',
             scrollTrigger: { trigger: statsRef.current, start: 'top 82%' },
           }
         );
@@ -528,43 +887,33 @@ export default function HomePage() {
 
       // Story section
       if (storyRef.current) {
-        const st3 = gsap.fromTo(
+        const st2 = gsap.fromTo(
           storyRef.current.querySelectorAll('.story-animate'),
           { y: 40, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 0.9,
-            stagger: 0.15,
-            ease: 'power3.out',
+            y: 0, opacity: 1, duration: 0.9, stagger: 0.15, ease: 'power3.out',
             scrollTrigger: { trigger: storyRef.current, start: 'top 78%' },
           }
         );
-        cleanupFns.push(() => st3.scrollTrigger?.kill());
+        cleanupFns.push(() => st2.scrollTrigger?.kill());
       }
 
       // News cards
       if (newsRef.current) {
-        const st4 = gsap.fromTo(
+        const st3 = gsap.fromTo(
           newsRef.current.querySelectorAll('.news-card'),
           { y: 50, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.12,
-            ease: 'power3.out',
+            y: 0, opacity: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out',
             scrollTrigger: { trigger: newsRef.current, start: 'top 78%' },
           }
         );
-        cleanupFns.push(() => st4.scrollTrigger?.kill());
+        cleanupFns.push(() => st3.scrollTrigger?.kill());
       }
     };
 
     init();
-    return () => {
-      cleanupFns.forEach((fn) => fn());
-    };
+    return () => { cleanupFns.forEach((fn) => fn()); };
   }, []);
 
   const cats = t.home.categories;
@@ -574,86 +923,101 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-white via-brand-50/40 to-white">
-        {/* Bg blobs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-brand-100 to-brand-200/60 opacity-50 blur-3xl" />
-          <div className="absolute bottom-0 -left-20 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-brand-50 to-brand-100/60 opacity-60 blur-2xl" />
-          <div className="absolute top-1/3 left-1/3 w-[200px] h-[200px] rounded-full bg-gradient-to-br from-brand-50 to-brand-100 opacity-40 blur-2xl" />
-        </div>
+      <section className="relative min-h-screen flex items-end overflow-hidden">
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-20 lg:pt-0">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-screen py-20 lg:py-0">
+        {/* ── Background photo — swap src to change the hero image ── */}
+        <Image
+          src="/story/photo-8.jpg"
+          alt="RAHATLYK — pure water from the source"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+          priority
+        />
 
-            {/* Left: Text */}
-            <div className="text-center lg:text-left" ref={heroTextRef}>
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-200 rounded-full px-4 py-1.5 mb-7">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-pulse" />
-                <span className="text-brand-800 text-xs font-semibold tracking-wide">{t.home.hero.badge}</span>
+        {/* ── Overlay: stronger at bottom so text pops, open at top ── */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
+
+        {/* ── Content ── */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 lg:pb-28">
+          {/* id="hero-content" is targeted by an inline <style> in <head> that sets
+              opacity:0 before any JS runs, hiding server-rendered English text. */}
+          <div id="hero-content" className="max-w-2xl">
+
+            {/* Headline — manual 2-line mask reveal */}
+            <div
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.06] tracking-tight mb-5"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              {/* Each inner div slides up from behind its overflow-hidden parent.
+                  pb-[0.18em] gives descenders (g, y, p…) room; -mb-[0.18em] cancels the extra space. */}
+              <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
+                <div ref={titleLine1Ref}>{t.home.hero.title}</div>
               </div>
+              <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
+                <div ref={titleLine2Ref} className="text-white/75">{t.home.hero.titleAccent}</div>
+              </div>
+            </div>
 
-              {/* Headline */}
-              <h1
-                className="text-5xl sm:text-6xl lg:text-6xl xl:text-7xl font-bold text-brand-950 leading-[1.06] tracking-tight mb-5"
-                style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-              >
-                {t.home.hero.title}
-                <br />
-                <span className="gradient-text">{t.home.hero.titleAccent}</span>
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-500 max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed">
+            {/* Subtitle — mask reveal */}
+            <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
+              <p ref={heroSubRef} className="text-base sm:text-lg text-white/65 max-w-md mb-10 leading-relaxed">
                 {t.home.hero.subtitle}
               </p>
-
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/products" className="btn-primary gap-2">
-                  {t.home.hero.cta}
-                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </Link>
-                <Link href="/about" className="btn-outline">
-                  {t.home.hero.ctaSecondary}
-                </Link>
-              </div>
             </div>
 
-            {/* Right: Drop */}
-            <div className="hidden lg:flex items-center justify-center" ref={dropRef}>
-              <WaterDrop />
-            </div>
           </div>
         </div>
 
       </section>
 
       {/* ══════════════════════════════════════════
-          STATS BAND
+          BRAND STATEMENT
       ══════════════════════════════════════════ */}
-      <section className="bg-gradient-to-r from-brand-700 to-brand-800 py-14">
-        <div className="max-w-5xl mx-auto px-5 sm:px-8">
-          <div ref={statsRef} className="grid grid-cols-3 gap-6 sm:gap-12 text-center">
-            {[
-              { val: t.home.story.stat1, lbl: t.home.story.stat1Label },
-              { val: t.home.story.stat2, lbl: t.home.story.stat2Label },
-              { val: t.home.story.stat3, lbl: t.home.story.stat3Label },
-            ].map((s, i) => (
-              <div key={i}>
-                <div
-                  className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-1.5"
-                  style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-                >
-                  {s.val}
-                </div>
-                <div className="text-brand-200 text-xs sm:text-sm tracking-wide">{s.lbl}</div>
-              </div>
-            ))}
+      <section ref={brandRef} className="py-20 sm:py-28 lg:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-10 sm:gap-16 lg:gap-24">
+
+            {/* Left: brand label */}
+            <div className="flex-shrink-0 sm:pt-[0.2em] sm:pr-12 lg:pr-16 sm:border-r sm:border-brand-200">
+              <span
+                ref={brandLabelRef}
+                className="block text-[11px] font-semibold tracking-[0.45em] text-black uppercase"
+                style={{ fontFamily: 'var(--font-heading), sans-serif', overflow: 'hidden', paddingBottom: '0.1em' }}
+              >
+                RAHATLYK
+              </span>
+            </div>
+
+            {/* Right: brand statement */}
+            <div className="flex-1 min-w-0">
+              <p
+                ref={brandTextRef}
+                className="text-sm sm:text-[15px] text-black leading-[1.55] font-light"
+                style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+              >
+                {(() => {
+                  const text = t.home.brand.text;
+                  const idx  = text.indexOf(' ');
+                  if (idx === -1) return text;
+                  return (
+                    <>
+                      <strong className="font-bold">{text.slice(0, idx)}</strong>
+                      {text.slice(idx)}
+                    </>
+                  );
+                })()}
+              </p>
+            </div>
+
           </div>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════
+          HORIZONTAL SCROLL — pinned panels
+      ══════════════════════════════════════════ */}
+      <HorizontalScrollSection />
 
       {/* ══════════════════════════════════════════
           COLLECTIONS — VOSS-style 4-panel
@@ -669,7 +1033,7 @@ export default function HomePage() {
       >
         {/* ── Full-section background photo ── */}
         <Image
-          src="/story/photo-8.jpg"
+          src="/reference/62e2cf43262eaf2729f83b11_4.jpg"
           alt="Mountain lake — the source behind RAHATLYK purity"
           fill
           className="object-cover object-center"
@@ -677,41 +1041,29 @@ export default function HomePage() {
           priority
         />
 
-        {/* ── Overlay: stronger on the left so text is readable ── */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
+        {/* ── Overlay: centred text needs even coverage ── */}
+        <div className="absolute inset-0 bg-black/45" />
         {/* ── Bottom vignette ── */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
         {/* ── Content ── */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-24">
-          <div className="max-w-xl">
+          <div className="max-w-xl mx-auto text-center">
 
-            <span className="story-animate block text-brand-300 text-xs font-bold tracking-[0.22em] uppercase mb-4">
+            <span className="story-animate block text-brand-300 text-[10px] font-bold tracking-[0.22em] uppercase mb-4">
               {t.home.story.tag}
             </span>
 
             <h2
-              className="story-animate text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-6"
+              className="story-animate text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-5"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.home.story.title}
             </h2>
 
-            <p className="story-animate text-white/65 text-base sm:text-lg leading-relaxed mb-10">
+            <p className="story-animate text-white/65 text-sm sm:text-base leading-relaxed">
               {t.home.story.text}
             </p>
-
-            <div className="story-animate flex items-center gap-4">
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 bg-white text-brand-900 text-[0.9375rem] font-semibold tracking-[0.04em] uppercase px-8 py-3 rounded-[4px] hover:bg-brand-50 hover:-translate-y-0.5 transition-all duration-300 shadow-lg"
-              >
-                {t.home.story.cta}
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-            </div>
 
           </div>
         </div>
@@ -768,7 +1120,7 @@ export default function HomePage() {
               <Link
                 key={article.id}
                 href={`/news/${article.id}`}
-                className="news-card group rounded-md overflow-hidden bg-white border border-slate-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+                className="news-card group rounded-md overflow-hidden bg-white border border-brand-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5"
               >
                 {/* Cover photo */}
                 <div className="h-44 relative overflow-hidden">
@@ -785,7 +1137,7 @@ export default function HomePage() {
                   </span>
                 </div>
                 <div className="p-5">
-                  <p className="text-slate-400 text-xs mb-2.5">{article.date}</p>
+                  <p className="text-brand-400 text-xs mb-2.5">{article.date}</p>
                   <h3 className="font-bold text-brand-950 text-sm leading-snug group-hover:text-brand-700 transition-colors duration-200">
                     {article.title}
                   </h3>
@@ -805,19 +1157,7 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════
           CTA BANNER
       ══════════════════════════════════════════ */}
-      <section className="relative py-24 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/5" />
-          <div className="absolute top-1/2 left-1/4 w-48 h-48 rounded-full bg-white/5" />
-          <div className="absolute -bottom-12 right-1/3 w-64 h-64 rounded-full bg-white/5" />
-          <svg
-            className="absolute bottom-0 left-0 right-0 w-full opacity-10"
-            viewBox="0 0 1440 80"
-            preserveAspectRatio="none"
-          >
-            <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="white" />
-          </svg>
-        </div>
+      <section className="relative py-24 bg-brand-950 overflow-hidden">
         <div className="relative max-w-3xl mx-auto px-5 sm:px-8 text-center">
           {/* Monochrome water-drop icon */}
           <div className="flex justify-center mb-5">
@@ -844,6 +1184,31 @@ export default function HomePage() {
               <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          STATS BAND
+      ══════════════════════════════════════════ */}
+      <section className="bg-brand-950 py-14">
+        <div className="max-w-5xl mx-auto px-5 sm:px-8">
+          <div ref={statsRef} className="grid grid-cols-3 gap-6 sm:gap-12 text-center">
+            {[
+              { val: t.home.story.stat1, lbl: t.home.story.stat1Label },
+              { val: t.home.story.stat2, lbl: t.home.story.stat2Label },
+              { val: t.home.story.stat3, lbl: t.home.story.stat3Label },
+            ].map((s, i) => (
+              <div key={i}>
+                <div
+                  className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-1.5"
+                  style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+                >
+                  {s.val}
+                </div>
+                <div className="text-brand-200 text-xs sm:text-sm tracking-wide">{s.lbl}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

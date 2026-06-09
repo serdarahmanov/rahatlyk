@@ -178,6 +178,8 @@ export default function ArticlePage() {
             <span>/</span>
             <Link href="/news" className="hover:text-white transition-colors">{t.nav.news}</Link>
             <span>/</span>
+            <Link href={`/news?category=${encodeURIComponent(article.category)}`} className="hover:text-white transition-colors capitalize">{article.category}</Link>
+            <span>/</span>
             <span className="text-white/90 truncate max-w-[200px]">{article.title}</span>
           </nav>
 

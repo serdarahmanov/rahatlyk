@@ -59,6 +59,9 @@ export const translations = {
         title: 'Stay Refreshed & Informed',
         cta: 'View All News',
       },
+      brand: {
+        text: 'RAHATLYK water is drawn from the pristine underground aquifers of Turkmenistan, where nature has spent centuries filtering and perfecting each drop. We capture this exceptional purity with an unwavering commitment to quality, integrity, and elegance — ensuring that every sip delivers not just refreshment, but a genuine moment of natural wellbeing.',
+      },
       ctaBanner: {
         title: 'Stay Pure, Stay Hydrated',
         subtitle: 'Discover the full range of RAHATLYK beverages crafted for every moment of your day.',
@@ -254,6 +257,9 @@ export const translations = {
         title: 'Будьте в курсе',
         cta: 'Все новости',
       },
+      brand: {
+        text: 'Вода RAHATLYK берётся из чистейших подземных водоносных горизонтов Туркменистана, где природа на протяжении столетий фильтровала и совершенствовала каждую каплю. Мы сохраняем эту исключительную чистоту с непоколебимой преданностью качеству, честности и изяществу — гарантируя, что каждый глоток приносит не просто освежение, а истинный момент природного благополучия.',
+      },
       ctaBanner: {
         title: 'Чистота и гидратация каждый день',
         subtitle: 'Откройте весь ассортимент напитков RAHATLYK, созданных для каждого момента.',
@@ -448,6 +454,9 @@ export const translations = {
         tag: 'Soňky habarlar',
         title: 'Habarlary yzarlaň',
         cta: 'Ähli habarlary görüň',
+      },
+      brand: {
+        text: 'RAHATLYK suwy Türkmenistanyň arassa ýerasty suw gatlaklaryndan alynýar — bu ýerde tebigat asyrlar boýy her damjany süzüp kämilleşdirdi. Biz bu ajaýyp arassalygy hile, dogruçyllyga we gözellige bolan berk ygrarlylygyňyz bilen goraýarys — her ukybyňyzyň diňe täzelenmäni däl, tebigy abadançylygyň hakyky pursadyny berýändigini üpjün edýäris.',
       },
       ctaBanner: {
         title: 'Arassa we suwly boluň',

@@ -199,6 +199,8 @@ export default function VacancyDetailPage() {
             <span>/</span>
             <Link href="/vacancies" className="hover:text-brand-700 transition-colors">Vacancies</Link>
             <span>/</span>
+            <Link href={`/vacancies?department=${encodeURIComponent(vacancy.department)}`} className="hover:text-brand-700 transition-colors">{vacancy.department}</Link>
+            <span>/</span>
             <span className="text-slate-600">{vacancy.title}</span>
           </nav>
 
@@ -249,34 +251,10 @@ export default function VacancyDetailPage() {
                 <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </a>
-            <button
-              onClick={() => router.back()}
-              className="btn-outline"
-            >
-              ← All Vacancies
-            </button>
           </div>
         </div>
       </section>
 
-      {/* ── Quick stats strip ── */}
-      <section className="bg-slate-50 border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10 py-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-            {[
-              { label: 'Department', value: vacancy.department },
-              { label: 'Employment', value: vacancy.type === 'fullTime' ? 'Full-Time' : 'Part-Time' },
-              { label: 'Location',   value: vacancy.location },
-              { label: 'Posted',     value: vacancy.postedDate },
-            ].map((s) => (
-              <div key={s.label} className="bg-white rounded-md p-4 border border-slate-100 shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
-                <p className="text-slate-800 text-sm font-semibold">{s.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── Tabs + Content ── */}
       <section className="py-14 bg-white" ref={detailRef}>
@@ -475,10 +453,10 @@ export default function VacancyDetailPage() {
 
       {/* ── Other Openings ── */}
       {others.length > 0 && (
-        <section className="py-14 bg-brand-950">
+        <section className="py-14 bg-brand-50 border-t border-brand-100">
           <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
             <h2
-              className="text-xl font-bold text-white mb-8"
+              className="text-xl font-bold text-brand-950 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Other Openings
@@ -488,12 +466,12 @@ export default function VacancyDetailPage() {
                 <Link
                   key={v.id}
                   href={`/vacancies/${v.id}`}
-                  className="group bg-brand-900/50 hover:bg-brand-900/60 border border-brand-900 hover:border-brand-700 rounded-md p-5 transition-all duration-300"
+                  className="group bg-white hover:shadow-xl hover:-translate-y-1.5 rounded-2xl p-5 transition-[box-shadow,transform] duration-300"
                 >
                   <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-3 ${DEPT_CONFIG[v.department].badge}`}>
                     {v.department}
                   </span>
-                  <h3 className="text-white text-sm font-bold mb-1 group-hover:text-brand-300 transition-colors">
+                  <h3 className="text-brand-950 text-sm font-bold mb-1 group-hover:text-brand-700 transition-colors">
                     {v.title}
                   </h3>
                   <p className="text-brand-400 text-xs">{v.location}</p>

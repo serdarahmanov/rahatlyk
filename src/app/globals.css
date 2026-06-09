@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Sarwan Brand Blue: #0a23a5 (Pantone 2736 C) ── */
-  --color-brand-50:  #eef0fc;
-  --color-brand-100: #d8dbf8;
-  --color-brand-200: #b5baf3;
-  --color-brand-300: #8a95ee;
-  --color-brand-400: #6171e8;
-  --color-brand-500: #404de1;
-  --color-brand-600: #2e3bd4;
-  --color-brand-700: #242fc2;
-  --color-brand-800: #1b25b0;
-  --color-brand-900: #0a23a5;
-  --color-brand-950: #07165c;
+  /* ── RAHATLYK — Black / Beige / White palette ── */
+  --color-brand-50:  #faf8f4;   /* warm off-white        */
+  --color-brand-100: #f0e8d8;   /* light cream / beige   */
+  --color-brand-200: #dfd0b8;   /* soft beige            */
+  --color-brand-300: #c8ad88;   /* warm tan              */
+  --color-brand-400: #a88e6a;   /* medium warm           */
+  --color-brand-500: #8a7256;   /* warm brown mid        */
+  --color-brand-600: #6e5a44;   /* dark warm             */
+  --color-brand-700: #524030;   /* dark brown            */
+  --color-brand-800: #382c22;   /* very dark warm        */
+  --color-brand-900: #1e1611;   /* near-black warm       */
+  --color-brand-950: #0f0b07;   /* almost black          */
 }
 
 * {
@@ -25,14 +25,14 @@ html {
 
 body {
   background-color: #ffffff;
-  color: #0f172a;
+  color: #0f0b07;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ---- Gradient Text ---- */
 .gradient-text {
-  background: linear-gradient(135deg, #0a23a5 0%, #242fc2 100%);
+  background: linear-gradient(135deg, #0f0b07 0%, #524030 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -43,48 +43,46 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a23a5, #07165c);
+  background: #0f0b07;
   color: #ffffff;
   padding: 0.75rem 2rem;
-  border-radius: 4px;
+  border-radius: 2px;
   font-weight: 600;
-  font-size: 0.9375rem;
-  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(10, 35, 165, 0.28);
+  transition: background 0.2s ease;
+  box-shadow: none;
   cursor: pointer;
   border: none;
   text-decoration: none;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(10, 35, 165, 0.42);
+  background: #524030;
 }
 
 .btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #0a23a5;
-  color: #0a23a5;
+  border: 1.5px solid #0f0b07;
+  color: #0f0b07;
   padding: 0.6875rem 2rem;
-  border-radius: 4px;
+  border-radius: 2px;
   font-weight: 600;
-  font-size: 0.9375rem;
-  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, color 0.2s ease;
   cursor: pointer;
   background: transparent;
   text-decoration: none;
 }
 
 .btn-outline:hover {
-  background: #0a23a5;
+  background: #0f0b07;
   color: #ffffff;
-  transform: translateY(-2px);
 }
 
 /* ---- Product photo gallery transition ---- */
@@ -143,24 +141,25 @@ body {
   width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #eef0fc;
+  background: #f0e8d8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6171e8;
+  background: #c8ad88;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #0a23a5;
+  background: #524030;
 }
 
 /* ---- Navbar scrolled shadow ---- */
 /* Applied only when scrolled; shadow transitions in via the header's transition-all duration-500 */
 header {
-  box-shadow: 0 4px 24px -4px rgba(10, 35, 165, 0);
-  transition: background-color 0.5s ease, backdrop-filter 0.5s ease, box-shadow 0.5s ease;
+  box-shadow: 0 4px 24px -4px rgba(15, 11, 7, 0);
+  transition: background-color 0.5s ease, backdrop-filter 0.5s ease,
+              box-shadow 0.5s ease;
 }
 header.nav-scrolled {
-  box-shadow: 0 4px 24px -4px rgba(10, 35, 165, 0.09);
+  box-shadow: 0 4px 24px -4px rgba(15, 11, 7, 0.08);
 }
 
 /* ---- Section fade-in utility ---- */
@@ -175,7 +174,7 @@ header.nav-scrolled {
 }
 .card-hover:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(10, 35, 165, 0.10);
+  box-shadow: 0 20px 50px rgba(15, 11, 7, 0.10);
 }
 
 /* ---- Category section animations ---- */

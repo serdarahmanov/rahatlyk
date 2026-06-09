@@ -1,7 +1,9 @@
 ﻿'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { VACANCIES, Dept } from '@/lib/data/vacancies';
 
@@ -56,13 +58,13 @@ const DEPT_ICONS: Record<Dept, React.ReactNode> = {
 };
 
 const DEPT_CONFIG: Record<Dept, { badge: string; iconBg: string; iconColor: string; accentBg: string }> = {
-  Production:         { badge: 'bg-brand-100 text-brand-800',     iconBg: 'bg-brand-100',   iconColor: 'text-brand-700',   accentBg: 'bg-brand-600'   },
-  Sales:              { badge: 'bg-emerald-100 text-emerald-700', iconBg: 'bg-emerald-100', iconColor: 'text-emerald-700', accentBg: 'bg-emerald-500' },
-  Marketing:          { badge: 'bg-violet-100 text-violet-700',   iconBg: 'bg-violet-100',  iconColor: 'text-violet-700',  accentBg: 'bg-violet-500'  },
-  Logistics:          { badge: 'bg-amber-100 text-amber-700',     iconBg: 'bg-amber-100',   iconColor: 'text-amber-700',   accentBg: 'bg-amber-500'   },
-  Finance:            { badge: 'bg-blue-100 text-blue-700',       iconBg: 'bg-blue-100',    iconColor: 'text-blue-700',    accentBg: 'bg-blue-500'    },
-  'Customer Service': { badge: 'bg-pink-100 text-pink-700',       iconBg: 'bg-pink-100',    iconColor: 'text-pink-700',    accentBg: 'bg-pink-500'    },
-  Quality:            { badge: 'bg-teal-100 text-teal-700',       iconBg: 'bg-teal-100',    iconColor: 'text-teal-700',    accentBg: 'bg-teal-500'    },
+  Production:         { badge: 'bg-brand-200 text-brand-800', iconBg: 'bg-brand-200', iconColor: 'text-brand-700', accentBg: 'bg-brand-950' },
+  Sales:              { badge: 'bg-brand-100 text-brand-700', iconBg: 'bg-brand-100', iconColor: 'text-brand-600', accentBg: 'bg-brand-800' },
+  Marketing:          { badge: 'bg-brand-200 text-brand-900', iconBg: 'bg-brand-200', iconColor: 'text-brand-800', accentBg: 'bg-brand-700' },
+  Logistics:          { badge: 'bg-brand-100 text-brand-800', iconBg: 'bg-brand-100', iconColor: 'text-brand-700', accentBg: 'bg-brand-600' },
+  Finance:            { badge: 'bg-brand-200 text-brand-700', iconBg: 'bg-brand-200', iconColor: 'text-brand-600', accentBg: 'bg-brand-500' },
+  'Customer Service': { badge: 'bg-brand-100 text-brand-800', iconBg: 'bg-brand-100', iconColor: 'text-brand-700', accentBg: 'bg-brand-400' },
+  Quality:            { badge: 'bg-brand-200 text-brand-900', iconBg: 'bg-brand-200', iconColor: 'text-brand-800', accentBg: 'bg-brand-700' },
 };
 
 const PERKS = [
@@ -113,9 +115,13 @@ const PERKS = [
 
 type FilterKey = 'all' | Dept;
 
-export default function VacanciesPage() {
+function VacanciesContent() {
   const { t } = useLanguage();
-  const [active, setActive] = useState<FilterKey>('all');
+  const searchParams = useSearchParams();
+  const initialDept = searchParams.get('department') as FilterKey | null;
+  const [active, setActive] = useState<FilterKey>(
+    initialDept && initialDept !== 'all' ? initialDept : 'all'
+  );
   const heroRef  = useRef<HTMLDivElement>(null);
   const listRef  = useRef<HTMLDivElement>(null);
   const perksRef = useRef<HTMLDivElement>(null);
@@ -186,29 +192,37 @@ export default function VacanciesPage() {
   return (
     <div className="min-h-screen">
       {/* ── Hero ── */}
-      <section className="bg-gradient-to-b from-brand-200 via-brand-50 to-white pt-32 pb-16 relative overflow-hidden border-b border-slate-200 shadow-sm">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-brand-200/70 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-brand-200/50 blur-2xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">
+      <section className="relative overflow-hidden pt-32 pb-16">
+        {/* Background image */}
+        <Image
+          src="/news/unnamed.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        {/* Glass overlay */}
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
+          <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">
             {t.vacancies.heroTag}
           </span>
           <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-brand-950 leading-tight mb-4"
+            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.vacancies.title}
           </h1>
-          <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-black text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             {t.vacancies.subtitle}
           </p>
         </div>
       </section>
 
       {/* ── Jobs ── */}
-      <section className="py-12 bg-slate-50">
+      <section className="py-12 bg-brand-50">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
 
           {/* ── Filter Tabs ── */}
@@ -217,13 +231,14 @@ export default function VacanciesPage() {
               <button
                 key={f.key}
                 onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-semibold transition-all duration-200 relative ${
                   active === f.key
-                    ? 'bg-brand-700 text-white shadow-md'
-                    : 'bg-brand-50 text-slate-600 hover:bg-brand-100 hover:text-brand-800'
+                    ? 'text-brand-950'
+                    : 'text-brand-400 hover:text-brand-700'
                 }`}
               >
                 {f.label}
+                <span className={`absolute bottom-0 left-0 h-0.5 bg-brand-950 rounded-full transition-all duration-200 ${active === f.key ? 'w-full' : 'w-0'}`} />
               </button>
             ))}
           </div>
@@ -239,9 +254,9 @@ export default function VacanciesPage() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="text-center py-20 text-slate-400 bg-white rounded-md border border-slate-200">
+            <div className="text-center py-20 text-brand-400 bg-white rounded-md border border-brand-200">
               <div className="mb-4">
-                <svg className="mx-auto text-slate-300" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="mx-auto text-brand-300" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                 </svg>
               </div>
@@ -255,7 +270,7 @@ export default function VacanciesPage() {
                   <Link
                     key={job.id}
                     href={`/vacancies/${job.id}`}
-                    className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden"
+                    className="group bg-white rounded-2xl hover:shadow-xl hover:-translate-y-1.5 transition-[box-shadow,transform] duration-300 flex flex-col overflow-hidden"
                   >
                     {/* Top accent bar */}
                     <div className={`h-1 w-full ${cfg.accentBg}`} />
@@ -271,7 +286,7 @@ export default function VacanciesPage() {
                         <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${
                           job.type === 'fullTime'
                             ? 'bg-brand-50 text-brand-700'
-                            : 'bg-slate-100 text-slate-500'
+                            : 'bg-brand-100 text-brand-500'
                         }`}>
                           {t.vacancies[job.type]}
                         </span>
@@ -291,13 +306,13 @@ export default function VacanciesPage() {
                       </h3>
 
                       {/* Description — secondary, clamped */}
-                      <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 flex-1">
+                      <p className="text-brand-500 text-sm leading-relaxed line-clamp-2 flex-1">
                         {job.shortDescription}
                       </p>
 
                       {/* Footer — tertiary: location + cta */}
-                      <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <div className="mt-5 pt-4 border-t border-brand-200 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs text-brand-400">
                           <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
                             <path d="M6.5,1 C4.3,1 2.5,2.8 2.5,5 C2.5,7.8 6.5,12 6.5,12 C6.5,12 10.5,7.8 10.5,5 C10.5,2.8 8.7,1 6.5,1 Z M6.5,6.5 A1.5,1.5 0 1,1 6.5,3.5 A1.5,1.5 0 0,1 6.5,6.5 Z" fill="currentColor"/>
                           </svg>
@@ -320,7 +335,7 @@ export default function VacanciesPage() {
       </section>
 
       {/* ── Why Join ── */}
-      <section className="py-16 bg-slate-50 border-t border-slate-100">
+      <section className="py-16 bg-brand-50 border-t border-brand-200">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
           <h2
             className="text-xl sm:text-2xl font-bold text-brand-950 text-center mb-10"
@@ -332,7 +347,7 @@ export default function VacanciesPage() {
             {PERKS.map((perk) => (
               <div
                 key={perk.titleKey}
-                className="bg-white border border-slate-100 rounded-md p-6 text-center hover:shadow-md transition-shadow duration-300"
+                className="bg-white border border-brand-200 rounded-md p-6 text-center hover:shadow-md transition-shadow duration-300"
               >
                 <div className="w-11 h-11 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-4">
                   {perk.icon}
@@ -340,7 +355,7 @@ export default function VacanciesPage() {
                 <h3 className="font-bold text-brand-900 text-sm mb-1">
                   {perks[perk.titleKey as keyof typeof perks]}
                 </h3>
-                <p className="text-slate-500 text-xs leading-relaxed">
+                <p className="text-brand-500 text-xs leading-relaxed">
                   {perks[perk.descKey as keyof typeof perks]}
                 </p>
               </div>
@@ -349,5 +364,13 @@ export default function VacanciesPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function VacanciesPage() {
+  return (
+    <Suspense>
+      <VacanciesContent />
+    </Suspense>
   );
 }

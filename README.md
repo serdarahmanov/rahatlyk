@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RAHATLYK — Corporate Website
+
+Official corporate website for **RAHATLYK**, a Turkmen water and beverage company.
+
+## Platform & Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | [Next.js 14](https://nextjs.org/) (App Router) |
+| Language | TypeScript |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com/) |
+| Animations | [GSAP](https://gsap.com/) + ScrollTrigger |
+| Images | Next.js `<Image>` (optimised) |
+| Fonts | Google Fonts via `next/font` |
+| Internationalisation | Custom context (`src/lib/i18n/`) — Turkmen & Russian |
+
+## Features
+
+- **Multi-language support** — Turkmen (`tk`) and Russian (`ru`) with a language switcher in the Navbar.
+- **Product Catalogue** — filterable grid with category tabs; individual product detail pages with image gallery (prev/next arrows appear only when a product has more than one photo).
+- **News / Blog** — filterable by category (Company, Health, Products, Sustainability); featured article banner; individual article pages with sidebar and "More Articles" section.
+- **Vacancies** — filterable by department; individual vacancy detail pages with rich job description and "Other Openings" sidebar.
+- **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
+- **Responsive design** — mobile-first, fully responsive across all breakpoints.
+- **GSAP animations** — hero entrances, scroll-triggered reveals, staggered card animations, and smooth carousel transitions.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx               # Home page (hero, brand statement, collections carousel, news, etc.)
+│   ├── products/
+│   │   ├── page.tsx           # Products listing with category filter
+│   │   └── [id]/page.tsx      # Product detail with image gallery
+│   ├── news/
+│   │   ├── page.tsx           # News listing with category filter
+│   │   └── [id]/page.tsx      # Article detail with sidebar & related articles
+│   ├── vacancies/
+│   │   ├── page.tsx           # Vacancies listing with department filter
+│   │   └── [id]/page.tsx      # Vacancy detail with other openings
+│   ├── contact/page.tsx       # Contact page
+│   ├── layout.tsx             # Root layout (Navbar, fonts, metadata)
+│   └── globals.css            # Global styles & Tailwind theme (brand colours, etc.)
+├── components/
+│   ├── Navbar.tsx             # Sticky navigation with language switcher
+│   └── PageIntro.tsx          # Reusable page hero component
+└── lib/
+    ├── i18n/
+    │   ├── LanguageContext.tsx # Language provider & useLanguage hook
+    │   └── translations.ts    # All UI strings in Turkmen and Russian
+    └── data/
+        ├── products.ts        # Product catalogue data
+        ├── news.ts            # News articles data
+        └── vacancies.ts       # Job openings data
+```
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build & Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+The project is a standard Next.js app and can be deployed to **Vercel**, **Netlify**, or any Node.js hosting environment.
 
-To learn more about Next.js, take a look at the following resources:
+## Brand Colours
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The site uses a custom `brand` colour palette defined in `globals.css`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `brand-50` — lightest background tint
+- `brand-100` / `brand-200` — subtle fills & borders
+- `brand-400` / `brand-500` / `brand-600` — mid tones (secondary text, accents)
+- `brand-700` / `brand-800` — interactive states
+- `brand-950` — near-black headings & primary text

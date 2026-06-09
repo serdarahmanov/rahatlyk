@@ -82,7 +82,7 @@ export const PRODUCTS: Product[] = [
       { label: 'TDS', value: '148 mg/L' },
     ],
     volumes: ['0.25 L', '0.5 L'],
-    photos: [],
+    photos: ['/products/FeatureProductImg_RTD_LT.png'],
   },
   {
     id: 3,

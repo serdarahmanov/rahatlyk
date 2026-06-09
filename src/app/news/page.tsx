@@ -1,24 +1,29 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { ARTICLES, NewsCategory } from '@/lib/data/news';
 
 const CATEGORY_COLORS: Record<NewsCategory, string> = {
-  company:        'bg-brand-100 text-brand-800',
-  health:         'bg-emerald-100 text-emerald-700',
-  products:       'bg-amber-100 text-amber-700',
-  sustainability: 'bg-lime-100 text-lime-700',
+  company:        'bg-brand-200 text-brand-800',
+  health:         'bg-brand-100 text-brand-700',
+  products:       'bg-brand-200 text-brand-800',
+  sustainability: 'bg-brand-100 text-brand-700',
 };
 
 type FilterKey = 'all' | NewsCategory;
 
-/* ── Page ───────────────────────────────────────────────────── */
-export default function NewsPage() {
+/* ── Inner component (uses useSearchParams) ─────────────────── */
+function NewsContent() {
   const { t } = useLanguage();
-  const [active, setActive]     = useState<FilterKey>('all');
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get('category') as FilterKey | null;
+  const [active, setActive] = useState<FilterKey>(
+    initialCategory && initialCategory !== 'all' ? initialCategory : 'all'
+  );
   const heroRef     = useRef<HTMLDivElement>(null);
   const featuredRef = useRef<HTMLDivElement>(null);
   const gridRef     = useRef<HTMLDivElement>(null);
@@ -98,31 +103,35 @@ export default function NewsPage() {
     <div className="min-h-screen">
 
       {/* ── Hero ── */}
-      <section className="bg-gradient-to-b from-brand-200 via-brand-50 to-white pt-32 pb-16 relative overflow-hidden border-b border-slate-200 shadow-sm">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-brand-200/70 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-brand-200/50 blur-2xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">{t.news.heroTag}</span>
+      <section className="relative overflow-hidden pt-32 pb-16">
+        <Image
+          src="/news/1.5liter-bottles.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
+        <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
+          <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">{t.news.heroTag}</span>
           <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-brand-950 leading-tight mb-4"
+            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.news.title}
           </h1>
-          <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto">{t.news.subtitle}</p>
+          <p className="text-black text-base sm:text-lg max-w-xl mx-auto">{t.news.subtitle}</p>
         </div>
       </section>
 
-      <div className="bg-slate-50">
+      <div className="bg-brand-50">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-12">
 
         {/* ── Featured Article ── */}
         <div ref={featuredRef}>
         <Link
           href={`/news/${featured.id}`}
-          className="group rounded-xl overflow-hidden border border-slate-200 shadow-sm mb-14 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 block"
+          className="group rounded-xl overflow-hidden border border-brand-200 shadow-sm mb-14 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 block"
         >
           <div className="relative min-h-[300px] lg:min-h-[380px] flex items-end p-8 sm:p-12 overflow-hidden">
             {/* Photo */}
@@ -159,7 +168,7 @@ export default function NewsPage() {
             </div>
           </div>
           <div className="bg-white p-8 sm:p-10">
-            <p className="text-slate-600 text-base leading-relaxed max-w-3xl">{featured.excerpt}</p>
+            <p className="text-brand-600 text-base leading-relaxed max-w-3xl">{featured.excerpt}</p>
             <span className="mt-6 inline-flex items-center gap-2 btn-primary text-sm py-2.5 px-6">
               {t.news.readMore}
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -176,13 +185,14 @@ export default function NewsPage() {
             <button
               key={f.key}
               onClick={() => setActive(f.key)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
+              className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-semibold transition-all duration-200 relative ${
                 active === f.key
-                  ? 'bg-brand-700 text-white shadow-md'
-                  : 'bg-brand-50 text-slate-600 hover:bg-brand-100 hover:text-brand-800'
+                  ? 'text-brand-950'
+                  : 'text-brand-400 hover:text-brand-700'
               }`}
             >
               {f.label}
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-brand-950 rounded-full transition-all duration-200 ${active === f.key ? 'w-full' : 'w-0'}`} />
             </button>
           ))}
         </div>
@@ -193,7 +203,7 @@ export default function NewsPage() {
             <Link
               key={article.id}
               href={`/news/${article.id}`}
-              className="group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              className="group bg-white rounded-xl border border-brand-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
               {/* Card image area */}
               <div className="h-48 relative overflow-hidden">
@@ -214,14 +224,14 @@ export default function NewsPage() {
               {/* Card body */}
               <div className="p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-slate-400 text-xs">{article.date}</span>
-                  <span className="text-slate-300 text-xs">·</span>
-                  <span className="text-slate-400 text-xs">{article.readTime} {t.news.minRead}</span>
+                  <span className="text-brand-400 text-xs">{article.date}</span>
+                  <span className="text-brand-300 text-xs">·</span>
+                  <span className="text-brand-400 text-xs">{article.readTime} {t.news.minRead}</span>
                 </div>
                 <h3 className="font-bold text-brand-950 text-sm leading-snug mb-2 group-hover:text-brand-700 transition-colors duration-200">
                   {article.title}
                 </h3>
-                <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">{article.excerpt}</p>
+                <p className="text-brand-500 text-xs leading-relaxed line-clamp-2">{article.excerpt}</p>
                 <span className="mt-4 flex items-center gap-1 text-xs font-semibold text-brand-700 group-hover:gap-2 transition-all duration-200">
                   {t.news.readMore}
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -234,7 +244,7 @@ export default function NewsPage() {
         </div>
 
         {filteredRest.length === 0 && (
-          <div className="text-center py-20 text-slate-400">
+          <div className="text-center py-20 text-brand-400">
             <div className="text-5xl mb-4">📰</div>
             <p className="text-lg font-medium">No articles in this category yet.</p>
           </div>
@@ -243,5 +253,14 @@ export default function NewsPage() {
       </div>
       </div>
     </div>
+  );
+}
+
+/* ── Page export ─────────────────────────────────────────────── */
+export default function NewsPage() {
+  return (
+    <Suspense>
+      <NewsContent />
+    </Suspense>
   );
 }

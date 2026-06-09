@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 /* ── Contact info items ─────────────────────────────────────── */
@@ -24,8 +25,8 @@ const INFO_ITEMS = [
     ),
     labelKey: 'phone',
     valueKey: 'phoneValue',
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-600',
+    bg: 'bg-brand-100',
+    text: 'text-brand-700',
   },
   {
     icon: (
@@ -35,8 +36,8 @@ const INFO_ITEMS = [
     ),
     labelKey: 'email',
     valueKey: 'emailValue',
-    bg: 'bg-violet-50',
-    text: 'text-violet-600',
+    bg: 'bg-brand-200',
+    text: 'text-brand-800',
   },
   {
     icon: (
@@ -47,8 +48,8 @@ const INFO_ITEMS = [
     ),
     labelKey: 'hours',
     valueKey: 'hoursValue',
-    bg: 'bg-amber-50',
-    text: 'text-amber-600',
+    bg: 'bg-brand-100',
+    text: 'text-brand-600',
   },
 ] as const;
 
@@ -139,19 +140,24 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* ── Hero ── */}
-      <section className="bg-gradient-to-b from-brand-50 to-white pt-32 pb-16 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-brand-100/60 blur-3xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">{t.contact.heroTag}</span>
+      <section className="relative overflow-hidden pt-32 pb-16">
+        <Image
+          src="/story/photo-1.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
+        <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
+          <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">{t.contact.heroTag}</span>
           <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-brand-950 leading-tight mb-4"
+            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.contact.title}
           </h1>
-          <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-black text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             {t.contact.subtitle}
           </p>
         </div>
@@ -165,15 +171,15 @@ export default function ContactPage() {
             {/* ── Form ── */}
             <div ref={formRef}>
               {submitted ? (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-md p-10 text-center">
+                <div className="bg-brand-100 border border-brand-200 rounded-md p-10 text-center">
                   <div className="text-5xl mb-4">✅</div>
                   <h3
-                    className="text-2xl font-bold text-emerald-700 mb-2"
+                    className="text-2xl font-bold text-brand-900 mb-2"
                     style={{ fontFamily: 'var(--font-heading), sans-serif' }}
                   >
                     Message Sent!
                   </h3>
-                  <p className="text-emerald-600 text-base">{f.success}</p>
+                  <p className="text-brand-700 text-base">{f.success}</p>
                   <button
                     onClick={() => { setSubmitted(false); setForm({ name: '', email: '', phone: '', subject: '', message: '' }); }}
                     className="mt-6 btn-primary"
@@ -196,7 +202,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         placeholder={f.namePlaceholder}
-                        className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
+                        className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
                     <div>
@@ -210,7 +216,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         placeholder={f.emailPlaceholder}
-                        className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
+                        className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
                   </div>
@@ -227,7 +233,7 @@ export default function ContactPage() {
                         value={form.phone}
                         onChange={handleChange}
                         placeholder={f.phonePlaceholder}
-                        className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
+                        className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
                     <div>
@@ -241,7 +247,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         placeholder={f.subjectPlaceholder}
-                        className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
+                        className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
                   </div>
@@ -258,7 +264,7 @@ export default function ContactPage() {
                       required
                       rows={6}
                       placeholder={f.messagePlaceholder}
-                      className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300 resize-none"
+                      className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300 resize-none"
                     />
                   </div>
 
@@ -291,7 +297,7 @@ export default function ContactPage() {
             {/* ── Contact Info ── */}
             <div ref={infoRef} className="space-y-4">
               {/* Info card */}
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-8 mb-2">
+              <div className="bg-brand-50 border border-brand-200 rounded-md p-8 mb-2">
                 <h3
                   className="text-base font-bold text-brand-950 mb-6"
                   style={{ fontFamily: 'var(--font-heading), sans-serif' }}
@@ -305,10 +311,10 @@ export default function ContactPage() {
                         <span className="scale-75">{item.icon}</span>
                       </div>
                       <div>
-                        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-0.5">
+                        <p className="text-brand-400 text-[10px] font-bold uppercase tracking-widest mb-0.5">
                           {info[item.labelKey as keyof typeof info]}
                         </p>
-                        <p className="text-slate-700 text-sm leading-relaxed">
+                        <p className="text-brand-800 text-sm leading-relaxed">
                           {info[item.valueKey as keyof typeof info]}
                         </p>
                       </div>
@@ -323,7 +329,7 @@ export default function ContactPage() {
                 <div className="relative text-center">
                   <div className="text-4xl mb-2">🗺️</div>
                   <p className="text-brand-700 text-sm font-semibold">Ashgabat, Turkmenistan</p>
-                  <p className="text-slate-400 text-xs mt-1">Bitarap Turkmenistan Ave, 15</p>
+                  <p className="text-brand-400 text-xs mt-1">Bitarap Turkmenistan Ave, 15</p>
                 </div>
                 {/* Decorative dots */}
                 <div className="absolute top-4 left-4 w-2 h-2 bg-brand-300 rounded-full" />
