@@ -19,14 +19,17 @@ export default function ProductVisual({ product, size = 'sm', className = '' }: 
   if (size === 'sm') {
     // Fills whatever container the card gives us (w-full h-full)
     return (
-      <div className="relative w-full h-full">
-        <Image
-          src={src}
-          alt={product.name}
-          fill
-          className="object-cover object-top"
-          sizes="(max-width: 640px) 200px, 320px"
-        />
+      <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
+        {/* Inner div: 70% of the container height — image scales within this */}
+        <div className="relative w-full h-[70%] -translate-y-[8%]">
+          <Image
+            src={src}
+            alt={product.name}
+            fill
+            className="object-contain object-center"
+            sizes="(max-width: 640px) 200px, 320px"
+          />
+        </div>
       </div>
     );
   }

@@ -142,7 +142,7 @@ function ProductsContent() {
                 className="group relative bg-white rounded-2xl overflow-hidden h-[420px] hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300"
               >
                 {/* Product visual — 75% of card height, pushed up */}
-                <div className="absolute top-0 inset-x-0 h-[75%]">
+                <div className="absolute inset-0 overflow-hidden">
                   <ProductVisual product={product} size="sm" className="w-full h-full" />
                 </div>
 

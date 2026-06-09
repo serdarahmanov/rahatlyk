@@ -6,49 +6,74 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 
 | Layer | Technology |
 |---|---|
-| Framework | [Next.js 14](https://nextjs.org/) (App Router) |
+| Framework | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
 | Language | TypeScript |
 | Styling | [Tailwind CSS v4](https://tailwindcss.com/) |
 | Animations | [GSAP](https://gsap.com/) + ScrollTrigger |
 | Images | Next.js `<Image>` (optimised) |
 | Fonts | Google Fonts via `next/font` |
-| Internationalisation | Custom context (`src/lib/i18n/`) — Turkmen & Russian |
+| Internationalisation | Custom context (`src/lib/i18n/`) — Turkmen, Russian & English |
+| Email | Nodemailer + Gmail SMTP (contact & vacancy forms) |
 
 ## Features
 
-- **Multi-language support** — Turkmen (`tk`) and Russian (`ru`) with a language switcher in the Navbar.
+- **Multi-language support** — Turkmen (`tm`), Russian (`ru`) and English (`en`) with a language switcher in the Navbar.
 - **Product Catalogue** — filterable grid with category tabs; individual product detail pages with image gallery (prev/next arrows appear only when a product has more than one photo).
 - **News / Blog** — filterable by category (Company, Health, Products, Sustainability); featured article banner; individual article pages with sidebar and "More Articles" section.
 - **Vacancies** — filterable by department; individual vacancy detail pages with rich job description and "Other Openings" sidebar.
+- **Contact & Vacancy forms** — server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user (from `noreply@`) and a notification email with CV attachment to the company (from `website@`).
 - **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
 - **Responsive design** — mobile-first, fully responsive across all breakpoints.
-- **GSAP animations** — hero entrances, scroll-triggered reveals, staggered card animations, and smooth carousel transitions.
+- **GSAP animations** — hero entrances, scroll-triggered reveals, staggered card animations, smooth carousel transitions, and horizontal scroll section.
+- **Live water gradient** — animated CSS blob gradient on the CTA banner, about-page stats band, and "Our Story" card using layered radial blurs with keyframe drift + pulse animations.
+
+## Pages
+
+| Route | Description |
+|---|---|
+| `/` | Home — hero, brand statement, horizontal scroll showcase, collections carousel, news preview, CTA banner |
+| `/about` | About — parallax hero, live-gradient stats band (20+ years, 50+ products, 5M+ customers), story timeline, mission, values, team |
+| `/products` | Products listing with category filter |
+| `/products/[id]` | Product detail with image gallery |
+| `/news` | News listing with category filter |
+| `/news/[id]` | Article detail with sidebar & related articles |
+| `/vacancies` | Vacancies listing with department filter |
+| `/vacancies/[id]` | Vacancy detail with application form |
+| `/contact` | Contact page with form & success state |
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx               # Home page (hero, brand statement, collections carousel, news, etc.)
+│   ├── page.tsx               # Home page
+│   ├── about/page.tsx         # About page
 │   ├── products/
-│   │   ├── page.tsx           # Products listing with category filter
-│   │   └── [id]/page.tsx      # Product detail with image gallery
+│   │   ├── page.tsx           # Products listing
+│   │   └── [id]/page.tsx      # Product detail
 │   ├── news/
-│   │   ├── page.tsx           # News listing with category filter
-│   │   └── [id]/page.tsx      # Article detail with sidebar & related articles
+│   │   ├── page.tsx           # News listing
+│   │   └── [id]/page.tsx      # Article detail
 │   ├── vacancies/
-│   │   ├── page.tsx           # Vacancies listing with department filter
-│   │   └── [id]/page.tsx      # Vacancy detail with other openings
-│   ├── contact/page.tsx       # Contact page
-│   ├── layout.tsx             # Root layout (Navbar, fonts, metadata)
-│   └── globals.css            # Global styles & Tailwind theme (brand colours, etc.)
+│   │   ├── page.tsx           # Vacancies listing
+│   │   └── [id]/page.tsx      # Vacancy detail + application form
+│   ├── contact/page.tsx       # Contact form
+│   ├── api/
+│   │   ├── contact/route.ts   # Contact form email handler
+│   │   └── vacancy/route.ts   # Vacancy application email handler (with CV attachment)
+│   ├── layout.tsx             # Root layout (Navbar, Footer, fonts, metadata)
+│   └── globals.css            # Global styles, Tailwind theme, animation keyframes
 ├── components/
 │   ├── Navbar.tsx             # Sticky navigation with language switcher
-│   └── PageIntro.tsx          # Reusable page hero component
+│   ├── Footer.tsx             # Site footer with links & social icons
+│   └── ProductVisual.tsx      # Product image component (sm card / lg detail modes)
 └── lib/
     ├── i18n/
     │   ├── LanguageContext.tsx # Language provider & useLanguage hook
-    │   └── translations.ts    # All UI strings in Turkmen and Russian
+    │   └── translations.ts    # All UI strings (tm / ru / en)
+    ├── email/
+    │   ├── templates.ts       # HTML email templates (warm brand palette)
+    │   └── i18n.ts            # Email copy in tm / ru / en
     └── data/
         ├── products.ts        # Product catalogue data
         ├── news.ts            # News articles data
@@ -64,6 +89,18 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+GMAIL_USER=your@gmail.com
+GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
+NOREPLY_EMAIL=noreply@yourdomain.com
+WEBSITE_EMAIL=website@yourdomain.com
+```
+
 ## Build & Deploy
 
 ```bash
@@ -75,10 +112,18 @@ The project is a standard Next.js app and can be deployed to **Vercel**, **Netli
 
 ## Brand Colours
 
-The site uses a custom `brand` colour palette defined in `globals.css`:
+The site uses a warm black / beige / white `brand` palette defined in `globals.css`:
 
-- `brand-50` — lightest background tint
-- `brand-100` / `brand-200` — subtle fills & borders
-- `brand-400` / `brand-500` / `brand-600` — mid tones (secondary text, accents)
-- `brand-700` / `brand-800` — interactive states
-- `brand-950` — near-black headings & primary text
+| Token | Hex | Usage |
+|---|---|---|
+| `brand-50` | `#faf8f4` | Warm off-white backgrounds |
+| `brand-100` | `#f0e8d8` | Light cream fills & borders |
+| `brand-200` | `#dfd0b8` | Soft beige dividers |
+| `brand-300` | `#c8ad88` | Warm tan accents |
+| `brand-400` | `#a88e6a` | Secondary text, labels |
+| `brand-500` | `#8a7256` | Mid warm tone |
+| `brand-600` | `#6e5a44` | Hover states |
+| `brand-700` | `#524030` | Dark warm |
+| `brand-800` | `#382c22` | Very dark warm |
+| `brand-900` | `#1e1611` | Near-black warm |
+| `brand-950` | `#0f0b07` | Almost black — headings & primary text |

@@ -55,11 +55,12 @@ const INFO_ITEMS = [
 
 /* ── Page ───────────────────────────────────────────────────── */
 export default function ContactPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     subject: '',
@@ -71,9 +72,12 @@ export default function ContactPage() {
   const infoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let st: any;
     const init = async () => {
       const { gsap } = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      st = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
       if (heroRef.current) {
@@ -114,24 +118,34 @@ export default function ContactPage() {
       }
     };
     init();
-    return () => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        ScrollTrigger.getAll().forEach((t) => t.kill());
-      });
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return () => st?.getAll().forEach((t: any) => t.kill());
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, locale }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
       setSubmitted(true);
-    }, 1200);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const f = t.contact.form;
@@ -171,40 +185,81 @@ export default function ContactPage() {
             {/* ── Form ── */}
             <div ref={formRef}>
               {submitted ? (
-                <div className="bg-brand-100 border border-brand-200 rounded-md p-10 text-center">
-                  <div className="text-5xl mb-4">✅</div>
-                  <h3
-                    className="text-2xl font-bold text-brand-900 mb-2"
-                    style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-                  >
-                    Message Sent!
-                  </h3>
-                  <p className="text-brand-700 text-base">{f.success}</p>
+                <div className="py-10">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-brand-700">
+                        <path d="M22 2 11 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M22 2 15 22 11 13 2 9l20-7z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-brand-950" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+                        Message Sent
+                      </h3>
+                      <p className="text-brand-500 text-sm mt-0.5">
+                        Thanks <span className="font-semibold text-brand-800">{form.firstName} {form.lastName}</span> — a confirmation has been sent to <span className="font-semibold text-brand-800">{form.email}</span>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-brand-100 pt-6 space-y-4">
+                    <p className="text-[10px] font-bold text-brand-300 uppercase tracking-[0.2em]">What happens next</p>
+                    {[
+                      { n: '01', text: <>Our team reviews your message within <strong className="text-brand-800 font-semibold">1 business day</strong>.</> },
+                      { n: '02', text: <>We&apos;ll reply directly to <strong className="text-brand-800 font-semibold">{form.email}</strong>.</> },
+                      { n: '03', text: <>For urgent enquiries call <strong className="text-brand-800 font-semibold">+993 12 000 000</strong>.</> },
+                    ].map(({ n, text }) => (
+                      <div key={n} className="flex items-start gap-3">
+                        <span className="text-[10px] font-bold text-brand-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
+                        <p className="text-sm text-brand-600 leading-relaxed">{text}</p>
+                      </div>
+                    ))}
+                  </div>
+
                   <button
-                    onClick={() => { setSubmitted(false); setForm({ name: '', email: '', phone: '', subject: '', message: '' }); }}
-                    className="mt-6 btn-primary"
+                    className="mt-8 btn-primary"
+                    onClick={() => { setSubmitted(false); setForm({ firstName: '', lastName: '', email: '', phone: '', subject: '', message: '' }); }}
                   >
                     Send Another Message
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Name + Email */}
+                  {/* First Name + Last Name */}
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                        {f.name} <span className="text-brand-600">*</span>
+                        {f.firstName} <span className="text-brand-600">*</span>
                       </label>
                       <input
                         type="text"
-                        name="name"
-                        value={form.name}
+                        name="firstName"
+                        value={form.firstName}
                         onChange={handleChange}
                         required
-                        placeholder={f.namePlaceholder}
+                        placeholder={f.firstNamePlaceholder}
                         className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
+                        {f.lastName} <span className="text-brand-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={form.lastName}
+                        onChange={handleChange}
+                        required
+                        placeholder={f.lastNamePlaceholder}
+                        className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email + Phone */}
+                  <div className="grid sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
                         {f.email} <span className="text-brand-600">*</span>
@@ -219,10 +274,6 @@ export default function ContactPage() {
                         className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
-                  </div>
-
-                  {/* Phone + Subject */}
-                  <div className="grid sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
                         {f.phone}
@@ -236,20 +287,22 @@ export default function ContactPage() {
                         className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
                       />
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                        {f.subject} <span className="text-brand-600">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="subject"
-                        value={form.subject}
-                        onChange={handleChange}
-                        required
-                        placeholder={f.subjectPlaceholder}
-                        className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
-                      />
-                    </div>
+                  </div>
+
+                  {/* Subject */}
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
+                      {f.subject} <span className="text-brand-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="subject"
+                      value={form.subject}
+                      onChange={handleChange}
+                      required
+                      placeholder={f.subjectPlaceholder}
+                      className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300"
+                    />
                   </div>
 
                   {/* Message */}
@@ -267,6 +320,13 @@ export default function ContactPage() {
                       className="w-full px-4 py-3 rounded border border-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-brand-800 placeholder-brand-300 transition-all bg-white hover:border-brand-300 resize-none"
                     />
                   </div>
+
+                  {/* Error */}
+                  {error && (
+                    <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded px-4 py-3">
+                      {error}
+                    </p>
+                  )}
 
                   {/* Submit */}
                   <button

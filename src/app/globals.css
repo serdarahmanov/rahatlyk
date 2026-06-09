@@ -177,6 +177,45 @@ header.nav-scrolled {
   box-shadow: 0 20px 50px rgba(15, 11, 7, 0.10);
 }
 
+/* ---- Live water gradient blob animations ---- */
+@keyframes water-drift-1 {
+  0%   { transform: translate(0%,    0%)   scale(1);    }
+  25%  { transform: translate(6%,   -8%)   scale(1.07); }
+  50%  { transform: translate(12%,  -3%)   scale(1.03); }
+  75%  { transform: translate(5%,    7%)   scale(1.08); }
+  100% { transform: translate(0%,    0%)   scale(1);    }
+}
+@keyframes water-drift-2 {
+  0%   { transform: translate(0%,   0%)   scale(1);    }
+  30%  { transform: translate(-8%,  6%)   scale(1.06); }
+  60%  { transform: translate(-4%, -7%)   scale(1.04); }
+  100% { transform: translate(0%,   0%)   scale(1);    }
+}
+@keyframes water-drift-3 {
+  0%   { transform: translate(0%,   0%)   scale(1);    }
+  40%  { transform: translate(7%,   5%)   scale(1.05); }
+  70%  { transform: translate(-5%,  8%)   scale(1.08); }
+  100% { transform: translate(0%,   0%)   scale(1);    }
+}
+@keyframes water-drift-4 {
+  0%   { transform: translate(0%,   0%)   scale(1);    }
+  35%  { transform: translate(-6%, -5%)   scale(1.06); }
+  65%  { transform: translate(4%,  -9%)   scale(1.04); }
+  100% { transform: translate(0%,   0%)   scale(1);    }
+}
+@keyframes water-pulse {
+  0%,  100% { opacity: var(--op-from); }
+  50%       { opacity: var(--op-to);   }
+}
+
+.water-blob-1 { animation: water-drift-1 3s ease-in-out infinite, water-pulse 1.8s ease-in-out infinite; --op-from: 0.65; --op-to: 0.85; }
+.water-blob-2 { animation: water-drift-2 4s ease-in-out infinite, water-pulse 2s ease-in-out infinite 0.4s; --op-from: 0.45; --op-to: 0.65; }
+.water-blob-3 { animation: water-drift-3 2.8s ease-in-out infinite, water-pulse 1.6s ease-in-out infinite 0.2s; --op-from: 0.55; --op-to: 0.75; }
+.water-blob-4 { animation: water-drift-4 3.5s ease-in-out infinite, water-pulse 2.2s ease-in-out infinite 0.6s; --op-from: 0.70; --op-to: 0.88; }
+.water-blob-5 { animation: water-drift-1 4.5s ease-in-out infinite reverse, water-pulse 2.4s ease-in-out infinite 0.3s; --op-from: 0.35; --op-to: 0.55; }
+.water-blob-stats-1 { animation: water-drift-2 4s ease-in-out infinite, water-pulse 2s ease-in-out infinite; --op-from: 0.45; --op-to: 0.65; }
+.water-blob-stats-2 { animation: water-drift-3 3.2s ease-in-out infinite 0.8s, water-pulse 1.8s ease-in-out infinite 0.5s; --op-from: 0.40; --op-to: 0.60; }
+
 /* ---- Category section animations ---- */
 @keyframes catSlideUp {
   from { opacity: 0; transform: translateY(32px); }

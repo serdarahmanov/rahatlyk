@@ -89,7 +89,7 @@ export default function Footer() {
 
           {/* ── Quick links ── */}
           <div>
-            <h4 className="font-semibold text-[10px] tracking-[0.2em] uppercase text-black mb-5">
+            <h4 className="font-extrabold text-[10px] tracking-[0.2em] uppercase text-black mb-5">
               {t.footer.quickLinks}
             </h4>
             <ul className="space-y-3">
@@ -108,7 +108,7 @@ export default function Footer() {
 
           {/* ── Company + contact ── */}
           <div>
-            <h4 className="font-semibold text-[10px] tracking-[0.2em] uppercase text-black mb-5">
+            <h4 className="font-extrabold text-[10px] tracking-[0.2em] uppercase text-black mb-5">
               {t.footer.company}
             </h4>
             <ul className="space-y-3">

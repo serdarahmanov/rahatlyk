@@ -316,24 +316,35 @@ function HorizontalScrollSection() {
 
           {/* bottom: numbered CTA block — own rounded container */}
           <div
-            className="flex-shrink-0 bg-brand-700 flex flex-col justify-center items-start overflow-hidden rounded-2xl"
-            style={{ flex: '0 0 40%', padding: '0 3.5vw' }}
+            className="relative flex-shrink-0 flex flex-col justify-center items-start overflow-hidden rounded-2xl"
+            style={{ flex: '0 0 40%', padding: '0 3.5vw', background: '#0b2e4a' }}
           >
-            <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center text-white/60 text-[11px] font-medium mb-4">
-              01
+            {/* ── Live water blobs ── */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
+              <div className="water-blob-1 absolute -top-[30%] -left-[20%] w-[70%] h-[100%] rounded-full bg-[#38c8f5] blur-[60px]" />
+              <div className="water-blob-2 absolute -top-[20%] left-[30%] w-[50%] h-[80%] rounded-full bg-[#d4f2ff] blur-[50px]" />
+              <div className="water-blob-3 absolute top-[30%] right-[-10%] w-[50%] h-[70%] rounded-full bg-[#2a9fd8] blur-[55px]" />
+              <div className="water-blob-5 absolute bottom-[-20%] left-[20%] w-[40%] h-[60%] rounded-full bg-[#a0e4fc] blur-[45px]" />
             </div>
-            <p
-              className="text-white font-bold leading-snug mb-5"
-              style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}
-            >
-              Discover our story and what drives us
-            </p>
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 bg-white text-brand-900 text-[11px] font-bold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full hover:bg-brand-50 transition-colors duration-200"
-            >
-              Our Story
-            </Link>
+            {/* ── Content ── */}
+            <div className="relative z-10 w-full">
+              <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center text-white/60 text-[11px] font-medium mb-4">
+                01
+              </div>
+              <p
+                className="text-white font-bold leading-snug mb-5"
+                style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}
+              >
+                Discover our story and what drives us
+              </p>
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 bg-white text-brand-900 text-[11px] font-bold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full hover:bg-brand-50 transition-colors duration-200"
+              >
+                Our Story
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -429,7 +440,9 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       const h = window.innerHeight - headerH;
       const isMobile = window.innerWidth < 768;
       const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
-      sectionRef.current.style.height = `${h}px`;
+      // Desktop only: add 5% extra height at the bottom (after nav icons)
+      const sectionH = isMobile ? h : Math.round(h * 1.05);
+      sectionRef.current.style.height = `${sectionH}px`;
       sectionRef.current.style.setProperty('--col-h', `${h}px`);
       sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
     };
@@ -674,7 +687,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       </div>
 
       {/* ── Bottom navigation ── */}
-      <div ref={navRef} className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-7 gap-5">
+      <div ref={navRef} className="absolute bottom-0 md:bottom-[7%] left-0 right-0 z-30 flex items-center justify-center pb-7 md:pb-0 gap-5">
 
         <button
           onClick={() => goTo(snapIndex - 1)}
@@ -730,7 +743,6 @@ export default function HomePage() {
   const brandRef      = useRef<HTMLElement>(null);
   const brandLabelRef = useRef<HTMLSpanElement>(null);
   const brandTextRef  = useRef<HTMLParagraphElement>(null);
-  const statsRef  = useRef<HTMLDivElement>(null);
   const storyRef  = useRef<HTMLDivElement>(null);
   const newsRef   = useRef<HTMLDivElement>(null);
 
@@ -870,19 +882,6 @@ export default function HomePage() {
           },
         });
         cleanupFns.push(() => st0.kill());
-      }
-
-      // Stats section
-      if (statsRef.current) {
-        const st1 = gsap.fromTo(
-          statsRef.current.children,
-          { y: 40, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out',
-            scrollTrigger: { trigger: statsRef.current, start: 'top 82%' },
-          }
-        );
-        cleanupFns.push(() => st1.scrollTrigger?.kill());
       }
 
       // Story section
@@ -1086,59 +1085,61 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Est. watermark — bottom-left ── */}
-        <span className="absolute bottom-7 left-7 z-10 text-white/35 text-[10px] font-semibold tracking-[0.22em] uppercase">
-          Est. 2003 · Turkmenistan
-        </span>
 
       </section>
 
       {/* ══════════════════════════════════════════
           NEWS PREVIEW
       ══════════════════════════════════════════ */}
-      <section className="py-24 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10" ref={newsRef}>
-          <div className="flex items-end justify-between mb-12">
+
+          {/* ── Header ── */}
+          <div className="flex items-end justify-between mb-10">
             <div>
-              <span className="text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">
+              <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand-400">
                 {t.home.news.tag}
               </span>
-              <h2
-                className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-950"
-                style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-              >
-                {t.home.news.title}
-              </h2>
             </div>
-            <Link href="/news" className="hidden sm:flex btn-outline text-sm">
-              {t.home.news.cta}
+            <Link
+              href="/news"
+              className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-black/75 group"
+            >
+              <span>{t.home.news.cta}</span>
+              <svg
+                className="group-hover:translate-x-1 transition-transform duration-200"
+                width="13" height="13" viewBox="0 0 14 14" fill="none"
+              >
+                <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          {/* ── Cards ── */}
+          <div className="grid md:grid-cols-3 gap-4 lg:gap-6">
             {NEWS_PREVIEW.map((article) => (
               <Link
                 key={article.id}
                 href={`/news/${article.id}`}
-                className="news-card group rounded-md overflow-hidden bg-white border border-brand-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+                className="news-card group cursor-pointer"
               >
-                {/* Cover photo */}
-                <div className="h-44 relative overflow-hidden">
+                {/* Tall portrait image */}
+                <div className="relative overflow-hidden rounded-sm h-[320px] sm:h-[380px] lg:h-[420px]">
                   <Image
                     src={article.image}
                     alt={article.title}
                     fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                  <span className="absolute bottom-4 left-4 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-white/20">
-                    {article.category}
-                  </span>
+                  {/* Subtle bottom fade */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </div>
-                <div className="p-5">
-                  <p className="text-brand-400 text-xs mb-2.5">{article.date}</p>
-                  <h3 className="font-bold text-brand-950 text-sm leading-snug group-hover:text-brand-700 transition-colors duration-200">
+
+                {/* Minimal text below */}
+                <div className="pt-4 pb-1">
+                  <p className="text-[10px] text-brand-400 tracking-wide mb-1.5">{article.date}</p>
+                  <h3 className="text-sm font-bold text-brand-950 leading-snug group-hover:text-brand-600 transition-colors duration-200">
                     {article.title}
                   </h3>
                 </div>
@@ -1146,18 +1147,41 @@ export default function HomePage() {
             ))}
           </div>
 
+          {/* Mobile CTA */}
           <div className="text-center mt-8 sm:hidden">
-            <Link href="/news" className="btn-outline">
-              {t.home.news.cta}
-            </Link>
+            <Link href="/news" className="btn-outline">{t.home.news.cta}</Link>
           </div>
+
         </div>
       </section>
 
       {/* ══════════════════════════════════════════
           CTA BANNER
       ══════════════════════════════════════════ */}
-      <section className="relative py-24 bg-brand-950 overflow-hidden">
+      <section className="relative py-24 overflow-hidden" style={{ background: '#0b2e4a' }}>
+        {/* ── Live water gradient blobs ── */}
+        <div className="pointer-events-none absolute inset-0">
+          {/* Deep base wash */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
+          {/* Top-left azure bloom */}
+          <div className="water-blob-1 absolute -top-[20%] -left-[10%] w-[65%] h-[75%] rounded-full bg-[#38c8f5] blur-[90px]" />
+          {/* Top-center bright highlight — like sunlight on water */}
+          <div className="water-blob-2 absolute -top-[10%] left-[25%] w-[40%] h-[55%] rounded-full bg-[#d4f2ff] blur-[70px]" />
+          {/* Mid-right cobalt swell */}
+          <div className="water-blob-3 absolute top-[20%] right-[-5%] w-[45%] h-[60%] rounded-full bg-[#2a9fd8] blur-[80px]" />
+          {/* Bottom-left deep pocket */}
+          <div className="water-blob-4 absolute bottom-[-15%] left-[10%] w-[50%] h-[50%] rounded-full bg-[#1a6ab8] blur-[70px]" />
+          {/* Center subtle glow */}
+          <div className="water-blob-5 absolute top-[35%] left-[40%] w-[30%] h-[35%] rounded-full bg-[#a0e4fc] blur-[60px]" />
+          {/* Grain overlay for organic texture */}
+          <div
+            className="absolute inset-0 opacity-[0.04] mix-blend-overlay"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundSize: '300px 300px',
+            }}
+          />
+        </div>
         <div className="relative max-w-3xl mx-auto px-5 sm:px-8 text-center">
           {/* Monochrome water-drop icon */}
           <div className="flex justify-center mb-5">
@@ -1177,40 +1201,19 @@ export default function HomePage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-white text-brand-900 text-[0.9375rem] font-semibold tracking-[0.04em] uppercase px-8 py-3 rounded-[4px] hover:bg-brand-50 hover:-translate-y-0.5 transition-all duration-300 shadow-lg"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-white/75 group"
           >
-            {t.home.ctaBanner.cta}
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <span>{t.home.ctaBanner.cta}</span>
+            <svg
+              className="group-hover:translate-x-1 transition-transform duration-200"
+              width="13" height="13" viewBox="0 0 14 14" fill="none"
+            >
+              <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </Link>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          STATS BAND
-      ══════════════════════════════════════════ */}
-      <section className="bg-brand-950 py-14">
-        <div className="max-w-5xl mx-auto px-5 sm:px-8">
-          <div ref={statsRef} className="grid grid-cols-3 gap-6 sm:gap-12 text-center">
-            {[
-              { val: t.home.story.stat1, lbl: t.home.story.stat1Label },
-              { val: t.home.story.stat2, lbl: t.home.story.stat2Label },
-              { val: t.home.story.stat3, lbl: t.home.story.stat3Label },
-            ].map((s, i) => (
-              <div key={i}>
-                <div
-                  className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-1.5"
-                  style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-                >
-                  {s.val}
-                </div>
-                <div className="text-brand-200 text-xs sm:text-sm tracking-wide">{s.lbl}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

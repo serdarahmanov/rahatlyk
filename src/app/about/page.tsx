@@ -31,6 +31,7 @@ export default function AboutPage() {
   const heroSectionRef    = useRef<HTMLElement>(null);
   const heroImageRef      = useRef<HTMLDivElement>(null);
   const heroRef           = useRef<HTMLDivElement>(null);
+  const statsRef          = useRef<HTMLDivElement>(null);
   const storyRef          = useRef<HTMLDivElement>(null);
   const valuesRef         = useRef<HTMLDivElement>(null);
   const teamRef           = useRef<HTMLDivElement>(null);
@@ -38,9 +39,12 @@ export default function AboutPage() {
   const missionImageRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let st: any;
     const init = async () => {
       const { gsap }          = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      st = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
       /* ── Hero text entrance ── */
@@ -95,6 +99,18 @@ export default function AboutPage() {
         });
       }
 
+      /* ── Stats counter reveal ── */
+      if (statsRef.current) {
+        gsap.fromTo(
+          statsRef.current.children,
+          { y: 40, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 0.8, stagger: 0.14, ease: 'power3.out',
+            scrollTrigger: { trigger: statsRef.current, start: 'top 80%' },
+          }
+        );
+      }
+
       /* ── Scroll-triggered reveals for all other sections ── */
       [storyRef, valuesRef, teamRef].forEach((ref) => {
         if (ref.current) {
@@ -120,14 +136,12 @@ export default function AboutPage() {
       }
     };
     init();
-    return () => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) =>
-        ScrollTrigger.getAll().forEach((s) => s.kill())
-      );
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return () => st?.getAll().forEach((s: any) => s.kill());
   }, []);
 
   const { story, values, team, mission } = t.about;
+  const homeStory = t.home.story;
 
   return (
     <div className="min-h-screen">
@@ -182,6 +196,46 @@ export default function AboutPage() {
           </div>
         </div>
 
+      </section>
+
+      {/* ── Stats band — live water gradient ── */}
+      <section className="relative overflow-hidden py-20" style={{ background: '#0b2e4a' }}>
+        {/* Blobs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
+          <div className="water-blob-1 absolute -top-[20%] -left-[10%] w-[65%] h-[75%] rounded-full bg-[#38c8f5] blur-[90px]" />
+          <div className="water-blob-2 absolute -top-[10%] left-[25%] w-[40%] h-[55%] rounded-full bg-[#d4f2ff] blur-[70px]" />
+          <div className="water-blob-3 absolute top-[20%] right-[-5%] w-[45%] h-[60%] rounded-full bg-[#2a9fd8] blur-[80px]" />
+          <div className="water-blob-4 absolute bottom-[-15%] left-[10%] w-[50%] h-[50%] rounded-full bg-[#1a6ab8] blur-[70px]" />
+          <div className="water-blob-5 absolute top-[35%] left-[40%] w-[30%] h-[35%] rounded-full bg-[#a0e4fc] blur-[60px]" />
+          <div
+            className="absolute inset-0 opacity-[0.04] mix-blend-overlay"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundSize: '300px 300px',
+            }}
+          />
+        </div>
+        {/* Content */}
+        <div className="relative max-w-5xl mx-auto px-5 sm:px-8">
+          <div ref={statsRef} className="grid grid-cols-3 gap-6 sm:gap-12 text-center">
+            {[
+              { val: homeStory.stat1, lbl: homeStory.stat1Label },
+              { val: homeStory.stat2, lbl: homeStory.stat2Label },
+              { val: homeStory.stat3, lbl: homeStory.stat3Label },
+            ].map((s, i) => (
+              <div key={i}>
+                <div
+                  className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-2"
+                  style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+                >
+                  {s.val}
+                </div>
+                <div className="text-sky-200/80 text-xs sm:text-sm tracking-wide">{s.lbl}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ─────────────────────────────────────── */}

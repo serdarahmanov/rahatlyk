@@ -41,9 +41,12 @@ function NewsContent() {
   const filteredRest = active === 'all' ? rest : rest.filter((a) => a.category === active);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let st: any;
     const init = async () => {
       const { gsap }          = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      st = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
       if (heroRef.current) {
@@ -68,11 +71,8 @@ function NewsContent() {
       }
     };
     init();
-    return () => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        ScrollTrigger.getAll().forEach((s) => s.kill());
-      });
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return () => st?.getAll().forEach((s: any) => s.kill());
   }, []);
 
   useEffect(() => {

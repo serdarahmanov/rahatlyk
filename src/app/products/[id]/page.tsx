@@ -50,7 +50,7 @@ function RelatedProducts({ current }: { current: Product }) {
               className="group relative bg-white rounded-2xl overflow-hidden h-[420px] hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300"
             >
               {/* Product visual — 75% of card height */}
-              <div className="absolute top-0 inset-x-0 h-[75%]">
+              <div className="absolute inset-0 overflow-hidden">
                 <ProductVisual product={p} size="sm" className="w-full h-full" />
               </div>
 
@@ -110,9 +110,12 @@ export default function ProductDetailPage() {
   const detailRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let st: any;
     const init = async () => {
       const { gsap } = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      st = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
       const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } });
@@ -171,11 +174,8 @@ export default function ProductDetailPage() {
       }
     };
     init();
-    return () => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) =>
-        ScrollTrigger.getAll().forEach((s) => s.kill())
-      );
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return () => st?.getAll().forEach((s: any) => s.kill());
   }, []);
 
   /* 404 */
@@ -288,7 +288,7 @@ export default function ProductDetailPage() {
                     src={product.photos[activePhoto]}
                     alt={`${product.name} photo ${activePhoto + 1}`}
                     fill
-                    className={`object-cover ${photoDir === 'right' ? 'photo-enter-right' : 'photo-enter-left'}`}
+                    className={`object-contain p-6 ${photoDir === 'right' ? 'photo-enter-right' : 'photo-enter-left'}`}
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     priority
                   />
