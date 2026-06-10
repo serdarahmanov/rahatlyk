@@ -94,11 +94,11 @@ function ProductsContent() {
 
         {/* Content — same layout as before */}
         <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">
+          <span className="text-black text-xs font-light tracking-[0.2em] uppercase">
             {t.products.heroTag}
           </span>
           <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4"
+            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.products.title}
@@ -119,7 +119,7 @@ function ProductsContent() {
               <button
                 key={f.key}
                 onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-semibold transition-all duration-200 relative group ${
+                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-light transition-all duration-200 relative group ${
                   active === f.key
                     ? 'text-brand-950'
                     : 'text-brand-400 hover:text-brand-700'
@@ -151,16 +151,16 @@ function ProductsContent() {
                   <p className="text-brand-400 text-xs mb-1">
                     {getCatLabel(product.category)}
                   </p>
-                  <h3 className="font-bold text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
+                  <h3 className="font-light text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
                     {product.name}
                   </h3>
                   <div className="min-w-0">
                     {product.volumes.length > 1 ? (
-                      <p className="text-sm font-semibold text-brand-600 truncate">
+                      <p className="text-sm font-light text-brand-600 truncate">
                         {product.volumes.map((v) => v.replace(' L', '')).join(' · ')}{' L'}
                       </p>
                     ) : (
-                      <p className="text-sm font-semibold text-brand-600">{product.volume}</p>
+                      <p className="text-sm font-light text-brand-600">{product.volume}</p>
                     )}
                   </div>
                 </div>

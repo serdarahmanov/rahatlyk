@@ -17,29 +17,31 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 
 ## Features
 
-- **Multi-language support** — Turkmen (`tm`), Russian (`ru`) and English (`en`) with a language switcher in the Navbar.
+- **Multi-language support** — Turkmen (`tm`), Russian (`ru`) and English (`en`) with a dropdown language switcher in the Navbar visible at all breakpoints.
+- **Full-screen mobile menu** — frosted-glass overlay with large nav links, social icons (Instagram, email), and smooth open/close transitions.
 - **Product Catalogue** — filterable grid with category tabs; individual product detail pages with image gallery (prev/next arrows appear only when a product has more than one photo).
-- **News / Blog** — filterable by category (Company, Health, Products, Sustainability); featured article banner; individual article pages with sidebar and "More Articles" section.
+- **News / Blog** — filterable by category (Company, Health, Products, Sustainability); featured article banner; individual article pages with sidebar and "More Articles" section. Homepage news section is a full-viewport auto-play infinite carousel.
 - **Vacancies** — filterable by department; individual vacancy detail pages with rich job description and "Other Openings" sidebar.
-- **Contact & Vacancy forms** — server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user (from `noreply@`) and a notification email with CV attachment to the company (from `website@`).
+- **Contact & Vacancy forms** — minimalist design (gray-fill inputs, no labels, black submit button); server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user and a notification email with CV attachment to the company.
 - **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
-- **Responsive design** — mobile-first, fully responsive across all breakpoints.
-- **GSAP animations** — hero entrances, scroll-triggered reveals, staggered card animations, smooth carousel transitions, and horizontal scroll section.
-- **Live water gradient** — animated CSS blob gradient on the CTA banner, about-page stats band, and "Our Story" card using layered radial blurs with keyframe drift + pulse animations.
+- **Responsive design** — mobile-first, fully responsive across all breakpoints. Footer link groups display in a 2-column grid on mobile.
+- **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered card animations, smooth carousel transitions, and pinned horizontal scroll section.
+- **Live water gradient** — animated CSS blob gradient on the CTA banner, about-page stats band, and collection panels using layered radial blurs with keyframe drift + pulse animations.
+- **Global typography** — site-wide `font-light` / `font-normal` weight system for a clean, editorial feel.
 
 ## Pages
 
 | Route | Description |
 |---|---|
-| `/` | Home — hero, brand statement, horizontal scroll showcase, collections carousel, news preview, CTA banner |
+| `/` | Home — hero, brand statement, horizontal scroll showcase, collections carousel, full-viewport news carousel, CTA banner |
 | `/about` | About — parallax hero, live-gradient stats band (20+ years, 50+ products, 5M+ customers), story timeline, mission, values, team |
 | `/products` | Products listing with category filter |
 | `/products/[id]` | Product detail with image gallery |
-| `/news` | News listing with category filter |
+| `/news` | News listing — featured article banner + iPhone-style portrait card grid with category filter |
 | `/news/[id]` | Article detail with sidebar & related articles |
 | `/vacancies` | Vacancies listing with department filter |
 | `/vacancies/[id]` | Vacancy detail with application form |
-| `/contact` | Contact page with form & success state |
+| `/contact` | Contact page with minimalist form & contact info |
 
 ## Project Structure
 
@@ -64,7 +66,7 @@ src/
 │   ├── layout.tsx             # Root layout (Navbar, Footer, fonts, metadata)
 │   └── globals.css            # Global styles, Tailwind theme, animation keyframes
 ├── components/
-│   ├── Navbar.tsx             # Sticky navigation with language switcher
+│   ├── Navbar.tsx             # Sticky navigation — desktop dropdown + full-screen mobile overlay
 │   ├── Footer.tsx             # Site footer with links & social icons
 │   └── ProductVisual.tsx      # Product image component (sm card / lg detail modes)
 └── lib/

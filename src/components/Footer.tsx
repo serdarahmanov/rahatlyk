@@ -56,13 +56,13 @@ export default function Footer() {
 
       {/* ── Main body ── */}
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-16 pb-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
           {/* ── Brand column ── */}
           <div className="sm:col-span-2 lg:col-span-2">
             <Link href="/" className="inline-flex mb-5">
               <span
-                className="text-2xl font-bold tracking-[0.2em] text-black"
+                className="text-2xl font-light tracking-[0.2em] text-black"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 RAHATLYK

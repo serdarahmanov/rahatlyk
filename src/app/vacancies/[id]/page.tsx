@@ -83,7 +83,7 @@ export default function VacancyDetailPage() {
         <div className="text-center px-8">
           <p className="text-7xl mb-6">🔍</p>
           <h1
-            className="text-3xl font-bold text-brand-950 mb-3"
+            className="text-3xl font-light text-brand-950 mb-3"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             Position Not Found
@@ -139,7 +139,7 @@ export default function VacancyDetailPage() {
         {vacancy.benefits && vacancy.benefits.length > 0 && (
           <>
             <h3
-              className="text-lg font-bold text-brand-950 mb-4"
+              className="text-lg font-light text-brand-950 mb-4"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Benefits & Perks
@@ -160,7 +160,7 @@ export default function VacancyDetailPage() {
       <ul className="space-y-3">
         {vacancy.responsibilities.map((r, i) => (
           <li key={i} className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed">
-            <span className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${cfg.badge}`}>
+            <span className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-light ${cfg.badge}`}>
               {i + 1}
             </span>
             {r}
@@ -172,7 +172,7 @@ export default function VacancyDetailPage() {
       <div className="space-y-8">
         <div>
           <h3
-            className="text-base font-bold text-brand-950 mb-4"
+            className="text-base font-light text-brand-950 mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             Required
@@ -189,7 +189,7 @@ export default function VacancyDetailPage() {
         {vacancy.niceToHave && vacancy.niceToHave.length > 0 && (
           <div>
             <h3
-              className="text-base font-bold text-brand-950 mb-4"
+              className="text-base font-light text-brand-950 mb-4"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Nice to Have
@@ -226,14 +226,14 @@ export default function VacancyDetailPage() {
 
           {/* Dept badge */}
           <div className="mb-4">
-            <span className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${cfg.badge}`}>
+            <span className={`inline-block text-[11px] font-light px-3 py-1 rounded-full uppercase tracking-wider ${cfg.badge}`}>
               {vacancy.department}
             </span>
           </div>
 
           {/* Title */}
           <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-950 leading-tight mb-5"
+            className="text-3xl sm:text-4xl lg:text-5xl font-light text-brand-950 leading-tight mb-5"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {vacancy.title}
@@ -258,7 +258,7 @@ export default function VacancyDetailPage() {
             {vacancy.salary && (
               <>
                 <span className="text-slate-300">·</span>
-                <span className="font-semibold text-brand-900">{vacancy.salary}</span>
+                <span className="font-light text-brand-900">{vacancy.salary}</span>
               </>
             )}
           </div>
@@ -285,7 +285,7 @@ export default function VacancyDetailPage() {
               <button
                 key={key}
                 onClick={() => setTab(key)}
-                className={`px-5 py-2 rounded text-sm font-semibold capitalize transition-all duration-200 ${
+                className={`px-5 py-2 rounded text-sm font-light capitalize transition-all duration-200 ${
                   tab === key
                     ? 'bg-white text-brand-800 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700'
@@ -301,17 +301,15 @@ export default function VacancyDetailPage() {
       </section>
 
       {/* ── Apply Form ── */}
-      <section id="apply" className="py-16 bg-brand-50 border-t border-brand-100">
+      <section id="apply" className="py-16 bg-white border-t border-gray-100">
         <div className="max-w-3xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="text-center mb-10">
-            <h2
-              className="text-3xl font-bold text-brand-950 mb-2"
-              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-            >
-              Apply for this Position
-            </h2>
-            <p className="text-slate-500 text-sm">Fill in your details and we will get back to you within 3 business days.</p>
-          </div>
+
+          <h2
+            className="text-3xl font-light text-brand-950 mb-8"
+            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+          >
+            Apply for this Position
+          </h2>
 
           {formSubmitted ? (
             <div className="py-10">
@@ -323,185 +321,140 @@ export default function VacancyDetailPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-brand-950" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+                  <h3 className="text-xl font-light text-brand-950" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
                     Application Submitted
                   </h3>
                   <p className="text-brand-500 text-sm mt-0.5">
-                    Thanks <span className="font-semibold text-brand-800">{applyForm.firstName} {applyForm.lastName}</span> — a confirmation has been sent to <span className="font-semibold text-brand-800">{applyForm.email}</span>.
+                    Thanks <span className="font-light text-brand-800">{applyForm.firstName} {applyForm.lastName}</span> — a confirmation has been sent to <span className="font-light text-brand-800">{applyForm.email}</span>.
                   </p>
                 </div>
               </div>
-
-              <div className="border-t border-brand-100 pt-6 space-y-4">
-                <p className="text-[10px] font-bold text-brand-300 uppercase tracking-[0.2em]">What happens next</p>
+              <div className="border-t border-gray-100 pt-6 space-y-4">
+                <p className="text-[10px] font-light text-gray-300 uppercase tracking-[0.2em]">What happens next</p>
                 {[
-                  { n: '01', text: <>Our HR team reviews your CV within <strong className="text-brand-800 font-semibold">3–5 business days</strong>.</> },
+                  { n: '01', text: <>Our HR team reviews your CV within <strong className="text-gray-800 font-light">3–5 business days</strong>.</> },
                   { n: '02', text: <>If shortlisted, we&apos;ll reach out to schedule an interview.</> },
-                  { n: '03', text: <>Check <strong className="text-brand-800 font-semibold">{applyForm.email}</strong> — that&apos;s where we&apos;ll contact you.</> },
+                  { n: '03', text: <>Check <strong className="text-gray-800 font-light">{applyForm.email}</strong> — that&apos;s where we&apos;ll contact you.</> },
                 ].map(({ n, text }) => (
                   <div key={n} className="flex items-start gap-3">
-                    <span className="text-[10px] font-bold text-brand-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
-                    <p className="text-sm text-brand-600 leading-relaxed">{text}</p>
+                    <span className="text-[10px] font-light text-gray-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
+                    <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
                   </div>
                 ))}
               </div>
-
               <button
                 onClick={() => { setFormSubmitted(false); setApplyForm({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', cover: '' }); setCvFile(null); }}
-                className="btn-primary mt-8"
+                className="mt-8 w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200"
               >
                 Submit Another Application
               </button>
             </div>
           ) : (
-            <form onSubmit={handleApplySubmit} className="bg-white rounded-md border border-slate-100 shadow-sm p-8 space-y-6">
+            <form onSubmit={handleApplySubmit} className="space-y-3">
+
               {/* First Name + Last Name */}
-              <div className="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                    First Name <span className="text-brand-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={applyForm.firstName}
-                    onChange={handleApplyChange}
-                    required
-                    placeholder="John"
-                    className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                    Last Name <span className="text-brand-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={applyForm.lastName}
-                    onChange={handleApplyChange}
-                    required
-                    placeholder="Doe"
-                    className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
-                  />
-                </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  name="firstName"
+                  value={applyForm.firstName}
+                  onChange={handleApplyChange}
+                  required
+                  placeholder="First name*"
+                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  value={applyForm.lastName}
+                  onChange={handleApplyChange}
+                  required
+                  placeholder="Last name*"
+                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+                />
               </div>
 
               {/* Email + Phone */}
-              <div className="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                    Email <span className="text-brand-600">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={applyForm.email}
-                    onChange={handleApplyChange}
-                    required
-                    placeholder="you@example.com"
-                    className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={applyForm.phone}
-                    onChange={handleApplyChange}
-                    placeholder="+993 65 000 000"
-                    className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300"
-                  />
-                </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <input
+                  type="email"
+                  name="email"
+                  value={applyForm.email}
+                  onChange={handleApplyChange}
+                  required
+                  placeholder="Email*"
+                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+                />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={applyForm.phone}
+                  onChange={handleApplyChange}
+                  placeholder="Phone"
+                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+                />
               </div>
 
               {/* Date of Birth */}
-              <div>
-                <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                  Date of Birth <span className="text-brand-600">*</span>
-                </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={applyForm.dateOfBirth}
-                  onChange={handleApplyChange}
-                  required
-                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 transition-all bg-white hover:border-brand-300"
-                />
-              </div>
+              <input
+                type="date"
+                name="dateOfBirth"
+                value={applyForm.dateOfBirth}
+                onChange={handleApplyChange}
+                required
+                max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
+                className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+              />
 
               {/* CV Upload */}
-              <div>
-                <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">
-                  CV / Resume <span className="text-brand-600">*</span>
-                </label>
-                <div
-                  className={`border-2 border-dashed rounded-md p-8 text-center cursor-pointer transition-all duration-200 ${
-                    dragOver ? 'border-brand-400 bg-brand-50' : 'border-slate-200 hover:border-brand-300 hover:bg-brand-50/40'
-                  }`}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setDragOver(false);
-                    const file = e.dataTransfer.files[0];
-                    if (file) setCvFile(file);
-                  }}
-                  onClick={() => document.getElementById('cv-input')?.click()}
-                >
-                  {cvFile ? (
-                    <div className="flex items-center justify-center gap-3 text-brand-800">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm font-semibold">{cvFile.name}</span>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setCvFile(null); }}
-                        className="text-slate-400 hover:text-red-400 transition-colors ml-2"
-                      >✕</button>
-                    </div>
-                  ) : (
-                    <>
-                      <svg className="mx-auto mb-3 text-slate-300" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                      </svg>
-                      <p className="text-sm text-slate-500">
-                        <span className="text-brand-700 font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">PDF, DOC, DOCX up to 5 MB</p>
-                    </>
-                  )}
-                  <input
-                    id="cv-input"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) setCvFile(f); }}
-                  />
-                </div>
+              <div
+                className={`rounded-md px-4 py-6 text-center cursor-pointer transition-all duration-200 ${
+                  dragOver ? 'bg-gray-200' : 'bg-[#f3f4f6] hover:bg-gray-200'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  const file = e.dataTransfer.files[0];
+                  if (file) setCvFile(file);
+                }}
+                onClick={() => document.getElementById('cv-input')?.click()}
+              >
+                {cvFile ? (
+                  <div className="flex items-center justify-center gap-3 text-gray-700">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span className="text-sm font-normal">{cvFile.name}</span>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setCvFile(null); }} className="text-gray-400 hover:text-red-400 transition-colors">✕</button>
+                  </div>
+                ) : (
+                  <>
+                    <svg className="mx-auto mb-2 text-gray-400" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p className="text-sm text-gray-500"><span className="font-light text-gray-700">Click to upload</span> or drag and drop</p>
+                    <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX — up to 5 MB</p>
+                  </>
+                )}
+                <input id="cv-input" type="file" accept=".pdf,.doc,.docx" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setCvFile(f); }} />
               </div>
 
               {/* Cover Letter */}
-              <div>
-                <label className="block text-xs font-semibold text-brand-900 mb-2 uppercase tracking-wide">Cover Letter</label>
-                <textarea
-                  name="cover"
-                  value={applyForm.cover}
-                  onChange={handleApplyChange}
-                  rows={5}
-                  placeholder="Tell us why you are a great fit for this role…"
-                  className="w-full px-4 py-3 rounded border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm text-slate-700 placeholder-slate-300 transition-all bg-white hover:border-brand-300 resize-none"
-                />
-              </div>
+              <textarea
+                name="cover"
+                value={applyForm.cover}
+                onChange={handleApplyChange}
+                rows={5}
+                placeholder="Cover letter — tell us why you're a great fit…"
+                className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all resize-none"
+              />
 
               {/* Error */}
               {formError && (
-                <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded px-4 py-3">
+                <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-4 py-3">
                   {formError}
                 </p>
               )}
@@ -510,7 +463,7 @@ export default function VacancyDetailPage() {
               <button
                 type="submit"
                 disabled={formSubmitting || !cvFile}
-                className="btn-primary gap-2 w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
               >
                 {formSubmitting ? (
                   <>
@@ -519,15 +472,9 @@ export default function VacancyDetailPage() {
                     </svg>
                     Submitting…
                   </>
-                ) : (
-                  <>
-                    Submit Application
-                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                      <path d="M2 14L14 2M14 2H6M14 2V10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </>
-                )}
+                ) : 'Submit Application'}
               </button>
+
             </form>
           )}
         </div>
@@ -538,7 +485,7 @@ export default function VacancyDetailPage() {
         <section className="py-14 bg-brand-50 border-t border-brand-100">
           <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
             <h2
-              className="text-xl font-bold text-brand-950 mb-8"
+              className="text-xl font-light text-brand-950 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Other Openings
@@ -550,10 +497,10 @@ export default function VacancyDetailPage() {
                   href={`/vacancies/${v.id}`}
                   className="group bg-white hover:shadow-xl hover:-translate-y-1.5 rounded-2xl p-5 transition-[box-shadow,transform] duration-300"
                 >
-                  <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-3 ${DEPT_CONFIG[v.department].badge}`}>
+                  <span className={`inline-block text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wider mb-3 ${DEPT_CONFIG[v.department].badge}`}>
                     {v.department}
                   </span>
-                  <h3 className="text-brand-950 text-sm font-bold mb-1 group-hover:text-brand-700 transition-colors">
+                  <h3 className="text-brand-950 text-sm font-light mb-1 group-hover:text-brand-700 transition-colors">
                     {v.title}
                   </h3>
                   <p className="text-brand-400 text-xs">{v.location}</p>

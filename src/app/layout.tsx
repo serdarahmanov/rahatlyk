@@ -16,7 +16,7 @@ const inter = Inter({
 const jakartaSans = Plus_Jakarta_Sans({
   variable: '--font-heading',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400', '600', '700'],
   display: 'swap',
 });
 
@@ -38,7 +38,7 @@ export default function RootLayout({
         /* Hide hero text until locale is ready (avoids locale flash).
            Hide the navbar and intro items from the very first SSR paint so
            nothing flickers before the curtain animation takes over. */
-        '#hero-content{opacity:0}header{opacity:0}.intro-item{transform:translateY(110%)}'
+        '#hero-content{opacity:0}.intro-item{transform:translateY(110%)}'
       }} /></head>
       <body
         className="min-h-screen bg-white overflow-x-hidden"

@@ -170,13 +170,13 @@ export default function AboutPage() {
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 sm:px-8"
         >
           {/* Tiny label — like VOSS "About Voss" */}
-          <span className="text-white/45 text-[10px] font-semibold tracking-[0.4em] uppercase mb-8">
+          <span className="text-white/45 text-[10px] font-light tracking-[0.4em] uppercase mb-8">
             RAHATLYK · Est. 2003
           </span>
 
           {/* Big poetic tagline — the hero moment */}
           <h1
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.08] mb-8 max-w-3xl"
+            className="text-5xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.08] mb-8 max-w-3xl"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {story.title}
@@ -226,7 +226,7 @@ export default function AboutPage() {
             ].map((s, i) => (
               <div key={i}>
                 <div
-                  className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-2"
+                  className="text-3xl sm:text-5xl lg:text-6xl font-light text-white mb-2"
                   style={{ fontFamily: 'var(--font-heading), sans-serif' }}
                 >
                   {s.val}
@@ -258,16 +258,16 @@ export default function AboutPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
             <div className="absolute bottom-8 left-8 text-white">
-              <p className="text-[10px] font-bold tracking-widest uppercase opacity-55">{story.established}</p>
-              <p className="text-base font-bold mt-0.5">{story.location}</p>
+              <p className="text-[10px] font-light tracking-widest uppercase opacity-55">{story.established}</p>
+              <p className="text-base font-light mt-0.5">{story.location}</p>
             </div>
           </div>
 
           {/* Text — internal padding only */}
           <div className="px-8 sm:px-12 lg:px-16 xl:px-24 py-20 lg:py-28 flex flex-col justify-center">
-            <span className="reveal text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">{story.tag}</span>
+            <span className="reveal text-brand-700 text-xs font-light tracking-[0.2em] uppercase">{story.tag}</span>
             <h2
-              className="reveal mt-3 text-3xl sm:text-4xl font-bold text-brand-950 leading-tight mb-6"
+              className="reveal mt-3 text-3xl sm:text-4xl font-light text-brand-950 leading-tight mb-6"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {story.title}
@@ -279,7 +279,7 @@ export default function AboutPage() {
             <div className="reveal border-t border-slate-100">
               {TIMELINE.map((item, i) => (
                 <div key={i} className="flex gap-5 py-4 border-b border-slate-100 group">
-                  <span className="flex-shrink-0 w-12 text-sm font-bold text-brand-600 pt-0.5">{item.year}</span>
+                  <span className="flex-shrink-0 w-12 text-sm font-light text-brand-600 pt-0.5">{item.year}</span>
                   <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors duration-200">
                     {item.event}
                   </p>
@@ -309,11 +309,11 @@ export default function AboutPage() {
         </div>
 
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-5 sm:px-8 text-center">
-          <span className="reveal block text-brand-950/60 text-xs font-bold tracking-[0.2em] uppercase mb-5">
+          <span className="reveal block text-brand-950/60 text-xs font-light tracking-[0.2em] uppercase mb-5">
             {mission.title}
           </span>
           <p
-            className="reveal text-xl sm:text-2xl lg:text-3xl font-semibold text-brand-950 leading-relaxed max-w-2xl"
+            className="reveal text-xl sm:text-2xl lg:text-3xl font-light text-brand-950 leading-relaxed max-w-2xl"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             &ldquo;{mission.text}&rdquo;
@@ -331,9 +331,9 @@ export default function AboutPage() {
 
           {/* Text — internal padding, mobile first */}
           <div className="px-8 sm:px-12 lg:px-16 xl:px-24 py-20 lg:py-28 flex flex-col justify-center order-2 lg:order-1">
-            <span className="reveal text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">{values.title}</span>
+            <span className="reveal text-brand-700 text-xs font-light tracking-[0.2em] uppercase">{values.title}</span>
             <h2
-              className="reveal mt-3 text-3xl sm:text-4xl font-bold text-brand-950 mb-10"
+              className="reveal mt-3 text-3xl sm:text-4xl font-light text-brand-950 mb-10"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {values.subtitle}
@@ -346,11 +346,11 @@ export default function AboutPage() {
                 { num: '04', title: values.community,      text: values.communityText     },
               ] as { num: string; title: string; text: string }[]).map((v) => (
                 <div key={v.num} className="reveal flex gap-6 py-7 border-b border-slate-100 group">
-                  <span className="flex-shrink-0 text-xs font-bold text-slate-300 w-6 pt-1 group-hover:text-brand-400 transition-colors duration-200">
+                  <span className="flex-shrink-0 text-xs font-light text-slate-300 w-6 pt-1 group-hover:text-brand-400 transition-colors duration-200">
                     {v.num}
                   </span>
                   <div>
-                    <h3 className="font-bold text-brand-950 text-base mb-1.5 group-hover:text-brand-700 transition-colors duration-200">
+                    <h3 className="font-light text-brand-950 text-base mb-1.5 group-hover:text-brand-700 transition-colors duration-200">
                       {v.title}
                     </h3>
                     <p className="text-slate-500 text-sm leading-relaxed">{v.text}</p>
@@ -381,9 +381,9 @@ export default function AboutPage() {
       <section className="py-24 bg-slate-50" ref={teamRef}>
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="mb-14">
-            <span className="reveal text-brand-700 text-xs font-bold tracking-[0.2em] uppercase">{team.title}</span>
+            <span className="reveal text-brand-700 text-xs font-light tracking-[0.2em] uppercase">{team.title}</span>
             <h2
-              className="reveal mt-3 text-3xl sm:text-4xl font-bold text-brand-950"
+              className="reveal mt-3 text-3xl sm:text-4xl font-light text-brand-950"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {team.subtitle}
@@ -393,12 +393,12 @@ export default function AboutPage() {
             {TEAM.map((member, i) => (
               <div key={i} className="reveal group text-center">
                 <div
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-lg font-bold shadow-sm group-hover:shadow-md transition-shadow duration-300"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-lg font-light shadow-sm group-hover:shadow-md transition-shadow duration-300"
                   style={{ background: member.bg, color: member.color }}
                 >
                   {member.initials}
                 </div>
-                <h3 className="font-bold text-brand-950 text-sm leading-tight">{member.name}</h3>
+                <h3 className="font-light text-brand-950 text-sm leading-tight">{member.name}</h3>
                 <p className="text-slate-400 text-xs mt-1 leading-tight">{member.role}</p>
               </div>
             ))}
@@ -421,7 +421,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-brand-950/70" />
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-5 sm:px-8 text-center">
           <h2
-            className="text-2xl sm:text-3xl font-bold text-white mb-7"
+            className="text-2xl sm:text-3xl font-light text-white mb-7"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             Ready to join the RAHATLYK family?
@@ -435,7 +435,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/vacancies"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold text-white border border-white/40 hover:bg-white/10 transition-colors duration-200"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-light text-white border border-white/40 hover:bg-white/10 transition-colors duration-200"
             >
               {t.nav.vacancies}
             </Link>

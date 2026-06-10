@@ -113,9 +113,9 @@ function NewsContent() {
         />
         <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
         <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">{t.news.heroTag}</span>
+          <span className="text-black text-xs font-light tracking-[0.2em] uppercase">{t.news.heroTag}</span>
           <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4"
+            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.news.title}
@@ -124,68 +124,60 @@ function NewsContent() {
         </div>
       </section>
 
-      <div className="bg-brand-50">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-12">
+      <div className="bg-white">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-10">
 
         {/* ── Featured Article ── */}
-        <div ref={featuredRef}>
-        <Link
-          href={`/news/${featured.id}`}
-          className="group rounded-xl overflow-hidden border border-brand-200 shadow-sm mb-14 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 block"
-        >
-          <div className="relative min-h-[300px] lg:min-h-[380px] flex items-end p-8 sm:p-12 overflow-hidden">
-            {/* Photo */}
+        <div ref={featuredRef} className="mb-8">
+          <Link
+            href={`/news/${featured.id}`}
+            className="group relative overflow-hidden rounded-2xl block"
+            style={{ height: 'clamp(340px, 46vw, 520px)' }}
+          >
             <Image
               src={featured.image}
               alt={featured.title}
               fill
-              className="object-cover object-center"
-              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              sizes="100vw"
               priority
             />
-            {/* Gradient overlay for legibility */}
-            <div className={`absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10`} />
-            <div className="absolute top-8 left-8 z-10">
-              <span className="bg-white/20 backdrop-blur text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/25">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+
+            {/* Featured pill — top left */}
+            <div className="absolute top-5 left-5 z-10">
+              <span className="backdrop-blur-xl bg-white/15 border border-white/25 text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider">
                 {t.news.featured}
               </span>
             </div>
-            <div className="relative z-10">
-              <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
-                {getCatLabel(featured.category)}
-              </span>
+
+            {/* Glass caption — bottom */}
+            <div className="absolute bottom-5 left-5 right-5 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-5 py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{getCatLabel(featured.category)}</span>
+                <span className="text-white/30">·</span>
+                <span className="text-[10px] text-white/55">{featured.date}</span>
+                <span className="text-white/30">·</span>
+                <span className="text-[10px] text-white/55">{featured.readTime} {t.news.minRead}</span>
+              </div>
               <h2
-                className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-2 max-w-2xl leading-tight group-hover:opacity-90 transition-opacity"
+                className="text-xl sm:text-2xl lg:text-3xl font-light text-white leading-snug"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {featured.title}
               </h2>
-              <div className="flex items-center gap-4 mt-4">
-                <span className="text-white/70 text-sm">{featured.date}</span>
-                <span className="text-white/50">·</span>
-                <span className="text-white/70 text-sm">{featured.readTime} {t.news.minRead}</span>
-              </div>
+              <p className="mt-1.5 text-white/55 text-xs leading-relaxed line-clamp-1 hidden sm:block">{featured.excerpt}</p>
             </div>
-          </div>
-          <div className="bg-white p-8 sm:p-10">
-            <p className="text-brand-600 text-base leading-relaxed max-w-3xl">{featured.excerpt}</p>
-            <span className="mt-6 inline-flex items-center gap-2 btn-primary text-sm py-2.5 px-6">
-              {t.news.readMore}
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                <path d="M2 6.5H11M11 6.5L7.5 3M11 6.5L7.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-          </div>
-        </Link>
+          </Link>
         </div>
 
         {/* ── Filter Tabs ── */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6">
           {filters.map((f) => (
             <button
               key={f.key}
               onClick={() => setActive(f.key)}
-              className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-semibold transition-all duration-200 relative ${
+              className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-light transition-all duration-200 relative ${
                 active === f.key
                   ? 'text-brand-950'
                   : 'text-brand-400 hover:text-brand-700'
@@ -197,47 +189,33 @@ function NewsContent() {
           ))}
         </div>
 
-        {/* ── Articles Grid ── */}
-        <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* ── Articles Grid — portrait cards, iPhone-style tight grid ── */}
+        <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {filteredRest.map((article) => (
             <Link
               key={article.id}
               href={`/news/${article.id}`}
-              className="group bg-white rounded-xl border border-brand-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              className="group relative overflow-hidden rounded-xl block aspect-[3/4]"
             >
-              {/* Card image area */}
-              <div className="h-48 relative overflow-hidden">
-                <Image
-                  src={article.image}
-                  alt={article.title}
-                  fill
-                  className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                {/* Gradient scrim so the badge stays readable */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                <span className="absolute bottom-4 left-4 z-10 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-white/20 backdrop-blur text-white border border-white/25">
-                  {getCatLabel(article.category)}
-                </span>
-              </div>
+              <Image
+                src={article.image}
+                alt={article.title}
+                fill
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
-              {/* Card body */}
-              <div className="p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-brand-400 text-xs">{article.date}</span>
-                  <span className="text-brand-300 text-xs">·</span>
-                  <span className="text-brand-400 text-xs">{article.readTime} {t.news.minRead}</span>
+              {/* Glass caption panel */}
+              <div className="absolute bottom-3 left-3 right-3 rounded-lg overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-3 py-2.5">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-[9px] font-light text-white/55 uppercase tracking-[0.12em]">{getCatLabel(article.category)}</span>
+                  <span className="text-white/30 text-[9px]">·</span>
+                  <span className="text-[9px] text-white/55">{article.date}</span>
                 </div>
-                <h3 className="font-bold text-brand-950 text-sm leading-snug mb-2 group-hover:text-brand-700 transition-colors duration-200">
+                <h3 className="text-[12px] sm:text-[13px] font-light text-white leading-snug line-clamp-2">
                   {article.title}
                 </h3>
-                <p className="text-brand-500 text-xs leading-relaxed line-clamp-2">{article.excerpt}</p>
-                <span className="mt-4 flex items-center gap-1 text-xs font-semibold text-brand-700 group-hover:gap-2 transition-all duration-200">
-                  {t.news.readMore}
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M2 5H8M8 5L5.5 2.5M8 5L5.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
               </div>
             </Link>
           ))}
@@ -246,7 +224,7 @@ function NewsContent() {
         {filteredRest.length === 0 && (
           <div className="text-center py-20 text-brand-400">
             <div className="text-5xl mb-4">📰</div>
-            <p className="text-lg font-medium">No articles in this category yet.</p>
+            <p className="text-lg font-normal">No articles in this category yet.</p>
           </div>
         )}
 

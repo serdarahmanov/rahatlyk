@@ -206,11 +206,11 @@ function VacanciesContent() {
 
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">
+          <span className="text-black text-xs font-light tracking-[0.2em] uppercase">
             {t.vacancies.heroTag}
           </span>
           <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4"
+            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.vacancies.title}
@@ -231,7 +231,7 @@ function VacanciesContent() {
               <button
                 key={f.key}
                 onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-semibold transition-all duration-200 relative ${
+                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-light transition-all duration-200 relative ${
                   active === f.key
                     ? 'text-brand-950'
                     : 'text-brand-400 hover:text-brand-700'
@@ -246,7 +246,7 @@ function VacanciesContent() {
           {/* Section header — count */}
           <div className="mb-8">
             <h2
-              className="text-xl sm:text-2xl font-bold text-brand-950"
+              className="text-xl sm:text-2xl font-light text-brand-950"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {filtered.length} {filtered.length === 1 ? 'open position' : 'open positions'}
@@ -260,7 +260,7 @@ function VacanciesContent() {
                   <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                 </svg>
               </div>
-              <p className="text-base font-medium">{t.vacancies.noCurrent}</p>
+              <p className="text-base font-normal">{t.vacancies.noCurrent}</p>
             </div>
           ) : (
             <div ref={listRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -283,7 +283,7 @@ function VacanciesContent() {
                         <div className={`w-11 h-11 rounded-lg ${cfg.iconBg} ${cfg.iconColor} flex items-center justify-center flex-shrink-0`}>
                           {DEPT_ICONS[job.department]}
                         </div>
-                        <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${
+                        <span className={`text-[10px] font-light px-2.5 py-1 rounded-full ${
                           job.type === 'fullTime'
                             ? 'bg-brand-50 text-brand-700'
                             : 'bg-brand-100 text-brand-500'
@@ -293,13 +293,13 @@ function VacanciesContent() {
                       </div>
 
                       {/* Department badge */}
-                      <span className={`self-start text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-3 ${cfg.badge}`}>
+                      <span className={`self-start text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wide mb-3 ${cfg.badge}`}>
                         {job.department}
                       </span>
 
                       {/* Title — primary text, most weight */}
                       <h3
-                        className="text-[1.05rem] font-bold text-brand-950 mb-2 leading-snug group-hover:text-brand-700 transition-colors duration-200"
+                        className="text-[1.05rem] font-light text-brand-950 mb-2 leading-snug group-hover:text-brand-700 transition-colors duration-200"
                         style={{ fontFamily: 'var(--font-heading), sans-serif' }}
                       >
                         {job.title}
@@ -318,7 +318,7 @@ function VacanciesContent() {
                           </svg>
                           {job.location}
                         </div>
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 group-hover:gap-2 transition-all duration-200">
+                        <span className="inline-flex items-center gap-1 text-xs font-light text-brand-700 group-hover:gap-2 transition-all duration-200">
                           {t.vacancies.apply}
                           <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
                             <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -338,7 +338,7 @@ function VacanciesContent() {
       <section className="py-16 bg-brand-50 border-t border-brand-200">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
           <h2
-            className="text-xl sm:text-2xl font-bold text-brand-950 text-center mb-10"
+            className="text-xl sm:text-2xl font-light text-brand-950 text-center mb-10"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {perks.title}
@@ -352,7 +352,7 @@ function VacanciesContent() {
                 <div className="w-11 h-11 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-4">
                   {perk.icon}
                 </div>
-                <h3 className="font-bold text-brand-900 text-sm mb-1">
+                <h3 className="font-light text-brand-900 text-sm mb-1">
                   {perks[perk.titleKey as keyof typeof perks]}
                 </h3>
                 <p className="text-brand-500 text-xs leading-relaxed">

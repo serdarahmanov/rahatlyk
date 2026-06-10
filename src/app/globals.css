@@ -152,15 +152,7 @@ body {
 }
 
 /* ---- Navbar scrolled shadow ---- */
-/* Applied only when scrolled; shadow transitions in via the header's transition-all duration-500 */
-header {
-  box-shadow: 0 4px 24px -4px rgba(15, 11, 7, 0);
-  transition: background-color 0.5s ease, backdrop-filter 0.5s ease,
-              box-shadow 0.5s ease;
-}
-header.nav-scrolled {
-  box-shadow: 0 4px 24px -4px rgba(15, 11, 7, 0.08);
-}
+/* Shadow is applied on the inner background panel div, not the header element itself */
 
 /* ---- Section fade-in utility ---- */
 .section-reveal {

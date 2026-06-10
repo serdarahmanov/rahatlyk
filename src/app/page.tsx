@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -11,9 +11,17 @@ import ProductVisual from '@/components/ProductVisual';
 /* ── Intro gate ───────────────────────────────────────────────────
    The hero animation must NOT start until PageIntro's curtain has
    exited. We track this with a module-level flag so it persists
-   across re-renders but resets on full page reload.              */
-let introHasCompleted = false;
-if (typeof window !== 'undefined') {
+   across re-renders but resets on full page reload.
+
+   IMPORTANT: this module loads lazily — it only executes the first
+   time the user visits "/". If the user refreshes on a different page
+   and then navigates here, PageIntro has already fired `page-intro-done`
+   before this module was even parsed. We guard against that by reading
+   the global stamp that PageIntro writes before dispatching the event. */
+let introHasCompleted =
+  typeof window !== 'undefined' && !!(window as any).__pageIntroDone;
+
+if (typeof window !== 'undefined' && !introHasCompleted) {
   window.addEventListener(
     'page-intro-done',
     () => { introHasCompleted = true; },
@@ -69,7 +77,7 @@ const CATEGORIES = [
   },
 ] as const;
 
-const NEWS_PREVIEW = ARTICLES.slice(0, 3);
+const NEWS_ITEMS = ARTICLES.slice(0, 5);
 
 /* ── Word-level mask-reveal helper ────────────────────────────────
    Replaces an element's text with per-word <span> pairs so GSAP
@@ -213,6 +221,7 @@ function HorizontalScrollSection() {
   const trackRef     = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let mounted = true;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ctx: any;
 
@@ -221,9 +230,15 @@ function HorizontalScrollSection() {
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
       gsap.registerPlugin(ScrollTrigger);
 
-      if (!containerRef.current || !trackRef.current) return;
+      // Component may have unmounted while the async imports were resolving.
+      // Bail out to prevent creating an orphaned ScrollTrigger with no cleanup.
+      if (!mounted || !containerRef.current || !trackRef.current) return;
+
       const track  = trackRef.current;
       const header = document.querySelector<HTMLElement>('header');
+
+      // Reset any leftover inline transform from the previous visit's revert
+      gsap.set(track, { x: 0 });
 
       const hideHeader = () =>
         gsap.to(header, { yPercent: -105, duration: 0.55, ease: 'power2.inOut', overwrite: true });
@@ -248,10 +263,19 @@ function HorizontalScrollSection() {
           },
         });
       });
+
+      // After client-side navigation the browser needs one frame to finish
+      // layout before ScrollTrigger's trigger positions are accurate.
+      requestAnimationFrame(() => {
+        if (mounted) ScrollTrigger.refresh();
+      });
     };
 
     init();
-    return () => ctx?.revert();
+    return () => {
+      mounted = false; // signal to in-flight init that it should not proceed
+      ctx?.revert();
+    };
   }, []);
 
   return (
@@ -284,11 +308,11 @@ function HorizontalScrollSection() {
           className="relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl"
           style={{ width: '28vw', padding: '0 4vw' }}
         >
-          <span className="block text-brand-400 text-[10px] font-bold tracking-[0.35em] uppercase mb-6">
+          <span className="block text-brand-400 text-[10px] font-light tracking-[0.35em] uppercase mb-6">
             PRISTINE BY NATURE
           </span>
           <h2
-            className="text-white font-bold leading-[1.1]"
+            className="text-white font-light leading-[1.1]"
             style={{
               fontFamily: 'var(--font-heading), sans-serif',
               fontSize:   'clamp(1.6rem, 2.6vw, 3rem)',
@@ -329,18 +353,18 @@ function HorizontalScrollSection() {
             </div>
             {/* ── Content ── */}
             <div className="relative z-10 w-full">
-              <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center text-white/60 text-[11px] font-medium mb-4">
+              <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center text-white/60 text-[11px] font-normal mb-4">
                 01
               </div>
               <p
-                className="text-white font-bold leading-snug mb-5"
+                className="text-white font-light leading-snug mb-5"
                 style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}
               >
                 Discover our story and what drives us
               </p>
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2 bg-white text-brand-900 text-[11px] font-bold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full hover:bg-brand-50 transition-colors duration-200"
+                className="inline-flex items-center gap-2 bg-white text-brand-900 text-[11px] font-light tracking-[0.18em] uppercase px-5 py-2.5 rounded-full hover:bg-brand-50 transition-colors duration-200"
               >
                 Our Story
               </Link>
@@ -363,11 +387,11 @@ function HorizontalScrollSection() {
           {/* gradient: only at the bottom so text is readable */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <div className="absolute bottom-14 left-[8%] right-[8%]">
-            <span className="block text-white/55 text-[10px] font-bold tracking-[0.35em] uppercase mb-4">
+            <span className="block text-white/55 text-[10px] font-light tracking-[0.35em] uppercase mb-4">
               CENTURIES OF FILTRATION
             </span>
             <h2
-              className="text-white font-bold leading-[1.1]"
+              className="text-white font-light leading-[1.1]"
               style={{
                 fontFamily: 'var(--font-heading), sans-serif',
                 fontSize:   'clamp(1.8rem, 3.2vw, 3.8rem)',
@@ -383,11 +407,11 @@ function HorizontalScrollSection() {
           className="relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl"
           style={{ width: '25vw', padding: '0 3.5vw' }}
         >
-          <span className="block text-brand-600 text-[10px] font-bold tracking-[0.35em] uppercase mb-5">
+          <span className="block text-brand-600 text-[10px] font-light tracking-[0.35em] uppercase mb-5">
             EXPLORE MORE
           </span>
           <h3
-            className="text-brand-950 font-bold leading-snug mb-8"
+            className="text-brand-950 font-light leading-snug mb-8"
             style={{
               fontFamily: 'var(--font-heading), sans-serif',
               fontSize:   'clamp(1.3rem, 1.9vw, 2.1rem)',
@@ -397,7 +421,7 @@ function HorizontalScrollSection() {
           </h3>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-brand-950 text-white text-[11px] font-bold tracking-[0.18em] uppercase px-6 py-3 rounded-full hover:bg-brand-700 transition-colors duration-200 w-fit"
+            className="inline-flex items-center gap-2 bg-brand-950 text-white text-[11px] font-light tracking-[0.18em] uppercase px-6 py-3 rounded-full hover:bg-brand-700 transition-colors duration-200 w-fit"
           >
             Explore
           </Link>
@@ -611,6 +635,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
             <img
               src="/products/FeatureProductImg_RTD_LT.png"
               alt={product.name}
+              loading="lazy"
               style={{ width: 'auto', height: '100%', display: 'block' }}
             />
           </div>
@@ -639,7 +664,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       >
         {/* Sub-label — pinned to top on desktop */}
         <div className="hidden md:block">
-          <span className="block text-[10px] font-bold tracking-[0.2em] uppercase text-black/40">
+          <span className="block text-[10px] font-light tracking-[0.2em] uppercase text-black/40">
             {cats.sectionTag ?? ''}
           </span>
         </div>
@@ -649,7 +674,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
           {/* Category name — SplitText per-line reveal */}
           <div className="overflow-hidden mb-2 w-full">
             <h3
-              className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black leading-tight"
+              className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {cats[activeCat.key] ?? ''}
@@ -658,7 +683,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
 
           {/* Short tagline — reveal-block */}
           <div className="overflow-hidden mb-4 w-full">
-            <p className="reveal-block block text-black/55 text-xs lg:text-sm font-semibold tracking-wide">
+            <p className="reveal-block block text-black/55 text-xs lg:text-sm font-light tracking-wide">
               {cats[activeCat.descKey] ?? ''}
             </p>
           </div>
@@ -674,7 +699,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
         {/* Explore link — pinned to bottom on desktop */}
         <Link
           href={`/products?category=${activeCat.key}`}
-          className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-black/75 group mt-4 md:mt-0"
+          className="inline-flex items-center gap-1.5 text-[11px] font-light tracking-[0.22em] uppercase text-black/75 group mt-4 md:mt-0"
         >
           <span>{cats.explore}</span>
           <svg
@@ -731,6 +756,177 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
   );
 }
 
+/* ── News Carousel (auto-play + infinite loop) ────────────────── */
+function NewsCarousel({ tag }: { tag: string }) {
+  const [visCount, setVisCount] = useState(3);
+  const trackRef   = useRef<HTMLDivElement>(null);
+  const busy       = useRef(false);
+  const timer      = useRef<ReturnType<typeof setTimeout>>();
+  // Ref to the latest advance fn so the timer callback never holds a stale closure
+  const advanceRef = useRef<(dir: 1 | -1) => void>(() => {});
+
+  const extItems = useMemo(() => [
+    ...NEWS_ITEMS.slice(-visCount),
+    ...NEWS_ITEMS,
+    ...NEWS_ITEMS.slice(0, visCount),
+  ], [visCount]);
+
+  // Snap track to first real card after breakpoint change
+  useLayoutEffect(() => {
+    const id = requestAnimationFrame(() => {
+      const track = trackRef.current;
+      if (!track || !track.children[0]) return;
+      import('gsap').then(({ gsap }) => {
+        const cardW = (track.children[0] as HTMLElement).getBoundingClientRect().width;
+        const gap   = parseFloat(window.getComputedStyle(track).columnGap) || 24;
+        gsap.set(track, { x: -(visCount * (cardW + gap)) });
+      });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [visCount]);
+
+  // Responsive visible count
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      setVisCount(w >= 1024 ? 3 : w >= 640 ? 2 : 1);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  // Schedule next auto-advance; resets any existing timer
+  const schedule = () => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => advanceRef.current(1), 3200);
+  };
+
+  const advance = async (dir: 1 | -1) => {
+    if (busy.current) return;
+    busy.current = true;
+
+    const { gsap } = await import('gsap');
+    const track = trackRef.current;
+    if (!track) { busy.current = false; return; }
+
+    const cardW = (track.children[0] as HTMLElement).getBoundingClientRect().width;
+    const gap   = parseFloat(window.getComputedStyle(track).columnGap) || 24;
+    const step  = cardW + gap;
+
+    const currentX   = gsap.getProperty(track, 'x') as number;
+    const targetX    = currentX - dir * step;
+    const nudge      = -dir * 18;
+    const nextExtIdx = Math.round(-targetX / step);
+
+    const inFront = nextExtIdx < visCount;
+    const inBack  = nextExtIdx >= visCount + NEWS_ITEMS.length;
+    const snapX   = inFront ? -(nextExtIdx + NEWS_ITEMS.length) * step
+                  : inBack  ? -(nextExtIdx - NEWS_ITEMS.length) * step
+                  : null;
+
+    gsap.timeline({
+      onComplete: () => {
+        if (snapX !== null) gsap.set(track, { x: snapX });
+        busy.current = false;
+        schedule(); // queue the next auto-advance after every animation
+      },
+    })
+    .to(track, { x: targetX + nudge, duration: 0.52, ease: 'power3.out' })
+    .to(track, { x: targetX,         duration: 0.22, ease: 'power2.inOut' });
+  };
+
+  // Keep ref current every render so the timer always calls the latest advance
+  advanceRef.current = advance;
+
+  // Kick off auto-play on mount and restart whenever the breakpoint changes
+  useEffect(() => {
+    schedule();
+    return () => clearTimeout(timer.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visCount]);
+
+  return (
+    <div className="flex flex-col h-full">
+
+      {/* ── Header: constrained, sits at top ── */}
+      <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16 pt-24 w-full flex-shrink-0" style={{ paddingBottom: '20px' }}>
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-light tracking-[0.25em] uppercase text-brand-400">
+            {tag}
+          </span>
+          <div className="flex items-center gap-5">
+            <button
+              onClick={() => advance(-1)}
+              aria-label="Previous news"
+              className="text-brand-400 hover:text-brand-950 transition-colors duration-200"
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M14 5L8 11L14 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              onClick={() => advance(1)}
+              aria-label="Next news"
+              className="text-brand-400 hover:text-brand-950 transition-colors duration-200"
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M8 5L14 11L8 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Track: fills remaining height, spans full width ── */}
+      {/* min-h-0 is required so a flex child can shrink below its content size */}
+      <div className="overflow-hidden flex-1 min-h-0">
+        <div
+          ref={trackRef}
+          className="flex items-start gap-30 h-full"
+          style={{ paddingLeft: 'clamp(1.25rem, 4vw, 2.5rem)', willChange: 'transform' }}
+        >
+          {extItems.map((article, i) => (
+            <Link
+              key={`${article.id}-${i}`}
+              href={`/news/${article.id}`}
+              className="flex-shrink-0 group cursor-pointer w-[60vw] sm:w-[31vw] lg:w-[20vw]"
+              style={{ height: '60vh' }}
+            >
+              {/* Tall vertical card — image fills, text overlaid at bottom */}
+              <div className="relative overflow-hidden rounded-lg h-full">
+
+                <Image
+                  src={article.image}
+                  alt={article.title}
+                  fill
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 33vw"
+                />
+
+                {/* Gradient vignette so glass panel reads clearly */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+
+                {/* ── Frosted-glass caption panel ── */}
+                <div className="absolute bottom-4 left-4 right-4 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-4 py-3.5">
+                  <p className="text-[10px] text-white/55 tracking-[0.18em] uppercase mb-1.5">
+                    {article.date}
+                  </p>
+                  <h3 className="text-[13px] sm:text-sm font-light text-white leading-snug">
+                    {article.title}
+                  </h3>
+                </div>
+
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 /* ── Page ─────────────────────────────────────────────────────── */
 export default function HomePage() {
   const { t, locale } = useLanguage();
@@ -744,7 +940,6 @@ export default function HomePage() {
   const brandLabelRef = useRef<HTMLSpanElement>(null);
   const brandTextRef  = useRef<HTMLParagraphElement>(null);
   const storyRef  = useRef<HTMLDivElement>(null);
-  const newsRef   = useRef<HTMLDivElement>(null);
 
   // ── Hero animation — reruns from scratch on every locale change ──
   useEffect(() => {
@@ -897,22 +1092,26 @@ export default function HomePage() {
         cleanupFns.push(() => st2.scrollTrigger?.kill());
       }
 
-      // News cards
-      if (newsRef.current) {
-        const st3 = gsap.fromTo(
-          newsRef.current.querySelectorAll('.news-card'),
-          { y: 50, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out',
-            scrollTrigger: { trigger: newsRef.current, start: 'top 78%' },
-          }
-        );
-        cleanupFns.push(() => st3.scrollTrigger?.kill());
-      }
+
     };
 
     init();
     return () => { cleanupFns.forEach((fn) => fn()); };
+  }, []);
+
+  // ── Track footer height so CTA + footer = exactly 100vh ─────
+  useEffect(() => {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+    const update = () =>
+      document.documentElement.style.setProperty(
+        '--footer-h',
+        `${footer.getBoundingClientRect().height}px`,
+      );
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(footer);
+    return () => ro.disconnect();
   }, []);
 
   const cats = t.home.categories;
@@ -945,7 +1144,7 @@ export default function HomePage() {
 
             {/* Headline — manual 2-line mask reveal */}
             <div
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.06] tracking-tight mb-5"
+              className="text-6xl sm:text-7xl lg:text-8xl font-light text-white leading-[1.06] tracking-tight mb-5"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {/* Each inner div slides up from behind its overflow-hidden parent.
@@ -981,7 +1180,7 @@ export default function HomePage() {
             <div className="flex-shrink-0 sm:pt-[0.2em] sm:pr-12 lg:pr-16 sm:border-r sm:border-brand-200">
               <span
                 ref={brandLabelRef}
-                className="block text-[11px] font-semibold tracking-[0.45em] text-black uppercase"
+                className="block text-[11px] font-light tracking-[0.45em] text-black uppercase"
                 style={{ fontFamily: 'var(--font-heading), sans-serif', overflow: 'hidden', paddingBottom: '0.1em' }}
               >
                 RAHATLYK
@@ -1001,7 +1200,7 @@ export default function HomePage() {
                   if (idx === -1) return text;
                   return (
                     <>
-                      <strong className="font-bold">{text.slice(0, idx)}</strong>
+                      <strong className="font-light">{text.slice(0, idx)}</strong>
                       {text.slice(idx)}
                     </>
                   );
@@ -1049,12 +1248,12 @@ export default function HomePage() {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-24">
           <div className="max-w-xl mx-auto text-center">
 
-            <span className="story-animate block text-brand-300 text-[10px] font-bold tracking-[0.22em] uppercase mb-4">
+            <span className="story-animate block text-brand-300 text-[10px] font-light tracking-[0.22em] uppercase mb-4">
               {t.home.story.tag}
             </span>
 
             <h2
-              className="story-animate text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-5"
+              className="story-animate text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-tight mb-5"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.home.story.title}
@@ -1080,7 +1279,7 @@ export default function HomePage() {
             </svg>
           </div>
           <div>
-            <div className="font-semibold text-white text-[11px] leading-tight">{t.home.story.badge}</div>
+            <div className="font-light text-white text-[11px] leading-tight">{t.home.story.badge}</div>
             <div className="text-white/55 text-[10px] mt-0.5">{t.home.story.badgeSub}</div>
           </div>
         </div>
@@ -1089,76 +1288,19 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════
-          NEWS PREVIEW
+          NEWS CAROUSEL
       ══════════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10" ref={newsRef}>
-
-          {/* ── Header ── */}
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand-400">
-                {t.home.news.tag}
-              </span>
-            </div>
-            <Link
-              href="/news"
-              className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-black/75 group"
-            >
-              <span>{t.home.news.cta}</span>
-              <svg
-                className="group-hover:translate-x-1 transition-transform duration-200"
-                width="13" height="13" viewBox="0 0 14 14" fill="none"
-              >
-                <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-          </div>
-
-          {/* ── Cards ── */}
-          <div className="grid md:grid-cols-3 gap-4 lg:gap-6">
-            {NEWS_PREVIEW.map((article) => (
-              <Link
-                key={article.id}
-                href={`/news/${article.id}`}
-                className="news-card group cursor-pointer"
-              >
-                {/* Tall portrait image */}
-                <div className="relative overflow-hidden rounded-sm h-[320px] sm:h-[380px] lg:h-[420px]">
-                  <Image
-                    src={article.image}
-                    alt={article.title}
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  {/* Subtle bottom fade */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                </div>
-
-                {/* Minimal text below */}
-                <div className="pt-4 pb-1">
-                  <p className="text-[10px] text-brand-400 tracking-wide mb-1.5">{article.date}</p>
-                  <h3 className="text-sm font-bold text-brand-950 leading-snug group-hover:text-brand-600 transition-colors duration-200">
-                    {article.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Mobile CTA */}
-          <div className="text-center mt-8 sm:hidden">
-            <Link href="/news" className="btn-outline">{t.home.news.cta}</Link>
-          </div>
-
-        </div>
+      <section className="bg-white overflow-hidden" style={{ height: '100svh' }}>
+        <NewsCarousel tag={t.home.news.tag} />
       </section>
 
       {/* ══════════════════════════════════════════
           CTA BANNER
       ══════════════════════════════════════════ */}
-      <section className="relative py-24 overflow-hidden" style={{ background: '#0b2e4a' }}>
+      <section
+        className="relative overflow-hidden flex flex-col items-center justify-center"
+        style={{ background: '#0b2e4a', height: 'calc(100vh - var(--footer-h, 320px))' }}
+      >
         {/* ── Live water gradient blobs ── */}
         <div className="pointer-events-none absolute inset-0">
           {/* Deep base wash */}
@@ -1191,7 +1333,7 @@ export default function HomePage() {
             </svg>
           </div>
           <h2
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight"
+            className="text-3xl sm:text-4xl lg:text-5xl font-light text-white mb-4 leading-tight"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.home.ctaBanner.title}
@@ -1201,7 +1343,7 @@ export default function HomePage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.22em] uppercase text-white/75 group"
+            className="inline-flex items-center gap-1.5 text-[11px] font-light tracking-[0.22em] uppercase text-white/75 group"
           >
             <span>{t.home.ctaBanner.cta}</span>
             <svg

@@ -34,16 +34,16 @@ function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <div className="absolute top-3 right-3 text-xl">{article.emoji}</div>
-        <span className="absolute bottom-3 left-3 z-10 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-white/20 backdrop-blur text-white border border-white/25">
+        <span className="absolute bottom-3 left-3 z-10 text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wider bg-white/20 backdrop-blur text-white border border-white/25">
           {article.category}
         </span>
       </div>
       <div className="p-4">
         <p className="text-slate-400 text-xs mb-2">{article.date}</p>
-        <h3 className="font-bold text-brand-950 text-sm leading-snug group-hover:text-brand-700 transition-colors duration-200 line-clamp-2">
+        <h3 className="font-light text-brand-950 text-sm leading-snug group-hover:text-brand-700 transition-colors duration-200 line-clamp-2">
           {article.title}
         </h3>
-        <span className="mt-3 flex items-center gap-1 text-xs font-semibold text-brand-700">
+        <span className="mt-3 flex items-center gap-1 text-xs font-light text-brand-700">
           {t.news.readMore}
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path d="M2 5H8M8 5L5.5 2.5M8 5L5.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -122,7 +122,7 @@ export default function ArticlePage() {
         <div className="text-center px-8">
           <p className="text-7xl mb-6">📰</p>
           <h1
-            className="text-3xl font-bold text-brand-950 mb-3"
+            className="text-3xl font-light text-brand-950 mb-3"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             Article Not Found
@@ -185,11 +185,11 @@ export default function ArticlePage() {
 
           {/* Category + featured badge */}
           <div className="flex items-center gap-2 mb-5">
-            <span className="bg-white/20 backdrop-blur text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/25">
+            <span className="bg-white/20 backdrop-blur text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/25">
               {getCatLabel(article.category)}
             </span>
             {article.featured && (
-              <span className="bg-white/15 backdrop-blur text-white/80 text-[10px] font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/20">
+              <span className="bg-white/15 backdrop-blur text-white/80 text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/20">
                 {t.news.featured}
               </span>
             )}
@@ -197,7 +197,7 @@ export default function ArticlePage() {
 
           {/* Title */}
           <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-5"
+            className="text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight mb-5"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {article.title}
@@ -221,7 +221,7 @@ export default function ArticlePage() {
             {/* Body text */}
             <article ref={contentRef}>
               {/* Lead paragraph — slightly larger */}
-              <p className="article-para text-slate-700 text-lg leading-relaxed mb-6 font-medium">
+              <p className="article-para text-slate-700 text-lg leading-relaxed mb-6 font-normal">
                 {article.body[0]}
               </p>
 
@@ -236,7 +236,7 @@ export default function ArticlePage() {
               <div className="mt-12 pt-8 border-t border-slate-100 flex flex-wrap items-center gap-4">
                 <Link
                   href="/news"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-900 transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-light text-brand-700 hover:text-brand-900 transition-colors"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M12 7H2M2 7L6 3M2 7L6 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -250,10 +250,10 @@ export default function ArticlePage() {
             <aside className="hidden lg:block space-y-5 sticky top-28">
               {/* Category pill */}
               <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+                <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-3">
                   Category
                 </p>
-                <span className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide ${cfg.badge}`}>
+                <span className={`inline-block text-xs font-light px-3 py-1.5 rounded-full uppercase tracking-wide ${cfg.badge}`}>
                   {getCatLabel(article.category)}
                 </span>
               </div>
@@ -261,12 +261,12 @@ export default function ArticlePage() {
               {/* Date & read time */}
               <div className="bg-slate-50 rounded-md border border-slate-100 p-5 space-y-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Published</p>
-                  <p className="text-slate-700 text-sm font-semibold">{article.date}</p>
+                  <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Published</p>
+                  <p className="text-slate-700 text-sm font-light">{article.date}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Read time</p>
-                  <p className="text-slate-700 text-sm font-semibold">{article.readTime} {t.news.minRead}</p>
+                  <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Read time</p>
+                  <p className="text-slate-700 text-sm font-light">{article.readTime} {t.news.minRead}</p>
                 </div>
               </div>
 
@@ -281,7 +281,7 @@ export default function ArticlePage() {
         <section className="py-14 bg-slate-50 border-t border-slate-100">
           <div className="max-w-4xl mx-auto px-5 sm:px-8 lg:px-10">
             <h2
-              className="text-xl font-bold text-brand-950 mb-8"
+              className="text-xl font-light text-brand-950 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               More Articles
