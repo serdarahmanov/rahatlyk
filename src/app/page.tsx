@@ -1,12 +1,17 @@
 ﻿'use client';
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { PRODUCTS, ProductCategory } from '@/lib/data/products';
 import { ARTICLES } from '@/lib/data/news';
-import ProductVisual from '@/components/ProductVisual';
+
+declare global {
+  interface Window {
+    __pageIntroDone?: boolean;
+  }
+}
 
 /* ── Intro gate ───────────────────────────────────────────────────
    The hero animation must NOT start until PageIntro's curtain has
@@ -19,7 +24,7 @@ import ProductVisual from '@/components/ProductVisual';
    before this module was even parsed. We guard against that by reading
    the global stamp that PageIntro writes before dispatching the event. */
 let introHasCompleted =
-  typeof window !== 'undefined' && !!(window as any).__pageIntroDone;
+  typeof window !== 'undefined' && !!window.__pageIntroDone;
 
 if (typeof window !== 'undefined' && !introHasCompleted) {
   window.addEventListener(
@@ -125,94 +130,6 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
       el.textContent = text;
     },
   };
-}
-
-/* ── Hero water-drop visual ───────────────────────────────────── */
-function WaterDrop() {
-  return (
-    <div className="relative w-64 h-80 xl:w-80 xl:h-96">
-      {/* Glow behind */}
-      <div className="absolute inset-0 rounded-full bg-brand-300/30 blur-3xl scale-110 animate-pulse-glow" />
-
-      {/* Main drop SVG */}
-      <svg
-        viewBox="0 0 200 260"
-        className="relative z-10 w-full h-full animate-float-slow drop-shadow-[0_24px_40px_rgba(2,132,199,0.28)]"
-      >
-        <defs>
-          <linearGradient id="dropMain" x1="15%" y1="0%" x2="85%" y2="100%">
-            <stop offset="0%" stopColor="#e8ddd0" />
-            <stop offset="45%" stopColor="#c8ad88" />
-            <stop offset="100%" stopColor="#8a7256" />
-          </linearGradient>
-          <linearGradient id="dropHL" x1="0%" y1="0%" x2="60%" y2="60%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.55)" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-          </linearGradient>
-        </defs>
-        {/* Body */}
-        <path
-          d="M100,14 C70,60 28,96 28,148 A72,72 0 0,0 172,148 C172,96 130,60 100,14 Z"
-          fill="url(#dropMain)"
-        />
-        {/* Highlight */}
-        <path
-          d="M72,58 C62,78 52,106 52,136 A48,28 0 0,0 72,158 C66,130 60,100 72,58 Z"
-          fill="url(#dropHL)"
-        />
-        {/* Label */}
-        <text
-          x="100"
-          y="154"
-          textAnchor="middle"
-          fill="white"
-          fontSize="10"
-          letterSpacing="4"
-          fontWeight="400"
-          opacity="0.9"
-          style={{ fontFamily: 'serif' }}
-        >
-          RAHATLYK
-        </text>
-        <text
-          x="100"
-          y="167"
-          textAnchor="middle"
-          fill="white"
-          fontSize="7"
-          letterSpacing="2"
-          opacity="0.6"
-        >
-          PURE WATER
-        </text>
-      </svg>
-
-      {/* Ripple at base */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-28 h-7 border-2 border-brand-300/50 rounded-full animate-ripple" />
-      <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 w-28 h-7 border-2 border-brand-200/30 rounded-full animate-ripple"
-        style={{ animationDelay: '1s' }}
-      />
-
-      {/* Floating bubbles */}
-      <div
-        className="absolute top-8 right-2 xl:right-6 w-9 h-9 rounded-full bg-gradient-to-br from-brand-200 to-brand-300/80 animate-float"
-        style={{ animationDelay: '0.4s' }}
-      />
-      <div
-        className="absolute top-24 -right-4 w-5 h-5 rounded-full bg-gradient-to-br from-cyan-200 to-cyan-300 animate-float opacity-70"
-        style={{ animationDelay: '1.3s' }}
-      />
-      <div
-        className="absolute top-14 -left-6 w-11 h-11 rounded-full bg-gradient-to-br from-brand-100 to-brand-200/80 animate-float opacity-80"
-        style={{ animationDelay: '0.9s' }}
-      />
-      <div
-        className="absolute top-44 left-1 w-4 h-4 rounded-full bg-brand-300/60 animate-float"
-        style={{ animationDelay: '1.9s' }}
-      />
-    </div>
-  );
 }
 
 /* ── Pinned horizontal-scroll section ────────────────────────────── */
@@ -761,7 +678,7 @@ function NewsCarousel({ tag }: { tag: string }) {
   const [visCount, setVisCount] = useState(3);
   const trackRef   = useRef<HTMLDivElement>(null);
   const busy       = useRef(false);
-  const timer      = useRef<ReturnType<typeof setTimeout>>();
+  const timer      = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Ref to the latest advance fn so the timer callback never holds a stale closure
   const advanceRef = useRef<(dir: 1 | -1) => void>(() => {});
 
@@ -797,12 +714,12 @@ function NewsCarousel({ tag }: { tag: string }) {
   }, []);
 
   // Schedule next auto-advance; resets any existing timer
-  const schedule = () => {
-    clearTimeout(timer.current);
+  const schedule = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => advanceRef.current(1), 3200);
-  };
+  }, []);
 
-  const advance = async (dir: 1 | -1) => {
+  const advance = useCallback(async (dir: 1 | -1) => {
     if (busy.current) return;
     busy.current = true;
 
@@ -834,17 +751,20 @@ function NewsCarousel({ tag }: { tag: string }) {
     })
     .to(track, { x: targetX + nudge, duration: 0.52, ease: 'power3.out' })
     .to(track, { x: targetX,         duration: 0.22, ease: 'power2.inOut' });
-  };
+  }, [schedule, visCount]);
 
-  // Keep ref current every render so the timer always calls the latest advance
-  advanceRef.current = advance;
+  // Keep ref current so the timer always calls the latest advance
+  useEffect(() => {
+    advanceRef.current = advance;
+  }, [advance]);
 
   // Kick off auto-play on mount and restart whenever the breakpoint changes
   useEffect(() => {
     schedule();
-    return () => clearTimeout(timer.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visCount]);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [schedule, visCount]);
 
   return (
     <div className="flex flex-col h-full">
@@ -1041,7 +961,7 @@ export default function HomePage() {
         introListener = null;
       }
     };
-  }, [locale]); // re-fire whenever language changes
+  }, [locale, t.home.hero]); // re-fire whenever language changes
 
   // ── Scroll-triggered animations — run once on mount ──────────
   useEffect(() => {

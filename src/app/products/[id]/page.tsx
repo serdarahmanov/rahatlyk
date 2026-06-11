@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { PRODUCTS, Product, ProductCategory } from '@/lib/data/products';
 import ProductVisual from '@/components/ProductVisual';
 
@@ -26,7 +25,6 @@ const CAT_CONFIG: Record<ProductCategory, {
 
 /* ── Related products strip ───────────────────────────────────── */
 function RelatedProducts({ current }: { current: Product }) {
-  const { t } = useLanguage();
   const related = PRODUCTS.filter(
     (p) => p.category === current.category && p.id !== current.id
   ).slice(0, 4);
@@ -82,7 +80,6 @@ function RelatedProducts({ current }: { current: Product }) {
 type AccordionKey = 'features' | 'nutrition';
 
 export default function ProductDetailPage() {
-  const { t } = useLanguage();
   const params = useParams();
   const id = params?.id as string;
 
@@ -176,7 +173,7 @@ export default function ProductDetailPage() {
     init();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => st?.getAll().forEach((s: any) => s.kill());
-  }, []);
+  }, [product?.photos]);
 
   /* 404 */
   if (!product) {

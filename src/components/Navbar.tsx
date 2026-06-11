@@ -55,8 +55,11 @@ export default function Navbar() {
 
   // Reset nav state on every route change
   useEffect(() => {
-    setMenuOpen(false);
-    setScrolledUp(true); // always start visible on a new page
+    const id = requestAnimationFrame(() => {
+      setMenuOpen(false);
+      setScrolledUp(true); // always start visible on a new page
+    });
+    return () => cancelAnimationFrame(id);
   }, [pathname]);
 
 

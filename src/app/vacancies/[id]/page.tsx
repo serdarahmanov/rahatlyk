@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { VACANCIES, Dept } from '@/lib/data/vacancies';
 
@@ -27,8 +27,7 @@ const DEPT_CONFIG: Record<Dept_, {
 type Tab = 'overview' | 'responsibilities' | 'requirements';
 
 export default function VacancyDetailPage() {
-  const { t, locale } = useLanguage();
-  const router = useRouter();
+  const { locale } = useLanguage();
   const params = useParams();
   const id = params?.id as string;
 

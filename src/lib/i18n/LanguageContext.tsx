@@ -20,15 +20,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [ready, setReady]        = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('RAHATLYK-locale') as Locale | null;
-      if (saved && (['en', 'ru', 'tm'] as string[]).includes(saved)) {
-        setLocaleState(saved);
+    const id = requestAnimationFrame(() => {
+      try {
+        const saved = localStorage.getItem('RAHATLYK-locale') as Locale | null;
+        if (saved && (['en', 'ru', 'tm'] as string[]).includes(saved)) {
+          setLocaleState(saved);
+        }
+      } catch {
+        // localStorage blocked (private mode, etc.)
       }
-    } catch {
-      // localStorage blocked (private mode, etc.)
-    }
-    setReady(true);
+      setReady(true);
+    });
+
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const setLocale = (newLocale: Locale) => {

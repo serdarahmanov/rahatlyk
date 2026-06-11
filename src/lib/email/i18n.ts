@@ -67,7 +67,7 @@ export interface EmailStrings {
 
 const en: EmailStrings = {
   contactConfirm: {
-    subject:         (s) => `We received your message — RAHATLYK`,
+    subject:         () => `We received your message — RAHATLYK`,
     preheader:       `We've received your message and will be in touch soon.`,
     title:           `Message Received`,
     subtitle:        `Thank you for reaching out to RAHATLYK.`,

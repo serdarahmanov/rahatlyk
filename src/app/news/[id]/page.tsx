@@ -18,7 +18,6 @@ const CAT_CONFIG: Record<NewsCategory, { badge: string; dot: string }> = {
 /* ── Related article card ──────────────────────────────────── */
 function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
   const { t } = useLanguage();
-  const cfg = CAT_CONFIG[article.category];
   return (
     <Link
       href={`/news/${article.id}`}

@@ -3,18 +3,165 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { ARTICLES, NewsCategory } from '@/lib/data/news';
-
-const CATEGORY_COLORS: Record<NewsCategory, string> = {
-  company:        'bg-brand-200 text-brand-800',
-  health:         'bg-brand-100 text-brand-700',
-  products:       'bg-brand-200 text-brand-800',
-  sustainability: 'bg-brand-100 text-brand-700',
-};
+import { ARTICLES, Article, NewsCategory } from '@/lib/data/news';
 
 type FilterKey = 'all' | NewsCategory;
+
+/* ── NewsCard — standalone slideshow card ────────────────────── */
+function NewsCard({
+  article,
+}: {
+  article: Article;
+}) {
+  const router  = useRouter();
+  const imgs    = article.images?.length ? article.images : [article.image];
+  const [current, setCurrent]   = useState(0);
+  const [incoming, setIncoming] = useState<number | null>(null);
+  const [busy, setBusy]         = useState(false);
+  const busyRef   = useRef(false);
+  // Each card gets a unique interval (2 s - 5 s) so they never tick together.
+  const [intervalMs] = useState(() => 2000 + Math.floor(Math.random() * 3000));
+
+  // Keep busyRef in sync so the interval always reads the fresh value
+  useEffect(() => { busyRef.current = busy; }, [busy]);
+
+  // Auto-advance at this card's own random cadence
+  useEffect(() => {
+    if (imgs.length <= 1) return;
+    const id = setInterval(() => {
+      if (busyRef.current) return;
+      const next = (current + 1) % imgs.length;
+      setIncoming(next);
+      setBusy(true);
+    }, intervalMs);
+    return () => clearInterval(id);
+  }, [current, imgs.length, intervalMs]);
+
+  // Navigate with arrow buttons
+  const go = (dir: 1 | -1, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (busy || imgs.length <= 1) return;
+    const next = (current + dir + imgs.length) % imgs.length;
+    setIncoming(next);
+    setBusy(true);
+  };
+
+  // Navigate by clicking a dash
+  const goTo = (idx: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (busy || idx === current) return;
+    setIncoming(idx);
+    setBusy(true);
+  };
+
+  const onAnimEnd = () => {
+    if (incoming !== null) {
+      setCurrent(incoming);
+      setIncoming(null);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      className="group cursor-pointer"
+      onClick={() => router.push(`/news/${article.id}`)}
+    >
+      {/* ── Image container — its own rounded corners ── */}
+      <div
+        className="relative overflow-hidden rounded-sm"
+        style={{ paddingBottom: '125%' }}
+      >
+        {/* Base image — stays perfectly still */}
+        <div className="absolute inset-0" style={{ zIndex: 1 }}>
+          <Image
+            src={imgs[current]}
+            alt={article.title}
+            fill
+            className="object-cover object-center"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </div>
+
+        {/* Incoming image — slides in from the right, covers base */}
+        {incoming !== null && (
+          <div
+            className="absolute inset-0 news-slide-in"
+            style={{ zIndex: 2 }}
+            onAnimationEnd={onAnimEnd}
+          >
+            <Image
+              src={imgs[incoming]}
+              alt=""
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          </div>
+        )}
+
+        {/* Dash indicators — top center, clickable */}
+        {imgs.length > 1 && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            {imgs.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => goTo(i, e)}
+                className={`block w-10 h-[3px] rounded-full transition-opacity duration-300 bg-white ${
+                  i === current ? 'opacity-100' : 'opacity-35'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* ← → chevron buttons — same style as Our Selection on home page */}
+        {imgs.length > 1 && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+            <button
+              onClick={(e) => go(-1, e)}
+              aria-label="Previous"
+              className="flex items-center justify-center text-white/70 hover:text-white transition-colors duration-200"
+            >
+              <svg width="20" height="20" viewBox="0 0 12 12" fill="none">
+                <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              onClick={(e) => go(1, e)}
+              aria-label="Next"
+              className="flex items-center justify-center text-white/70 hover:text-white transition-colors duration-200"
+            >
+              <svg width="20" height="20" viewBox="0 0 12 12" fill="none">
+                <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Text — completely below the image container ── */}
+      <div className="pt-3 px-0.5">
+        <h3
+          className="text-[15px] font-normal text-brand-950 leading-snug mb-1"
+          style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+        >
+          {article.title}
+        </h3>
+        <span className="text-[12px] text-brand-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
+          Read article{' '}
+          <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-brand-500">
+            →
+          </span>
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /* ── Inner component (uses useSearchParams) ─────────────────── */
 function NewsContent() {
@@ -189,35 +336,13 @@ function NewsContent() {
           ))}
         </div>
 
-        {/* ── Articles Grid — portrait cards, iPhone-style tight grid ── */}
-        <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        {/* ── Articles Grid ── */}
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredRest.map((article) => (
-            <Link
+            <NewsCard
               key={article.id}
-              href={`/news/${article.id}`}
-              className="group relative overflow-hidden rounded-xl block aspect-[3/4]"
-            >
-              <Image
-                src={article.image}
-                alt={article.title}
-                fill
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-
-              {/* Glass caption panel */}
-              <div className="absolute bottom-3 left-3 right-3 rounded-lg overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-3 py-2.5">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[9px] font-light text-white/55 uppercase tracking-[0.12em]">{getCatLabel(article.category)}</span>
-                  <span className="text-white/30 text-[9px]">·</span>
-                  <span className="text-[9px] text-white/55">{article.date}</span>
-                </div>
-                <h3 className="text-[12px] sm:text-[13px] font-light text-white leading-snug line-clamp-2">
-                  {article.title}
-                </h3>
-              </div>
-            </Link>
+              article={article}
+            />
           ))}
         </div>
 

@@ -3,6 +3,12 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
+declare global {
+  interface Window {
+    __pageIntroDone?: boolean;
+  }
+}
+
 export default function PageIntro() {
   const { ready } = useLanguage();
 
@@ -90,7 +96,7 @@ export default function PageIntro() {
         duration:  0.95,
         ease:      'power4.inOut',
         onStart: () => {
-          (window as any).__pageIntroDone = true;
+          window.__pageIntroDone = true;
           window.dispatchEvent(new CustomEvent('page-intro-done'));
         },
         onComplete: () => {

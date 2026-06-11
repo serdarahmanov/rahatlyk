@@ -112,6 +112,29 @@ npm start
 
 The project is a standard Next.js app and can be deployed to **Vercel**, **Netlify**, or any Node.js hosting environment.
 
+## Quality Checks
+
+Use these commands before committing or deploying:
+
+```bash
+npm run lint
+npm run build
+```
+
+On Windows PowerShell, if `npm.ps1` is blocked by the execution policy, use the command shim instead:
+
+```powershell
+npm.cmd run lint
+npm.cmd run build
+```
+
+Current validation status:
+
+- ESLint passes without errors or warnings.
+- Production build passes with Next.js 16.2.7 and Turbopack.
+- ESLint ignores `.claude/**` so local agent worktrees are not checked as project source.
+- React hook updates avoid synchronous state writes inside effects where Next.js/React lint rules flag them.
+
 ## Brand Colours
 
 The site uses a warm black / beige / white `brand` palette defined in `globals.css`:

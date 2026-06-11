@@ -11,7 +11,8 @@ export interface Article {
   featured: boolean;
   gradient: string;
   emoji: string;
-  image: string; // path inside /public, e.g. "/story/photo-1.jpg"
+  image: string;   // primary image (also used as images[0] fallback)
+  images?: string[]; // slideshow images — overrides `image` when provided
 }
 
 export const ARTICLES: Article[] = [
@@ -34,6 +35,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-brand-400 via-blue-500 to-brand-800',
     emoji: '🌿',
     image: '/story/photo-1.jpg',
+    images: ['/story/photo-1.jpg', '/news/1.5liter-bottles.jpg', '/news/unnamed.jpg'],
   },
   {
     id: 2,
@@ -54,6 +56,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-emerald-400 to-teal-600',
     emoji: '🧬',
     image: '/story/photo-2.jpg',
+    images: ['/story/photo-2.jpg', '/story/photo-8.jpg'],
   },
   {
     id: 3,
@@ -74,6 +77,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-amber-400 to-orange-600',
     emoji: '🍊',
     image: '/story/photo-3.jpg',
+    images: ['/story/photo-3.jpg', '/news/5302e53eaeab4a3ca53e88bc3aceec7e.webp'],
   },
   {
     id: 4,
@@ -94,6 +98,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-lime-400 to-green-600',
     emoji: '♻️',
     image: '/story/photo-4.jpg',
+    images: ['/story/photo-4.jpg', '/story/photo-9.jpg'],
   },
   {
     id: 5,
@@ -115,6 +120,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-brand-400 to-blue-500',
     emoji: '💎',
     image: '/story/photo-5.jpg',
+    images: ['/story/photo-5.jpg', '/news/1.5liter-bottles.jpg'],
   },
   {
     id: 6,
@@ -135,6 +141,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-violet-400 to-purple-600',
     emoji: '🏆',
     image: '/story/photo-6.jpg',
+    images: ['/story/photo-6.jpg', '/story/photo-1.jpg'],
   },
   {
     id: 7,
@@ -155,6 +162,7 @@ export const ARTICLES: Article[] = [
     gradient: 'from-teal-400 to-green-500',
     emoji: '🌱',
     image: '/story/photo-7.jpg',
+    images: ['/story/photo-7.jpg', '/story/photo-3.jpg'],
   },
   {
     id: 8,
@@ -175,5 +183,6 @@ export const ARTICLES: Article[] = [
     gradient: 'from-brand-600 to-indigo-600',
     emoji: '🌍',
     image: '/story/photo-9.jpg',
+    images: ['/story/photo-9.jpg', '/story/photo-4.jpg', '/news/unnamed.jpg'],
   },
 ];
