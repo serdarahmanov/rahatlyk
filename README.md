@@ -25,7 +25,10 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 - **Contact & Vacancy forms** — minimalist design (gray-fill inputs, no labels, black submit button); server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user and a notification email with CV attachment to the company.
 - **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
 - **Responsive design** — mobile-first, fully responsive across all breakpoints. Footer link groups display in a 2-column grid on mobile.
-- **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered card animations, smooth carousel transitions, and pinned horizontal scroll section.
+- **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered listing cards, filter entrances, smooth carousel transitions, pinned horizontal scroll, and custom about-page interactions.
+- **Reference-led About page** — cinematic sticky image hero, scroll-revealed brand statement, split image/text company section, editorial collection collages, sticky milestone cards, image-backed stats, and an interactive mood selector with a custom cursor.
+- **Unified listing pages** — Products, News, and Vacancies share the same title/filter structure, selected-filter button treatment, and GSAP-managed card reveal behavior.
+- **Reference-style header** — transparent over hero imagery, hidden background at the top of hero pages, and a reference-style blurred panel/bottom stroke on scroll where applicable.
 - **Live water gradient** — animated CSS blob gradient on the CTA banner, about-page stats band, and collection panels using layered radial blurs with keyframe drift + pulse animations.
 - **Global typography** — site-wide `font-light` / `font-normal` weight system for a clean, editorial feel.
 
@@ -34,7 +37,7 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 | Route | Description |
 |---|---|
 | `/` | Home — hero, brand statement, horizontal scroll showcase, collections carousel, full-viewport news carousel, CTA banner |
-| `/about` | About — parallax hero, live-gradient stats band (20+ years, 50+ products, 5M+ customers), story timeline, mission, values, team |
+| `/about` | About — cinematic sticky hero, word-mask title, scroll-revealed statement, split company story, collection collages, sticky milestone cards, stats image band, and interactive mood selector |
 | `/products` | Products listing with category filter |
 | `/products/[id]` | Product detail with image gallery |
 | `/news` | News listing — featured article banner + iPhone-style portrait card grid with category filter |
@@ -134,6 +137,7 @@ Current validation status:
 - Production build passes with Next.js 16.2.7 and Turbopack.
 - ESLint ignores `.claude/**` so local agent worktrees are not checked as project source.
 - React hook updates avoid synchronous state writes inside effects where Next.js/React lint rules flag them.
+- Latest checked commands: `npm.cmd run lint` and `npm.cmd run build`.
 
 ## Brand Colours
 

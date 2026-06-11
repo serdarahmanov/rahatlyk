@@ -1,13 +1,13 @@
-﻿'use client';
+'use client';
 
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { gsap } from 'gsap';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { VACANCIES, Dept } from '@/lib/data/vacancies';
 
-/* ── Minimal stroke SVG icons — currentColor, weight 1.5 ─────── */
+/* -- Minimal stroke SVG icons — currentColor, weight 1.5 ------- */
 const DEPT_ICONS: Record<Dept, React.ReactNode> = {
   Production: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -123,8 +123,12 @@ function VacanciesContent() {
     initialDept && initialDept !== 'all' ? initialDept : 'all'
   );
   const heroRef  = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const listRef  = useRef<HTMLDivElement>(null);
   const perksRef = useRef<HTMLDivElement>(null);
+  const contentIntroPlayedRef = useRef(false);
 
   const filters: { key: FilterKey; label: string }[] = [
     { key: 'all',              label: t.vacancies.filterAll        },
@@ -141,6 +145,54 @@ function VacanciesContent() {
       ? VACANCIES
       : VACANCIES.filter((j) => j.department === (active as Dept));
 
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const titleWords = titleRef.current?.querySelectorAll('.title-word-inner');
+      const filterButtons = filtersRef.current?.querySelectorAll('button');
+      const vacancyCards = listRef.current?.children;
+      const tl = gsap.timeline({ delay: 0.08 });
+
+      if (titleWords?.length) {
+        gsap.set(titleWords, { yPercent: 115 });
+        tl.to(
+          titleWords,
+          { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' },
+          0
+        );
+      }
+
+      if (filterButtons?.length) {
+        gsap.set(filterButtons, { y: -18, opacity: 0 });
+        tl.to(
+          filterButtons,
+          { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' },
+          0.28
+        );
+      }
+
+      if (vacancyCards?.length) {
+        gsap.set(vacancyCards, { y: 30, opacity: 0, scale: 0.97 });
+        tl.to(
+          vacancyCards,
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.55,
+            stagger: 0.055,
+            ease: 'power3.out',
+            onComplete: () => {
+              contentIntroPlayedRef.current = true;
+            },
+          },
+          0.58
+        );
+      }
+    });
+
+    return () => ctx.revert();
+  }, [t.vacancies.title]);
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let st: any;
@@ -150,13 +202,6 @@ function VacanciesContent() {
       st = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      if (heroRef.current) {
-        gsap.fromTo(
-          heroRef.current.children,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power3.out', delay: 0.1 }
-        );
-      }
       if (perksRef.current) {
         gsap.fromTo(
           perksRef.current.children,
@@ -174,13 +219,15 @@ function VacanciesContent() {
   }, []);
 
   useEffect(() => {
+    if (!contentIntroPlayedRef.current) return;
+
     const animate = async () => {
       const { gsap } = await import('gsap');
       if (listRef.current && listRef.current.children.length) {
         gsap.fromTo(
           listRef.current.children,
-          { x: -20, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.5, stagger: 0.07, ease: 'power3.out' }
+          { y: 30, opacity: 0, scale: 0.97 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.055, ease: 'power3.out' }
         );
       }
     };
@@ -191,59 +238,47 @@ function VacanciesContent() {
 
   return (
     <div className="min-h-screen">
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden pt-32 pb-16">
-        {/* Background image */}
-        <Image
-          src="/news/unnamed.jpg"
-          alt=""
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        {/* Glass overlay */}
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-
-        {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-black text-xs font-light tracking-[0.2em] uppercase">
-            {t.vacancies.heroTag}
-          </span>
-          <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight mb-4"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            {t.vacancies.title}
-          </h1>
-          <p className="text-black text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-            {t.vacancies.subtitle}
-          </p>
-        </div>
-      </section>
-
-      {/* ── Jobs ── */}
-      <section className="py-12 bg-brand-50">
+      {/* Vacancies */}
+      <section className="pt-32 pb-12 bg-brand-50">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+          <div className="mb-5 text-left" ref={heroRef}>
+            <h1
+              ref={titleRef}
+              className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              {t.vacancies.title.split(/\s+/).map((word, index, words) => (
+                <span
+                  key={`${word}-${index}`}
+                  className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
+                >
+                  <span className="title-word-inner inline-block">
+                    {word}
+                    {index < words.length - 1 ? '\u00a0' : ''}
+                  </span>
+                </span>
+              ))}
+            </h1>
+          </div>
 
-          {/* ── Filter Tabs ── */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
+          {/* Filter Tabs */}
+          <div ref={filtersRef} className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
             {filters.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-light transition-all duration-200 relative ${
+                className={`flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
                   active === f.key
-                    ? 'text-brand-950'
-                    : 'text-brand-400 hover:text-brand-700'
+                    ? 'border-brand-950 bg-brand-950 text-brand-50'
+                    : 'border-brand-950/20 bg-transparent text-brand-500 hover:border-brand-950 hover:text-brand-950'
                 }`}
               >
                 {f.label}
-                <span className={`absolute bottom-0 left-0 h-0.5 bg-brand-950 rounded-full transition-all duration-200 ${active === f.key ? 'w-full' : 'w-0'}`} />
               </button>
             ))}
           </div>
-
-          {/* Section header — count */}
+          <div ref={contentRef}>
+          {/* Section header */}
           <div className="mb-8">
             <h2
               className="text-xl sm:text-2xl font-light text-brand-950"
@@ -263,7 +298,10 @@ function VacanciesContent() {
               <p className="text-base font-normal">{t.vacancies.noCurrent}</p>
             </div>
           ) : (
-            <div ref={listRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              ref={listRef}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
               {filtered.map((job) => {
                 const cfg = DEPT_CONFIG[job.department];
                 return (
@@ -331,10 +369,11 @@ function VacanciesContent() {
               })}
             </div>
           )}
+          </div>
         </div>
       </section>
 
-      {/* ── Why Join ── */}
+      {/* Why Join */}
       <section className="py-16 bg-brand-50 border-t border-brand-200">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
           <h2

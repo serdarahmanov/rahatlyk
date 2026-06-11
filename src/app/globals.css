@@ -154,12 +154,6 @@ body {
 /* ---- Navbar scrolled shadow ---- */
 /* Shadow is applied on the inner background panel div, not the header element itself */
 
-/* ---- Section fade-in utility ---- */
-.section-reveal {
-  opacity: 0;
-  transform: translateY(30px);
-}
-
 /* ---- Card hover ---- */
 .card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -215,18 +209,4 @@ body {
 }
 .news-slide-in {
   animation: news-slide-in 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-/* ---- Category section animations ---- */
-@keyframes catSlideUp {
-  from { opacity: 0; transform: translateY(32px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes catSlideDown {
-  from { opacity: 0; transform: translateY(-32px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes catFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }

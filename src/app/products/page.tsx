@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { gsap } from 'gsap';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { PRODUCTS, ProductCategory } from '@/lib/data/products';
 import ProductVisual from '@/components/ProductVisual';
@@ -20,6 +20,9 @@ function ProductsContent() {
   );
   const gridRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const gridIntroPlayedRef = useRef(false);
 
   const filters: { key: FilterKey; label: string }[] = [
     { key: 'all',     label: t.products.filterAll },
@@ -34,24 +37,58 @@ function ProductsContent() {
   const filtered =
     active === 'all' ? PRODUCTS : PRODUCTS.filter((p) => p.category === active);
 
-  useEffect(() => {
-    const init = async () => {
-      const { gsap } = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      gsap.registerPlugin(ScrollTrigger);
-      if (heroRef.current) {
-        gsap.fromTo(
-          heroRef.current.children,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power3.out', delay: 0.1 }
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const titleWords = titleRef.current?.querySelectorAll('.title-word-inner');
+      const filterButtons = filtersRef.current?.querySelectorAll('button');
+      const gridCards = gridRef.current?.children;
+      const tl = gsap.timeline({ delay: 0.08 });
+
+      if (titleWords?.length) {
+        gsap.set(titleWords, { yPercent: 115 });
+        tl.to(
+          titleWords,
+          { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' },
+          0
         );
       }
-    };
-    init();
-  }, []);
+
+      if (filterButtons?.length) {
+        gsap.set(filterButtons, { y: -18, opacity: 0 });
+        tl.to(
+          filterButtons,
+          { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' },
+          0.28
+        );
+      }
+
+      if (gridCards?.length) {
+        gsap.set(gridCards, { y: 30, opacity: 0, scale: 0.97 });
+        tl.to(
+          gridCards,
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.55,
+            stagger: 0.055,
+            ease: 'power3.out',
+            onComplete: () => {
+              gridIntroPlayedRef.current = true;
+            },
+          },
+          0.58
+        );
+      }
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, [t.products.title]);
 
   // Re-animate grid whenever filter changes
   useEffect(() => {
+    if (!gridIntroPlayedRef.current) return;
+
     const animate = async () => {
       const { gsap } = await import('gsap');
       if (gridRef.current) {
@@ -79,54 +116,42 @@ function ProductsContent() {
 
   return (
     <div className="min-h-screen">
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden pt-32 pb-16">
-        {/* Background image */}
-        <Image
-          src="/story/photo-4.jpg"
-          alt=""
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        {/* Glass overlay over the whole section */}
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-
-        {/* Content — same layout as before */}
-        <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-black text-xs font-light tracking-[0.2em] uppercase">
-            {t.products.heroTag}
-          </span>
-          <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight mb-4"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            {t.products.title}
-          </h1>
-          <p className="text-black text-base sm:text-lg max-w-xl mx-auto">
-            {t.products.subtitle}
-          </p>
-        </div>
-      </section>
-
-      {/* ── Grid ── */}
-      <section className="py-14 bg-brand-50">
+      {/* Products */}
+      <section className="pt-32 pb-14 bg-brand-50">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+          <div className="mb-5 text-left" ref={heroRef}>
+            <h1
+              ref={titleRef}
+              className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              {t.products.title.split(/\s+/).map((word, index, words) => (
+                <span
+                  key={`${word}-${index}`}
+                  className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
+                >
+                  <span className="title-word-inner inline-block">
+                    {word}
+                    {index < words.length - 1 ? '\u00a0' : ''}
+                  </span>
+                </span>
+              ))}
+            </h1>
+          </div>
 
-          {/* ── Filter Tabs ── */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
+          {/* Filter Tabs */}
+          <div ref={filtersRef} className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
             {filters.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-light transition-all duration-200 relative group ${
+                className={`flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
                   active === f.key
-                    ? 'text-brand-950'
-                    : 'text-brand-400 hover:text-brand-700'
+                    ? 'border-brand-950 bg-brand-950 text-brand-50'
+                    : 'border-brand-950/20 bg-transparent text-brand-500 hover:border-brand-950 hover:text-brand-950'
                 }`}
               >
                 {f.label}
-                <span className={`absolute bottom-0 left-0 h-0.5 bg-brand-950 rounded-full transition-all duration-200 ${active === f.key ? 'w-full' : 'w-0'}`} />
               </button>
             ))}
           </div>

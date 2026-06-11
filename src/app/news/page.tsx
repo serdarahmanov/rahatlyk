@@ -1,15 +1,16 @@
 'use client';
 
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { gsap } from 'gsap';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { ARTICLES, Article, NewsCategory } from '@/lib/data/news';
 
 type FilterKey = 'all' | NewsCategory;
 
-/* ── NewsCard — standalone slideshow card ────────────────────── */
+/* Section */
 function NewsCard({
   article,
 }: {
@@ -71,12 +72,12 @@ function NewsCard({
       className="group cursor-pointer"
       onClick={() => router.push(`/news/${article.id}`)}
     >
-      {/* ── Image container — its own rounded corners ── */}
+      {/* Section */}
       <div
         className="relative overflow-hidden rounded-sm"
         style={{ paddingBottom: '125%' }}
       >
-        {/* Base image — stays perfectly still */}
+        {/* Section */}
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           <Image
             src={imgs[current]}
@@ -87,7 +88,7 @@ function NewsCard({
           />
         </div>
 
-        {/* Incoming image — slides in from the right, covers base */}
+        {/* Section */}
         {incoming !== null && (
           <div
             className="absolute inset-0 news-slide-in"
@@ -104,7 +105,7 @@ function NewsCard({
           </div>
         )}
 
-        {/* Dash indicators — top center, clickable */}
+        {/* Section */}
         {imgs.length > 1 && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
             {imgs.map((_, i) => (
@@ -119,7 +120,7 @@ function NewsCard({
           </div>
         )}
 
-        {/* ← → chevron buttons — same style as Our Selection on home page */}
+        {/* Section */}
         {imgs.length > 1 && (
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
             <button
@@ -144,7 +145,7 @@ function NewsCard({
         )}
       </div>
 
-      {/* ── Text — completely below the image container ── */}
+      {/* Section */}
       <div className="pt-3 px-0.5">
         <h3
           className="text-[15px] font-normal text-brand-950 leading-snug mb-1"
@@ -155,7 +156,7 @@ function NewsCard({
         <span className="text-[12px] text-brand-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
           Read article{' '}
           <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-brand-500">
-            →
+            â†’
           </span>
         </span>
       </div>
@@ -163,7 +164,7 @@ function NewsCard({
   );
 }
 
-/* ── Inner component (uses useSearchParams) ─────────────────── */
+/* Section */
 function NewsContent() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
@@ -172,8 +173,11 @@ function NewsContent() {
     initialCategory && initialCategory !== 'all' ? initialCategory : 'all'
   );
   const heroRef     = useRef<HTMLDivElement>(null);
-  const featuredRef = useRef<HTMLDivElement>(null);
+  const titleRef    = useRef<HTMLHeadingElement>(null);
+  const filtersRef  = useRef<HTMLDivElement>(null);
+  const contentRef  = useRef<HTMLDivElement>(null);
   const gridRef     = useRef<HTMLDivElement>(null);
+  const contentIntroPlayedRef = useRef(false);
 
   const filters: { key: FilterKey; label: string }[] = [
     { key: 'all',            label: t.news.filterAll            },
@@ -187,49 +191,64 @@ function NewsContent() {
   const rest         = ARTICLES.filter((a) => !a.featured);
   const filteredRest = active === 'all' ? rest : rest.filter((a) => a.category === active);
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any;
-    const init = async () => {
-      const { gsap }          = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      st = ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const titleWords = titleRef.current?.querySelectorAll('.title-word-inner');
+      const filterButtons = filtersRef.current?.querySelectorAll('button');
+      const contentItems = contentRef.current?.children;
+      const tl = gsap.timeline({ delay: 0.08 });
 
-      if (heroRef.current) {
-        gsap.fromTo(
-          heroRef.current.children,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power3.out', delay: 0.1 }
+      if (titleWords?.length) {
+        gsap.set(titleWords, { yPercent: 115 });
+        tl.to(
+          titleWords,
+          { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' },
+          0
         );
       }
-      if (featuredRef.current) {
-        gsap.fromTo(
-          featuredRef.current,
-          { y: 50, opacity: 0 },
+
+      if (filterButtons?.length) {
+        gsap.set(filterButtons, { y: -18, opacity: 0 });
+        tl.to(
+          filterButtons,
+          { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' },
+          0.28
+        );
+      }
+
+      if (contentItems?.length) {
+        gsap.set(contentItems, { y: 30, opacity: 0, scale: 0.97 });
+        tl.to(
+          contentItems,
           {
             y: 0,
             opacity: 1,
-            duration: 1,
+            scale: 1,
+            duration: 0.55,
+            stagger: 0.055,
             ease: 'power3.out',
-            scrollTrigger: { trigger: featuredRef.current, start: 'top 85%' },
-          }
+            onComplete: () => {
+              contentIntroPlayedRef.current = true;
+            },
+          },
+          0.58
         );
       }
-    };
-    init();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill());
-  }, []);
+    });
+
+    return () => ctx.revert();
+  }, [t.news.title]);
 
   useEffect(() => {
+    if (!contentIntroPlayedRef.current) return;
+
     const animate = async () => {
       const { gsap } = await import('gsap');
       if (gridRef.current && gridRef.current.children.length) {
         gsap.fromTo(
           gridRef.current.children,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.55, stagger: 0.07, ease: 'power3.out' }
+          { y: 30, opacity: 0, scale: 0.97 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.055, ease: 'power3.out' }
         );
       }
     };
@@ -249,33 +268,49 @@ function NewsContent() {
   return (
     <div className="min-h-screen">
 
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden pt-32 pb-16">
-        <Image
-          src="/news/1.5liter-bottles.jpg"
-          alt=""
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-        <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 text-center" ref={heroRef}>
-          <span className="text-black text-xs font-light tracking-[0.2em] uppercase">{t.news.heroTag}</span>
-          <h1
-            className="mt-3 text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight mb-4"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            {t.news.title}
-          </h1>
-          <p className="text-black text-base sm:text-lg max-w-xl mx-auto">{t.news.subtitle}</p>
-        </div>
-      </section>
+      {/* Section */}
+      <section className="pt-32 pb-10 bg-white">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+          <div className="mb-5 text-left" ref={heroRef}>
+            <h1
+              ref={titleRef}
+              className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              {t.news.title.split(/\s+/).map((word, index, words) => (
+                <span
+                  key={`${word}-${index}`}
+                  className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
+                >
+                  <span className="title-word-inner inline-block">
+                    {word}
+                    {index < words.length - 1 ? '\u00a0' : ''}
+                  </span>
+                </span>
+              ))}
+            </h1>
+          </div>
 
-      <div className="bg-white">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-10">
+          {/* Filter Tabs */}
+          <div ref={filtersRef} className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
+            {filters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setActive(f.key)}
+                className={`flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
+                  active === f.key
+                    ? 'border-brand-950 bg-brand-950 text-brand-50'
+                    : 'border-brand-950/20 bg-transparent text-brand-500 hover:border-brand-950 hover:text-brand-950'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
 
-        {/* ── Featured Article ── */}
-        <div ref={featuredRef} className="mb-8">
+          <div ref={contentRef}>
+          {/* Featured Article */}
+          <div className="mb-8">
           <Link
             href={`/news/${featured.id}`}
             className="group relative overflow-hidden rounded-2xl block"
@@ -291,20 +326,20 @@ function NewsContent() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
 
-            {/* Featured pill — top left */}
+            {/* Section */}
             <div className="absolute top-5 left-5 z-10">
               <span className="backdrop-blur-xl bg-white/15 border border-white/25 text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider">
                 {t.news.featured}
               </span>
             </div>
 
-            {/* Glass caption — bottom */}
+            {/* Section */}
             <div className="absolute bottom-5 left-5 right-5 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-5 py-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{getCatLabel(featured.category)}</span>
-                <span className="text-white/30">·</span>
+                <span className="text-white/30">Â·</span>
                 <span className="text-[10px] text-white/55">{featured.date}</span>
-                <span className="text-white/30">·</span>
+                <span className="text-white/30">Â·</span>
                 <span className="text-[10px] text-white/55">{featured.readTime} {t.news.minRead}</span>
               </div>
               <h2
@@ -318,48 +353,34 @@ function NewsContent() {
           </Link>
         </div>
 
-        {/* ── Filter Tabs ── */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6">
-          {filters.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setActive(f.key)}
-              className={`flex-shrink-0 px-2 py-1 text-xs sm:text-sm font-light transition-all duration-200 relative ${
-                active === f.key
-                  ? 'text-brand-950'
-                  : 'text-brand-400 hover:text-brand-700'
-              }`}
-            >
-              {f.label}
-              <span className={`absolute bottom-0 left-0 h-0.5 bg-brand-950 rounded-full transition-all duration-200 ${active === f.key ? 'w-full' : 'w-0'}`} />
-            </button>
-          ))}
-        </div>
-
-        {/* ── Articles Grid ── */}
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Section */}
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {filteredRest.map((article) => (
             <NewsCard
               key={article.id}
               article={article}
             />
           ))}
-        </div>
+          </div>
 
         {filteredRest.length === 0 && (
           <div className="text-center py-20 text-brand-400">
-            <div className="text-5xl mb-4">📰</div>
+            <div className="text-5xl mb-4">ðŸ“°</div>
             <p className="text-lg font-normal">No articles in this category yet.</p>
           </div>
         )}
 
-      </div>
-      </div>
+        </div>
+        </div>
+      </section>
     </div>
   );
 }
 
-/* ── Page export ─────────────────────────────────────────────── */
+/* Section */
 export default function NewsPage() {
   return (
     <Suspense>

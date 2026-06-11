@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Cormorant_Garamond, Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 import Navbar from '@/components/Navbar';
@@ -20,6 +20,14 @@ const jakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
+const cormorant = Cormorant_Garamond({
+  variable: '--font-accent',
+  subsets: ['latin'],
+  weight: ['300', '400'],
+  style: ['italic'],
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'RAHATLYK — Premium Beverages',
   description:
@@ -30,7 +38,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakartaSans.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={`${inter.variable} ${jakartaSans.variable} ${cormorant.variable}`} data-scroll-behavior="smooth">
       {/* Hide only the hero text before JS runs — the background image is
           visible immediately (good LCP). The animation reveals hero text once
           the correct locale + word-masks are in place. */}

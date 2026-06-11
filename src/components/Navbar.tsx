@@ -76,9 +76,11 @@ export default function Navbar() {
   }, [langOpen]);
 
   // Home / About page not-scrolled → transparent + white text (both have dark hero images)
-  const isHomeHero = (pathname === '/' || pathname === '/about') && !scrolled;
+  const isHeroPage = pathname === '/' || pathname === '/about';
+  const isAboutPage = pathname === '/about';
+  const isHomeHero = isHeroPage && !scrolled;
+  const showHeaderPanel = scrolled && !isAboutPage;
   // Any page not-scrolled → transparent bg (image shows through)
-  const isTransparent = !scrolled;
 
   const navLinks = [
     { href: '/products',  label: t.nav.products },
@@ -108,9 +110,9 @@ export default function Navbar() {
 
       {/* Background panel — slides down from above instead of fading in */}
       <div
-        className={`absolute inset-0 z-0 bg-cyan-50/90 backdrop-blur-md transition-transform duration-300 ease-out ${
-          scrolled && pathname !== '/about' ? 'translate-y-0' : '-translate-y-full'
-        }`}
+        className={`absolute inset-0 z-0 border-b bg-[#fafaf8]/85 backdrop-blur-[12px] transition-[transform,border-color] duration-300 ease-out ${
+          showHeaderPanel ? 'translate-y-0' : '-translate-y-full'
+        } ${showHeaderPanel ? 'border-black/[0.14]' : 'border-transparent'}`}
       />
 
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16">
@@ -120,7 +122,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <span
               className={`text-xl lg:text-2xl font-semibold tracking-[0.2em] transition-colors duration-300 ${
-                isHomeHero ? 'text-white' : isTransparent ? 'text-black' : 'text-brand-900'
+                isHomeHero ? 'text-white' : 'text-black'
               }`}
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
@@ -196,7 +198,7 @@ export default function Navbar() {
             {/* Hamburger */}
             <button
               className={`lg:hidden flex flex-col items-center justify-center w-9 h-9 gap-1.5 rounded transition-colors ${
-                isHomeHero ? 'hover:bg-white/10' : isTransparent ? 'hover:bg-black/10' : 'hover:bg-brand-50'
+                isHomeHero ? 'hover:bg-white/10' : 'hover:bg-black/10'
               }`}
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle menu"
@@ -204,17 +206,17 @@ export default function Navbar() {
             >
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : isTransparent ? 'bg-black' : 'bg-brand-900'
+                  isHomeHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
               />
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : isTransparent ? 'bg-black' : 'bg-brand-900'
+                  isHomeHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? 'opacity-0 scale-0' : ''}`}
               />
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : isTransparent ? 'bg-black' : 'bg-brand-900'
+                  isHomeHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}
               />
             </button>
