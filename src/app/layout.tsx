@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageIntro from '@/components/PageIntro';
 import ScrollReset from '@/components/ScrollReset';
+import SmoothScroll from '@/components/SmoothScroll';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -16,7 +17,7 @@ const inter = Inter({
 const jakartaSans = Plus_Jakarta_Sans({
   variable: '--font-heading',
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
+  weight: ['300', '400', '600', '700'],
   display: 'swap',
 });
 
@@ -54,6 +55,7 @@ export default function RootLayout({
       >
         <LanguageProvider>
           <ScrollReset />
+          <SmoothScroll />
           <PageIntro />
           <Navbar />
           <main>{children}</main>

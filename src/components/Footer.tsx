@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 const socialLinks = [
@@ -38,6 +39,9 @@ const socialLinks = [
 
 export default function Footer() {
   const { t } = useLanguage();
+  const pathname = usePathname();
+
+  if (pathname === '/about') return null;
 
   const quickLinks = [
     { href: '/',          label: t.nav.home      },

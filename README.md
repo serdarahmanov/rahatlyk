@@ -10,6 +10,7 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 | Language | TypeScript |
 | Styling | [Tailwind CSS v4](https://tailwindcss.com/) |
 | Animations | [GSAP](https://gsap.com/) + ScrollTrigger |
+| Smooth scrolling | [Lenis](https://lenis.darkroom.engineering/) |
 | Images | Next.js `<Image>` (optimised) |
 | Fonts | Google Fonts via `next/font` |
 | Internationalisation | Custom context (`src/lib/i18n/`) — Turkmen, Russian & English |
@@ -26,7 +27,8 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 - **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
 - **Responsive design** — mobile-first, fully responsive across all breakpoints. Footer link groups display in a 2-column grid on mobile.
 - **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered listing cards, filter entrances, smooth carousel transitions, pinned horizontal scroll, and custom about-page interactions.
-- **Reference-led About page** — cinematic sticky image hero, scroll-revealed brand statement, split image/text company section, editorial collection collages, sticky milestone cards, image-backed stats, and an interactive mood selector with a custom cursor.
+- **Lenis smooth scrolling** — global smooth-scroll layer integrated with ScrollTrigger refreshes.
+- **Reference-led About page** — cinematic sticky image hero, scroll-darkened intro, scroll-revealed brand statement, full-viewport parallax imagery, timeline story cards, GSAP-driven mosaic rows, interactive certificates, mood selector, and a one-viewport closing link/wordmark screen.
 - **Unified listing pages** — Products, News, and Vacancies share the same title/filter structure, selected-filter button treatment, and GSAP-managed card reveal behavior.
 - **Reference-style header** — transparent over hero imagery, hidden background at the top of hero pages, and a reference-style blurred panel/bottom stroke on scroll where applicable.
 - **Live water gradient** — animated CSS blob gradient on the CTA banner, about-page stats band, and collection panels using layered radial blurs with keyframe drift + pulse animations.
@@ -37,7 +39,7 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 | Route | Description |
 |---|---|
 | `/` | Home — hero, brand statement, horizontal scroll showcase, collections carousel, full-viewport news carousel, CTA banner |
-| `/about` | About — cinematic sticky hero, word-mask title, scroll-revealed statement, split company story, collection collages, sticky milestone cards, stats image band, and interactive mood selector |
+| `/about` | About — cinematic sticky hero, word-mask title, company story, parallax image section, timeline cards, mosaic rows, certificates, mood selector, and one-viewport closing screen. The shared footer is intentionally hidden on this route. |
 | `/products` | Products listing with category filter |
 | `/products/[id]` | Product detail with image gallery |
 | `/news` | News listing — featured article banner + iPhone-style portrait card grid with category filter |
