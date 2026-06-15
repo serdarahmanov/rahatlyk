@@ -5,10 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { ARTICLES, NewsCategory } from '@/lib/data/news';
+import { ARTICLES } from '@/lib/data/news';
+import { formatDate } from '@/lib/formatDate';
 
 /* ── Category colours ──────────────────────────────────────── */
-const CAT_CONFIG: Record<NewsCategory, { badge: string; dot: string }> = {
+const CAT_CONFIG: Record<string, { badge: string; dot: string }> = {
   company:        { badge: 'bg-brand-100 text-brand-800',     dot: 'bg-brand-500'    },
   health:         { badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500'  },
   products:       { badge: 'bg-amber-100 text-amber-700',     dot: 'bg-amber-500'    },
@@ -17,7 +18,7 @@ const CAT_CONFIG: Record<NewsCategory, { badge: string; dot: string }> = {
 
 /* ── Related article card ──────────────────────────────────── */
 function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   return (
     <Link
       href={`/news/${article.id}`}
@@ -25,7 +26,7 @@ function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
     >
       <div className="h-40 relative overflow-hidden">
         <Image
-          src={article.image}
+          src={article.images[0]}
           alt={article.title}
           fill
           className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
@@ -38,7 +39,7 @@ function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
         </span>
       </div>
       <div className="p-4">
-        <p className="text-slate-400 text-xs mb-2">{article.date}</p>
+        <p className="text-slate-400 text-xs mb-2">{formatDate(article.date, locale)}</p>
         <h3 className="font-light text-brand-950 text-sm leading-snug group-hover:text-brand-700 transition-colors duration-200 line-clamp-2">
           {article.title}
         </h3>
@@ -55,7 +56,7 @@ function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
 
 /* ── Page ──────────────────────────────────────────────────── */
 export default function ArticlePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const params  = useParams();
   const id      = params?.id as string;
   const article = ARTICLES.find((a) => a.id === Number(id));
@@ -137,20 +138,20 @@ export default function ArticlePage() {
     );
   }
 
-  const cfg     = CAT_CONFIG[article.category];
+  const cfg     = CAT_CONFIG[article.category] ?? CAT_CONFIG.company;
   const related = ARTICLES.filter((a) => a.id !== article.id && a.category === article.category).slice(0, 3);
   const more    = related.length < 3
     ? [...related, ...ARTICLES.filter((a) => a.id !== article.id && a.category !== article.category)].slice(0, 3)
     : related;
 
-  const getCatLabel = (cat: NewsCategory) => {
-    const map: Record<NewsCategory, string> = {
+  const getCatLabel = (cat: string) => {
+    const map: Record<string, string> = {
       company:        t.news.filterCompany,
       health:         t.news.filterHealth,
       products:       t.news.filterProducts,
       sustainability: t.news.filterSustainability,
     };
-    return map[cat];
+    return map[cat] ?? cat;
   };
 
   return (
@@ -160,7 +161,7 @@ export default function ArticlePage() {
       <section className="relative min-h-[420px] lg:min-h-[520px] flex items-end overflow-hidden">
         {/* Cover photo */}
         <Image
-          src={article.image}
+          src={article.images[0]}
           alt={article.title}
           fill
           className="object-cover object-center"
@@ -205,9 +206,7 @@ export default function ArticlePage() {
           {/* Meta */}
           <div className="flex items-center gap-4 text-white/70 text-sm">
             <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-            <span>{article.date}</span>
-            <span className="text-white/40">·</span>
-            <span>{article.readTime} {t.news.minRead}</span>
+            <span>{formatDate(article.date, locale)}</span>
           </div>
         </div>
       </section>
@@ -257,16 +256,10 @@ export default function ArticlePage() {
                 </span>
               </div>
 
-              {/* Date & read time */}
-              <div className="bg-slate-50 rounded-md border border-slate-100 p-5 space-y-4">
-                <div>
-                  <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Published</p>
-                  <p className="text-slate-700 text-sm font-light">{article.date}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Read time</p>
-                  <p className="text-slate-700 text-sm font-light">{article.readTime} {t.news.minRead}</p>
-                </div>
+              {/* Date */}
+              <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
+                <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Published</p>
+                <p className="text-slate-700 text-sm font-light">{formatDate(article.date, locale)}</p>
               </div>
 
             </aside>

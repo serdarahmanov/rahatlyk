@@ -1,15 +1,11 @@
-﻿export type ProductCategory = 'water' | 'mineral' | 'juices' | 'energy' | 'tea' | 'soft';
+﻿export type ProductCard = Pick<Product, 'id' | 'name' | 'category' | 'volumes' | 'photos'>;
 
 export interface Product {
   id: number;
   name: string;
-  subtitle: string;
   tagline: string;
-  volume: string;
-  category: ProductCategory;
-  topColor: string;
-  botColor: string;
-  highlight: string;
+  date: string; // ISO — "2026-01-15"
+  category: string;
   description: string;
   longDescription: string;
   features: string[];
@@ -26,13 +22,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 1,
     name: 'RAHATLYK Pure',
-    subtitle: 'Still Water',
     tagline: 'Pristine. Pure. Perfect.',
-    volume: '1.5 L',
+    date: '2023-03-01',
     category: 'water',
-    topColor: '#BAE6FD',
-    botColor: '#38BDF8',
-    highlight: '#E0F7FF',
     // Replace these with real product photos: /products/1-1.jpg, /products/1-2.jpg, /products/1-3.jpg
     description: 'Our flagship still water, sourced from deep underground aquifers in Turkmenistan. Crisp, clean, and perfectly balanced for everyday hydration.',
     longDescription: 'RAHATLYK Pure is drawn from carefully selected underground springs and rigorously tested at every stage of production. Its naturally balanced mineral content delivers a taste that is neutral, refreshing, and consistent — ideal for daily hydration, cooking, and everything in between. Every bottle undergoes 47 quality checks before it reaches your hands.',
@@ -57,13 +49,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 2,
     name: 'RAHATLYK Fresh',
-    subtitle: 'Still Water',
     tagline: 'Pure refreshment on the go.',
-    volume: '0.5 L',
+    date: '2023-03-01',
     category: 'water',
-    topColor: '#7DD3FC',
-    botColor: '#0EA5E9',
-    highlight: '#BAE6FD',
     description: 'Perfectly sized for active lifestyles. Same pristine underground source as RAHATLYK Pure, in a convenient slim bottle designed for bags and backpacks.',
     longDescription: 'RAHATLYK Fresh was born from a single insight: hydration should be effortless. Its slim ergonomic bottle fits every cup holder, side pocket, and gym bag. The resealable sport cap lets you drink on the move without spills. Same source, same purity — just perfectly portable.',
     features: [
@@ -87,13 +75,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 3,
     name: 'RAHATLYK Family',
-    subtitle: 'Still Water',
     tagline: 'Nourish every moment at home.',
-    volume: '5 L',
+    date: '2023-03-01',
     category: 'water',
-    topColor: '#93C5FD',
-    botColor: '#3B82F6',
-    highlight: '#BFDBFE',
     description: 'Our large-format family bottle. Economy size for home and office use, with the same pristine water quality in a sturdy, easy-pour container.',
     longDescription: 'RAHATLYK Family is engineered for households that take hydration seriously. The wide-grip handle makes pouring effortless, and the flat-base design keeps it stable on any surface. Bulk purity — same underground source, same 47-step quality assurance — now in a size that keeps the whole family or office stocked for days.',
     features: [
@@ -117,13 +101,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 4,
     name: 'RAHATLYK Mineral',
-    subtitle: 'Sparkling Mineral Water',
     tagline: 'Naturally sparkling. Naturally rich.',
-    volume: '1 L',
+    date: '2023-06-01',
     category: 'mineral',
-    topColor: '#A5F3FC',
-    botColor: '#06B6D4',
-    highlight: '#CFFAFE',
     description: 'Naturally carbonated mineral water with a rich mineral profile drawn from deep volcanic rock formations beneath the Kopet Dag mountains.',
     longDescription: 'RAHATLYK Mineral rises through layers of volcanic basalt, picking up a distinctive mineral character along the way. The natural carbonation — genuine dissolved CO₂ from the source — produces fine, persistent bubbles that make every sip lively and satisfying. No gas is added at any point in our process.',
     features: [
@@ -147,13 +127,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 5,
     name: 'RAHATLYK Spring',
-    subtitle: 'Natural Mineral Water',
     tagline: 'From the highland source to your glass.',
-    volume: '0.75 L',
+    date: '2023-06-01',
     category: 'mineral',
-    topColor: '#67E8F9',
-    botColor: '#0891B2',
-    highlight: '#A5F3FC',
     description: 'Sourced from a pristine mountain spring in the Turkmen highlands. Light and delicate, with a naturally sweet finish and a silica content that is kind to skin and joints.',
     longDescription: 'RAHATLYK Spring captures water at its most untouched — flowing directly from a protected high-altitude spring before any human contact. Its gentle mineral balance and naturally high silica content have made it the choice of discerning consumers and top restaurants across Turkmenistan. The elegant bottle format is designed to complement fine dining tables.',
     features: [
@@ -178,13 +154,9 @@ export const PRODUCTS: Product[] = [
     id: 6,
     name: 'RAHATLYK Apple',
     // Replace with real product photos: /products/6-1.jpg, /products/6-2.jpg, /products/6-3.jpg
-    subtitle: 'Pure Juice 100%',
     tagline: 'The whole orchard in every sip.',
-    volume: '1 L',
+    date: '2025-12-28',
     category: 'juices',
-    topColor: '#FEF08A',
-    botColor: '#EAB308',
-    highlight: '#FEF9C3',
     description: '100% pure apple juice, cold-pressed from freshly harvested local apples. No concentrate, no added sugar — just the honest taste of the fruit.',
     longDescription: 'We source apples from orchards in the fertile river valleys of Turkmenistan, picking them at peak ripeness before cold-pressing within hours of harvest. Cold-pressing preserves the full spectrum of natural enzymes, polyphenols, and vitamins that heat-treated juices destroy. The result is a juice that actually tastes like biting into a fresh apple.',
     features: [
@@ -208,13 +180,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 7,
     name: 'RAHATLYK Orange',
-    subtitle: 'Fresh Squeezed',
     tagline: 'Sunshine captured in a bottle.',
-    volume: '1 L',
+    date: '2025-12-28',
     category: 'juices',
-    topColor: '#FED7AA',
-    botColor: '#F97316',
-    highlight: '#FFEDD5',
     description: 'Freshly squeezed orange juice bursting with natural Vitamin C. Made from hand-picked oranges at the moment of perfect ripeness, pasteurized gently for freshness.',
     longDescription: 'Our oranges are selected by hand — only those with the ideal sugar-to-acid ratio make the cut. Within hours of squeezing, the juice is flash-pasteurized at the lowest effective temperature to preserve maximum nutrients while eliminating harmful bacteria. The resulting juice is bright, vibrant, and rich in the natural compounds your body craves.',
     features: [
@@ -238,13 +206,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 8,
     name: 'RAHATLYK Grape',
-    subtitle: 'Premium Juice',
     tagline: 'Deep, rich, and velvety.',
-    volume: '1 L',
+    date: '2025-12-28',
     category: 'juices',
-    topColor: '#DDD6FE',
-    botColor: '#7C3AED',
-    highlight: '#EDE9FE',
     description: 'Premium 100% grape juice crafted from a select blend of red and black grapes. Naturally rich in antioxidants and resveratrol.',
     longDescription: 'RAHATLYK Grape is a blend of three varietals chosen for their complementary flavour profiles — one for depth, one for sweetness, one for an earthy finish. The grapes are whole-pressed to extract maximum colour and polyphenol content. Rich in resveratrol and natural anthocyanins, this is one of the most antioxidant-dense products in our range.',
     features: [
@@ -268,13 +232,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 9,
     name: 'RAHATLYK Peach',
-    subtitle: 'Nectar Blend',
     tagline: 'Soft, sweet, and indulgent.',
-    volume: '1 L',
+    date: '2025-12-28',
     category: 'juices',
-    topColor: '#FCA5A5',
-    botColor: '#F87171',
-    highlight: '#FEE2E2',
     description: 'A delicate peach nectar blend capturing the sweet aroma of sun-ripened peaches. Smooth, velvety, and naturally nourishing.',
     longDescription: 'RAHATLYK Peach is made from white and yellow peach varieties blended to achieve the perfect balance of floral aroma and jammy sweetness. The nectar-style process preserves the natural fruit fibre, giving the drink a smooth, satisfying body that pure-pressed juices lack. A small touch of vitamin C is added to preserve colour — everything else is entirely natural.',
     features: [
@@ -298,13 +258,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 10,
     name: 'RAHATLYK Boost',
-    subtitle: 'Energy Drink',
     tagline: 'Natural energy. Real performance.',
-    volume: '0.33 L',
+    date: '2024-09-01',
     category: 'energy',
-    topColor: '#A7F3D0',
-    botColor: '#10B981',
-    highlight: '#D1FAE5',
     description: 'A clean energy drink powered by natural caffeine from green tea extract, a B-vitamin complex, and electrolytes for sustained focus without the crash.',
     longDescription: "RAHATLYK Boost was formulated with sports nutritionists to provide clean, sustained energy without artificial stimulants or synthetic caffeine. The green-tea-derived caffeine releases more gradually than synthetic variants, avoiding the sharp spike-and-crash pattern of traditional energy drinks. The added electrolytes replenish what you lose during intense activity, keeping you sharp and hydrated throughout.",
     features: [
@@ -328,13 +284,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 11,
     name: 'RAHATLYK Power',
-    subtitle: 'Sport Energy',
     tagline: 'Push further. Recover faster.',
-    volume: '0.5 L',
+    date: '2024-09-01',
     category: 'energy',
-    topColor: '#86EFAC',
-    botColor: '#16A34A',
-    highlight: '#DCFCE7',
     description: 'Formulated for athletes and active people. RAHATLYK Power delivers sustained energy with a high-electrolyte isotonic formula designed for performance and recovery.',
     longDescription: 'RAHATLYK Power was developed in collaboration with professional athletes training at altitude in Central Asia. The isotonic formula matches the concentration of human blood plasma, meaning your body absorbs it faster than plain water during exercise. The high-electrolyte profile — sodium, potassium, and magnesium — replaces exactly what hard training takes out.',
     features: [
@@ -358,13 +310,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 12,
     name: 'RAHATLYK Green',
-    subtitle: 'Herbal Tea',
     tagline: 'Clarity found in every sip.',
-    volume: '0.5 L',
+    date: '2025-11-28',
     category: 'tea',
-    topColor: '#BBF7D0',
-    botColor: '#22C55E',
-    highlight: '#F0FDF4',
     description: 'A lightly brewed ready-to-drink green tea, naturally high in antioxidants. Clean, delicate, and gently refreshing with no added sugar.',
     longDescription: 'RAHATLYK Green is brewed from whole leaf green tea sourced from high-altitude gardens, steeped at precisely controlled temperatures to maximise catechin content without bitterness. Served chilled, it delivers a clean, slightly grassy flavour with a lingering sweetness — all without a single gram of added sugar. The catechins and EGCG present are among the most potent natural antioxidants studied by nutritional science.',
     features: [
@@ -388,13 +336,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 13,
     name: 'RAHATLYK Chamomile',
-    subtitle: 'Herbal Tea',
     tagline: 'Calm found in every sip.',
-    volume: '0.5 L',
+    date: '2025-11-28',
     category: 'tea',
-    topColor: '#FEF08A',
-    botColor: '#CA8A04',
-    highlight: '#FEFCE8',
     description: 'A soothing ready-to-drink chamomile infusion with a gentle hint of honey. Caffeine-free and naturally calming.',
     longDescription: 'RAHATLYK Chamomile is made from whole chamomile flowers, not extract — producing a fuller flavour and a richer concentration of the apigenin compounds responsible for chamomile\'s well-documented calming effects. A touch of natural wildflower honey rounds out the flavour profile without overpowering the delicate floral notes. Completely caffeine-free, it is ideal any time of day, especially before rest.',
     features: [
@@ -418,13 +362,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 14,
     name: 'RAHATLYK Lemon',
-    subtitle: 'Sparkling',
     tagline: 'Zingy. Bright. Sparkling.',
-    volume: '0.5 L',
+    date: '2024-06-01',
     category: 'soft',
-    topColor: '#FEF9C3',
-    botColor: '#FACC15',
-    highlight: '#FFFBEB',
     description: 'A sparkling lemonade crafted with real lemon juice concentrate and natural flavours. Lively, sharp, and refreshingly low in calories.',
     longDescription: 'RAHATLYK Lemon balances the tart brightness of real lemon juice with just enough natural sweetener to keep things lively without heaviness. The carbonation level is carefully calibrated — fine enough to feel premium, persistent enough to carry the aroma. At just 22 kcal per 100 ml, it is the guilt-free sparkling treat that does not compromise on flavour.',
     features: [
@@ -448,13 +388,9 @@ export const PRODUCTS: Product[] = [
   {
     id: 15,
     name: 'RAHATLYK Berry',
-    subtitle: 'Sparkling',
     tagline: 'Wild berries, pure joy.',
-    volume: '0.5 L',
+    date: '2024-06-01',
     category: 'soft',
-    topColor: '#FBCFE8',
-    botColor: '#EC4899',
-    highlight: '#FDF2F8',
     description: 'A sparkling berry blend bursting with the flavours of real strawberry, raspberry, and blackcurrant juice. Antioxidant-rich and naturally vibrant.',
     longDescription: 'RAHATLYK Berry blends three berry juices — strawberry for sweetness, raspberry for tartness, blackcurrant for depth — into a drink that is immediately recognisable as real fruit. The deep, natural colour comes entirely from the berry pigments themselves. No added colours, no artificial flavours. The result is a sparkling soft drink that is as beautiful to look at as it is to drink.',
     features: [

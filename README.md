@@ -26,8 +26,11 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 - **Contact & Vacancy forms** — custom JS validation with `noValidate`; per-field red ring + inline error messages; errors clear on field focus and auto-dismiss after 5 seconds; labeled fields with red asterisks for required; black submit button; in-flight submit locking to prevent duplicate requests; server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user and a notification email with CV attachment to the company.
 - **Apple-style vacancy cards** — department-coloured gradient header, coloured dot + department badge, salary with icon, two-line description, location pin; reused on vacancy detail recommendations with subtle lift + shadow on hover matching the `vacancy-cards-apple-v2` reference design.
 - **Unified `FilterBar` component** — `src/components/FilterBar.tsx`; shared across Products, News, and Vacancies pages; mobile: horizontally scrollable pill strip with floating gradient arrow overlays (left/right); desktop: exposed via `forwardRef` for GSAP animations; grey pill palette (active: `bg-gray-900`, inactive: `border-gray-300 text-gray-500`).
+- **Pagination** — all three listing pages (`/products`, `/news`, `/vacancies`) are paginated via a shared `Pagination` component (`src/components/Pagination.tsx`). Minimalist design: thin top border, muted count label (`1–9 of 27 articles`), prev/next arrow buttons, page numbers with ellipsis (active page underlined). Page changes scroll Lenis back to the top via a `scroll-to-top` custom DOM event, with a native fallback for `prefers-reduced-motion` users. Pagination state is synced to the URL (`?page=`, `?category=`, `?department=`) for deep-linking and browser back/forward support. The `PaginatedResult<T>` shape mirrors Payload CMS's `find()` response exactly for a future CMS swap.
 - **Contact page two-column layout** — 65/35 split; left: heading + labeled contact form; right: sticky full-height panel reusing the about-page blob gradient (`about-mosaic-*` classes) with GSAP parallax scrub; contact info items (address, phone, email, hours) in solid white over the gradient.
 - **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
+- **Payload CMS-ready data models** — `Article`, `Vacancy`, and `Product` interfaces use plain `string` for category/department (no union types), ISO date strings, and no derived/redundant fields, so they map 1-to-1 to Payload collections. `ProductCard` is derived via `Pick<Product, ...>` so listing pages carry only the fields they need. Locale-aware date formatting is centralised in `src/lib/formatDate.ts` using `Intl.DateTimeFormat`.
+- **Multi-photo news articles** — each `Article` holds an `images: string[]` array. News cards auto-advance through photos at a random per-card cadence (2–5 s) with a slide-in transition; users can also navigate manually via arrow buttons or tap the progress dashes.
 - **Responsive design** — mobile-first, fully responsive across all breakpoints. Footer link groups display in a 2-column grid on mobile, with legal policy links intentionally omitted.
 - **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered listing cards, filter entrances, smooth carousel transitions, pinned horizontal scroll, brand-statement word-mask reveal, and custom about-page interactions.
 - **Lenis smooth scrolling** — global smooth-scroll layer integrated with ScrollTrigger refreshes.
@@ -77,6 +80,7 @@ src/
 │   ├── Navbar.tsx             # Sticky navigation — desktop dropdown + full-screen mobile overlay
 │   ├── Footer.tsx             # Site footer with links & social icons
 │   ├── FilterBar.tsx          # Unified filter pill bar (mobile scroll + desktop forwardRef for GSAP)
+│   ├── Pagination.tsx         # Shared minimalist pagination (prev/next + page numbers + count label)
 │   └── ProductVisual.tsx      # Product image component (sm card / lg detail modes)
 └── lib/
     ├── i18n/
@@ -85,10 +89,12 @@ src/
     ├── email/
     │   ├── templates.ts       # HTML email templates (warm brand palette)
     │   └── i18n.ts            # Email copy in tm / ru / en
+    ├── formatDate.ts          # Locale-aware date formatter (Intl.DateTimeFormat, en/ru/tm)
+    ├── paginate.ts            # Generic paginate() — PaginatedResult<T> mirrors Payload CMS shape
     └── data/
-        ├── products.ts        # Product catalogue data
-        ├── news.ts            # News articles data
-        └── vacancies.ts       # Job openings data
+        ├── products.ts        # Product catalogue — Product + ProductCard (Pick<>) types
+        ├── news.ts            # News articles — multi-image, ISO dates, plain string category
+        └── vacancies.ts       # Job openings — ISO dates, plain string department
 ```
 
 ## Getting Started

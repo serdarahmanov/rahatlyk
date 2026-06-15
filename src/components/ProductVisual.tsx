@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import { Product } from '@/lib/data/products';
+import { Product, ProductCard } from '@/lib/data/products';
 
 interface Props {
-  product: Product;
+  product: Product | ProductCard;
   /** 'sm' = listing card  |  'lg' = detail hero */
   size?: 'sm' | 'lg';
   className?: string;

@@ -4,11 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { VACANCIES, Dept } from '@/lib/data/vacancies';
+import { VACANCIES } from '@/lib/data/vacancies';
+import { formatDate } from '@/lib/formatDate';
 
-type Dept_ = Dept;
-
-const DEPT_CONFIG: Record<Dept_, {
+const DEPT_CONFIG: Record<string, {
   gradient: string;
   light: string;
   text: string;
@@ -24,7 +23,7 @@ const DEPT_CONFIG: Record<Dept_, {
   Quality:           { gradient: 'from-teal-600 to-emerald-500', light: 'bg-teal-50',    text: 'text-teal-700',    badge: 'bg-teal-100 text-teal-700',      icon: '✅' },
 };
 
-const DEPT_ACCENT: Record<Dept, { dot: string; bg1: string; bg2: string }> = {
+const DEPT_ACCENT: Record<string, { dot: string; bg1: string; bg2: string }> = {
   Production:         { dot: '#5e6b7a', bg1: 'rgba(94,107,122,0.18)',  bg2: 'rgba(94,107,122,0.05)' },
   Sales:              { dot: '#2c8a4a', bg1: 'rgba(44,138,74,0.18)',   bg2: 'rgba(44,138,74,0.05)' },
   Marketing:          { dot: '#7d5bbe', bg1: 'rgba(125,91,190,0.18)',  bg2: 'rgba(125,91,190,0.05)' },
@@ -114,7 +113,7 @@ export default function VacancyDetailPage() {
     );
   }
 
-  const cfg = DEPT_CONFIG[vacancy.department];
+  const cfg = DEPT_CONFIG[vacancy.department] ?? DEPT_CONFIG['Production'];
   const others = VACANCIES.filter((v) => v.id !== vacancy.id).slice(0, 3);
 
   const validateApplyForm = () => {
@@ -298,7 +297,7 @@ export default function VacancyDetailPage() {
                 <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
                 <path d="M7 4v3l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
               </svg>
-              Posted {vacancy.postedDate}
+              Posted {formatDate(vacancy.postedDate, locale)}
             </span>
             {vacancy.salary && (
               <>
@@ -569,7 +568,7 @@ export default function VacancyDetailPage() {
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {others.map((v) => {
-                const acc = DEPT_ACCENT[v.department];
+                const acc = DEPT_ACCENT[v.department] ?? DEPT_ACCENT['Production'];
                 return (
                   <Link
                     key={v.id}
@@ -581,7 +580,7 @@ export default function VacancyDetailPage() {
                       style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
                       <span className="text-4xl opacity-55" aria-hidden="true">
-                        {DEPT_CONFIG[v.department].icon}
+                        {(DEPT_CONFIG[v.department] ?? DEPT_CONFIG['Production']).icon}
                       </span>
                     </div>
 
@@ -598,7 +597,7 @@ export default function VacancyDetailPage() {
                       </h3>
 
                       <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>
-                        {v.shortDescription}
+                        {v.overview}
                       </p>
 
                       <div className="flex items-center gap-[7px] text-sm font-semibold mb-2.5" style={{ color: '#1d1d1f' }}>

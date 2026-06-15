@@ -31,6 +31,9 @@ export default function SmoothScroll() {
       scrollTriggerUpdate?.();
     });
 
+    const onScrollTop = () => lenis.scrollTo(0, { immediate: true });
+    window.addEventListener('scroll-to-top', onScrollTop);
+
     const raf = (time: number) => {
       lenis.raf(time);
       frame = requestAnimationFrame(raf);
@@ -39,6 +42,7 @@ export default function SmoothScroll() {
     frame = requestAnimationFrame(raf);
 
     return () => {
+      window.removeEventListener('scroll-to-top', onScrollTop);
       cancelAnimationFrame(frame);
       lenis.destroy();
     };

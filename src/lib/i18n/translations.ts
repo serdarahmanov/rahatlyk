@@ -94,7 +94,6 @@ export const translations = {
       filterProducts: 'Products',
       filterSustainability: 'Sustainability',
       featured: 'Featured',
-      minRead: 'min read',
     },
     vacancies: {
       heroTag: 'Join the Team',
@@ -292,7 +291,6 @@ export const translations = {
       filterProducts: 'Продукты',
       filterSustainability: 'Экология',
       featured: 'Главное',
-      minRead: 'мин чтения',
     },
     vacancies: {
       heroTag: 'Присоединяйтесь',
@@ -490,7 +488,6 @@ export const translations = {
       filterProducts: 'Önümler',
       filterSustainability: 'Ekologiýa',
       featured: 'Öňe çykarylan',
-      minRead: 'min okamak',
     },
     vacancies: {
       heroTag: 'Toparymyza goşuluň',

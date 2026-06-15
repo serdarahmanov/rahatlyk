@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { PRODUCTS, ProductCategory } from '@/lib/data/products';
+import { PRODUCTS } from '@/lib/data/products';
 import { ARTICLES } from '@/lib/data/news';
 
 declare global {
@@ -540,7 +540,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       {/* ── Bottle track — all share the same bottom baseline ── */}
       {CATEGORIES.map((cat, i) => {
         const product = PRODUCTS.find(
-          (p) => p.category === (cat.key as ProductCategory),
+          (p) => p.category === cat.key,
         )!;
         return (
           <div
@@ -833,7 +833,7 @@ function NewsCarousel({ tag }: { tag: string }) {
               <div className="relative overflow-hidden rounded-lg h-full">
 
                 <Image
-                  src={article.image}
+                  src={article.images[0]}
                   alt={article.title}
                   fill
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-700"

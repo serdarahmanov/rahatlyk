@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { PRODUCTS, Product, ProductCategory } from '@/lib/data/products';
+import { PRODUCTS, Product } from '@/lib/data/products';
 import ProductVisual from '@/components/ProductVisual';
 
 /* ── Category config ──────────────────────────────────────────── */
-const CAT_CONFIG: Record<ProductCategory, {
+const CAT_CONFIG: Record<string, {
   gradient: string;
   light: string;
   text: string;
@@ -38,7 +38,7 @@ function RelatedProducts({ current }: { current: Product }) {
           className="text-xl font-light text-brand-950 mb-8"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
-          More in {CAT_CONFIG[current.category].label}
+          More in {(CAT_CONFIG[current.category] ?? CAT_CONFIG['water']).label}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
           {related.map((p) => (
@@ -54,7 +54,7 @@ function RelatedProducts({ current }: { current: Product }) {
 
               {/* Text overlaid at the bottom */}
               <div className="absolute bottom-0 inset-x-0 px-5 pb-5 pt-16">
-                <p className="text-brand-400 text-xs mb-1">{CAT_CONFIG[p.category].label}</p>
+                <p className="text-brand-400 text-xs mb-1">{(CAT_CONFIG[p.category] ?? CAT_CONFIG['water']).label}</p>
                 <h3 className="font-light text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
                   {p.name}
                 </h3>
@@ -64,7 +64,7 @@ function RelatedProducts({ current }: { current: Product }) {
                       {p.volumes.map((v) => v.replace(' L', '')).join(' · ')}{' L'}
                     </p>
                   ) : (
-                    <p className="text-sm font-light text-brand-600">{p.volume}</p>
+                    <p className="text-sm font-light text-brand-600">{p.volumes[0]}</p>
                   )}
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const cfg = CAT_CONFIG[product.category];
+  const cfg = CAT_CONFIG[product.category] ?? CAT_CONFIG['water'];
 
   /* ── Accordion panels (Features + Nutrition only — About is a separate section) ── */
   const panels: { key: AccordionKey; label: string; content: React.ReactNode }[] = [

@@ -2,14 +2,18 @@
 
 import { Suspense, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { VACANCIES, Dept } from '@/lib/data/vacancies';
+import { VACANCIES } from '@/lib/data/vacancies';
+import { paginate } from '@/lib/paginate';
 import FilterBar from '@/components/FilterBar';
+import Pagination from '@/components/Pagination';
+
+const PAGE_SIZE = 9;
 
 /* -- Minimal stroke SVG icons — currentColor, weight 1.5 ------- */
-const DEPT_ICONS: Record<Dept, React.ReactNode> = {
+const DEPT_ICONS: Record<string, React.ReactNode> = {
   Production: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
@@ -58,7 +62,7 @@ const DEPT_ICONS: Record<Dept, React.ReactNode> = {
   ),
 };
 
-const DEPT_ACCENT: Record<Dept, { dot: string; bg1: string; bg2: string }> = {
+const DEPT_ACCENT: Record<string, { dot: string; bg1: string; bg2: string }> = {
   Production:        { dot: '#5e6b7a', bg1: 'rgba(94,107,122,0.18)',  bg2: 'rgba(94,107,122,0.05)'  },
   Sales:             { dot: '#2c8a4a', bg1: 'rgba(44,138,74,0.18)',   bg2: 'rgba(44,138,74,0.05)'   },
   Marketing:         { dot: '#7d5bbe', bg1: 'rgba(125,91,190,0.18)',  bg2: 'rgba(125,91,190,0.05)'  },
@@ -114,15 +118,19 @@ const PERKS = [
   },
 ] as const;
 
-type FilterKey = 'all' | Dept;
+type FilterKey = string;
 
 function VacanciesContent() {
   const { t } = useLanguage();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const initialDept = searchParams.get('department') as FilterKey | null;
-  const [active, setActive] = useState<FilterKey>(
-    initialDept && initialDept !== 'all' ? initialDept : 'all'
-  );
+
+  const initialDept = searchParams.get('department') ?? 'all';
+  const initialPage = Number(searchParams.get('page') ?? '1');
+
+  const [active, setActive] = useState<FilterKey>(initialDept);
+  const [page,   setPage]   = useState(initialPage);
+
   const heroRef  = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
@@ -141,10 +149,21 @@ function VacanciesContent() {
     { key: 'Customer Service', label: t.vacancies.filterService    },
   ];
 
-  const filtered =
-    active === 'all'
-      ? VACANCIES
-      : VACANCIES.filter((j) => j.department === (active as Dept));
+  const filtered = active === 'all' ? VACANCIES : VACANCIES.filter((j) => j.department === active);
+  const result   = paginate(filtered, page, PAGE_SIZE);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (active !== 'all') params.set('department', active);
+    if (page > 1) params.set('page', String(page));
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : '?', { scroll: false });
+  }, [active, page, router]);
+
+  const handleFilterChange = (key: string) => {
+    setActive(key);
+    setPage(1);
+  };
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -233,7 +252,7 @@ function VacanciesContent() {
       }
     };
     animate();
-  }, [active]);
+  }, [active, page]);
 
   const perks = t.vacancies.perks;
 
@@ -263,7 +282,7 @@ function VacanciesContent() {
           </div>
 
           {/* Filter Tabs */}
-          <FilterBar ref={filtersRef} filters={filters} active={active} onChange={(key) => setActive(key as FilterKey)} />
+          <FilterBar ref={filtersRef} filters={filters} active={active} onChange={handleFilterChange} />
           <div ref={contentRef}>
           {/* Section header */}
           <div className="mb-8">
@@ -271,11 +290,11 @@ function VacanciesContent() {
               className="text-xl sm:text-2xl font-light text-brand-950"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {filtered.length} {filtered.length === 1 ? 'open position' : 'open positions'}
+              {result.totalDocs} {result.totalDocs === 1 ? 'open position' : 'open positions'}
             </h2>
           </div>
 
-          {filtered.length === 0 ? (
+          {result.totalDocs === 0 ? (
             <div className="text-center py-20 text-brand-400 bg-white rounded-md border border-brand-200">
               <div className="mb-4">
                 <svg className="mx-auto text-brand-300" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -289,8 +308,8 @@ function VacanciesContent() {
               ref={listRef}
               className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {filtered.map((job) => {
-                const acc = DEPT_ACCENT[job.department];
+              {result.docs.map((job) => {
+                const acc = DEPT_ACCENT[job.department] ?? DEPT_ACCENT['Production'];
                 return (
                   <Link
                     key={job.id}
@@ -328,7 +347,7 @@ function VacanciesContent() {
 
                       {/* Description */}
                       <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>
-                        {job.shortDescription}
+                        {job.overview}
                       </p>
 
                       {/* Salary */}
@@ -353,6 +372,15 @@ function VacanciesContent() {
               })}
             </div>
           )}
+
+          <Pagination
+            page={result.page}
+            totalPages={result.totalPages}
+            totalDocs={result.totalDocs}
+            limit={result.limit}
+            onChange={setPage}
+            label="positions"
+          />
           </div>
         </div>
       </section>
