@@ -692,7 +692,7 @@ export default function AboutPage() {
           >
             <span className="statement-word inline-block opacity-[0.12]">In</span>{' '}
             <span className="statement-word inline-block opacity-[0.12]">Turkmen,</span>{' '}
-            <em className="statement-word inline-block opacity-[0.12] italic text-[#D98A55]" style={accentStyle}>rahatlyk</em>{' '}
+            <em className="statement-word inline-block opacity-[0.12] italic text-[#0891b2]" style={accentStyle}>rahatlyk</em>{' '}
             <span className="statement-word inline-block opacity-[0.12]">means</span>{' '}
             <span className="statement-word inline-block opacity-[0.12]">comfort</span>{' '}
             <span className="statement-word inline-block opacity-[0.12]">&mdash;</span>
@@ -774,7 +774,7 @@ export default function AboutPage() {
                     <span className="font-normal tracking-[-0.015em] text-[#ABAFAA]">{milestone.lead.replace('.', '')}</span>
                     <span>
                       {milestone.title}
-                      {milestone.current ? <sup className="align-super text-[0.3em] not-italic text-[#D98A55]">o</sup> : null}
+                      {milestone.current ? <sup className="align-super text-[0.3em] not-italic text-[#0891b2]">o</sup> : null}
                     </span>
                   </h3>
                   <p className="mt-[clamp(52px,7vw,92px)] max-w-[58ch] text-sm leading-[1.45] text-[#141618]">
@@ -961,7 +961,7 @@ export default function AboutPage() {
             <h2 data-about-fade className="text-[clamp(30px,4.6vw,60px)] font-light leading-none tracking-[-0.01em]" style={headingStyle}>
               Ready to taste <em className="not-italic">comfort?</em>
             </h2>
-            <Link data-about-fade href="/products" className="rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#D98A55] hover:bg-[#D98A55]">
+            <Link data-about-fade href="/products" className="rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]">
               Explore the collection
             </Link>
           </div>

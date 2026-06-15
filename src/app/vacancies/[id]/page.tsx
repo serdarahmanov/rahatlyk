@@ -24,6 +24,16 @@ const DEPT_CONFIG: Record<Dept_, {
   Quality:           { gradient: 'from-teal-600 to-emerald-500', light: 'bg-teal-50',    text: 'text-teal-700',    badge: 'bg-teal-100 text-teal-700',      icon: '✅' },
 };
 
+const DEPT_ACCENT: Record<Dept, { dot: string; bg1: string; bg2: string }> = {
+  Production:         { dot: '#5e6b7a', bg1: 'rgba(94,107,122,0.18)',  bg2: 'rgba(94,107,122,0.05)' },
+  Sales:              { dot: '#2c8a4a', bg1: 'rgba(44,138,74,0.18)',   bg2: 'rgba(44,138,74,0.05)' },
+  Marketing:          { dot: '#7d5bbe', bg1: 'rgba(125,91,190,0.18)',  bg2: 'rgba(125,91,190,0.05)' },
+  Logistics:          { dot: '#c47c28', bg1: 'rgba(196,124,40,0.18)',  bg2: 'rgba(196,124,40,0.05)' },
+  Finance:            { dot: '#2767d6', bg1: 'rgba(39,103,214,0.18)',  bg2: 'rgba(39,103,214,0.05)' },
+  'Customer Service': { dot: '#c0392b', bg1: 'rgba(192,57,43,0.18)',   bg2: 'rgba(192,57,43,0.05)' },
+  Quality:            { dot: '#1d8a8a', bg1: 'rgba(29,138,138,0.18)',  bg2: 'rgba(29,138,138,0.05)' },
+};
+
 type Tab = 'overview' | 'responsibilities' | 'requirements';
 
 export default function VacancyDetailPage() {
@@ -44,6 +54,7 @@ export default function VacancyDetailPage() {
 
   const heroRef   = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
+  const submitInFlightRef = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,6 +88,12 @@ export default function VacancyDetailPage() {
     return () => st?.getAll().forEach((s: any) => s.kill());
   }, []);
 
+  useEffect(() => {
+    if (Object.keys(formErrors).length === 0) return;
+    const id = setTimeout(() => setFormErrors({}), 5000);
+    return () => clearTimeout(id);
+  }, [formErrors]);
+
   if (!vacancy) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -99,12 +116,6 @@ export default function VacancyDetailPage() {
 
   const cfg = DEPT_CONFIG[vacancy.department];
   const others = VACANCIES.filter((v) => v.id !== vacancy.id).slice(0, 3);
-
-  useEffect(() => {
-    if (Object.keys(formErrors).length === 0) return;
-    const id = setTimeout(() => setFormErrors({}), 5000);
-    return () => clearTimeout(id);
-  }, [formErrors]);
 
   const validateApplyForm = () => {
     const errors: Record<string, string> = {};
@@ -131,11 +142,13 @@ export default function VacancyDetailPage() {
 
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitInFlightRef.current) return;
     const errors = validateApplyForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
+    submitInFlightRef.current = true;
     setFormErrors({});
     setFormSubmitting(true);
     setFormError(null);
@@ -159,6 +172,7 @@ export default function VacancyDetailPage() {
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
+      submitInFlightRef.current = false;
       setFormSubmitting(false);
     }
   };
@@ -170,7 +184,7 @@ export default function VacancyDetailPage() {
         {vacancy.benefits && vacancy.benefits.length > 0 && (
           <>
             <h3
-              className="text-lg font-light text-brand-950 mb-4"
+              className="text-lg font-semibold text-brand-950 mb-4"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Benefits & Perks
@@ -203,7 +217,7 @@ export default function VacancyDetailPage() {
       <div className="space-y-8">
         <div>
           <h3
-            className="text-base font-light text-brand-950 mb-4"
+            className="text-base font-semibold text-brand-950 mb-4"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             Required
@@ -220,7 +234,7 @@ export default function VacancyDetailPage() {
         {vacancy.niceToHave && vacancy.niceToHave.length > 0 && (
           <div>
             <h3
-              className="text-base font-light text-brand-950 mb-4"
+              className="text-base font-semibold text-brand-950 mb-4"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Nice to Have
@@ -289,7 +303,13 @@ export default function VacancyDetailPage() {
             {vacancy.salary && (
               <>
                 <span className="text-slate-300">·</span>
-                <span className="font-light text-brand-900">{vacancy.salary}</span>
+                <span className="flex items-center gap-1.5 font-light text-brand-900">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-shrink-0 text-slate-500">
+                    <rect x="1.5" y="3.5" width="13" height="9" rx="2" stroke="currentColor" strokeWidth="1.3" />
+                    <circle cx="8" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.3" />
+                  </svg>
+                  {vacancy.salary}
+                </span>
               </>
             )}
           </div>
@@ -539,30 +559,66 @@ export default function VacancyDetailPage() {
 
       {/* ── Other Openings ── */}
       {others.length > 0 && (
-        <section className="py-14 bg-brand-50 border-t border-brand-100">
-          <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
+        <section className="py-14 bg-white border-t border-[#e8e8ed]">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
             <h2
-              className="text-xl font-light text-brand-950 mb-8"
+              className="text-xl sm:text-2xl font-medium text-brand-950 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               Other Openings
             </h2>
-            <div className="grid sm:grid-cols-3 gap-4">
-              {others.map((v) => (
-                <Link
-                  key={v.id}
-                  href={`/vacancies/${v.id}`}
-                  className="group bg-white hover:shadow-xl hover:-translate-y-1.5 rounded-2xl p-5 transition-[box-shadow,transform] duration-300"
-                >
-                  <span className={`inline-block text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wider mb-3 ${DEPT_CONFIG[v.department].badge}`}>
-                    {v.department}
-                  </span>
-                  <h3 className="text-brand-950 text-sm font-light mb-1 group-hover:text-brand-700 transition-colors">
-                    {v.title}
-                  </h3>
-                  <p className="text-brand-400 text-xs">{v.location}</p>
-                </Link>
-              ))}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {others.map((v) => {
+                const acc = DEPT_ACCENT[v.department];
+                return (
+                  <Link
+                    key={v.id}
+                    href={`/vacancies/${v.id}`}
+                    className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
+                  >
+                    <div
+                      className="h-40 flex items-center justify-center flex-shrink-0 overflow-hidden"
+                      style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
+                    >
+                      <span className="text-4xl opacity-55" aria-hidden="true">
+                        {DEPT_CONFIG[v.department].icon}
+                      </span>
+                    </div>
+
+                    <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
+                        <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>
+                          {v.department}
+                        </span>
+                      </div>
+
+                      <h3 className="text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] mb-2" style={{ color: '#1d1d1f' }}>
+                        {v.title}
+                      </h3>
+
+                      <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>
+                        {v.shortDescription}
+                      </p>
+
+                      <div className="flex items-center gap-[7px] text-sm font-semibold mb-2.5" style={{ color: '#1d1d1f' }}>
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-shrink-0" style={{ color: '#6e6e73' }}>
+                          <rect x="1.5" y="3.5" width="13" height="9" rx="2" stroke="currentColor" strokeWidth="1.3" />
+                          <circle cx="8" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.3" />
+                        </svg>
+                        {v.salary}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[13px]" style={{ color: '#86868b' }}>
+                        <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" className="flex-shrink-0">
+                          <path d="M7,1 C4.8,1 3,2.8 3,5 C3,7.8 7,13 7,13 C7,13 11,7.8 11,5 C11,2.8 9.2,1 7,1 Z M7,6.5 A1.5,1.5 0 1,1 7,3.5 A1.5,1.5 0 0,1 7,6.5 Z" />
+                        </svg>
+                        {v.location}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

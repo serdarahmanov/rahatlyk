@@ -30,7 +30,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 30);
+      setScrolled(y > 1);
       // Direction: treat near-top as "up" so header never hides at page top
       if (y < 80) {
         setScrolledUp(true);
@@ -42,6 +42,7 @@ export default function Navbar() {
       prevScrollY.current = y;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -79,7 +80,7 @@ export default function Navbar() {
   const isHeroPage = pathname === '/' || pathname === '/about';
   const isAboutPage = pathname === '/about';
   const isHomeHero = isHeroPage && !scrolled;
-  const showHeaderPanel = scrolled && !isAboutPage;
+  const showHeaderPanel = scrolled;
   // Any page not-scrolled → transparent bg (image shows through)
 
   const navLinks = [
@@ -97,7 +98,7 @@ export default function Navbar() {
     <>
     <header
       className="fixed top-0 left-0 right-0 z-50"
-      style={pathname === '/about' ? {
+      style={isAboutPage ? {
         opacity:    introComplete ? 1 : 0,
         transform:  !scrolledUp ? 'translateY(-100%)' : 'translateY(0)',
         // transition must already be in the DOM before transform changes — React owns
@@ -110,9 +111,13 @@ export default function Navbar() {
 
       {/* Background panel — slides down from above instead of fading in */}
       <div
-        className={`absolute inset-0 z-0 border-b bg-[#fafaf8]/85 backdrop-blur-[12px] transition-[transform,border-color] duration-300 ease-out ${
-          showHeaderPanel ? 'translate-y-0' : '-translate-y-full'
-        } ${showHeaderPanel ? 'border-black/[0.14]' : 'border-transparent'}`}
+        className="absolute inset-0 z-0 border-b bg-[#fafaf8]/85 backdrop-blur-[12px]"
+        style={{
+          opacity: showHeaderPanel ? 1 : 0,
+          transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
+          borderColor: showHeaderPanel ? 'rgba(0,0,0,0.14)' : 'rgba(0,0,0,0)',
+          transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1), border-color 420ms ease',
+        }}
       />
 
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16">

@@ -361,7 +361,7 @@ function VacanciesContent() {
       <section className="py-16 bg-white border-t border-slate-100">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
           <h2
-            className="text-xl sm:text-2xl font-light text-gray-900 text-center mb-10"
+            className="text-xl sm:text-2xl font-medium text-gray-900 text-center mb-10"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {perks.title}

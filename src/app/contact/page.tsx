@@ -68,6 +68,7 @@ export default function ContactPage() {
   const formRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const bgRef   = useRef<HTMLDivElement>(null);
+  const submitInFlightRef = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,11 +153,13 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitInFlightRef.current) return;
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
+    submitInFlightRef.current = true;
     setFormErrors({});
     setLoading(true);
     setError(null);
@@ -172,6 +175,7 @@ export default function ContactPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
+      submitInFlightRef.current = false;
       setLoading(false);
     }
   };

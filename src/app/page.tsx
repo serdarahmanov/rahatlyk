@@ -136,6 +136,20 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
 function HorizontalScrollSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef     = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  useEffect(() => {
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      ScrollTrigger.refresh();
+    });
+  }, [isMobile]);
 
   useEffect(() => {
     let mounted = true;
@@ -197,7 +211,7 @@ function HorizontalScrollSection() {
 
   return (
     /* outer container — GSAP pins this; overflow-hidden clips the sliding track */
-    <div ref={containerRef} className="h-screen overflow-hidden bg-white py-4">
+    <div ref={containerRef} className="h-screen overflow-hidden bg-white py-7">
 
       {/* track — flex row of variable-width panels; GSAP translates this leftward */}
       <div
@@ -209,7 +223,7 @@ function HorizontalScrollSection() {
         {/* ── PANEL 1 · Full-height portrait photo (~42 vw) ────────── */}
         <div
           className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl"
-          style={{ width: '42vw' }}
+          style={{ width: isMobile ? '88vw' : '42vw' }}
         >
           <Image
             src="/reference/KarunaJuice_Photo_RainbowlFoods.jpg"
@@ -223,9 +237,9 @@ function HorizontalScrollSection() {
         {/* ── PANEL 2 · Solid dark text panel (~28 vw) ─────────────── */}
         <div
           className="relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl"
-          style={{ width: '28vw', padding: '0 4vw' }}
+          style={{ width: isMobile ? '80vw' : '28vw', padding: '0 4vw' }}
         >
-          <span className="block text-brand-400 text-[10px] font-light tracking-[0.35em] uppercase mb-6">
+          <span className="block text-brand-400 text-[10px] font-bold tracking-[0.35em] uppercase mb-6">
             PRISTINE BY NATURE
           </span>
           <h2
@@ -242,7 +256,7 @@ function HorizontalScrollSection() {
         {/* ── PANEL 3 · Split: product photo top + CTA bottom (~32 vw) */}
         <div
           className="relative h-full flex-shrink-0 flex flex-col gap-4"
-          style={{ width: '32vw' }}
+          style={{ width: isMobile ? '85vw' : '32vw' }}
         >
           {/* top: product shot — own rounded container */}
           <div className="relative overflow-hidden rounded-2xl" style={{ flex: '1 1 60%' }}>
@@ -270,9 +284,6 @@ function HorizontalScrollSection() {
             </div>
             {/* ── Content ── */}
             <div className="relative z-10 w-full">
-              <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center text-white/60 text-[11px] font-normal mb-4">
-                01
-              </div>
               <p
                 className="text-white font-light leading-snug mb-5"
                 style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}
@@ -281,7 +292,7 @@ function HorizontalScrollSection() {
               </p>
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2 bg-white text-brand-900 text-[11px] font-light tracking-[0.18em] uppercase px-5 py-2.5 rounded-full hover:bg-brand-50 transition-colors duration-200"
+                className="rounded-[3px] border border-white bg-white px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#141618] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff]"
               >
                 Our Story
               </Link>
@@ -292,7 +303,7 @@ function HorizontalScrollSection() {
         {/* ── PANEL 4 · Full-bleed wide photo with text overlay (~52 vw) */}
         <div
           className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl"
-          style={{ width: '52vw' }}
+          style={{ width: isMobile ? '90vw' : '52vw' }}
         >
           <Image
             src="/reference/New-250ml-Juice-Banner-Website.jpg"
@@ -304,7 +315,7 @@ function HorizontalScrollSection() {
           {/* gradient: only at the bottom so text is readable */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <div className="absolute bottom-14 left-[8%] right-[8%]">
-            <span className="block text-white/55 text-[10px] font-light tracking-[0.35em] uppercase mb-4">
+            <span className="block text-white/55 text-[10px] font-bold tracking-[0.35em] uppercase mb-4">
               CENTURIES OF FILTRATION
             </span>
             <h2
@@ -322,9 +333,9 @@ function HorizontalScrollSection() {
         {/* ── PANEL 5 · Closing light panel (~25 vw) ───────────────── */}
         <div
           className="relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl"
-          style={{ width: '25vw', padding: '0 3.5vw' }}
+          style={{ width: isMobile ? '80vw' : '25vw', padding: '0 3.5vw' }}
         >
-          <span className="block text-brand-600 text-[10px] font-light tracking-[0.35em] uppercase mb-5">
+          <span className="block text-brand-600 text-[10px] font-bold tracking-[0.35em] uppercase mb-5">
             EXPLORE MORE
           </span>
           <h3
@@ -338,7 +349,7 @@ function HorizontalScrollSection() {
           </h3>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-brand-950 text-white text-[11px] font-light tracking-[0.18em] uppercase px-6 py-3 rounded-full hover:bg-brand-700 transition-colors duration-200 w-fit"
+            className="w-fit rounded-[3px] border border-[#141618] bg-[#141618] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
           >
             Explore
           </Link>
@@ -381,8 +392,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       const h = window.innerHeight - headerH;
       const isMobile = window.innerWidth < 768;
       const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
-      // Desktop only: add 5% extra height at the bottom (after nav icons)
-      const sectionH = isMobile ? h : Math.round(h * 1.05);
+      const sectionH = isMobile ? window.innerHeight : Math.round(window.innerHeight * 1.1);
       sectionRef.current.style.height = `${sectionH}px`;
       sectionRef.current.style.setProperty('--col-h', `${h}px`);
       sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
@@ -581,7 +591,10 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
       >
         {/* Sub-label — pinned to top on desktop */}
         <div className="hidden md:block">
-          <span className="block text-[10px] font-light tracking-[0.2em] uppercase text-black/40">
+          <span
+            className="block text-[10px] font-bold tracking-[0.2em] uppercase text-black/40"
+            style={{ fontWeight: 700 }}
+          >
             {cats.sectionTag ?? ''}
           </span>
         </div>
@@ -591,7 +604,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
           {/* Category name — SplitText per-line reveal */}
           <div className="overflow-hidden mb-2 w-full">
             <h3
-              className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-light text-black leading-tight"
+              className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {cats[activeCat.key] ?? ''}
@@ -607,7 +620,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
 
           {/* Full paragraph — SplitText per-line reveal, tablet/desktop only */}
           <div className="overflow-hidden hidden md:block w-full">
-            <p className="split-reveal text-black/45 text-xs lg:text-sm leading-relaxed">
+            <p className="split-reveal text-black text-xs lg:text-sm leading-snug">
               {cats[activeCat.bodyKey] ?? ''}
             </p>
           </div>
@@ -616,7 +629,7 @@ function CollectionsSection({ cats }: { cats: Record<string, string> }) {
         {/* Explore link — pinned to bottom on desktop */}
         <Link
           href={`/products?category=${activeCat.key}`}
-          className="inline-flex items-center gap-1.5 text-[11px] font-light tracking-[0.22em] uppercase text-black/75 group mt-4 md:mt-0"
+          className="group inline-flex items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618] mt-4 md:mt-0"
         >
           <span>{cats.explore}</span>
           <svg
@@ -772,7 +785,10 @@ function NewsCarousel({ tag }: { tag: string }) {
       {/* ── Header: constrained, sits at top ── */}
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16 pt-24 w-full flex-shrink-0" style={{ paddingBottom: '20px' }}>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-light tracking-[0.25em] uppercase text-brand-400">
+          <span
+            className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand-400"
+            style={{ fontWeight: 700 }}
+          >
             {tag}
           </span>
           <div className="flex items-center gap-5">
@@ -989,10 +1005,14 @@ export default function HomePage() {
             tl.fromTo(lSpans, { yPercent: 115 }, {
               yPercent: 0, duration: 0.8, ease: 'power4.out', onComplete: lRestore,
             });
-            // Text: simple fade+slide (preserves inline HTML like <strong>)
+            // Text: word-mask reveal using React-rendered spans, preserving accent styling.
+            const textWords = textEl.querySelectorAll<HTMLElement>('.brand-text-word');
             gsap.set(textEl, { opacity: 1 });
-            tl.fromTo(textEl, { y: 12, opacity: 0 }, {
-              y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
+            tl.fromTo(textWords, { yPercent: 115 }, {
+              yPercent: 0,
+              duration: 0.7,
+              stagger: 0.035,
+              ease: 'power4.out',
             }, 0.15);
           },
         });
@@ -1093,37 +1113,46 @@ export default function HomePage() {
           BRAND STATEMENT
       ══════════════════════════════════════════ */}
       <section ref={brandRef} className="py-20 sm:py-28 lg:py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-10 sm:gap-16 lg:gap-24">
+        <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-start">
 
             {/* Left: brand label */}
-            <div className="flex-shrink-0 sm:pt-[0.2em] sm:pr-12 lg:pr-16 sm:border-r sm:border-brand-200">
+            <div className="sm:pt-[0.2em] text-center">
               <span
                 ref={brandLabelRef}
-                className="block text-[11px] font-light tracking-[0.45em] text-black uppercase"
-                style={{ fontFamily: 'var(--font-heading), sans-serif', overflow: 'hidden', paddingBottom: '0.1em' }}
+                className="block text-[15px] font-bold tracking-[0.45em] text-black uppercase"
+                style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 700, overflow: 'hidden', paddingBottom: '0.1em' }}
               >
                 RAHATLYK
               </span>
             </div>
 
             {/* Right: brand statement */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0">
               <p
                 ref={brandTextRef}
-                className="text-sm sm:text-[15px] text-black leading-[1.55] font-light"
+                className="text-base sm:text-[17px] text-black leading-[1.38] font-light"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {(() => {
                   const text = t.home.brand.text;
-                  const idx  = text.indexOf(' ');
-                  if (idx === -1) return text;
-                  return (
-                    <>
-                      <strong className="font-light">{text.slice(0, idx)}</strong>
-                      {text.slice(idx)}
-                    </>
-                  );
+                  return text.split(/(\s+)/).map((part, index) => {
+                    if (/^\s+$/.test(part)) return part;
+
+                    return (
+                      <span
+                        key={`${part}-${index}`}
+                        className="inline-block overflow-hidden align-bottom pb-[0.12em] mb-[-0.12em]"
+                      >
+                        <span
+                          className={`brand-text-word inline-block ${part === 'RAHATLYK' ? 'italic text-[#0891b2]' : ''}`}
+                          style={part === 'RAHATLYK' ? { fontFamily: 'var(--font-accent), Georgia, "Times New Roman", serif' } : undefined}
+                        >
+                          {part}
+                        </span>
+                      </span>
+                    );
+                  });
                 })()}
               </p>
             </div>
@@ -1168,12 +1197,15 @@ export default function HomePage() {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-24">
           <div className="max-w-xl mx-auto text-center">
 
-            <span className="story-animate block text-brand-300 text-[10px] font-light tracking-[0.22em] uppercase mb-4">
+            <span
+              className="story-animate block text-brand-300 text-[10px] font-bold tracking-[0.22em] uppercase mb-4"
+              style={{ fontWeight: 700 }}
+            >
               {t.home.story.tag}
             </span>
 
             <h2
-              className="story-animate text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-tight mb-5"
+              className="story-animate text-2xl sm:text-3xl lg:text-4xl font-medium text-white leading-tight mb-5"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.home.story.title}
@@ -1253,7 +1285,7 @@ export default function HomePage() {
             </svg>
           </div>
           <h2
-            className="text-3xl sm:text-4xl lg:text-5xl font-light text-white mb-4 leading-tight"
+            className="text-3xl sm:text-4xl lg:text-5xl font-medium text-white mb-4 leading-tight"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {t.home.ctaBanner.title}

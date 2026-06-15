@@ -60,7 +60,7 @@ export const translations = {
         cta: 'View All News',
       },
       brand: {
-        text: 'RAHATLYK water is drawn from the pristine underground aquifers of Turkmenistan, where nature has spent centuries filtering and perfecting each drop. We capture this exceptional purity with an unwavering commitment to quality, integrity, and elegance — ensuring that every sip delivers not just refreshment, but a genuine moment of natural wellbeing.',
+        text: 'RAHATLYK water comes from Turkmenistan\'s pristine underground aquifers, naturally filtered over centuries. We preserve that purity with strict quality standards, so every sip feels clean, refreshing and naturally balanced.',
       },
       ctaBanner: {
         title: 'Stay Pure, Stay Hydrated',
@@ -196,8 +196,6 @@ export const translations = {
       quickLinks: 'Quick Links',
       company: 'Company',
       rights: '© 2025 RAHATLYK. All rights reserved.',
-      privacy: 'Privacy Policy',
-      terms: 'Terms of Service',
     },
   },
 
@@ -396,8 +394,6 @@ export const translations = {
       quickLinks: 'Быстрые ссылки',
       company: 'Компания',
       rights: '© 2025 RAHATLYK. Все права защищены.',
-      privacy: 'Политика конфиденциальности',
-      terms: 'Условия использования',
     },
   },
 
@@ -596,8 +592,6 @@ export const translations = {
       quickLinks: 'Çalt baglantylar',
       company: 'Kompaniýa',
       rights: '© 2025 RAHATLYK. Ähli hukuklar goragly.',
-      privacy: 'Gizlinlik syýasaty',
-      terms: 'Ulanyş şertleri',
     },
   },
 };
