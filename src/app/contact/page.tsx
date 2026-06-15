@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-/* ── Contact info items ─────────────────────────────────────── */
 const INFO_ITEMS = [
   {
     icon: (
@@ -14,8 +13,6 @@ const INFO_ITEMS = [
     ),
     labelKey: 'address',
     valueKey: 'addressValue',
-    bg: 'bg-brand-50',
-    text: 'text-brand-700',
   },
   {
     icon: (
@@ -25,8 +22,6 @@ const INFO_ITEMS = [
     ),
     labelKey: 'phone',
     valueKey: 'phoneValue',
-    bg: 'bg-brand-100',
-    text: 'text-brand-700',
   },
   {
     icon: (
@@ -36,8 +31,6 @@ const INFO_ITEMS = [
     ),
     labelKey: 'email',
     valueKey: 'emailValue',
-    bg: 'bg-brand-200',
-    text: 'text-brand-800',
   },
   {
     icon: (
@@ -48,21 +41,20 @@ const INFO_ITEMS = [
     ),
     labelKey: 'hours',
     valueKey: 'hoursValue',
-    bg: 'bg-brand-100',
-    text: 'text-brand-600',
   },
 ] as const;
 
-/* ── Shared input class ─────────────────────────────────────── */
-const fieldCls =
-  'w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all';
+const fieldCls = (err?: boolean) =>
+  `w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+    err ? 'bg-red-50 ring-2 ring-red-400' : 'bg-[#f3f4f6] focus:ring-gray-600'
+  }`;
 
-/* ── Page ───────────────────────────────────────────────────── */
 export default function ContactPage() {
   const { t, locale } = useLanguage();
-  const [submitted, setSubmitted] = useState(false);
-  const [loading,   setLoading]   = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [submitted,  setSubmitted]  = useState(false);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState({
     firstName: '',
     lastName:  '',
@@ -75,6 +67,7 @@ export default function ContactPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
+  const bgRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,20 +82,36 @@ export default function ContactPage() {
         gsap.fromTo(
           heroRef.current.children,
           { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out', delay: 0.1 }
+          { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out', delay: 0.15 }
         );
       }
       if (formRef.current) {
-        gsap.fromTo(formRef.current, { x: -30, opacity: 0 }, {
-          x: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
-          scrollTrigger: { trigger: formRef.current, start: 'top 85%' },
+        gsap.fromTo(formRef.current, { y: 20, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
+          scrollTrigger: { trigger: formRef.current, start: 'top 88%' },
         });
       }
       if (infoRef.current) {
-        gsap.fromTo(infoRef.current.children, { x: 30, opacity: 0 }, {
-          x: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
+        gsap.fromTo(infoRef.current.children, { y: 24, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
           scrollTrigger: { trigger: infoRef.current, start: 'top 85%' },
         });
+      }
+      /* Parallax on the gradient background */
+      if (bgRef.current) {
+        gsap.fromTo(bgRef.current,
+          { y: '-10%' },
+          {
+            y: '10%',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: document.documentElement,
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: true,
+            },
+          }
+        );
       }
     };
     init();
@@ -110,14 +119,45 @@ export default function ContactPage() {
     return () => st?.getAll().forEach((s: any) => s.kill());
   }, []);
 
+  useEffect(() => {
+    if (Object.keys(formErrors).length === 0) return;
+    const id = setTimeout(() => setFormErrors({}), 5000);
+    return () => clearTimeout(id);
+  }, [formErrors]);
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!form.firstName.trim()) errors.firstName = 'First name is required';
+    if (!form.lastName.trim())  errors.lastName  = 'Last name is required';
+    if (!form.email.trim())     errors.email     = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = 'Please enter a valid email';
+    if (!form.subject.trim())   errors.subject   = 'Subject is required';
+    if (!form.message.trim())   errors.message   = 'Message is required';
+    return errors;
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target;
+    if (formErrors[name]) {
+      setFormErrors((prev) => { const n = { ...prev }; delete n[name]; return n; });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
     setLoading(true);
     setError(null);
     try {
@@ -140,194 +180,228 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="w-full lg:grid lg:grid-cols-[65fr_35fr] lg:min-h-screen">
 
-      {/* ── Title — no background image ── */}
-      <div className="pt-32 pb-10 max-w-7xl mx-auto px-5 sm:px-8 lg:px-10" ref={heroRef}>
-        <h1
-          className="text-4xl sm:text-5xl lg:text-6xl font-light text-brand-950 leading-tight mb-6"
-          style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-        >
-          {t.contact.title}
-        </h1>
-        <p className="text-black text-base sm:text-lg leading-relaxed max-w-2xl">
-          We are as passionate about your experience as we are about the purity of each and every RAHATLYK bottle. To maintain our high standards of excellence, we rely on our connection with you. We invite you to get in touch; whatever you need, we&apos;ll be only too happy to help.
-        </p>
-      </div>
+        {/* ── Left — heading + form ── */}
+        <div className="px-5 sm:px-10 lg:px-16 xl:px-24 pt-32 pb-24">
 
-      {/* ── Content ── */}
-      <section className="pb-24 bg-white">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-[1fr_400px] gap-10 lg:gap-16 items-start">
+          {/* Heading */}
+          <div className="mb-10" ref={heroRef}>
+            <h1
+              className="text-4xl sm:text-5xl font-light text-brand-950 leading-tight mb-5"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              We&apos;d Love to Hear From You
+            </h1>
+            <p className="text-gray-500 text-base leading-relaxed">
+              We are as passionate about your experience as we are about the purity of each and every RAHATLYK bottle. We rely on our connection with you — whatever you need, we&apos;ll be only too happy to help.
+            </p>
+          </div>
 
-            {/* ── Form ── */}
-            <div ref={formRef}>
-              {submitted ? (
-                <div className="py-10">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-brand-700">
-                        <path d="M22 2 11 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M22 2 15 22 11 13 2 9l20-7z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-light text-brand-950" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-                        Message Sent
-                      </h3>
-                      <p className="text-brand-500 text-sm mt-0.5">
-                        Thanks <span className="font-light text-brand-800">{form.firstName} {form.lastName}</span> — we&apos;ll be in touch at <span className="font-light text-brand-800">{form.email}</span>.
-                      </p>
-                    </div>
+          {/* Form */}
+          <div ref={formRef}>
+            {submitted ? (
+              <div className="py-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-brand-700">
+                      <path d="M22 2 11 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M22 2 15 22 11 13 2 9l20-7z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
-                  <div className="border-t border-brand-100 pt-6 space-y-4">
-                    <p className="text-[10px] font-light text-brand-300 uppercase tracking-[0.2em]">What happens next</p>
-                    {[
-                      { n: '01', text: <>Our team reviews your message within <strong className="text-brand-800 font-light">1 business day</strong>.</> },
-                      { n: '02', text: <>We&apos;ll reply directly to <strong className="text-brand-800 font-light">{form.email}</strong>.</> },
-                      { n: '03', text: <>For urgent enquiries call <strong className="text-brand-800 font-light">+993 12 000 000</strong>.</> },
-                    ].map(({ n, text }) => (
-                      <div key={n} className="flex items-start gap-3">
-                        <span className="text-[10px] font-light text-brand-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
-                        <p className="text-sm text-brand-600 leading-relaxed">{text}</p>
-                      </div>
-                    ))}
+                  <div>
+                    <h3 className="text-xl font-light text-brand-950" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+                      Message Sent
+                    </h3>
+                    <p className="text-brand-500 text-sm mt-0.5">
+                      Thanks <span className="font-light text-brand-800">{form.firstName} {form.lastName}</span> — we&apos;ll be in touch at <span className="font-light text-brand-800">{form.email}</span>.
+                    </p>
                   </div>
-                  <button
-                    className="mt-8 w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center"
-                    onClick={() => {
-                      setSubmitted(false);
-                      setForm({ firstName: '', lastName: '', email: '', phone: '', subject: '', message: '' });
-                    }}
-                  >
-                    Send Another Message
-                  </button>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="border-t border-brand-100 pt-6 space-y-4">
+                  <p className="text-[10px] font-light text-brand-300 uppercase tracking-[0.2em]">What happens next</p>
+                  {[
+                    { n: '01', text: <>Our team reviews your message within <strong className="text-brand-800 font-light">1 business day</strong>.</> },
+                    { n: '02', text: <>We&apos;ll reply directly to <strong className="text-brand-800 font-light">{form.email}</strong>.</> },
+                    { n: '03', text: <>For urgent enquiries call <strong className="text-brand-800 font-light">+993 12 000 000</strong>.</> },
+                  ].map(({ n, text }) => (
+                    <div key={n} className="flex items-start gap-3">
+                      <span className="text-[10px] font-light text-brand-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
+                      <p className="text-sm text-brand-600 leading-relaxed">{text}</p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="mt-8 w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center"
+                  onClick={() => {
+                    setSubmitted(false);
+                    setForm({ firstName: '', lastName: '', email: '', phone: '', subject: '', message: '' });
+                  }}
+                >
+                  Send Another Message
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate className="space-y-3">
 
-                  {/* First Name + Last Name */}
-                  <div className="grid sm:grid-cols-2 gap-3">
+                {/* First Name + Last Name */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm text-gray-900 mb-1.5 px-1">First name <span className="text-red-400">*</span></label>
                     <input
                       type="text"
                       name="firstName"
                       value={form.firstName}
                       onChange={handleChange}
-                      required
-                      placeholder="First name*"
-                      className={fieldCls}
+                      onFocus={handleFocus}
+                      placeholder="John"
+                      className={fieldCls(!!formErrors.firstName)}
                     />
+                    {formErrors.firstName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.firstName}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-900 mb-1.5 px-1">Last name <span className="text-red-400">*</span></label>
                     <input
                       type="text"
                       name="lastName"
                       value={form.lastName}
                       onChange={handleChange}
-                      required
-                      placeholder="Last name*"
-                      className={fieldCls}
+                      onFocus={handleFocus}
+                      placeholder="Smith"
+                      className={fieldCls(!!formErrors.lastName)}
                     />
+                    {formErrors.lastName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.lastName}</p>}
                   </div>
+                </div>
 
-                  {/* Email + Phone */}
-                  <div className="grid sm:grid-cols-2 gap-3">
+                {/* Email + Phone */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm text-gray-900 mb-1.5 px-1">Email <span className="text-red-400">*</span></label>
                     <input
                       type="email"
                       name="email"
                       value={form.email}
                       onChange={handleChange}
-                      required
-                      placeholder="Email*"
-                      className={fieldCls}
+                      onFocus={handleFocus}
+                      placeholder="you@example.com"
+                      className={fieldCls(!!formErrors.email)}
                     />
+                    {formErrors.email && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.email}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-900 mb-1.5 px-1">Phone</label>
                     <input
                       type="tel"
                       name="phone"
                       value={form.phone}
                       onChange={handleChange}
-                      placeholder="Phone"
-                      className={fieldCls}
+                      placeholder="+993 ..."
+                      className={fieldCls()}
                     />
                   </div>
+                </div>
 
-                  {/* Subject */}
+                {/* Subject */}
+                <div>
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Subject <span className="text-red-400">*</span></label>
                   <input
                     type="text"
                     name="subject"
                     value={form.subject}
                     onChange={handleChange}
-                    required
-                    placeholder="Subject*"
-                    className={fieldCls}
+                    onFocus={handleFocus}
+                    placeholder="What is this about?"
+                    className={fieldCls(!!formErrors.subject)}
                   />
+                  {formErrors.subject && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.subject}</p>}
+                </div>
 
-                  {/* Message */}
+                {/* Message */}
+                <div>
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Message <span className="text-red-400">*</span></label>
                   <textarea
                     name="message"
                     value={form.message}
                     onChange={handleChange}
-                    required
+                    onFocus={handleFocus}
                     rows={6}
-                    placeholder="Message*"
-                    className={`${fieldCls} resize-none`}
+                    placeholder="Your message…"
+                    className={`${fieldCls(!!formErrors.message)} resize-none`}
                   />
+                  {formErrors.message && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.message}</p>}
+                </div>
 
+                {error && (
+                  <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                    {error}
+                  </p>
+                )}
 
-                  {/* Error */}
-                  {error && (
-                    <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                      {error}
-                    </p>
-                  )}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center gap-2 mt-1"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4" strokeDashoffset="10" />
+                      </svg>
+                      Sending…
+                    </>
+                  ) : 'Submit inquiry'}
+                </button>
 
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center gap-2 mt-1"
-                  >
-                    {loading ? (
-                      <>
-                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4" strokeDashoffset="10" />
-                        </svg>
-                        Sending…
-                      </>
-                    ) : 'Submit inquiry'}
-                  </button>
+              </form>
+            )}
+          </div>
+        </div>
 
-                </form>
-              )}
-            </div>
+        {/* ── Right — sticky gradient info panel ── */}
+        <div className="relative lg:sticky lg:top-0 lg:h-screen overflow-hidden">
 
-            {/* ── Contact Info ── */}
-            <div ref={infoRef} className="pt-2">
-              <p className="text-[10px] font-light tracking-[0.2em] uppercase text-gray-400 mb-8">
-                {info.title}
-              </p>
+          {/* Parallax blob gradient — same as about page mosaic */}
+          <div ref={bgRef} className="about-mosaic-bg">
+            <div className="about-mosaic-base" />
+            <div className="about-mosaic-blob about-mosaic-blob-1" />
+            <div className="about-mosaic-blob about-mosaic-blob-2" />
+            <div className="about-mosaic-blob about-mosaic-blob-3" />
+            <div className="about-mosaic-blob about-mosaic-blob-4" />
+            <div className="about-mosaic-blob about-mosaic-blob-5" />
+            <div className="about-mosaic-grain" />
+          </div>
 
-              <div className="space-y-0">
-                {INFO_ITEMS.map((item) => (
-                  <div key={item.labelKey} className="py-5 border-t border-gray-100 flex items-start gap-4">
-                    {/* Thin mono icon */}
-                    <div className="mt-0.5 flex-shrink-0 text-gray-400">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-light uppercase tracking-[0.18em] text-gray-400 mb-1">
-                        {info[item.labelKey as keyof typeof info]}
-                      </p>
-                      <p className="text-sm text-gray-800 leading-relaxed">
-                        {info[item.valueKey as keyof typeof info]}
-                      </p>
-                    </div>
+          {/* Info content */}
+          <div className="relative z-10 flex flex-col justify-center h-full px-10 lg:px-12 py-20 lg:py-24">
+
+            <p className="text-[10px] tracking-[0.25em] uppercase text-white font-normal mb-10">
+              Contact Information
+            </p>
+
+            <div ref={infoRef} className="space-y-0">
+              {INFO_ITEMS.map((item) => (
+                <div key={item.labelKey} className="py-6 border-t border-white/20 flex items-start gap-5">
+                  <div className="mt-0.5 flex-shrink-0 text-white/70">
+                    {item.icon}
                   </div>
-                ))}
-                <div className="border-t border-gray-100" />
-              </div>
+                  <div>
+                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">
+                      {info[item.labelKey as keyof typeof info]}
+                    </p>
+                    <p className="text-[15px] text-white leading-relaxed font-normal">
+                      {info[item.valueKey as keyof typeof info]}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="border-t border-white/10" />
             </div>
 
           </div>
         </div>
-      </section>
+
+      </div>
     </div>
   );
 }

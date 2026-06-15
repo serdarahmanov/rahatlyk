@@ -39,6 +39,7 @@ export default function VacancyDetailPage() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [applyForm, setApplyForm] = useState({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', cover: '' });
 
   const heroRef   = useRef<HTMLDivElement>(null);
@@ -99,12 +100,43 @@ export default function VacancyDetailPage() {
   const cfg = DEPT_CONFIG[vacancy.department];
   const others = VACANCIES.filter((v) => v.id !== vacancy.id).slice(0, 3);
 
+  useEffect(() => {
+    if (Object.keys(formErrors).length === 0) return;
+    const id = setTimeout(() => setFormErrors({}), 5000);
+    return () => clearTimeout(id);
+  }, [formErrors]);
+
+  const validateApplyForm = () => {
+    const errors: Record<string, string> = {};
+    if (!applyForm.firstName.trim()) errors.firstName = 'First name is required';
+    if (!applyForm.lastName.trim()) errors.lastName = 'Last name is required';
+    if (!applyForm.email.trim()) errors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(applyForm.email)) errors.email = 'Please enter a valid email';
+    if (!applyForm.dateOfBirth) errors.dateOfBirth = 'Date of birth is required';
+    if (!cvFile) errors.cv = 'Please upload your CV';
+    return errors;
+  };
+
   const handleApplyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setApplyForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setApplyForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleApplyFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target;
+    if (formErrors[name]) {
+      setFormErrors((prev) => { const n = { ...prev }; delete n[name]; return n; });
+    }
   };
 
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors = validateApplyForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
     setFormSubmitting(true);
     setFormError(null);
     try {
@@ -349,66 +381,87 @@ export default function VacancyDetailPage() {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleApplySubmit} className="space-y-3">
+            <form onSubmit={handleApplySubmit} noValidate className="space-y-3">
 
               {/* First Name + Last Name */}
               <div className="grid sm:grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  name="firstName"
-                  value={applyForm.firstName}
-                  onChange={handleApplyChange}
-                  required
-                  placeholder="First name*"
-                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
-                />
-                <input
-                  type="text"
-                  name="lastName"
-                  value={applyForm.lastName}
-                  onChange={handleApplyChange}
-                  required
-                  placeholder="Last name*"
-                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
-                />
+                <div>
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">First name <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={applyForm.firstName}
+                    onChange={handleApplyChange}
+                    onFocus={handleApplyFocus}
+                    placeholder="John"
+                    className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.firstName ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
+                  />
+                  {formErrors.firstName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.firstName}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Last name <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={applyForm.lastName}
+                    onChange={handleApplyChange}
+                    onFocus={handleApplyFocus}
+                    placeholder="Smith"
+                    className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.lastName ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
+                  />
+                  {formErrors.lastName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.lastName}</p>}
+                </div>
               </div>
 
               {/* Email + Phone */}
               <div className="grid sm:grid-cols-2 gap-3">
-                <input
-                  type="email"
-                  name="email"
-                  value={applyForm.email}
-                  onChange={handleApplyChange}
-                  required
-                  placeholder="Email*"
-                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
-                />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={applyForm.phone}
-                  onChange={handleApplyChange}
-                  placeholder="Phone"
-                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
-                />
+                <div>
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Email <span className="text-red-400">*</span></label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={applyForm.email}
+                    onChange={handleApplyChange}
+                    onFocus={handleApplyFocus}
+                    placeholder="you@example.com"
+                    className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.email ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
+                  />
+                  {formErrors.email && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.email}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={applyForm.phone}
+                    onChange={handleApplyChange}
+                    placeholder="+993 ..."
+                    className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+                  />
+                </div>
               </div>
 
               {/* Date of Birth */}
-              <input
-                type="date"
-                name="dateOfBirth"
-                value={applyForm.dateOfBirth}
-                onChange={handleApplyChange}
-                required
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
-                className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
-              />
+              <div>
+                <label className="block text-sm text-gray-900 mb-1.5 px-1">Date of birth <span className="text-red-400">*</span></label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={applyForm.dateOfBirth}
+                  onChange={handleApplyChange}
+                  onFocus={handleApplyFocus}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
+                  className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-500 focus:outline-none focus:ring-2 transition-all ${formErrors.dateOfBirth ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
+                />
+                {formErrors.dateOfBirth && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.dateOfBirth}</p>}
+              </div>
 
               {/* CV Upload */}
+              <div>
+              <label className="block text-sm text-gray-900 mb-1.5 px-1">CV / Resume <span className="text-red-400">*</span></label>
               <div
                 className={`rounded-md px-4 py-6 text-center cursor-pointer transition-all duration-200 ${
-                  dragOver ? 'bg-gray-200' : 'bg-[#f3f4f6] hover:bg-gray-200'
+                  formErrors.cv ? 'ring-2 ring-red-400 bg-red-50' : dragOver ? 'bg-gray-200' : 'bg-[#f3f4f6] hover:bg-gray-200'
                 }`}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
@@ -438,18 +491,23 @@ export default function VacancyDetailPage() {
                   </>
                 )}
                 <input id="cv-input" type="file" accept=".pdf,.doc,.docx" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setCvFile(f); }} />
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) { setCvFile(f); setFormErrors((prev) => { const n = { ...prev }; delete n.cv; return n; }); } }} />
+              </div>
+              {formErrors.cv && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.cv}</p>}
               </div>
 
               {/* Cover Letter */}
-              <textarea
-                name="cover"
-                value={applyForm.cover}
-                onChange={handleApplyChange}
-                rows={5}
-                placeholder="Cover letter — tell us why you're a great fit…"
-                className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all resize-none"
-              />
+              <div>
+                <label className="block text-sm text-gray-900 mb-1.5 px-1">Cover letter</label>
+                <textarea
+                  name="cover"
+                  value={applyForm.cover}
+                  onChange={handleApplyChange}
+                  rows={5}
+                  placeholder="Tell us why you're a great fit…"
+                  className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all resize-none"
+                />
+              </div>
 
               {/* Error */}
               {formError && (
@@ -461,7 +519,7 @@ export default function VacancyDetailPage() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={formSubmitting || !cvFile}
+                disabled={formSubmitting}
                 className="w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
               >
                 {formSubmitting ? (

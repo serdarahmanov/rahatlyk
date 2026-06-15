@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { gsap } from 'gsap';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { VACANCIES, Dept } from '@/lib/data/vacancies';
+import FilterBar from '@/components/FilterBar';
 
 /* -- Minimal stroke SVG icons — currentColor, weight 1.5 ------- */
 const DEPT_ICONS: Record<Dept, React.ReactNode> = {
@@ -57,14 +58,14 @@ const DEPT_ICONS: Record<Dept, React.ReactNode> = {
   ),
 };
 
-const DEPT_CONFIG: Record<Dept, { badge: string; iconBg: string; iconColor: string; accentBg: string }> = {
-  Production:         { badge: 'bg-brand-200 text-brand-800', iconBg: 'bg-brand-200', iconColor: 'text-brand-700', accentBg: 'bg-brand-950' },
-  Sales:              { badge: 'bg-brand-100 text-brand-700', iconBg: 'bg-brand-100', iconColor: 'text-brand-600', accentBg: 'bg-brand-800' },
-  Marketing:          { badge: 'bg-brand-200 text-brand-900', iconBg: 'bg-brand-200', iconColor: 'text-brand-800', accentBg: 'bg-brand-700' },
-  Logistics:          { badge: 'bg-brand-100 text-brand-800', iconBg: 'bg-brand-100', iconColor: 'text-brand-700', accentBg: 'bg-brand-600' },
-  Finance:            { badge: 'bg-brand-200 text-brand-700', iconBg: 'bg-brand-200', iconColor: 'text-brand-600', accentBg: 'bg-brand-500' },
-  'Customer Service': { badge: 'bg-brand-100 text-brand-800', iconBg: 'bg-brand-100', iconColor: 'text-brand-700', accentBg: 'bg-brand-400' },
-  Quality:            { badge: 'bg-brand-200 text-brand-900', iconBg: 'bg-brand-200', iconColor: 'text-brand-800', accentBg: 'bg-brand-700' },
+const DEPT_ACCENT: Record<Dept, { dot: string; bg1: string; bg2: string }> = {
+  Production:        { dot: '#5e6b7a', bg1: 'rgba(94,107,122,0.18)',  bg2: 'rgba(94,107,122,0.05)'  },
+  Sales:             { dot: '#2c8a4a', bg1: 'rgba(44,138,74,0.18)',   bg2: 'rgba(44,138,74,0.05)'   },
+  Marketing:         { dot: '#7d5bbe', bg1: 'rgba(125,91,190,0.18)',  bg2: 'rgba(125,91,190,0.05)'  },
+  Logistics:         { dot: '#c47c28', bg1: 'rgba(196,124,40,0.18)',  bg2: 'rgba(196,124,40,0.05)'  },
+  Finance:           { dot: '#2767d6', bg1: 'rgba(39,103,214,0.18)',  bg2: 'rgba(39,103,214,0.05)'  },
+  'Customer Service':{ dot: '#c0392b', bg1: 'rgba(192,57,43,0.18)',   bg2: 'rgba(192,57,43,0.05)'   },
+  Quality:           { dot: '#1d8a8a', bg1: 'rgba(29,138,138,0.18)',  bg2: 'rgba(29,138,138,0.05)'  },
 };
 
 const PERKS = [
@@ -239,7 +240,7 @@ function VacanciesContent() {
   return (
     <div className="min-h-screen">
       {/* Vacancies */}
-      <section className="pt-32 pb-12 bg-brand-50">
+      <section className="pt-32 pb-12 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="mb-5 text-left" ref={heroRef}>
             <h1
@@ -262,21 +263,7 @@ function VacanciesContent() {
           </div>
 
           {/* Filter Tabs */}
-          <div ref={filtersRef} className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
-            {filters.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
-                  active === f.key
-                    ? 'border-brand-950 bg-brand-950 text-brand-50'
-                    : 'border-brand-950/20 bg-transparent text-brand-500 hover:border-brand-950 hover:text-brand-950'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <FilterBar ref={filtersRef} filters={filters} active={active} onChange={(key) => setActive(key as FilterKey)} />
           <div ref={contentRef}>
           {/* Section header */}
           <div className="mb-8">
@@ -303,65 +290,62 @@ function VacanciesContent() {
               className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {filtered.map((job) => {
-                const cfg = DEPT_CONFIG[job.department];
+                const acc = DEPT_ACCENT[job.department];
                 return (
                   <Link
                     key={job.id}
                     href={`/vacancies/${job.id}`}
-                    className="group bg-white rounded-2xl hover:shadow-xl hover:-translate-y-1.5 transition-[box-shadow,transform] duration-300 flex flex-col overflow-hidden"
+                    className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
                   >
-                    {/* Top accent bar */}
-                    <div className={`h-1 w-full ${cfg.accentBg}`} />
+                    {/* Gradient header with dept icon */}
+                    <div
+                      className="h-40 flex items-center justify-center flex-shrink-0 overflow-hidden"
+                      style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
+                    >
+                      <div style={{ color: acc.dot, opacity: 0.55, transform: 'scale(2)' }}>
+                        {DEPT_ICONS[job.department]}
+                      </div>
+                    </div>
 
-                    {/* Card body */}
-                    <div className="p-6 flex flex-col flex-1">
+                    {/* Body */}
+                    <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
 
-                      {/* Icon + meta row */}
-                      <div className="flex items-start justify-between mb-5">
-                        <div className={`w-11 h-11 rounded-lg ${cfg.iconBg} ${cfg.iconColor} flex items-center justify-center flex-shrink-0`}>
-                          {DEPT_ICONS[job.department]}
-                        </div>
-                        <span className={`text-[10px] font-light px-2.5 py-1 rounded-full ${
-                          job.type === 'fullTime'
-                            ? 'bg-brand-50 text-brand-700'
-                            : 'bg-brand-100 text-brand-500'
-                        }`}>
-                          {t.vacancies[job.type]}
+                      {/* Dept dot + name */}
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
+                        <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>
+                          {job.department}
                         </span>
                       </div>
 
-                      {/* Department badge */}
-                      <span className={`self-start text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wide mb-3 ${cfg.badge}`}>
-                        {job.department}
-                      </span>
-
-                      {/* Title — primary text, most weight */}
+                      {/* Title */}
                       <h3
-                        className="text-[1.05rem] font-light text-brand-950 mb-2 leading-snug group-hover:text-brand-700 transition-colors duration-200"
-                        style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+                        className="text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] mb-2"
+                        style={{ color: '#1d1d1f' }}
                       >
                         {job.title}
                       </h3>
 
-                      {/* Description — secondary, clamped */}
-                      <p className="text-brand-500 text-sm leading-relaxed line-clamp-2 flex-1">
+                      {/* Description */}
+                      <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>
                         {job.shortDescription}
                       </p>
 
-                      {/* Footer — tertiary: location + cta */}
-                      <div className="mt-5 pt-4 border-t border-brand-200 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs text-brand-400">
-                          <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
-                            <path d="M6.5,1 C4.3,1 2.5,2.8 2.5,5 C2.5,7.8 6.5,12 6.5,12 C6.5,12 10.5,7.8 10.5,5 C10.5,2.8 8.7,1 6.5,1 Z M6.5,6.5 A1.5,1.5 0 1,1 6.5,3.5 A1.5,1.5 0 0,1 6.5,6.5 Z" fill="currentColor"/>
-                          </svg>
-                          {job.location}
-                        </div>
-                        <span className="inline-flex items-center gap-1 text-xs font-light text-brand-700 group-hover:gap-2 transition-all duration-200">
-                          {t.vacancies.apply}
-                          <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                            <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </span>
+                      {/* Salary */}
+                      <div className="flex items-center gap-[7px] text-sm font-semibold mb-2.5" style={{ color: '#1d1d1f' }}>
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-shrink-0" style={{ color: '#6e6e73' }}>
+                          <rect x="1.5" y="3.5" width="13" height="9" rx="2" stroke="currentColor" strokeWidth="1.3"/>
+                          <circle cx="8" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.3"/>
+                        </svg>
+                        {job.salary}
+                      </div>
+
+                      {/* Location */}
+                      <div className="flex items-center gap-1.5 text-[13px]" style={{ color: '#86868b' }}>
+                        <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" className="flex-shrink-0">
+                          <path d="M7,1 C4.8,1 3,2.8 3,5 C3,7.8 7,13 7,13 C7,13 11,7.8 11,5 C11,2.8 9.2,1 7,1 Z M7,6.5 A1.5,1.5 0 1,1 7,3.5 A1.5,1.5 0 0,1 7,6.5 Z"/>
+                        </svg>
+                        {job.location}
                       </div>
                     </div>
                   </Link>
@@ -374,10 +358,10 @@ function VacanciesContent() {
       </section>
 
       {/* Why Join */}
-      <section className="py-16 bg-brand-50 border-t border-brand-200">
+      <section className="py-16 bg-white border-t border-slate-100">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
           <h2
-            className="text-xl sm:text-2xl font-light text-brand-950 text-center mb-10"
+            className="text-xl sm:text-2xl font-light text-gray-900 text-center mb-10"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
             {perks.title}
@@ -386,15 +370,15 @@ function VacanciesContent() {
             {PERKS.map((perk) => (
               <div
                 key={perk.titleKey}
-                className="bg-white border border-brand-200 rounded-md p-6 text-center hover:shadow-md transition-shadow duration-300"
+                className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow duration-300"
               >
-                <div className="w-11 h-11 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-4">
+                <div className="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mx-auto mb-4">
                   {perk.icon}
                 </div>
-                <h3 className="font-light text-brand-900 text-sm mb-1">
+                <h3 className="font-light text-gray-900 text-sm mb-1">
                   {perks[perk.titleKey as keyof typeof perks]}
                 </h3>
-                <p className="text-brand-500 text-xs leading-relaxed">
+                <p className="text-slate-500 text-xs leading-relaxed">
                   {perks[perk.descKey as keyof typeof perks]}
                 </p>
               </div>

@@ -7,6 +7,7 @@ import { gsap } from 'gsap';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { PRODUCTS, ProductCategory } from '@/lib/data/products';
 import ProductVisual from '@/components/ProductVisual';
+import FilterBar from '@/components/FilterBar';
 
 type FilterKey = 'all' | ProductCategory;
 
@@ -117,7 +118,7 @@ function ProductsContent() {
   return (
     <div className="min-h-screen">
       {/* Products */}
-      <section className="pt-32 pb-14 bg-brand-50">
+      <section className="pt-32 pb-14 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="mb-5 text-left" ref={heroRef}>
             <h1
@@ -140,21 +141,7 @@ function ProductsContent() {
           </div>
 
           {/* Filter Tabs */}
-          <div ref={filtersRef} className="flex items-center gap-2 overflow-x-auto pb-2 mb-8">
-            {filters.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setActive(f.key)}
-                className={`flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
-                  active === f.key
-                    ? 'border-brand-950 bg-brand-950 text-brand-50'
-                    : 'border-brand-950/20 bg-transparent text-brand-500 hover:border-brand-950 hover:text-brand-950'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <FilterBar ref={filtersRef} filters={filters} active={active} onChange={(key) => setActive(key as FilterKey)} />
 
           <div
             ref={gridRef}

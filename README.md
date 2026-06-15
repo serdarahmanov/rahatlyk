@@ -23,7 +23,10 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 - **Product Catalogue** — filterable grid with category tabs; individual product detail pages with image gallery (prev/next arrows appear only when a product has more than one photo).
 - **News / Blog** — filterable by category (Company, Health, Products, Sustainability); featured article banner; individual article pages with sidebar and "More Articles" section. Homepage news section is a full-viewport auto-play infinite carousel.
 - **Vacancies** — filterable by department; individual vacancy detail pages with rich job description and "Other Openings" sidebar.
-- **Contact & Vacancy forms** — minimalist design (gray-fill inputs, no labels, black submit button); server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user and a notification email with CV attachment to the company.
+- **Contact & Vacancy forms** — custom JS validation with `noValidate`; per-field red ring + inline error messages; errors clear on field focus and auto-dismiss after 5 seconds; labeled fields with red asterisks for required; black submit button; server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user and a notification email with CV attachment to the company.
+- **Apple-style vacancy cards** — department-coloured gradient header, coloured dot + department badge, salary with icon, two-line description, location pin; subtle lift + shadow on hover matching the `vacancy-cards-apple-v2` reference design.
+- **Unified `FilterBar` component** — `src/components/FilterBar.tsx`; shared across Products, News, and Vacancies pages; mobile: horizontally scrollable pill strip with floating gradient arrow overlays (left/right); desktop: exposed via `forwardRef` for GSAP animations; grey pill palette (active: `bg-gray-900`, inactive: `border-gray-300 text-gray-500`).
+- **Contact page two-column layout** — 65/35 split; left: heading + labeled contact form; right: sticky full-height panel reusing the about-page blob gradient (`about-mosaic-*` classes) with GSAP parallax scrub; contact info items (address, phone, email, hours) in solid white over the gradient.
 - **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
 - **Responsive design** — mobile-first, fully responsive across all breakpoints. Footer link groups display in a 2-column grid on mobile.
 - **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered listing cards, filter entrances, smooth carousel transitions, pinned horizontal scroll, and custom about-page interactions.
@@ -46,7 +49,7 @@ Official corporate website for **RAHATLYK**, a Turkmen water and beverage compan
 | `/news/[id]` | Article detail with sidebar & related articles |
 | `/vacancies` | Vacancies listing with department filter |
 | `/vacancies/[id]` | Vacancy detail with application form |
-| `/contact` | Contact page with minimalist form & contact info |
+| `/contact` | Contact page — two-column 65/35 split; left: labeled form; right: sticky blob-gradient panel with contact info |
 
 ## Project Structure
 
@@ -73,6 +76,7 @@ src/
 ├── components/
 │   ├── Navbar.tsx             # Sticky navigation — desktop dropdown + full-screen mobile overlay
 │   ├── Footer.tsx             # Site footer with links & social icons
+│   ├── FilterBar.tsx          # Unified filter pill bar (mobile scroll + desktop forwardRef for GSAP)
 │   └── ProductVisual.tsx      # Product image component (sm card / lg detail modes)
 └── lib/
     ├── i18n/
