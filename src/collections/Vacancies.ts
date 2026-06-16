@@ -1,0 +1,49 @@
+import type { CollectionConfig } from 'payload'
+
+export const Vacancies: CollectionConfig = {
+  slug: 'vacancies',
+  access: {
+    read: () => true,
+  },
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'department', 'location', 'postedDate'],
+  },
+  fields: [
+    { name: 'title',      type: 'text', required: true },
+    { name: 'department', type: 'text', required: true },
+    { name: 'location',   type: 'text' },
+    {
+      name: 'type',
+      type: 'select',
+      options: [
+        { label: 'Full Time', value: 'fullTime' },
+        { label: 'Part Time', value: 'partTime' },
+      ],
+    },
+    { name: 'overview', type: 'textarea' },
+    {
+      name: 'responsibilities',
+      type: 'array',
+      fields: [{ name: 'text', type: 'text', required: true }],
+    },
+    {
+      name: 'requirements',
+      type: 'array',
+      fields: [{ name: 'text', type: 'text', required: true }],
+    },
+    {
+      name: 'niceToHave',
+      type: 'array',
+      fields: [{ name: 'text', type: 'text', required: true }],
+    },
+    {
+      name: 'benefits',
+      type: 'array',
+      fields: [{ name: 'text', type: 'text', required: true }],
+    },
+    { name: 'salary',     type: 'text' },
+    { name: 'postedDate', type: 'date',
+      admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'yyyy-MM-dd' } } },
+  ],
+}

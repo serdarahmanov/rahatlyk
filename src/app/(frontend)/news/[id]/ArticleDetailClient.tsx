@@ -1,37 +1,36 @@
-'use client';
+'use client'
 
-import { useEffect, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { ARTICLES } from '@/lib/data/news';
-import { formatDate } from '@/lib/formatDate';
+import { useEffect, useRef } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { formatDate } from '@/lib/formatDate'
+import type { PayloadArticle } from '@/types/payload'
 
-/* ── Category colours ──────────────────────────────────────── */
 const CAT_CONFIG: Record<string, { badge: string; dot: string }> = {
-  company:        { badge: 'bg-brand-100 text-brand-800',     dot: 'bg-brand-500'    },
-  health:         { badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500'  },
-  products:       { badge: 'bg-amber-100 text-amber-700',     dot: 'bg-amber-500'    },
-  sustainability: { badge: 'bg-lime-100 text-lime-700',       dot: 'bg-lime-500'     },
-};
+  company:        { badge: 'bg-brand-100 text-brand-800',     dot: 'bg-brand-500'   },
+  health:         { badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  products:       { badge: 'bg-amber-100 text-amber-700',     dot: 'bg-amber-500'   },
+  sustainability: { badge: 'bg-lime-100 text-lime-700',       dot: 'bg-lime-500'    },
+}
 
-/* ── Related article card ──────────────────────────────────── */
-function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
-  const { t, locale } = useLanguage();
+function RelatedCard({ article }: { article: PayloadArticle }) {
+  const { t, locale } = useLanguage()
   return (
     <Link
       href={`/news/${article.id}`}
       className="group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
     >
       <div className="h-40 relative overflow-hidden">
-        <Image
-          src={article.images[0]}
-          alt={article.title}
-          fill
-          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 640px) 100vw, 33vw"
-        />
+        {article.images[0]?.url && (
+          <Image
+            src={article.images[0].url}
+            alt={article.title}
+            fill
+            className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 640px) 100vw, 33vw"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <div className="absolute top-3 right-3 text-xl">{article.emoji}</div>
         <span className="absolute bottom-3 left-3 z-10 text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wider bg-white/20 backdrop-blur text-white border border-white/25">
@@ -51,98 +50,64 @@ function RelatedCard({ article }: { article: (typeof ARTICLES)[number] }) {
         </span>
       </div>
     </Link>
-  );
+  )
 }
 
-/* ── Page ──────────────────────────────────────────────────── */
-export default function ArticlePage() {
-  const { t, locale } = useLanguage();
-  const params  = useParams();
-  const id      = params?.id as string;
-  const article = ARTICLES.find((a) => a.id === Number(id));
+interface Props {
+  article: PayloadArticle
+  more: PayloadArticle[]
+}
 
-  const heroRef    = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const relatedRef = useRef<HTMLDivElement>(null);
+export default function ArticleDetailClient({ article, more }: Props) {
+  const { t, locale } = useLanguage()
+
+  const heroRef    = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const relatedRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any;
+    let st: any
     const init = async () => {
-      const { gsap }          = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      st = ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
+      const { gsap }          = await import('gsap')
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+      st = ScrollTrigger
+      gsap.registerPlugin(ScrollTrigger)
 
       if (heroRef.current) {
         gsap.fromTo(
           heroRef.current.children,
           { y: 40, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.9, stagger: 0.1, ease: 'power3.out', delay: 0.1 }
-        );
+        )
       }
       if (contentRef.current) {
         gsap.fromTo(
           contentRef.current.querySelectorAll('.article-para'),
           { y: 28, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 0.7,
-            stagger: 0.1,
-            ease: 'power3.out',
+            y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
             scrollTrigger: { trigger: contentRef.current, start: 'top 82%' },
           }
-        );
+        )
       }
       if (relatedRef.current && relatedRef.current.children.length) {
         gsap.fromTo(
           relatedRef.current.children,
           { y: 30, opacity: 0 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 0.65,
-            stagger: 0.1,
-            ease: 'power3.out',
+            y: 0, opacity: 1, duration: 0.65, stagger: 0.1, ease: 'power3.out',
             scrollTrigger: { trigger: relatedRef.current, start: 'top 85%' },
           }
-        );
+        )
       }
-    };
-    init();
+    }
+    init()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill());
-  }, [id]);
+    return () => st?.getAll().forEach((s: any) => s.kill())
+  }, [article.id])
 
-  /* ── 404 ── */
-  if (!article) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center px-8">
-          <p className="text-7xl mb-6">📰</p>
-          <h1
-            className="text-3xl font-light text-brand-950 mb-3"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            Article Not Found
-          </h1>
-          <p className="text-slate-500 mb-8">
-            This article may have been removed or the link is incorrect.
-          </p>
-          <Link href="/news" className="btn-primary">
-            {t.home.news.cta}
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const cfg     = CAT_CONFIG[article.category] ?? CAT_CONFIG.company;
-  const related = ARTICLES.filter((a) => a.id !== article.id && a.category === article.category).slice(0, 3);
-  const more    = related.length < 3
-    ? [...related, ...ARTICLES.filter((a) => a.id !== article.id && a.category !== article.category)].slice(0, 3)
-    : related;
+  const cfg = CAT_CONFIG[article.category] ?? CAT_CONFIG.company
 
   const getCatLabel = (cat: string) => {
     const map: Record<string, string> = {
@@ -150,29 +115,26 @@ export default function ArticlePage() {
       health:         t.news.filterHealth,
       products:       t.news.filterProducts,
       sustainability: t.news.filterSustainability,
-    };
-    return map[cat] ?? cat;
-  };
+    }
+    return map[cat] ?? cat
+  }
 
   return (
     <div className="min-h-screen">
-
-      {/* ── Hero banner ── */}
       <section className="relative min-h-[420px] lg:min-h-[520px] flex items-end overflow-hidden">
-        {/* Cover photo */}
-        <Image
-          src={article.images[0]}
-          alt={article.title}
-          fill
-          className="object-cover object-center"
-          sizes="100vw"
-          priority
-        />
-        {/* Dark gradient overlay — heavy at bottom so text is readable */}
+        {article.images[0]?.url && (
+          <Image
+            src={article.images[0].url}
+            alt={article.title}
+            fill
+            className="object-cover object-center"
+            sizes="100vw"
+            priority
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
         <div className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 pb-14 pt-36" ref={heroRef}>
-          {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-white/60 text-xs mb-6">
             <Link href="/" className="hover:text-white transition-colors">{t.nav.home}</Link>
             <span>/</span>
@@ -183,7 +145,6 @@ export default function ArticlePage() {
             <span className="text-white/90 truncate max-w-[200px]">{article.title}</span>
           </nav>
 
-          {/* Category + featured badge */}
           <div className="flex items-center gap-2 mb-5">
             <span className="bg-white/20 backdrop-blur text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/25">
               {getCatLabel(article.category)}
@@ -195,7 +156,6 @@ export default function ArticlePage() {
             )}
           </div>
 
-          {/* Title */}
           <h1
             className="text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight mb-5"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
@@ -203,7 +163,6 @@ export default function ArticlePage() {
             {article.title}
           </h1>
 
-          {/* Meta */}
           <div className="flex items-center gap-4 text-white/70 text-sm">
             <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
             <span>{formatDate(article.date, locale)}</span>
@@ -211,26 +170,19 @@ export default function ArticlePage() {
         </div>
       </section>
 
-      {/* ── Article body ── */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="grid lg:grid-cols-[1fr_220px] gap-14 items-start">
-
-            {/* Body text */}
             <article ref={contentRef}>
-              {/* Lead paragraph — slightly larger */}
               <p className="article-para text-slate-700 text-lg leading-relaxed mb-6 font-normal">
-                {article.body[0]}
+                {article.body[0]?.text}
               </p>
-
-              {/* Remaining paragraphs */}
-              {article.body.slice(1).map((para, i) => (
-                <p key={i} className="article-para text-slate-600 text-base leading-relaxed mb-5">
-                  {para}
+              {article.body.slice(1).map((para) => (
+                <p key={para.id} className="article-para text-slate-600 text-base leading-relaxed mb-5">
+                  {para.text}
                 </p>
               ))}
 
-              {/* Bottom nav */}
               <div className="mt-12 pt-8 border-t border-slate-100 flex flex-wrap items-center gap-4">
                 <Link
                   href="/news"
@@ -244,31 +196,22 @@ export default function ArticlePage() {
               </div>
             </article>
 
-            {/* Sidebar */}
             <aside className="hidden lg:block space-y-5 sticky top-28">
-              {/* Category pill */}
               <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
-                <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-3">
-                  Category
-                </p>
+                <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-3">Category</p>
                 <span className={`inline-block text-xs font-light px-3 py-1.5 rounded-full uppercase tracking-wide ${cfg.badge}`}>
                   {getCatLabel(article.category)}
                 </span>
               </div>
-
-              {/* Date */}
               <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
                 <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Published</p>
                 <p className="text-slate-700 text-sm font-light">{formatDate(article.date, locale)}</p>
               </div>
-
             </aside>
-
           </div>
         </div>
       </section>
 
-      {/* ── Related articles ── */}
       {more.length > 0 && (
         <section className="py-14 bg-slate-50 border-t border-slate-100">
           <div className="max-w-4xl mx-auto px-5 sm:px-8 lg:px-10">
@@ -286,7 +229,6 @@ export default function ArticlePage() {
           </div>
         </section>
       )}
-
     </div>
-  );
+  )
 }

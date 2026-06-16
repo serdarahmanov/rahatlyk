@@ -1,19 +1,17 @@
-﻿'use client';
+'use client'
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import { PRODUCTS, Product } from '@/lib/data/products';
-import ProductVisual from '@/components/ProductVisual';
+import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import ProductVisual from '@/components/ProductVisual'
+import type { PayloadProduct } from '@/types/payload'
 
-/* ── Category config ──────────────────────────────────────────── */
 const CAT_CONFIG: Record<string, {
-  gradient: string;
-  light: string;
-  text: string;
-  badge: string;
-  label: string;
+  gradient: string
+  light: string
+  text: string
+  badge: string
+  label: string
 }> = {
   water:   { gradient: 'from-brand-300 to-brand-100', light: 'bg-brand-50',  text: 'text-brand-800', badge: 'border border-brand-200 text-brand-700', label: 'Still Water'   },
   mineral: { gradient: 'from-brand-400 to-brand-200', light: 'bg-brand-100', text: 'text-brand-800', badge: 'border border-brand-200 text-brand-700', label: 'Mineral Water' },
@@ -21,15 +19,10 @@ const CAT_CONFIG: Record<string, {
   energy:  { gradient: 'from-brand-700 to-brand-500', light: 'bg-brand-100', text: 'text-brand-900', badge: 'border border-brand-200 text-brand-700', label: 'Energy Drink'  },
   tea:     { gradient: 'from-brand-800 to-brand-600', light: 'bg-brand-200', text: 'text-brand-900', badge: 'border border-brand-200 text-brand-700', label: 'Herbal Tea'    },
   soft:    { gradient: 'from-brand-900 to-brand-700', light: 'bg-brand-200', text: 'text-brand-950', badge: 'border border-brand-200 text-brand-700', label: 'Soft Drink'    },
-};
+}
 
-/* ── Related products strip ───────────────────────────────────── */
-function RelatedProducts({ current }: { current: Product }) {
-  const related = PRODUCTS.filter(
-    (p) => p.category === current.category && p.id !== current.id
-  ).slice(0, 4);
-
-  if (related.length === 0) return null;
+function RelatedProducts({ related }: { related: PayloadProduct[] }) {
+  if (related.length === 0) return null
 
   return (
     <section className="py-14 bg-white">
@@ -38,7 +31,7 @@ function RelatedProducts({ current }: { current: Product }) {
           className="text-xl font-light text-brand-950 mb-8"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
-          More in {(CAT_CONFIG[current.category] ?? CAT_CONFIG['water']).label}
+          More in {(CAT_CONFIG[related[0]?.category] ?? CAT_CONFIG['water']).label}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
           {related.map((p) => (
@@ -47,12 +40,9 @@ function RelatedProducts({ current }: { current: Product }) {
               href={`/products/${p.id}`}
               className="group relative bg-white rounded-2xl overflow-hidden h-[420px] hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300"
             >
-              {/* Product visual — 75% of card height */}
               <div className="absolute inset-0 overflow-hidden">
                 <ProductVisual product={p} size="sm" className="w-full h-full" />
               </div>
-
-              {/* Text overlaid at the bottom */}
               <div className="absolute bottom-0 inset-x-0 px-5 pb-5 pt-16">
                 <p className="text-brand-400 text-xs mb-1">{(CAT_CONFIG[p.category] ?? CAT_CONFIG['water']).label}</p>
                 <h3 className="font-light text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
@@ -61,10 +51,10 @@ function RelatedProducts({ current }: { current: Product }) {
                 <div className="min-w-0">
                   {p.volumes.length > 1 ? (
                     <p className="text-sm font-light text-brand-600 truncate">
-                      {p.volumes.map((v) => v.replace(' L', '')).join(' · ')}{' L'}
+                      {p.volumes.map((v) => v.value.replace(' L', '')).join(' · ')}{' L'}
                     </p>
                   ) : (
-                    <p className="text-sm font-light text-brand-600">{p.volumes[0]}</p>
+                    <p className="text-sm font-light text-brand-600">{p.volumes[0]?.value}</p>
                   )}
                 </div>
               </div>
@@ -73,92 +63,83 @@ function RelatedProducts({ current }: { current: Product }) {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-/* ── Detail page ──────────────────────────────────────────────── */
-type AccordionKey = 'features' | 'nutrition';
+type AccordionKey = 'features' | 'nutrition'
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const id = params?.id as string;
+interface Props {
+  product: PayloadProduct
+  related: PayloadProduct[]
+  prevProduct: PayloadProduct | null
+  nextProduct: PayloadProduct | null
+}
 
-  const product = PRODUCTS.find((p) => p.id === Number(id));
-
-  /* ── Prev / Next ── */
-  const currentIndex = product ? PRODUCTS.findIndex((p) => p.id === product.id) : -1;
-  const prevProduct  = currentIndex > 0 ? PRODUCTS[currentIndex - 1] : null;
-  const nextProduct  = currentIndex < PRODUCTS.length - 1 ? PRODUCTS[currentIndex + 1] : null;
-
-  const [openPanel, setOpenPanel] = useState<AccordionKey>('' as AccordionKey);
-  const [activePhoto, setActivePhoto] = useState(0);
-  const [photoDir, setPhotoDir] = useState<'left' | 'right'>('right');
+export default function ProductDetailClient({ product, related, prevProduct, nextProduct }: Props) {
+  const [openPanel, setOpenPanel] = useState<AccordionKey>('' as AccordionKey)
+  const [activePhoto, setActivePhoto] = useState(0)
+  const [photoDir, setPhotoDir] = useState<'left' | 'right'>('right')
 
   const goPhoto = (next: number) => {
-    const total = product?.photos?.length ?? 1;
-    const resolved = (next + total) % total;
-    setPhotoDir(next > activePhoto || (activePhoto === total - 1 && next === 0) ? 'right' : 'left');
-    setActivePhoto(resolved);
-  };
+    const total = product.photos?.length ?? 1
+    const resolved = (next + total) % total
+    setPhotoDir(next > activePhoto || (activePhoto === total - 1 && next === 0) ? 'right' : 'left')
+    setActivePhoto(resolved)
+  }
 
-  const heroRef      = useRef<HTMLDivElement>(null);
-  const bottleRef    = useRef<HTMLDivElement>(null);
-  const mainPhotoRef = useRef<HTMLDivElement>(null);
-  const detailRef    = useRef<HTMLDivElement>(null);
+  const heroRef      = useRef<HTMLDivElement>(null)
+  const bottleRef    = useRef<HTMLDivElement>(null)
+  const mainPhotoRef = useRef<HTMLDivElement>(null)
+  const detailRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any;
+    let st: any
     const init = async () => {
-      const { gsap } = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      st = ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
+      const { gsap }          = await import('gsap')
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+      st = ScrollTrigger
+      gsap.registerPlugin(ScrollTrigger)
 
-      const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } })
 
-      /* 1 ─ Main image: expand from centre outward */
       if (mainPhotoRef.current) {
         tl.fromTo(
           mainPhotoRef.current,
           { clipPath: 'inset(50% 50% 50% 50%)' },
           { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.0 },
           0
-        );
+        )
       } else if (bottleRef.current) {
-        /* ProductVisual fallback */
         tl.fromTo(
           bottleRef.current,
           { clipPath: 'inset(50% 50% 50% 50%)', opacity: 0 },
           { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 1.0 },
           0
-        );
+        )
       }
 
-      /* 2 ─ Info panel: each child expands from centre, staggered */
       if (heroRef.current) {
         tl.fromTo(
           Array.from(heroRef.current.children),
           { clipPath: 'inset(50% 50% 50% 50%)', opacity: 0 },
           { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out' },
           0.4
-        );
+        )
       }
 
-      /* 3 ─ Thumbnails: staggered after image */
-      if (bottleRef.current && product?.photos && product.photos.length > 1) {
-        const thumbCol = bottleRef.current.firstElementChild;
+      if (bottleRef.current && product.photos && product.photos.length > 1) {
+        const thumbCol = bottleRef.current.firstElementChild
         if (thumbCol) {
           tl.fromTo(
             Array.from(thumbCol.children),
             { clipPath: 'inset(50% 50% 50% 50%)', opacity: 0 },
             { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.35, stagger: 0.07, ease: 'power2.out' },
             0.85
-          );
+          )
         }
       }
 
-      /* About section scroll trigger */
       if (detailRef.current) {
         gsap.fromTo(
           detailRef.current,
@@ -167,48 +148,26 @@ export default function ProductDetailPage() {
             y: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
             scrollTrigger: { trigger: detailRef.current, start: 'top 85%' },
           }
-        );
+        )
       }
-    };
-    init();
+    }
+    init()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill());
-  }, [product?.photos]);
+    return () => st?.getAll().forEach((s: any) => s.kill())
+  }, [product.photos])
 
-  /* 404 */
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center px-8">
-          <p className="text-7xl mb-6">💧</p>
-          <h1
-            className="text-3xl font-light text-brand-950 mb-3"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            Product Not Found
-          </h1>
-          <p className="text-brand-500 mb-8">This product may have been discontinued or moved.</p>
-          <Link href="/products" className="btn-primary">
-            Browse All Products
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const cfg = CAT_CONFIG[product.category] ?? CAT_CONFIG['water']
 
-  const cfg = CAT_CONFIG[product.category] ?? CAT_CONFIG['water'];
-
-  /* ── Accordion panels (Features + Nutrition only — About is a separate section) ── */
   const panels: { key: AccordionKey; label: string; content: React.ReactNode }[] = [
     {
       key: 'features',
       label: 'Features',
       content: (
         <ul className="space-y-3">
-          {product.features.map((f, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-brand-400 leading-relaxed">
+          {product.features.map((f) => (
+            <li key={f.id} className="flex items-start gap-3 text-sm text-brand-400 leading-relaxed">
               <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0 translate-y-[6px]" />
-              {f}
+              {f.text}
             </li>
           ))}
         </ul>
@@ -227,7 +186,7 @@ export default function ProductDetailPage() {
           </thead>
           <tbody>
             {product.nutrition.map((n, i) => (
-              <tr key={n.label} className={i < product.nutrition.length - 1 ? 'border-b border-brand-200' : ''}>
+              <tr key={n.id} className={i < product.nutrition.length - 1 ? 'border-b border-brand-200' : ''}>
                 <td className="py-3 pr-8 text-brand-400">{n.label}</td>
                 <td className="py-3 text-brand-400">{n.value}</td>
               </tr>
@@ -236,15 +195,12 @@ export default function ProductDetailPage() {
         </table>
       ),
     },
-  ];
+  ]
 
   return (
     <div className="min-h-screen">
-      {/* ── Hero ── */}
       <section className="pt-28 pb-16 relative overflow-hidden bg-white border-b border-brand-200">
-
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
-          {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-brand-400 text-xs mb-8">
             <Link href="/" className="hover:text-brand-700 transition-colors">Home</Link>
             <span>/</span>
@@ -256,14 +212,12 @@ export default function ProductDetailPage() {
           </nav>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left — always the same gallery frame; photos when available, fallback PNG otherwise */}
             <div ref={bottleRef} className="flex gap-3">
-              {/* Thumbnail column — only when 2+ photos */}
               {product.photos && product.photos.length > 1 && (
                 <div className="hidden lg:flex flex-col gap-2 flex-shrink-0">
-                  {product.photos.map((src, i) => (
+                  {product.photos.map((photo, i) => (
                     <button
-                      key={i}
+                      key={photo.id}
                       onClick={() => goPhoto(i)}
                       className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-200 ${
                         activePhoto === i
@@ -271,18 +225,17 @@ export default function ProductDetailPage() {
                           : 'opacity-50 hover:opacity-80'
                       }`}
                     >
-                      <Image src={src} alt={`thumb ${i + 1}`} fill className="object-cover" sizes="64px" />
+                      <Image src={photo.url} alt={`thumb ${i + 1}`} fill className="object-cover" sizes="64px" />
                     </button>
                   ))}
                 </div>
               )}
 
-              {/* Main photo */}
               <div ref={mainPhotoRef} className="relative flex-1 aspect-[3/4] rounded-2xl overflow-hidden bg-brand-100">
                 {product.photos && product.photos.length > 0 ? (
                   <Image
                     key={activePhoto}
-                    src={product.photos[activePhoto]}
+                    src={product.photos[activePhoto].url}
                     alt={`${product.name} photo ${activePhoto + 1}`}
                     fill
                     className={`object-contain p-6 ${photoDir === 'right' ? 'photo-enter-right' : 'photo-enter-left'}`}
@@ -300,7 +253,6 @@ export default function ProductDetailPage() {
                   />
                 )}
 
-                {/* Arrows — only when 2+ photos */}
                 {product.photos && product.photos.length > 1 && (
                   <>
                     <button
@@ -324,9 +276,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Info */}
             <div ref={heroRef}>
-              {/* Category label — plain, no box */}
               <span className="block text-[10px] font-light tracking-[0.3em] uppercase text-brand-400 mb-5">
                 {cfg.label}
               </span>
@@ -340,61 +290,43 @@ export default function ProductDetailPage() {
 
               <p className="text-brand-400 text-sm tracking-wide mb-8">{product.tagline}</p>
 
-              {/* Volume picker — bottle icons scaled by size */}
               {product.volumes.length > 1 && (
                 <div className="mb-8">
                   <p className="text-xs font-light uppercase tracking-widest text-brand-400 mb-5">Size</p>
                   <div className="flex items-end gap-5">
-                    {product.volumes.map((v) => {
-                      const val  = parseFloat(v);
-                      const vals = product.volumes.map(parseFloat);
-                      const min  = Math.min(...vals);
-                      const max  = Math.max(...vals);
-                      /* scale bottle height between 28px and 68px */
-                      const h = max === min
-                        ? 48
-                        : 28 + ((val - min) / (max - min)) * 40;
+                    {product.volumes.map((vol) => {
+                      const v    = vol.value
+                      const val  = parseFloat(v)
+                      const vals = product.volumes.map((x) => parseFloat(x.value))
+                      const min  = Math.min(...vals)
+                      const max  = Math.max(...vals)
+                      const h    = max === min ? 48 : 28 + ((val - min) / (max - min)) * 40
                       return (
-                        <div
-                          key={v}
-                          className="flex flex-col items-center gap-1.5 group"
-                        >
-                          {/* Bottle SVG */}
+                        <div key={vol.id} className="flex flex-col items-center gap-1.5 group">
                           <div
                             style={{ height: `${h}px` }}
                             className="opacity-40 text-brand-400 group-hover:opacity-100 group-hover:text-brand-800 group-hover:scale-110 group-hover:drop-shadow-md transition-all duration-300"
                           >
-                            <svg
-                              viewBox="0 0 16 40"
-                              fill="currentColor"
-                              className="h-full w-auto"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              {/* Cap */}
+                            <svg viewBox="0 0 16 40" fill="currentColor" className="h-full w-auto" xmlns="http://www.w3.org/2000/svg">
                               <rect x="5.5" y="0" width="5" height="4" rx="1" />
-                              {/* Neck taper */}
                               <path d="M5.5 4 L4.5 9 L11.5 9 L10.5 4 Z" />
-                              {/* Shoulder curve */}
                               <path d="M4.5 9 C2.5 11 2 13 2 14 L2 36 Q2 38 4 38 L12 38 Q14 38 14 36 L14 14 C14 13 13.5 11 11.5 9 Z" />
-                              {/* Label stripe */}
                               <rect x="3" y="17" width="10" height="8" rx="0.5" opacity="0.18" fill="white" />
                             </svg>
                           </div>
-                          {/* Volume label */}
                           <span className="text-[10px] font-light tracking-wide text-brand-400 group-hover:text-brand-700 transition-colors duration-200">
                             {v}
                           </span>
                         </div>
-                      );
+                      )
                     })}
                   </div>
                 </div>
               )}
 
-              {/* ── Features / Nutrition accordion ── */}
               <div className="mb-6 border-t border-brand-200">
                 {panels.map(({ key, label, content }) => {
-                  const isOpen = openPanel === key;
+                  const isOpen = openPanel === key
                   return (
                     <div key={key} className="border-b border-brand-200">
                       <button
@@ -431,11 +363,10 @@ export default function ProductDetailPage() {
                         </div>
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
 
-              {/* ── Prev / Next ── */}
               <div className="flex items-center justify-end gap-2 pt-6">
                 {prevProduct ? (
                   <Link
@@ -482,12 +413,9 @@ export default function ProductDetailPage() {
         </div>
       </section>
 
-
-      {/* ── About — horizontal two-column layout ── */}
       <section className="py-16 bg-brand-50 border-t border-brand-200" ref={detailRef}>
         <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="flex flex-col sm:flex-row sm:items-start gap-10 sm:gap-16 lg:gap-24">
-            {/* Left — label + product name */}
             <div className="flex-shrink-0 sm:pt-[0.15em] sm:w-[200px]">
               <span className="block text-[10px] font-light tracking-[0.35em] uppercase text-brand-400 mb-3">
                 About
@@ -499,7 +427,6 @@ export default function ProductDetailPage() {
                 {product.name}
               </h3>
             </div>
-            {/* Right — description text */}
             <div className="flex-1 space-y-4">
               <p className="text-brand-700 text-base leading-relaxed">{product.description}</p>
               <p className="text-brand-500 text-sm leading-relaxed">{product.longDescription}</p>
@@ -508,9 +435,7 @@ export default function ProductDetailPage() {
         </div>
       </section>
 
-      {/* ── Related products ── */}
-      <RelatedProducts current={product} />
-
+      <RelatedProducts related={related} />
     </div>
-  );
+  )
 }

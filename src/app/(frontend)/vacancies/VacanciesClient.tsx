@@ -1,18 +1,14 @@
-'use client';
+'use client'
 
-import { Suspense, useState, useEffect, useLayoutEffect, useRef } from 'react';
-import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { gsap } from 'gsap';
-import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { VACANCIES } from '@/lib/data/vacancies';
-import { paginate } from '@/lib/paginate';
-import FilterBar from '@/components/FilterBar';
-import Pagination from '@/components/Pagination';
+import { useLayoutEffect, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { gsap } from 'gsap'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
+import FilterBar from '@/components/FilterBar'
+import Pagination from '@/components/Pagination'
+import type { PayloadVacancy, PayloadResult } from '@/types/payload'
 
-const PAGE_SIZE = 9;
-
-/* -- Minimal stroke SVG icons — currentColor, weight 1.5 ------- */
 const DEPT_ICONS: Record<string, React.ReactNode> = {
   Production: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -60,17 +56,17 @@ const DEPT_ICONS: Record<string, React.ReactNode> = {
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   ),
-};
+}
 
 const DEPT_ACCENT: Record<string, { dot: string; bg1: string; bg2: string }> = {
-  Production:        { dot: '#5e6b7a', bg1: 'rgba(94,107,122,0.18)',  bg2: 'rgba(94,107,122,0.05)'  },
-  Sales:             { dot: '#2c8a4a', bg1: 'rgba(44,138,74,0.18)',   bg2: 'rgba(44,138,74,0.05)'   },
-  Marketing:         { dot: '#7d5bbe', bg1: 'rgba(125,91,190,0.18)',  bg2: 'rgba(125,91,190,0.05)'  },
-  Logistics:         { dot: '#c47c28', bg1: 'rgba(196,124,40,0.18)',  bg2: 'rgba(196,124,40,0.05)'  },
-  Finance:           { dot: '#2767d6', bg1: 'rgba(39,103,214,0.18)',  bg2: 'rgba(39,103,214,0.05)'  },
-  'Customer Service':{ dot: '#c0392b', bg1: 'rgba(192,57,43,0.18)',   bg2: 'rgba(192,57,43,0.05)'   },
-  Quality:           { dot: '#1d8a8a', bg1: 'rgba(29,138,138,0.18)',  bg2: 'rgba(29,138,138,0.05)'  },
-};
+  Production:         { dot: '#5e6b7a', bg1: 'rgba(94,107,122,0.18)',  bg2: 'rgba(94,107,122,0.05)'  },
+  Sales:              { dot: '#2c8a4a', bg1: 'rgba(44,138,74,0.18)',   bg2: 'rgba(44,138,74,0.05)'   },
+  Marketing:          { dot: '#7d5bbe', bg1: 'rgba(125,91,190,0.18)',  bg2: 'rgba(125,91,190,0.05)'  },
+  Logistics:          { dot: '#c47c28', bg1: 'rgba(196,124,40,0.18)',  bg2: 'rgba(196,124,40,0.05)'  },
+  Finance:            { dot: '#2767d6', bg1: 'rgba(39,103,214,0.18)',  bg2: 'rgba(39,103,214,0.05)'  },
+  'Customer Service': { dot: '#c0392b', bg1: 'rgba(192,57,43,0.18)',   bg2: 'rgba(192,57,43,0.05)'   },
+  Quality:            { dot: '#1d8a8a', bg1: 'rgba(29,138,138,0.18)',  bg2: 'rgba(29,138,138,0.05)'  },
+}
 
 const PERKS = [
   {
@@ -116,30 +112,25 @@ const PERKS = [
     titleKey: 'impact',
     descKey:  'impactDesc',
   },
-] as const;
+] as const
 
-type FilterKey = string;
+interface Props {
+  result: PayloadResult<PayloadVacancy>
+  department: string
+}
 
-function VacanciesContent() {
-  const { t } = useLanguage();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default function VacanciesClient({ result, department }: Props) {
+  const { t } = useLanguage()
+  const router = useRouter()
 
-  const initialDept = searchParams.get('department') ?? 'all';
-  const initialPage = Number(searchParams.get('page') ?? '1');
+  const heroRef    = useRef<HTMLDivElement>(null)
+  const titleRef   = useRef<HTMLHeadingElement>(null)
+  const filtersRef = useRef<HTMLDivElement>(null)
+  const listRef    = useRef<HTMLDivElement>(null)
+  const perksRef   = useRef<HTMLDivElement>(null)
+  const contentIntroPlayedRef = useRef(false)
 
-  const [active, setActive] = useState<FilterKey>(initialDept);
-  const [page,   setPage]   = useState(initialPage);
-
-  const heroRef  = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const filtersRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const listRef  = useRef<HTMLDivElement>(null);
-  const perksRef = useRef<HTMLDivElement>(null);
-  const contentIntroPlayedRef = useRef(false);
-
-  const filters: { key: FilterKey; label: string }[] = [
+  const filters = [
     { key: 'all',              label: t.vacancies.filterAll        },
     { key: 'Production',       label: t.vacancies.filterProduction },
     { key: 'Sales',            label: t.vacancies.filterSales      },
@@ -147,81 +138,54 @@ function VacanciesContent() {
     { key: 'Logistics',        label: t.vacancies.filterLogistics  },
     { key: 'Finance',          label: t.vacancies.filterFinance    },
     { key: 'Customer Service', label: t.vacancies.filterService    },
-  ];
-
-  const filtered = active === 'all' ? VACANCIES : VACANCIES.filter((j) => j.department === active);
-  const result   = paginate(filtered, page, PAGE_SIZE);
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (active !== 'all') params.set('department', active);
-    if (page > 1) params.set('page', String(page));
-    const qs = params.toString();
-    router.replace(qs ? `?${qs}` : '?', { scroll: false });
-  }, [active, page, router]);
+  ]
 
   const handleFilterChange = (key: string) => {
-    setActive(key);
-    setPage(1);
-  };
+    router.push(key === 'all' ? '/vacancies' : `/vacancies?department=${encodeURIComponent(key)}`)
+  }
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams()
+    if (department !== 'all') params.set('department', department)
+    if (page > 1) params.set('page', String(page))
+    const qs = params.toString()
+    router.push(qs ? `/vacancies?${qs}` : '/vacancies')
+  }
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      const titleWords = titleRef.current?.querySelectorAll('.title-word-inner');
-      const filterButtons = filtersRef.current?.querySelectorAll('button');
-      const vacancyCards = listRef.current?.children;
-      const tl = gsap.timeline({ delay: 0.08 });
+      const titleWords    = titleRef.current?.querySelectorAll('.title-word-inner')
+      const filterButtons = filtersRef.current?.querySelectorAll('button')
+      const vacancyCards  = listRef.current?.children
+      const tl = gsap.timeline({ delay: 0.08 })
 
       if (titleWords?.length) {
-        gsap.set(titleWords, { yPercent: 115 });
-        tl.to(
-          titleWords,
-          { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' },
-          0
-        );
+        gsap.set(titleWords, { yPercent: 115 })
+        tl.to(titleWords, { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' }, 0)
       }
-
       if (filterButtons?.length) {
-        gsap.set(filterButtons, { y: -18, opacity: 0 });
-        tl.to(
-          filterButtons,
-          { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' },
-          0.28
-        );
+        gsap.set(filterButtons, { y: -18, opacity: 0 })
+        tl.to(filterButtons, { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' }, 0.28)
       }
-
       if (vacancyCards?.length) {
-        gsap.set(vacancyCards, { y: 30, opacity: 0, scale: 0.97 });
-        tl.to(
-          vacancyCards,
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 0.55,
-            stagger: 0.055,
-            ease: 'power3.out',
-            onComplete: () => {
-              contentIntroPlayedRef.current = true;
-            },
-          },
-          0.58
-        );
+        gsap.set(vacancyCards, { y: 30, opacity: 0, scale: 0.97 })
+        tl.to(vacancyCards, {
+          y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out',
+          onComplete: () => { contentIntroPlayedRef.current = true },
+        }, 0.58)
       }
-    });
-
-    return () => ctx.revert();
-  }, [t.vacancies.title]);
+    })
+    return () => ctx.revert()
+  }, [])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any;
+    let st: any
     const init = async () => {
-      const { gsap } = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      st = ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
-
+      const { gsap } = await import('gsap')
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+      st = ScrollTrigger
+      gsap.registerPlugin(ScrollTrigger)
       if (perksRef.current) {
         gsap.fromTo(
           perksRef.current.children,
@@ -230,35 +194,33 @@ function VacanciesContent() {
             y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
             scrollTrigger: { trigger: perksRef.current, start: 'top 82%' },
           }
-        );
+        )
       }
-    };
-    init();
+    }
+    init()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill());
-  }, []);
+    return () => st?.getAll().forEach((s: any) => s.kill())
+  }, [])
 
   useEffect(() => {
-    if (!contentIntroPlayedRef.current) return;
-
+    if (!contentIntroPlayedRef.current) return
     const animate = async () => {
-      const { gsap } = await import('gsap');
+      const { gsap } = await import('gsap')
       if (listRef.current && listRef.current.children.length) {
         gsap.fromTo(
           listRef.current.children,
           { y: 30, opacity: 0, scale: 0.97 },
           { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.055, ease: 'power3.out' }
-        );
+        )
       }
-    };
-    animate();
-  }, [active, page]);
+    }
+    animate()
+  }, [result.docs])
 
-  const perks = t.vacancies.perks;
+  const perks = t.vacancies.perks
 
   return (
     <div className="min-h-screen">
-      {/* Vacancies */}
       <section className="pt-32 pb-12 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="mb-5 text-left" ref={heroRef}>
@@ -273,18 +235,15 @@ function VacanciesContent() {
                   className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
                 >
                   <span className="title-word-inner inline-block">
-                    {word}
-                    {index < words.length - 1 ? '\u00a0' : ''}
+                    {word}{index < words.length - 1 ? ' ' : ''}
                   </span>
                 </span>
               ))}
             </h1>
           </div>
 
-          {/* Filter Tabs */}
-          <FilterBar ref={filtersRef} filters={filters} active={active} onChange={handleFilterChange} />
-          <div ref={contentRef}>
-          {/* Section header */}
+          <FilterBar ref={filtersRef} filters={filters} active={department} onChange={handleFilterChange} />
+
           <div className="mb-8">
             <h2
               className="text-xl sm:text-2xl font-light text-brand-950"
@@ -304,19 +263,15 @@ function VacanciesContent() {
               <p className="text-base font-normal">{t.vacancies.noCurrent}</p>
             </div>
           ) : (
-            <div
-              ref={listRef}
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
+            <div ref={listRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {result.docs.map((job) => {
-                const acc = DEPT_ACCENT[job.department] ?? DEPT_ACCENT['Production'];
+                const acc = DEPT_ACCENT[job.department] ?? DEPT_ACCENT['Production']
                 return (
                   <Link
                     key={job.id}
                     href={`/vacancies/${job.id}`}
                     className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
                   >
-                    {/* Gradient header with dept icon */}
                     <div
                       className="h-40 flex items-center justify-center flex-shrink-0 overflow-hidden"
                       style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
@@ -326,10 +281,7 @@ function VacanciesContent() {
                       </div>
                     </div>
 
-                    {/* Body */}
                     <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
-
-                      {/* Dept dot + name */}
                       <div className="flex items-center gap-2 mb-2.5">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
                         <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>
@@ -337,7 +289,6 @@ function VacanciesContent() {
                         </span>
                       </div>
 
-                      {/* Title */}
                       <h3
                         className="text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] mb-2"
                         style={{ color: '#1d1d1f' }}
@@ -345,12 +296,10 @@ function VacanciesContent() {
                         {job.title}
                       </h3>
 
-                      {/* Description */}
                       <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>
                         {job.overview}
                       </p>
 
-                      {/* Salary */}
                       <div className="flex items-center gap-[7px] text-sm font-semibold mb-2.5" style={{ color: '#1d1d1f' }}>
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-shrink-0" style={{ color: '#6e6e73' }}>
                           <rect x="1.5" y="3.5" width="13" height="9" rx="2" stroke="currentColor" strokeWidth="1.3"/>
@@ -359,7 +308,6 @@ function VacanciesContent() {
                         {job.salary}
                       </div>
 
-                      {/* Location */}
                       <div className="flex items-center gap-1.5 text-[13px]" style={{ color: '#86868b' }}>
                         <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor" className="flex-shrink-0">
                           <path d="M7,1 C4.8,1 3,2.8 3,5 C3,7.8 7,13 7,13 C7,13 11,7.8 11,5 C11,2.8 9.2,1 7,1 Z M7,6.5 A1.5,1.5 0 1,1 7,3.5 A1.5,1.5 0 0,1 7,6.5 Z"/>
@@ -368,7 +316,7 @@ function VacanciesContent() {
                       </div>
                     </div>
                   </Link>
-                );
+                )
               })}
             </div>
           )}
@@ -378,14 +326,12 @@ function VacanciesContent() {
             totalPages={result.totalPages}
             totalDocs={result.totalDocs}
             limit={result.limit}
-            onChange={setPage}
+            onChange={handlePageChange}
             label="positions"
           />
-          </div>
         </div>
       </section>
 
-      {/* Why Join */}
       <section className="py-16 bg-white border-t border-slate-100">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10">
           <h2
@@ -415,13 +361,5 @@ function VacanciesContent() {
         </div>
       </section>
     </div>
-  );
-}
-
-export default function VacanciesPage() {
-  return (
-    <Suspense>
-      <VacanciesContent />
-    </Suspense>
-  );
+  )
 }

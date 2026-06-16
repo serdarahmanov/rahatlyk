@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About — RAHATLYK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF8;
+  --black:#141618;
+  --grey:#737C80;
+  --grey-2:#A2AAAD;
+  --cyan:#4FA3B5;
+  --orange:#D98A55;
+  --line:rgba(20,22,24,.14);
+  --r:3px;
+  --gut:clamp(18px,3.6vw,52px);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  background:var(--bg);color:var(--black);
+  font-family:'Manrope',system-ui,sans-serif;font-weight:400;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img{display:block;width:100%}
+::selection{background:var(--cyan);color:#fff}
+a:focus-visible,button:focus-visible{outline:1.5px solid var(--black);outline-offset:3px}
+
+.serif{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:-.01em}
+.serif i,.serif em{font-style:italic;font-weight:300}
+.eyebrow{font-size:10.5px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--grey)}
+.gut{padding-left:var(--gut);padding-right:var(--gut)}
+[data-fade]{opacity:0;transform:translateY(26px)}
+@media (prefers-reduced-motion:reduce){
+  [data-fade]{opacity:1!important;transform:none!important}
+  .reveal{clip-path:none!important}
+}
+
+/* media frames: parallax + clip reveal */
+.pframe{overflow:hidden;position:relative;background:#E9ECEB}
+.pframe img{height:118%;object-fit:cover;will-change:transform}
+.reveal{clip-path:inset(12% 6% 12% 6%)}
+
+section{padding:clamp(48px,6.5vw,100px) 0}
+
+/* ---------------- NAV ---------------- */
+.nav{position:fixed;inset:0 0 auto 0;z-index:90;height:62px;display:flex;align-items:center;
+  transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
+.nav.is-solid{background:rgba(250,250,248,.85);backdrop-filter:blur(12px);border-color:var(--line)}
+.nav__in{display:flex;align-items:center;justify-content:space-between;width:100%}
+.nav__logo{font-weight:600;font-size:14px;letter-spacing:.3em;text-decoration:none;color:var(--black)}
+.nav__links{display:flex;gap:28px;list-style:none}
+.nav__links a{font-size:12px;font-weight:500;color:var(--grey);text-decoration:none;letter-spacing:.05em}
+.nav__links a:hover,.nav__links a[aria-current]{color:var(--black)}
+.nav__cta{font-size:12px;font-weight:500;letter-spacing:.05em;text-decoration:none;color:var(--black);
+  border:1px solid var(--black);border-radius:var(--r);padding:9px 18px;transition:all .25s}
+.nav__cta:hover{background:var(--black);color:var(--bg)}
+@media(max-width:860px){.nav__links{display:none}}
+
+/* floating talk pill */
+.talk{
+  position:fixed;right:clamp(14px,2.4vw,30px);bottom:clamp(14px,2.4vw,30px);z-index:95;
+  background:var(--black);color:#fff;border:0;border-radius:999px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:500;letter-spacing:.05em;
+  padding:14px 24px;display:flex;align-items:center;gap:10px;
+  box-shadow:0 14px 38px rgba(20,22,24,.28);transition:transform .25s,background .25s;
+}
+.talk:hover{transform:translateY(-2px);background:var(--orange)}
+.talk span.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan)}
+
+/* ---------------- HERO ---------------- */
+.hero{padding:calc(62px + clamp(40px,7vw,90px)) 0 0}
+.hero h1{font-size:clamp(46px,8.6vw,128px);line-height:.98}
+.hero h1 .ind{padding-left:clamp(40px,12vw,220px)}
+.hero__row{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-top:clamp(20px,3vw,34px)}
+.hero__sub{max-width:46ch;font-size:14.5px;line-height:1.8;color:var(--grey)}
+.hero__meta{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--grey-2);font-weight:500}
+.hero__media{margin-top:clamp(26px,4vw,52px);height:clamp(360px,86vh,820px)}
+.hero__media img{transform:scale(1.06)}
+
+/* ---------------- STATEMENT ---------------- */
+.statement p{font-size:clamp(26px,4vw,56px);line-height:1.18;max-width:30ch}
+.statement .small{margin-top:22px;max-width:52ch;font-size:14px;line-height:1.85;color:var(--grey);font-family:'Manrope',sans-serif}
+
+/* pillar rows with inline images (Paisana list style) */
+.pillars{margin-top:clamp(34px,5vw,60px);border-top:1px solid var(--line)}
+.pillar{
+  display:flex;align-items:center;justify-content:space-between;gap:clamp(16px,3vw,44px);
+  padding:18px 0;border-bottom:1px solid var(--line);
+}
+.pillar h3{font-size:clamp(26px,3.6vw,52px)}
+.pillar h3 i{color:inherit}
+.pillar .pframe{flex:0 0 clamp(110px,14vw,190px);height:clamp(70px,9vw,120px);border-radius:var(--r)}
+.pillar:nth-child(even){flex-direction:row-reverse}
+.pillar:nth-child(even) h3{text-align:right}
+@media(max-width:560px){.pillar h3{font-size:24px}}
+
+/* ---------------- COLLECTIONS (case collages) ---------------- */
+.case{padding-top:0}
+.case__media{
+  display:grid;grid-template-columns:1.5fr 1fr;grid-template-rows:auto auto;
+  gap:clamp(10px,1.4vw,18px);
+}
+@media(max-width:700px){.case__media{grid-template-columns:1fr}}
+.case__media .pframe:nth-child(1){grid-row:span 2;height:clamp(320px,72vh,680px)}
+.case__media .pframe:nth-child(2){height:clamp(150px,34vh,330px)}
+.case__media .pframe:nth-child(3){height:clamp(150px,34vh,330px)}
+.case__foot{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-top:clamp(18px,2.6vw,30px)}
+.case__foot h2{font-size:clamp(34px,5.4vw,76px);line-height:1}
+.case__link{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--black);
+  text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:4px;transition:border-color .25s,color .25s}
+.case__link:hover{border-color:var(--orange);color:var(--orange)}
+.case__desc{margin-top:10px;font-size:14px;line-height:1.8;color:var(--grey);max-width:54ch}
+
+/* ---------------- STORY band ---------------- */
+.storyband{border-top:1px solid var(--line)}
+.storyband .top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:clamp(26px,3.6vw,44px)}
+.storyband h2{font-size:clamp(32px,4.6vw,64px);line-height:1.04;margin-top:14px;max-width:18ch}
+.timeline__hint{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--grey-2)}
+.timeline__track{display:flex;will-change:transform}
+.tcol{flex:0 0 clamp(260px,29vw,390px);border-left:1px solid var(--line);padding:2px clamp(18px,2.4vw,32px) 8px}
+.tcol__year{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(36px,3.8vw,56px);line-height:1}
+.tcol__year sup{font-size:.35em;color:var(--orange);font-style:normal}
+.tcol h3{font-size:14.5px;font-weight:600;margin:12px 0 7px;letter-spacing:.02em}
+.tcol p{font-size:13.5px;line-height:1.75;color:var(--grey)}
+
+/* ---------------- STATS ON IMAGE ---------------- */
+.stats{position:relative;min-height:92svh;overflow:hidden;padding:0;display:flex;color:#fff}
+.stats .pframe{position:absolute;inset:0;height:100%}
+.stats__veil{position:absolute;inset:0;background:linear-gradient(to top, rgba(14,17,18,.74) 0%, rgba(14,17,18,.26) 55%, rgba(14,17,18,.32) 100%)}
+.stats__in{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;justify-content:space-between;
+  padding-top:clamp(44px,9vh,84px);padding-bottom:clamp(24px,5vh,48px);gap:clamp(36px,7vh,80px)}
+.eyebrow--light{color:rgba(255,255,255,.62)}
+.stats__line{font-size:clamp(26px,3.8vw,54px);line-height:1.15;max-width:22ch;margin-top:16px;color:#fff}
+.stats__row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.3)}
+@media(max-width:860px){.stats__row{grid-template-columns:repeat(2,1fr)}}
+.scell{padding:18px clamp(12px,2vw,26px) 2px 0}
+.scell + .scell{border-left:1px solid rgba(255,255,255,.22);padding-left:clamp(12px,2vw,26px)}
+@media(max-width:860px){.scell:nth-child(3){border-left:0;padding-left:0}}
+.scell strong{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(42px,5.2vw,80px);line-height:1;display:block}
+.scell strong i{font-style:italic;font-size:.5em;color:var(--orange)}
+.scell span{display:block;margin-top:6px;font-size:12px;line-height:1.6;color:rgba(255,255,255,.65)}
+
+/* ---------------- MOOD ---------------- */
+.mood{padding:0;position:relative;height:100svh;min-height:600px;overflow:hidden;background:#0F1213;color:#fff}
+.mood__bg{position:absolute;inset:0;opacity:0}
+.mood__bg img{height:100%;object-fit:cover;transform:scale(1.06)}
+.mood__bg.is-on{opacity:1}
+.mood__grade{position:absolute;inset:0;background:rgba(13,16,17,.46);mix-blend-mode:multiply}
+.mood__tint{position:absolute;inset:0;background:var(--cyan);opacity:.15;mix-blend-mode:color}
+.mood__in{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;justify-content:space-between;
+  padding:clamp(80px,12vh,120px) var(--gut) clamp(24px,5vh,48px)}
+.mood .eyebrow{color:rgba(255,255,255,.55)}
+.mood__line{font-size:clamp(38px,6.4vw,100px);line-height:1;margin-top:14px;color:#fff}
+.mood__word{font-style:italic;border-bottom:1px solid rgba(255,255,255,.4)}
+.mood__desc{margin-top:18px;max-width:46ch;font-size:14px;line-height:1.8;color:rgba(255,255,255,.72)}
+.mood__product{margin-top:8px;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.mood__chips{display:flex;gap:10px;flex-wrap:wrap}
+.mchip{font-family:inherit;font-size:12px;font-weight:500;letter-spacing:.07em;color:rgba(255,255,255,.85);
+  background:transparent;border:1px solid rgba(255,255,255,.35);border-radius:var(--r);
+  padding:11px 20px;cursor:pointer;transition:border-color .3s,color .3s,background .3s}
+.mchip:hover{border-color:#fff;color:#fff}
+.mchip.is-on{background:#fff;color:#141618;border-color:#fff}
+
+/* ---------------- FOOTER (Paisana style) ---------------- */
+.footer{border-top:1px solid var(--line);padding:clamp(44px,6vw,90px) 0 0}
+.footer__cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.4vw,18px)}
+@media(max-width:700px){.footer__cards{grid-template-columns:1fr}}
+.fcard{position:relative;height:clamp(180px,30vh,300px);border-radius:var(--r);overflow:hidden}
+.fcard img{height:100%;object-fit:cover}
+.fcard span{
+  position:absolute;left:16px;bottom:13px;color:#fff;font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-weight:300;font-size:clamp(22px,2.4vw,32px);text-shadow:0 2px 18px rgba(0,0,0,.45);
+}
+.footer__cta{display:flex;justify-content:space-between;align-items:center;gap:26px;flex-wrap:wrap;
+  padding:clamp(40px,6vw,80px) 0 clamp(30px,4vw,56px)}
+.footer__cta h2{font-size:clamp(36px,5.6vw,84px);line-height:1}
+.btn{display:inline-block;padding:14px 30px;border-radius:var(--r);text-decoration:none;
+  font-size:13px;font-weight:500;letter-spacing:.06em;border:1px solid var(--black);transition:all .25s}
+.btn--solid{background:var(--black);color:var(--bg)}
+.btn--solid:hover{background:var(--orange);border-color:var(--orange)}
+.footer__rows{border-top:1px solid var(--line)}
+.frow{display:flex;justify-content:space-between;gap:18px;padding:15px 0;border-bottom:1px solid var(--line);
+  font-size:13px;color:var(--grey);flex-wrap:wrap}
+.frow a{color:var(--black);text-decoration:none}
+.frow a:hover{color:var(--orange)}
+.footer__logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(60px,11vw,170px);
+  line-height:.95;text-align:center;padding:clamp(26px,4vw,52px) 0 clamp(14px,2vw,26px);letter-spacing:.04em}
+.footer__legal{padding:0 0 26px;text-align:center;font-size:11px;color:var(--grey-2);letter-spacing:.1em}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav"><div class="gut nav__in">
+  <a class="nav__logo" href="/">RAHATLYK</a>
+  <ul class="nav__links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/about" aria-current="page">About</a></li>
+    <li><a href="/products">Products</a></li>
+    <li><a href="/news">Journal</a></li>
+    <li><a href="/vacancies">Vacancies</a></li>
+  </ul>
+  <a class="nav__cta" href="/contact">Get in touch</a>
+</div></nav>
+
+<button class="talk" id="talk" type="button" aria-label="Copy our email address">
+  <span class="dot"></span><span id="talkLabel">Let's talk</span>
+</button>
+
+<!-- ============ HERO ============ -->
+<header class="hero"><div class="gut">
+  <p class="eyebrow" data-fade>About Rahatlyk — Beverages, Turkmenistan</p>
+  <h1 class="serif" id="heroTitle" style="margin-top:20px">
+    The taste of <em>comfort</em>,<br><span class="ind">made in Turkmenistan.</span>
+  </h1>
+  <div class="hero__row">
+    <p class="hero__sub" data-fade>Water, mineral water, fruit juices, energy drinks, herbal teas
+      and soft drinks — six collections crafted at home, to one standard of quality.</p>
+    <p class="hero__meta" data-fade>Six collections — one promise</p>
+  </div>
+</div>
+<figure class="hero__media pframe reveal gut0">
+  <img id="heroImg" src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?q=80&w=2200&auto=format&fit=crop"
+       alt="Clear blue water surface" onerror="this.remove()">
+</figure>
+</header>
+
+<!-- ============ STATEMENT + PILLARS ============ -->
+<section class="statement"><div class="gut">
+  <p class="serif" data-fade>In Turkmen, <em>rahatlyk</em> means comfort — our name, our promise,
+    and the measure of <em>every bottle</em> we make.</p>
+  <p class="small" data-fade>From our facilities in Turkmenistan we purify, prepare and bottle everything
+    ourselves — from the first filtration of water to the final cap. What began with drinking water is now
+    six collections covering the whole rhythm of a day, distributed across the country by our own network.</p>
+
+  <div class="pillars">
+    <div class="pillar" data-fade>
+      <h3 class="serif">Purity, <i>first</i></h3>
+      <figure class="pframe"><img data-plx loading="lazy" src="https://images.unsplash.com/photo-1536935338788-846bb9981813?q=80&w=700&auto=format&fit=crop" alt="Air bubbles in clear water" onerror="this.remove()"></figure>
+    </div>
+    <div class="pillar" data-fade>
+      <h3 class="serif">Flavour with <i>character</i></h3>
+      <figure class="pframe"><img data-plx loading="lazy" src="https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=700&auto=format&fit=crop" alt="Fresh orange on a bright background" onerror="this.remove()"></figure>
+    </div>
+    <div class="pillar" data-fade>
+      <h3 class="serif">Comfort, <i>bottled</i></h3>
+      <figure class="pframe"><img data-plx loading="lazy" src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=700&auto=format&fit=crop" alt="A warm cup of tea" onerror="this.remove()"></figure>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ COLLECTION CASE 1 ============ -->
+<section class="case"><div class="gut">
+  <div class="case__media">
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=1600&auto=format&fit=crop" alt="Bottled water on blue" loading="lazy" onerror="this.remove()"></figure>
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1536935338788-846bb9981813?q=80&w=1100&auto=format&fit=crop" alt="Bubbles underwater" loading="lazy" onerror="this.remove()"></figure>
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?q=80&w=1100&auto=format&fit=crop" alt="Blue water surface" loading="lazy" onerror="this.remove()"></figure>
+  </div>
+  <div class="case__foot">
+    <h2 class="serif" data-fade>The <em>Waters</em></h2>
+    <a class="case__link" href="/products" data-fade>Explore the line</a>
+  </div>
+  <p class="case__desc" data-fade>Drinking water and naturally balanced mineral water — purified,
+    tested batch by batch, and bottled at our own facility. The foundation of everything we make.</p>
+</div></section>
+
+<!-- ============ COLLECTION CASE 2 ============ -->
+<section class="case"><div class="gut">
+  <div class="case__media">
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=1600&auto=format&fit=crop" alt="Fresh orange" loading="lazy" onerror="this.remove()"></figure>
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=1100&auto=format&fit=crop" alt="Sparkling drinks with ice" loading="lazy" onerror="this.remove()"></figure>
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1100&auto=format&fit=crop" alt="Fresh fruit" loading="lazy" onerror="this.remove()"></figure>
+  </div>
+  <div class="case__foot">
+    <h2 class="serif" data-fade>Juices <em>&amp;</em> Soft Drinks</h2>
+    <a class="case__link" href="/products" data-fade>Explore the line</a>
+  </div>
+  <p class="case__desc" data-fade>Sun-ripened fruit pressed to taste like the season — and sparkling
+    soft drinks made for good company. Recipes developed entirely in-house.</p>
+</div></section>
+
+<!-- ============ COLLECTION CASE 3 ============ -->
+<section class="case"><div class="gut">
+  <div class="case__media">
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=1600&auto=format&fit=crop" alt="A cup of herbal tea" loading="lazy" onerror="this.remove()"></figure>
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1100&auto=format&fit=crop" alt="Training session" loading="lazy" onerror="this.remove()"></figure>
+    <figure class="pframe reveal"><img data-plx src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1100&auto=format&fit=crop" alt="Calm landscape at golden hour" loading="lazy" onerror="this.remove()"></figure>
+  </div>
+  <div class="case__foot">
+    <h2 class="serif" data-fade>Energy <em>&amp;</em> Calm</h2>
+    <a class="case__link" href="/products" data-fade>Explore the line</a>
+  </div>
+  <p class="case__desc" data-fade>A clean charge for people who keep moving — and herbal teas that
+    slow the evening down. Two ends of the day, one collection.</p>
+</div></section>
+
+<!-- ============ STORY ============ -->
+<section class="storyband" id="historyPin"><div class="gut">
+  <div class="top">
+    <div>
+      <p class="eyebrow" data-fade>Our story</p>
+      <h2 class="serif" data-fade>A journey told in <em>milestones.</em></h2>
+    </div>
+    <p class="timeline__hint" data-fade>Keep scrolling — the timeline moves with you</p>
+  </div>
+  <div class="timeline__track" id="timelineTrack">
+    <article class="tcol"><div class="tcol__year">20XX</div><h3>The first drop</h3>
+      <p>Rahatlyk is founded with one product and one goal: drinking water every family can rely on.</p></article>
+    <article class="tcol"><div class="tcol__year">20XX</div><h3>Minerals join the family</h3>
+      <p>Naturally balanced mineral water extends the line into everyday wellness.</p></article>
+    <article class="tcol"><div class="tcol__year">20XX</div><h3>Colour enters the bottle</h3>
+      <p>Juices and soft drinks launch — flavours developed and bottled entirely in-house.</p></article>
+    <article class="tcol"><div class="tcol__year">20XX</div><h3>Energy and calm</h3>
+      <p>Energy drinks for the movers, herbal teas for the evenings.</p></article>
+    <article class="tcol"><div class="tcol__year">Now<sup>●</sup></div><h3>Six lines, one promise</h3>
+      <p>A modern production family — and a digital platform that brings us directly to you.</p></article>
+  </div>
+</div></section>
+
+<!-- ============ STATS ON IMAGE ============ -->
+<section class="stats">
+  <div class="pframe"><img data-plx src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2200&auto=format&fit=crop" alt="Wide natural landscape" onerror="this.remove()"></div>
+  <div class="stats__veil"></div>
+  <div class="stats__in gut">
+    <div>
+      <p class="eyebrow eyebrow--light" data-fade>Rahatlyk at a glance</p>
+      <p class="stats__line serif" data-fade>Everything we bottle begins in <em>nature</em> —
+        our job is simply not to get in its way.</p>
+    </div>
+    <div class="stats__row">
+      <div class="scell" data-fade><strong><span class="count" data-to="6">0</span></strong>
+        <span>product collections, from water to herbal teas</span></div>
+      <div class="scell" data-fade><strong><span class="count" data-to="100">0</span><i>%</i></strong>
+        <span>produced and bottled inside Turkmenistan</span></div>
+      <div class="scell" data-fade><strong><span class="count" data-to="20">0</span><i>+</i></strong>
+        <span>flavours and formats across all collections</span></div>
+      <div class="scell" data-fade><strong><span class="count" data-to="5">0</span></strong>
+        <span>quality-control stages from source to bottle</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOOD ============ -->
+<section class="mood" id="mood">
+  <div class="mood__bg is-on" data-mood="fresh"><img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?q=80&w=1800&auto=format&fit=crop" alt="" onerror="this.remove()"></div>
+  <div class="mood__bg" data-mood="energy"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1800&auto=format&fit=crop" alt="" loading="lazy" onerror="this.remove()"></div>
+  <div class="mood__bg" data-mood="play"><img src="https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=1800&auto=format&fit=crop" alt="" loading="lazy" onerror="this.remove()"></div>
+  <div class="mood__bg" data-mood="calm"><img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=1800&auto=format&fit=crop" alt="" loading="lazy" onerror="this.remove()"></div>
+  <div class="mood__grade"></div>
+  <div class="mood__tint" id="moodTint"></div>
+  <div class="mood__in">
+    <div>
+      <p class="eyebrow">Find your bottle</p>
+      <h2 class="mood__line serif">Today I feel <span class="mood__word" id="moodWord">refreshed</span><span style="opacity:.5">.</span></h2>
+      <p class="mood__desc" id="moodDesc">Cold, clear and exactly what you need — our drinking water never misses.</p>
+      <p class="mood__product" id="moodProduct">Rahatlyk — Drinking Water</p>
+    </div>
+    <div class="mood__chips">
+      <button class="mchip is-on" data-mood="fresh">Refreshed</button>
+      <button class="mchip" data-mood="energy">Unstoppable</button>
+      <button class="mchip" data-mood="play">Playful</button>
+      <button class="mchip" data-mood="calm">Cozy</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer"><div class="gut">
+  <div class="footer__cards">
+    <div class="fcard" data-fade><img loading="lazy" src="https://images.unsplash.com/photo-1536935338788-846bb9981813?q=80&w=900&auto=format&fit=crop" alt="" onerror="this.remove()"><span>Source</span></div>
+    <div class="fcard" data-fade><img loading="lazy" src="https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=900&auto=format&fit=crop" alt="" onerror="this.remove()"><span>Craft</span></div>
+    <div class="fcard" data-fade><img loading="lazy" src="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=900&auto=format&fit=crop" alt="" onerror="this.remove()"><span>Deliver</span></div>
+  </div>
+  <div class="footer__cta">
+    <h2 class="serif" data-fade>Ready to taste <em>comfort?</em></h2>
+    <a class="btn btn--solid" href="/products" data-fade>Explore the collection</a>
+  </div>
+  <div class="footer__rows">
+    <div class="frow"><span>General</span><a href="mailto:info@rahatlyk.com">info@rahatlyk.com</a></div>
+    <div class="frow"><span>Careers</span><a href="/vacancies">Open positions</a></div>
+    <div class="frow"><span>Journal</span><a href="/news">Latest stories</a></div>
+  </div>
+  <div class="footer__logo serif">RAHATLYK</div>
+  <p class="footer__legal">© 2026 RAHATLYK — Turkmenistan. All rights reserved.</p>
+</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
+<script>
+(function(){
+  gsap.registerPlugin(ScrollTrigger);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* smooth scroll (Paisana feel) */
+  if(!reduce && window.Lenis){
+    const lenis = new Lenis({lerp:.09, smoothWheel:true});
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t*1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* nav solid after hero text */
+  const nav = document.getElementById('nav');
+  const setNav = () => nav.classList.toggle('is-solid', window.scrollY > 40);
+  setNav(); addEventListener('scroll', setNav, {passive:true});
+
+  /* floating talk pill → copy email */
+  const talk = document.getElementById('talk');
+  const talkLabel = document.getElementById('talkLabel');
+  talk.addEventListener('click', async () => {
+    try{ await navigator.clipboard.writeText('info@rahatlyk.com'); }catch(e){}
+    talkLabel.textContent = 'info@rahatlyk.com — copied';
+    if(!reduce) gsap.fromTo(talk,{scale:.96},{scale:1,duration:.4,ease:'back.out(3)'});
+    setTimeout(()=> talkLabel.textContent = "Let's talk", 2200);
+  });
+
+  /* ---------- MOOD ---------- */
+  const moodData = {
+    fresh:{word:'refreshed', tint:'#4FA3B5', product:'Rahatlyk — Drinking Water',
+      desc:'Cold, clear and exactly what you need — our drinking water never misses.'},
+    energy:{word:'unstoppable', tint:'#8FA84A', product:'Rahatlyk — Energy Drink',
+      desc:'A clean spark for whatever you are about to conquer. Go on.'},
+    play:{word:'playful', tint:'#D98A55', product:'Rahatlyk — Juices & Soft Drinks',
+      desc:'Bright, fruity, sparkling — made for good company and better laughs.'},
+    calm:{word:'cozy', tint:'#B07A4E', product:'Rahatlyk — Herbal Tea',
+      desc:'Warm hands, slow breath, quiet evening. We bottled that feeling.'}
+  };
+  const chips = document.querySelectorAll('.mchip');
+  const wordEl = document.getElementById('moodWord');
+  const descEl = document.getElementById('moodDesc');
+  const prodEl = document.getElementById('moodProduct');
+  const tintEl = document.getElementById('moodTint');
+  let current='fresh', animating=false;
+  function setMood(key){
+    if(key===current||animating) return; animating=true;
+    const m=moodData[key];
+    chips.forEach(c=>c.classList.toggle('is-on',c.dataset.mood===key));
+    const oldBg=document.querySelector('.mood__bg.is-on');
+    const newBg=document.querySelector('.mood__bg[data-mood="'+key+'"]');
+    current=key;
+    if(reduce){
+      oldBg.classList.remove('is-on'); newBg.classList.add('is-on');
+      wordEl.textContent=m.word; descEl.textContent=m.desc; prodEl.textContent=m.product;
+      tintEl.style.background=m.tint; animating=false; return;
+    }
+    gsap.timeline({onComplete:()=>{oldBg.classList.remove('is-on');newBg.classList.add('is-on');
+        gsap.set(oldBg,{clearProps:'opacity'});animating=false;}})
+      .set(newBg,{opacity:0,zIndex:2})
+      .fromTo(newBg.querySelector('img'),{scale:1.14},{scale:1.06,duration:1.4,ease:'power2.out'},0)
+      .to(newBg,{opacity:1,duration:.9,ease:'power1.inOut'},0)
+      .to(tintEl,{background:m.tint,duration:.9,ease:'power1.inOut'},0)
+      .to([wordEl,descEl,prodEl],{y:-16,opacity:0,duration:.3,ease:'power2.in',stagger:.04},0)
+      .add(()=>{wordEl.textContent=m.word;descEl.textContent=m.desc;prodEl.textContent=m.product;},.32)
+      .fromTo([wordEl,descEl,prodEl],{y:18,opacity:0},{y:0,opacity:1,duration:.5,ease:'power2.out',stagger:.06},.36)
+      .set(newBg,{zIndex:'auto'});
+  }
+  chips.forEach(c=>c.addEventListener('click',()=>setMood(c.dataset.mood)));
+
+  if(reduce) return;
+
+  /* hero entrance + parallax */
+  gsap.from('#heroTitle',{y:60,opacity:0,duration:1.2,ease:'power3.out',delay:.1});
+  gsap.to('#heroImg',{yPercent:14,ease:'none',
+    scrollTrigger:{trigger:'.hero__media',start:'top 80%',end:'bottom top',scrub:true}});
+
+  /* reveals */
+  gsap.utils.toArray('[data-fade]').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 92%'}});
+  });
+
+  /* clip reveal on media frames */
+  gsap.utils.toArray('.reveal').forEach(f=>{
+    gsap.to(f,{clipPath:'inset(0% 0% 0% 0%)',duration:1.2,ease:'power3.out',
+      scrollTrigger:{trigger:f,start:'top 86%'}});
+  });
+
+  /* parallax on framed images */
+  gsap.utils.toArray('[data-plx]').forEach(img=>{
+    gsap.fromTo(img,{yPercent:-8},{yPercent:8,ease:'none',
+      scrollTrigger:{trigger:img.parentElement,start:'top bottom',end:'bottom top',scrub:true}});
+  });
+
+  /* timeline */
+  const track=document.getElementById('timelineTrack');
+  const dist=()=>Math.max(0,track.scrollWidth-track.parentElement.clientWidth);
+  gsap.to(track,{x:()=>-dist(),ease:'none',
+    scrollTrigger:{trigger:'#historyPin',start:'top 12%',end:()=>'+='+(dist()+200),
+      scrub:.5,pin:true,anticipatePin:1,invalidateOnRefresh:true}});
+
+  /* count-up */
+  gsap.utils.toArray('.count').forEach(el=>{
+    gsap.fromTo(el,{innerText:0},{innerText:+el.dataset.to,duration:1.4,ease:'power1.out',
+      snap:{innerText:1},scrollTrigger:{trigger:el,start:'top 90%'}});
+  });
+})();
+</script>
+</body>
+</html>

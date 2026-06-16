@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rahatlyk — Collections Mosaic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!--
+  Swap these for your real fonts:
+  --font-heading  ->  your var(--font-heading)
+  --font-accent   ->  your var(--font-accent)
+-->
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --ink: #141618;
+    --muted: #737C80;
+    --accent: #D98A55;
+    --frame: #E9ECEB;
+    --font-heading: 'Inter', sans-serif;
+    --font-accent: 'Instrument Serif', Georgia, serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-heading);
+    overflow-x: clip;
+  }
+
+  /* Demo spacers so you can scroll into / out of the section */
+  .spacer {
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+  }
+
+  /* ============ MOSAIC LINES SECTION ============ */
+  .mosaic {
+    position: relative;
+    height: 100svh;
+    min-height: 600px;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(10px, 1.6vh, 18px);
+    padding: clamp(12px, 2vh, 24px) 0;
+  }
+
+  .mosaic-row {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  /* layer 1: fast intro slide */
+  .row-intro { height: 100%; will-change: transform; }
+
+  /* layer 2: slow scroll scrub */
+  .row-track {
+    height: 100%;
+    display: flex;
+    gap: clamp(10px, 1.2vw, 18px);
+    width: max-content;
+    will-change: transform;
+    padding: 0 clamp(18px, 3.6vw, 52px);
+  }
+
+  .row-track figure {
+    position: relative;
+    height: 100%;
+    aspect-ratio: 4 / 3;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--frame);
+  }
+
+  .row-track figure.wide  { aspect-ratio: 16 / 9; }
+  .row-track figure.tall  { aspect-ratio: 1 / 1; }
+
+  .row-track img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* caption block overlaid on each line */
+  .row-caption {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    max-width: min(560px, 72vw);
+    padding: clamp(14px, 1.8vw, 22px) clamp(18px, 2.2vw, 28px);
+    background: rgba(250, 250, 248, 0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 3px;
+  }
+
+  .mosaic-row:nth-child(odd)  .row-caption { left: clamp(18px, 3.6vw, 52px); }
+  .mosaic-row:nth-child(even) .row-caption { right: clamp(18px, 3.6vw, 52px); text-align: right; }
+
+  .row-caption h2 {
+    font-family: var(--font-heading);
+    font-weight: 300;
+    font-size: clamp(22px, 3.2vw, 44px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .row-caption h2 em {
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .row-caption p {
+    margin-top: 10px;
+    font-size: clamp(11.5px, 0.95vw, 13.5px);
+    line-height: 1.75;
+    color: var(--muted);
+  }
+
+  /* reveal of caption */
+  .row-caption { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .row-caption { opacity: 1 !important; }
+  }
+
+  @media (max-width: 640px) {
+    .row-caption p { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="spacer">Scroll down — section enters below</div>
+
+<!-- ============ SECTION ============ -->
+<section class="mosaic" id="mosaic">
+
+  <!-- Line 1 : moves left -> right -->
+  <div class="mosaic-row" data-dir="1">
+    <div class="row-caption">
+      <h2>The <em>Waters</em></h2>
+      <p>Drinking water and naturally balanced mineral water — purified, tested batch by batch, and bottled at our own facility. The foundation of everything we make.</p>
+    </div>
+    <div class="row-intro">
+      <div class="row-track">
+        <figure><img src="https://picsum.photos/seed/water1/900/680" alt="The Waters" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/water2/1200/680" alt="The Waters" loading="lazy"></figure>
+        <figure class="tall"><img src="https://picsum.photos/seed/water3/700/700" alt="The Waters" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/water4/900/680" alt="The Waters" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/water5/1200/680" alt="The Waters" loading="lazy"></figure>
+        <figure class="tall"><img src="https://picsum.photos/seed/water6/700/700" alt="The Waters" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/water7/900/680" alt="The Waters" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/water8/1200/680" alt="The Waters" loading="lazy"></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- Line 2 : moves right -> left -->
+  <div class="mosaic-row" data-dir="-1">
+    <div class="row-caption">
+      <h2>Juices <em>&amp;</em> Soft Drinks</h2>
+      <p>Sun-ripened fruit pressed to taste like the season, plus sparkling soft drinks made for good company. Recipes developed entirely in-house.</p>
+    </div>
+    <div class="row-intro">
+      <div class="row-track">
+        <figure class="tall"><img src="https://picsum.photos/seed/juice1/700/700" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/juice2/900/680" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/juice3/1200/680" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/juice4/900/680" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure class="tall"><img src="https://picsum.photos/seed/juice5/700/700" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/juice6/1200/680" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/juice7/900/680" alt="Juices and Soft Drinks" loading="lazy"></figure>
+        <figure class="tall"><img src="https://picsum.photos/seed/juice8/700/700" alt="Juices and Soft Drinks" loading="lazy"></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- Line 3 : moves left -> right -->
+  <div class="mosaic-row" data-dir="1">
+    <div class="row-caption">
+      <h2>Energy <em>&amp;</em> Calm</h2>
+      <p>A clean charge for people who keep moving, and herbal teas that slow the evening down. Two ends of the day, one collection.</p>
+    </div>
+    <div class="row-intro">
+      <div class="row-track">
+        <figure class="wide"><img src="https://picsum.photos/seed/calm1/1200/680" alt="Energy and Calm" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/calm2/900/680" alt="Energy and Calm" loading="lazy"></figure>
+        <figure class="tall"><img src="https://picsum.photos/seed/calm3/700/700" alt="Energy and Calm" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/calm4/1200/680" alt="Energy and Calm" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/calm5/900/680" alt="Energy and Calm" loading="lazy"></figure>
+        <figure class="tall"><img src="https://picsum.photos/seed/calm6/700/700" alt="Energy and Calm" loading="lazy"></figure>
+        <figure><img src="https://picsum.photos/seed/calm7/900/680" alt="Energy and Calm" loading="lazy"></figure>
+        <figure class="wide"><img src="https://picsum.photos/seed/calm8/1200/680" alt="Energy and Calm" loading="lazy"></figure>
+      </div>
+    </div>
+  </div>
+
+</section>
+<!-- ============ /SECTION ============ -->
+
+<div class="spacer">Section ends — keep scrolling back up to replay</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const section = document.querySelector('#mosaic');
+  const rows = gsap.utils.toArray('.mosaic-row');
+
+  if (reduceMotion) {
+    // Static, centered fallback
+    rows.forEach((row) => {
+      const track = row.querySelector('.row-track');
+      gsap.set(track, { x: () => -(track.scrollWidth - row.offsetWidth) / 2 });
+    });
+  } else {
+    rows.forEach((row, i) => {
+      const dir = Number(row.dataset.dir);          // 1 = L->R, -1 = R->L
+      const intro = row.querySelector('.row-intro');
+      const track = row.querySelector('.row-track');
+      const caption = row.querySelector('.row-caption');
+
+      // How far the track can travel inside the row
+      const overflow = () => Math.max(track.scrollWidth - row.offsetWidth, 0);
+
+      // Resting (post-intro) position, biased toward travel direction:
+      // L->R rows rest slightly left of center so the slow scrub pulls them right,
+      // R->L rows rest slightly right of center so the scrub pulls them left.
+      const restX = () => (dir === 1 ? -overflow() * 0.62 : -overflow() * 0.38);
+
+      // 1) FAST INTRO — fires once when section top hits 80% of the viewport.
+      //    The strip flies in from an off-position and lands with a hard ease-out.
+      gsap.fromTo(intro,
+        { x: () => dir * Math.min(window.innerWidth * 0.55, 720) },
+        {
+          x: 0,
+          duration: 1.4,
+          delay: i * 0.08,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+
+      // Caption fades in just after the strip lands
+      gsap.fromTo(caption,
+        { opacity: 0, y: 18 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          delay: 0.45 + i * 0.08,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+
+      // 2) SLOW SCRUB — the track keeps drifting in its direction for the
+      //    whole time the section is anywhere in the viewport.
+      gsap.fromTo(track,
+        { x: () => restX() - dir * overflow() * 0.14 },
+        {
+          x: () => restX() + dir * overflow() * 0.14,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    });
+
+    // Recalculate widths once images finish loading
+    window.addEventListener('load', () => ScrollTrigger.refresh());
+  }
+</script>
+</body>
+</html>

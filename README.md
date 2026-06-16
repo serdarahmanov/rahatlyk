@@ -1,101 +1,190 @@
-# RAHATLYK — Corporate Website
+# RAHATLYK Corporate Website
 
-Official corporate website for **RAHATLYK**, a Turkmen water and beverage company.
+Official corporate website for RAHATLYK, a Turkmen water and beverage company.
 
-## Platform & Stack
+This branch integrates Payload CMS into the existing Next.js application while keeping the public website routes and visual experience intact.
+
+## Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
+| Framework | Next.js 15 App Router |
+| CMS | Payload CMS 3 |
+| Database | PostgreSQL via `@payloadcms/db-postgres` |
+| Email | Payload Nodemailer adapter plus existing Nodemailer form routes |
 | Language | TypeScript |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com/) |
-| Animations | [GSAP](https://gsap.com/) + ScrollTrigger |
-| Smooth scrolling | [Lenis](https://lenis.darkroom.engineering/) |
-| Images | Next.js `<Image>` (optimised) |
+| Styling | Tailwind CSS v4 |
+| Animations | GSAP + ScrollTrigger |
+| Smooth scrolling | Lenis |
+| Images | Next.js `Image` and Payload media uploads |
 | Fonts | Google Fonts via `next/font` |
-| Internationalisation | Custom context (`src/lib/i18n/`) — Turkmen, Russian & English |
-| Email | Nodemailer + Gmail SMTP (contact & vacancy forms) |
+| Internationalisation | Custom context in `src/lib/i18n/` for `tm`, `ru`, and `en` |
 
-## Features
+## What Changed Since The Last Commit
 
-- **Multi-language support** — Turkmen (`tm`), Russian (`ru`) and English (`en`) with a dropdown language switcher in the Navbar visible at all breakpoints.
-- **Full-screen mobile menu** — frosted-glass overlay with large nav links, social icons (Instagram, email), and smooth open/close transitions.
-- **Product Catalogue** — filterable grid with category tabs; individual product detail pages with image gallery (prev/next arrows appear only when a product has more than one photo).
-- **News / Blog** — filterable by category (Company, Health, Products, Sustainability); featured article banner; individual article pages with sidebar and "More Articles" section. Homepage news section is a full-viewport auto-play infinite carousel.
-- **Vacancies** — filterable by department; individual vacancy detail pages with rich job description, salary icon in the header, and "Other Openings" cards matching the main vacancies grid.
-- **Contact & Vacancy forms** — custom JS validation with `noValidate`; per-field red ring + inline error messages; errors clear on field focus and auto-dismiss after 5 seconds; labeled fields with red asterisks for required; black submit button; in-flight submit locking to prevent duplicate requests; server-side email handling via `/api/contact` and `/api/vacancy` routes; sends a confirmation email to the user and a notification email with CV attachment to the company.
-- **Apple-style vacancy cards** — department-coloured gradient header, coloured dot + department badge, salary with icon, two-line description, location pin; reused on vacancy detail recommendations with subtle lift + shadow on hover matching the `vacancy-cards-apple-v2` reference design.
-- **Unified `FilterBar` component** — `src/components/FilterBar.tsx`; shared across Products, News, and Vacancies pages; mobile: horizontally scrollable pill strip with floating gradient arrow overlays (left/right); desktop: exposed via `forwardRef` for GSAP animations; grey pill palette (active: `bg-gray-900`, inactive: `border-gray-300 text-gray-500`).
-- **Pagination** — all three listing pages (`/products`, `/news`, `/vacancies`) are paginated via a shared `Pagination` component (`src/components/Pagination.tsx`). Minimalist design: thin top border, muted count label (`1–9 of 27 articles`), prev/next arrow buttons, page numbers with ellipsis (active page underlined). Page changes scroll Lenis back to the top via a `scroll-to-top` custom DOM event, with a native fallback for `prefers-reduced-motion` users. Pagination state is synced to the URL (`?page=`, `?category=`, `?department=`) for deep-linking and browser back/forward support. The `PaginatedResult<T>` shape mirrors Payload CMS's `find()` response exactly for a future CMS swap.
-- **Contact page two-column layout** — 65/35 split; left: heading + labeled contact form; right: sticky full-height panel reusing the about-page blob gradient (`about-mosaic-*` classes) with GSAP parallax scrub; contact info items (address, phone, email, hours) in solid white over the gradient.
-- **URL-driven filtering** — all listing pages (`/products`, `/news`, `/vacancies`) read their active filter from query params (`?category=`, `?department=`) so category links from detail pages deep-link directly to the filtered view.
-- **Payload CMS-ready data models** — `Article`, `Vacancy`, and `Product` interfaces use plain `string` for category/department (no union types), ISO date strings, and no derived/redundant fields, so they map 1-to-1 to Payload collections. `ProductCard` is derived via `Pick<Product, ...>` so listing pages carry only the fields they need. Locale-aware date formatting is centralised in `src/lib/formatDate.ts` using `Intl.DateTimeFormat`.
-- **Multi-photo news articles** — each `Article` holds an `images: string[]` array. News cards auto-advance through photos at a random per-card cadence (2–5 s) with a slide-in transition; users can also navigate manually via arrow buttons or tap the progress dashes.
-- **Responsive design** — mobile-first, fully responsive across all breakpoints. Footer link groups display in a 2-column grid on mobile, with legal policy links intentionally omitted.
-- **GSAP animations** — hero word-mask reveals, scroll-triggered section entrances, staggered listing cards, filter entrances, smooth carousel transitions, pinned horizontal scroll, brand-statement word-mask reveal, and custom about-page interactions.
-- **Lenis smooth scrolling** — global smooth-scroll layer integrated with ScrollTrigger refreshes.
-- **Reference-led About page** — cinematic sticky image hero, scroll-darkened intro, scroll-revealed brand statement, full-viewport parallax imagery, timeline story cards, GSAP-driven mosaic rows, interactive certificates, mood selector, and a one-viewport closing link/wordmark screen.
-- **Unified listing pages** — Products, News, and Vacancies share the same title/filter structure, selected-filter button treatment, and GSAP-managed card reveal behavior.
-- **Reference-style header** — transparent over hero imagery, hidden background at the top of hero pages, and a blurred panel/bottom stroke that transitions in on scroll. The About page keeps the same visual treatment while hiding on scroll down and reappearing on scroll up.
-- **Live water gradient** — animated CSS blob gradient on the CTA banner, about-page stats band, and collection panels using layered radial blurs with keyframe drift + pulse animations.
-- **Global typography** — site-wide `font-light` / `font-normal` weight system for a clean, editorial feel.
+- Added Payload CMS dependencies and switched the app to ESM with `"type": "module"`.
+- Wrapped Next config with `withPayload()` in `next.config.ts`.
+- Added `payload.config.ts` with PostgreSQL, Lexical editor, Media, Products, Articles, Vacancies, Users, Sharp, and Nodemailer email support.
+- Added Payload admin and REST routes under `src/app/(payload)/`.
+- Moved the public website into `src/app/(frontend)/` route groups.
+- Added Payload collections in `src/collections/` for:
+  - `users`
+  - `media`
+  - `products`
+  - `articles`
+  - `vacancies`
+- Added generated Payload types in `payload-types.ts`.
+- Added Payload helper and normalizer files:
+  - `src/lib/payload.ts`
+  - `src/lib/payload-normalize.ts`
+  - `src/types/payload.ts`
+- Updated Products, News, and Vacancies pages to read content from Payload server-side.
+- Added `src/seed.ts` to copy existing static data into Payload collections.
+- Updated `ProductVisual` so it can render either legacy string image URLs or Payload-style media URL objects.
+- Kept existing `/api/contact` and `/api/vacancy` form email routes in place.
+- Added reference HTML files and local media assets used during the design/CMS migration.
 
-## Pages
+## Routes
 
 | Route | Description |
 |---|---|
-| `/` | Home — hero, brand statement, horizontal scroll showcase, collections carousel, full-viewport news carousel, CTA banner |
-| `/about` | About — cinematic sticky hero, word-mask title, company story, parallax image section, timeline cards, mosaic rows, certificates, mood selector, and one-viewport closing screen. The shared footer is intentionally hidden on this route. |
-| `/products` | Products listing with category filter |
-| `/products/[id]` | Product detail with image gallery |
-| `/news` | News listing — featured article banner + iPhone-style portrait card grid with category filter |
-| `/news/[id]` | Article detail with sidebar & related articles |
-| `/vacancies` | Vacancies listing with department filter |
-| `/vacancies/[id]` | Vacancy detail with application form |
-| `/contact` | Contact page — two-column 65/35 split; left: labeled form; right: sticky blob-gradient panel with contact info |
+| `/` | Public home page |
+| `/about` | About page |
+| `/products` | Payload-backed products listing |
+| `/products/[id]` | Payload-backed product detail |
+| `/news` | Payload-backed news listing |
+| `/news/[id]` | Payload-backed article detail |
+| `/vacancies` | Payload-backed vacancies listing |
+| `/vacancies/[id]` | Payload-backed vacancy detail with application form |
+| `/contact` | Contact page with email form |
+| `/admin` | Payload admin UI |
+| `/api/[...slug]` | Payload REST API |
+| `/api/contact` | Existing contact form email handler |
+| `/api/vacancy` | Existing vacancy application email handler with CV attachment |
 
 ## Project Structure
 
-```
+```text
+payload.config.ts
+payload-types.ts
+
 src/
-├── app/
-│   ├── page.tsx               # Home page
-│   ├── about/page.tsx         # About page
-│   ├── products/
-│   │   ├── page.tsx           # Products listing
-│   │   └── [id]/page.tsx      # Product detail
-│   ├── news/
-│   │   ├── page.tsx           # News listing
-│   │   └── [id]/page.tsx      # Article detail
-│   ├── vacancies/
-│   │   ├── page.tsx           # Vacancies listing
-│   │   └── [id]/page.tsx      # Vacancy detail + application form
-│   ├── contact/page.tsx       # Contact form
-│   ├── api/
-│   │   ├── contact/route.ts   # Contact form email handler
-│   │   └── vacancy/route.ts   # Vacancy application email handler (with CV attachment)
-│   ├── layout.tsx             # Root layout (Navbar, Footer, fonts, metadata)
-│   └── globals.css            # Global styles, Tailwind theme, animation keyframes
-├── components/
-│   ├── Navbar.tsx             # Sticky navigation — desktop dropdown + full-screen mobile overlay
-│   ├── Footer.tsx             # Site footer with links & social icons
-│   ├── FilterBar.tsx          # Unified filter pill bar (mobile scroll + desktop forwardRef for GSAP)
-│   ├── Pagination.tsx         # Shared minimalist pagination (prev/next + page numbers + count label)
-│   └── ProductVisual.tsx      # Product image component (sm card / lg detail modes)
-└── lib/
-    ├── i18n/
-    │   ├── LanguageContext.tsx # Language provider & useLanguage hook
-    │   └── translations.ts    # All UI strings (tm / ru / en)
-    ├── email/
-    │   ├── templates.ts       # HTML email templates (warm brand palette)
-    │   └── i18n.ts            # Email copy in tm / ru / en
-    ├── formatDate.ts          # Locale-aware date formatter (Intl.DateTimeFormat, en/ru/tm)
-    ├── paginate.ts            # Generic paginate() — PaginatedResult<T> mirrors Payload CMS shape
-    └── data/
-        ├── products.ts        # Product catalogue — Product + ProductCard (Pick<>) types
-        ├── news.ts            # News articles — multi-image, ISO dates, plain string category
-        └── vacancies.ts       # Job openings — ISO dates, plain string department
+  app/
+    (frontend)/
+      layout.tsx
+      page.tsx
+      about/page.tsx
+      contact/page.tsx
+      products/
+      news/
+      vacancies/
+    (payload)/
+      admin/
+      api/[...slug]/route.ts
+      layout.tsx
+      custom.scss
+    api/
+      contact/route.ts
+      vacancy/route.ts
+    globals.css
+  collections/
+    Articles.ts
+    Media.ts
+    Products.ts
+    Users.ts
+    Vacancies.ts
+  components/
+  lib/
+    email/
+    i18n/
+    payload.ts
+    payload-normalize.ts
+  types/
+    payload.ts
+  seed.ts
 ```
+
+## Payload CMS
+
+Payload is configured in `payload.config.ts`.
+
+Key points:
+
+- Admin user collection: `users`
+- Public read collections: `media`, `products`, `articles`, `vacancies`
+- Database adapter: PostgreSQL
+- Rich text editor: Lexical
+- Image processing: Sharp
+- Email adapter: `@payloadcms/email-nodemailer`
+- Payload Next integration: `withPayload(nextConfig)`
+- Payload import alias: `@payload-config`
+
+The public listing/detail pages call `getPayloadClient()` on the server and normalize Payload's generated collection types into frontend-friendly shapes. This keeps the existing client components mostly unchanged while letting CMS content drive the pages.
+
+## Email Integration
+
+There are two email paths in the project:
+
+1. Payload admin/auth email through `@payloadcms/email-nodemailer`.
+2. Existing public form email through raw Nodemailer in `/api/contact` and `/api/vacancy`.
+
+Payload email is configured to use the same Gmail service transport style that already works for the public forms:
+
+```ts
+email: nodemailerAdapter({
+  defaultFromAddress: process.env.NOREPLY_EMAIL ?? '',
+  defaultFromName: 'Rahatlyk',
+  transport: nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  }),
+})
+```
+
+The config also calls `setDefaultResultOrder('ipv4first')` before creating the transporter. This avoids local Gmail SMTP attempts resolving to IPv6 first on networks where Gmail IPv6 SMTP is refused.
+
+### Email Problems Encountered And Fixes
+
+| Problem | Cause | Fix Applied |
+|---|---|---|
+| Public contact/vacancy forms sent email, but Payload admin email failed. | Forms and Payload used different Nodemailer configurations. | Changed Payload to use a real Nodemailer `transport` with the same `service: 'gmail'` style as the working form routes. |
+| `connect ECONNREFUSED ... :465` during Payload verify. | Explicit Gmail SMTP host/port could resolve to an IPv6 Gmail endpoint that the local network refused. | Added `setDefaultResultOrder('ipv4first')` and stopped using the explicit `smtp.gmail.com:465` transport options. |
+| `self-signed certificate in certificate chain` during Payload verify. | Local certificate trust chain rejected the SMTP TLS certificate path. | Matched the existing form routes by adding `tls: { rejectUnauthorized: false }` to the Payload transporter. |
+| TypeScript rejected `transportOptions: { service: 'gmail' }`. | Payload's `transportOptions` type is `SMTPConnection.Options`, which does not include Nodemailer's `service` shortcut. | Used Payload's `transport` option with `nodemailer.createTransport(...)` instead. |
+| Payload logs `Error verifying Nodemailer transport.` but admin still loads. | The Payload Nodemailer adapter logs verify errors instead of throwing them during setup. | Fixed the transport so verify can complete locally. |
+
+Important production note: `rejectUnauthorized: false` is a local compatibility workaround. For production, fix the server or hosting CA trust chain and remove this option from both Payload and the public form transports.
+
+## Environment Variables
+
+Create `.env.local` in the project root.
+
+```env
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+
+DATABASE_URI=postgres://user:password@host:5432/database
+PAYLOAD_SECRET=replace-with-a-long-random-secret
+
+CONTACT_FORM_TO_EMAIL=info@rahatlyk.com
+NOREPLY_EMAIL=noreply@rahatlyk.com
+WEBSITE_EMAIL=website@rahatlyk.com
+GMAIL_USER=your.gmail@gmail.com
+GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
+```
+
+Notes:
+
+- `DATABASE_URI` or `DATABASE_URL` is required by Payload's PostgreSQL adapter.
+- `PAYLOAD_SECRET` is required for Payload auth/session security.
+- Gmail requires an App Password, not the normal account password.
+- `CONTACT_FORM_TO_EMAIL` exists in the environment template, but the current form routes still send internal notifications to `GMAIL_USER`. That should be cleaned up in a later pass if the business inbox should be separate from the SMTP login.
 
 ## Getting Started
 
@@ -104,67 +193,49 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open:
 
-### Environment Variables
+- Public site: `http://localhost:3000`
+- Payload admin: `http://localhost:3000/admin`
 
-Create a `.env.local` file in the project root:
+## Verification
 
-```env
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-GMAIL_USER=your@gmail.com
-GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
-NOREPLY_EMAIL=noreply@yourdomain.com
-WEBSITE_EMAIL=website@yourdomain.com
-```
-
-## Build & Deploy
+Commands used during this integration:
 
 ```bash
-npm run build
-npm start
-```
-
-The project is a standard Next.js app and can be deployed to **Vercel**, **Netlify**, or any Node.js hosting environment.
-
-## Quality Checks
-
-Use these commands before committing or deploying:
-
-```bash
-npm run lint
-npm run build
-```
-
-On Windows PowerShell, if `npm.ps1` is blocked by the execution policy, use the command shim instead:
-
-```powershell
 npm.cmd run lint
-npm.cmd run build
+npx.cmd tsc --noEmit
 ```
 
-Current validation status:
+Both passed after the Payload email fix.
 
-- ESLint passes without errors or warnings.
-- Production build passes with Next.js 16.2.7 and Turbopack.
-- ESLint ignores `.claude/**` so local agent worktrees are not checked as project source.
-- React hook updates avoid synchronous state writes inside effects where Next.js/React lint rules flag them.
-- Latest checked commands: `npm.cmd run lint` and `npm.cmd run build`.
+`npm.cmd run build` was also tested, but the local machine failed before app compilation completed because `next/font/google` could not fetch Google Fonts:
 
-## Brand Colours
+```text
+UNABLE_TO_VERIFY_LEAF_SIGNATURE
+Failed to fetch Cormorant Garamond, Inter, and Plus Jakarta Sans from Google Fonts.
+```
 
-The site uses a warm black / beige / white `brand` palette defined in `globals.css`:
+That is a local certificate/network trust issue around Google Fonts fetching, not a TypeScript or Payload compilation error. Fix options:
 
-| Token | Hex | Usage |
-|---|---|---|
-| `brand-50` | `#faf8f4` | Warm off-white backgrounds |
-| `brand-100` | `#f0e8d8` | Light cream fills & borders |
-| `brand-200` | `#dfd0b8` | Soft beige dividers |
-| `brand-300` | `#c8ad88` | Warm tan accents |
-| `brand-400` | `#a88e6a` | Secondary text, labels |
-| `brand-500` | `#8a7256` | Mid warm tone |
-| `brand-600` | `#6e5a44` | Hover states |
-| `brand-700` | `#524030` | Dark warm |
-| `brand-800` | `#382c22` | Very dark warm |
-| `brand-900` | `#1e1611` | Near-black warm |
-| `brand-950` | `#0f0b07` | Almost black — headings & primary text |
+- repair the local/hosting CA trust chain,
+- configure Node with the correct CA bundle,
+- or self-host the fonts instead of using `next/font/google`.
+
+## Known Follow-Up Work
+
+- Remove `tls.rejectUnauthorized: false` after the certificate trust chain is fixed.
+- Make public form routes use the same shared Payload/Nodemailer email path.
+- Use `CONTACT_FORM_TO_EMAIL` for internal form notifications instead of `GMAIL_USER`.
+- Add rate limiting, CAPTCHA/honeypot, or another anti-abuse control to `/api/contact` and `/api/vacancy`.
+- Escape user-submitted text before interpolating it into HTML email templates.
+- Store contact submissions and vacancy applications in Payload for audit/history.
+- Add a package script for seeding Payload data.
+- Update `.env.example` to include `DATABASE_URI` / `DATABASE_URL` and `PAYLOAD_SECRET`.
+
+## Quality Notes
+
+- ESLint passes.
+- TypeScript `--noEmit` passes.
+- The Payload admin loads and the admin forgot-password email transport now verifies locally.
+- The dirty `.claude/worktrees/...` subproject marker is local agent metadata and is not part of the application change set.

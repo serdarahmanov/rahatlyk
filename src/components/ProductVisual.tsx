@@ -1,8 +1,14 @@
 import Image from 'next/image';
-import { Product, ProductCard } from '@/lib/data/products';
+
+type ProductVisualPhoto = string | { url: string };
+
+type ProductVisualProduct = {
+  name: string;
+  photos?: ProductVisualPhoto[] | null;
+};
 
 interface Props {
-  product: Product | ProductCard;
+  product: ProductVisualProduct;
   /** 'sm' = listing card  |  'lg' = detail hero */
   size?: 'sm' | 'lg';
   className?: string;
@@ -11,10 +17,8 @@ interface Props {
 const FALLBACK = '/products/FeatureProductImg_RTD_LT.png';
 
 export default function ProductVisual({ product, size = 'sm', className = '' }: Props) {
-  const src =
-    product.photos && product.photos.length > 0
-      ? product.photos[0]
-      : FALLBACK;
+  const firstPhoto = product.photos?.[0];
+  const src = typeof firstPhoto === 'string' ? firstPhoto : firstPhoto?.url ?? FALLBACK;
 
   if (size === 'sm') {
     // Fills whatever container the card gives us (w-full h-full)

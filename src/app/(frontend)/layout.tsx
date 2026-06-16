@@ -1,6 +1,6 @@
 ﻿import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter, Plus_Jakarta_Sans } from 'next/font/google';
-import './globals.css';
+import '../globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
