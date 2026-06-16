@@ -1,7 +1,8 @@
 ﻿import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import '../globals.css';
-import { LanguageProvider } from '@/lib/i18n/LanguageContext';
+import { LanguageProvider } from '@/lib/i18n/LanguageContext'
+import { ContactInfoProvider } from '@/lib/contact-info/ContactInfoContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageIntro from '@/components/PageIntro';
@@ -54,12 +55,14 @@ export default function RootLayout({
         style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
       >
         <LanguageProvider>
-          <ScrollReset />
-          <SmoothScroll />
-          <PageIntro />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <ContactInfoProvider>
+            <ScrollReset />
+            <SmoothScroll />
+            <PageIntro />
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </ContactInfoProvider>
         </LanguageProvider>
       </body>
     </html>

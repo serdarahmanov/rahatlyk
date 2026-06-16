@@ -6,6 +6,7 @@ export const ArticleCategories: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     defaultColumns: ['slug', 'label'],
+    group: 'Articles',
   },
   fields: [
     { name: 'slug',  type: 'text', required: true, unique: true },

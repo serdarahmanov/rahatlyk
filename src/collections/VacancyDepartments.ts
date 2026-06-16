@@ -6,6 +6,7 @@ export const VacancyDepartments: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     defaultColumns: ['slug', 'label'],
+    group: 'Vacancies',
   },
   fields: [
     { name: 'slug',  type: 'text', required: true, unique: true },

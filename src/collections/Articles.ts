@@ -8,6 +8,7 @@ export const Articles: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'date', 'featured'],
+    group: 'Articles',
   },
   fields: [
     { name: 'title',    type: 'text',     required: true, localized: true },

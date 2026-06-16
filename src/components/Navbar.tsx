@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { Locale } from '@/lib/i18n/translations';
 
 // Module-level flag — persists across route changes, resets on full page reload
@@ -25,6 +26,7 @@ export default function Navbar() {
   const prevScrollY = useRef(0);
   const langRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t, ready } = useLanguage();
+  const contactInfo = useContactInfo();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -305,7 +307,7 @@ export default function Navbar() {
             </svg>
           </a>
           <a
-            href="mailto:info@rahatlyk.com"
+            href={contactInfo.email ? `mailto:${contactInfo.email}` : '#'}
             aria-label="Email"
             className="text-black/60 hover:text-black transition-colors duration-200"
           >

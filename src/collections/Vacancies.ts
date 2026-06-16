@@ -8,6 +8,7 @@ export const Vacancies: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'department', 'location', 'postedDate'],
+    group: 'Vacancies',
   },
   fields: [
     { name: 'title',      type: 'text', required: true, localized: true },

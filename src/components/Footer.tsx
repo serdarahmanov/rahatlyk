@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 
 const socialLinks = [
   {
@@ -39,6 +40,7 @@ const socialLinks = [
 
 export default function Footer() {
   const { t } = useLanguage();
+  const contactInfo = useContactInfo();
   const pathname = usePathname();
 
   if (pathname === '/about') return null;
@@ -127,8 +129,12 @@ export default function Footer() {
                 </li>
               ))}
               <li className="pt-4 space-y-1.5 border-t border-cyan-200 mt-1">
-                <p className="text-black text-sm">{t.contact.info.phoneValue}</p>
-                <p className="text-black text-sm">{t.contact.info.emailValue}</p>
+                {contactInfo.phones.map(p => (
+                  <p key={p.number} className="text-black text-sm">{p.number}</p>
+                ))}
+                {contactInfo.email && (
+                  <p className="text-black text-sm">{contactInfo.email}</p>
+                )}
               </li>
             </ul>
           </div>

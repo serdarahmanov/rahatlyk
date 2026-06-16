@@ -6,6 +6,7 @@ export const ProductCategories: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     defaultColumns: ['slug', 'label'],
+    group: 'Products',
   },
   fields: [
     { name: 'slug',  type: 'text', required: true, unique: true },

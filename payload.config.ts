@@ -1,18 +1,23 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { setDefaultResultOrder } from 'node:dns'
 import nodemailer from 'nodemailer'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
+import { ContactInfo } from './src/globals/ContactInfo'
 import { ArticleCategories } from './src/collections/ArticleCategories'
 import { Articles } from './src/collections/Articles'
+import { ContactSubmissions } from './src/collections/ContactSubmissions'
+import { CVDocuments } from './src/collections/CVDocuments'
 import { Media } from './src/collections/Media'
 import { ProductCategories } from './src/collections/ProductCategories'
 import { ProductLines } from './src/collections/ProductLines'
 import { Products } from './src/collections/Products'
 import { Users } from './src/collections/Users'
+import { VacancyApplications } from './src/collections/VacancyApplications'
 import { VacancyDepartments } from './src/collections/VacancyDepartments'
 import { Vacancies } from './src/collections/Vacancies'
 
@@ -22,7 +27,23 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies],
+  plugins: [
+    importExportPlugin({
+      collections: [
+        { slug: 'product-categories' },
+        { slug: 'product-lines' },
+        { slug: 'products' },
+        { slug: 'article-categories' },
+        { slug: 'articles' },
+        { slug: 'vacancy-departments' },
+        { slug: 'vacancies' },
+        { slug: 'contact-submissions',  import: false },
+        { slug: 'vacancy-applications', import: false },
+      ],
+    }),
+  ],
+  globals: [ContactInfo],
+  collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [
       { label: 'English', code: 'en' },

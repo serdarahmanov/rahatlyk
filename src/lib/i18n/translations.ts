@@ -12,7 +12,6 @@ export const translations = {
     },
     home: {
       hero: {
-        badge: 'Premium Beverages · Est. 2003',
         title: 'Pure Nature,',
         titleAccent: 'Pure Life',
         subtitle: 'Premium beverages crafted from the finest natural sources of Turkmenistan',
@@ -51,8 +50,6 @@ export const translations = {
         stat2Label: 'Products',
         stat3: '5M+',
         stat3Label: 'Happy Customers',
-        badge: 'Best Beverage Brand',
-        badgeSub: 'Central Asia Award 2025',
       },
       news: {
         tag: 'Latest News',
@@ -209,7 +206,6 @@ export const translations = {
     },
     home: {
       hero: {
-        badge: 'Премиальные напитки · С 2003 года',
         title: 'Чистая природа,',
         titleAccent: 'Чистая жизнь',
         subtitle: 'Премиальные напитки из лучших природных источников Туркменистана',
@@ -248,8 +244,6 @@ export const translations = {
         stat2Label: 'Продуктов',
         stat3: '5М+',
         stat3Label: 'Довольных клиентов',
-        badge: 'Лучший напиточный бренд',
-        badgeSub: 'Награда Центральной Азии 2025',
       },
       news: {
         tag: 'Последние новости',
@@ -406,7 +400,6 @@ export const translations = {
     },
     home: {
       hero: {
-        badge: 'Premium içgiler · 2003-nji ýyldan bäri',
         title: 'Arassa tebigat,',
         titleAccent: 'Arassa ýaşaýyş',
         subtitle: 'Türkmenistanyň iň arassa tebigy çeşmelerinden öndürilen premium içgiler',
@@ -445,8 +438,6 @@ export const translations = {
         stat2Label: 'Önüm',
         stat3: '5M+',
         stat3Label: 'Bagtly müşderi',
-        badge: 'Iň gowy içgi brendy',
-        badgeSub: 'Merkezi Aziýa Sylagy 2025',
       },
       news: {
         tag: 'Soňky habarlar',

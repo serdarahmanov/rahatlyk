@@ -1,7 +1,9 @@
+import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { vacancyConfirmation, vacancyNotification } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
+import { getPayloadClient } from '@/lib/payload';
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -79,6 +81,41 @@ export async function POST(req: NextRequest) {
         attachments: [cvAttachment],
       }),
     ]);
+
+    // Store submission in Payload — non-blocking, failure does not affect the response
+    try {
+      const payload = await getPayloadClient();
+
+      // Upload CV to the cv-documents collection with an unpredictable filename
+      const ext = cvFile.name.split('.').pop() ?? 'pdf';
+      const cvDoc = await payload.create({
+        collection: 'cv-documents',
+        data: { applicantName: `${firstName} ${lastName}` },
+        file: {
+          data:     cvBuffer,
+          mimetype: cvFile.type,
+          name:     `${randomUUID()}.${ext}`,
+          size:     cvFile.size,
+        },
+      });
+
+      // Create the application record linking to the vacancy and the uploaded CV
+      await payload.create({
+        collection: 'vacancy-applications',
+        data: {
+          firstName,
+          lastName,
+          email,
+          phone:       phone || undefined,
+          dateOfBirth,
+          cover:       cover || undefined,
+          vacancy:     Number(vacancyId),
+          cv:          cvDoc.id,
+        },
+      });
+    } catch (dbErr) {
+      console.error('[vacancy route] Failed to store application in Payload:', dbErr);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

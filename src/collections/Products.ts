@@ -8,6 +8,7 @@ export const Products: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'category', 'date'],
+    group: 'Products',
   },
   fields: [
     { name: 'name',            type: 'text',     required: true,  localized: true },

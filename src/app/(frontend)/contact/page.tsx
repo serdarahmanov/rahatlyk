@@ -2,47 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 
-const INFO_ITEMS = [
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="10" cy="7" r="1.75" stroke="currentColor" strokeWidth="1.4"/>
-      </svg>
-    ),
-    labelKey: 'address',
-    valueKey: 'addressValue',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M4.5 3.5h3l1.5 3.5-1.75 1.25a9 9 0 0 0 4.5 4.5L13 11l3.5 1.5v3a1 1 0 0 1-1 1A14 14 0 0 1 3.5 4.5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    labelKey: 'phone',
-    valueKey: 'phoneValue',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M2.5 5.5A1.5 1.5 0 0 1 4 4h12a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 16 16H4a1.5 1.5 0 0 1-1.5-1.5v-9zM4 5.5l6 4.5 6-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
-    ),
-    labelKey: 'email',
-    valueKey: 'emailValue',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.4" />
-        <path d="M10 6v4l2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
-    ),
-    labelKey: 'hours',
-    valueKey: 'hoursValue',
-  },
-] as const;
 
 const fieldCls = (err?: boolean) =>
   `w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
@@ -51,6 +12,7 @@ const fieldCls = (err?: boolean) =>
 
 export default function ContactPage() {
   const { t, locale } = useLanguage();
+  const contactInfo = useContactInfo();
   const [submitted,  setSubmitted]  = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState<string | null>(null);
@@ -227,7 +189,7 @@ export default function ContactPage() {
                   {[
                     { n: '01', text: <>Our team reviews your message within <strong className="text-brand-800 font-light">1 business day</strong>.</> },
                     { n: '02', text: <>We&apos;ll reply directly to <strong className="text-brand-800 font-light">{form.email}</strong>.</> },
-                    { n: '03', text: <>For urgent enquiries call <strong className="text-brand-800 font-light">+993 12 000 000</strong>.</> },
+                    ...(contactInfo.phones[0] ? [{ n: '03', text: <>For urgent enquiries call <strong className="text-brand-800 font-light">{contactInfo.phones[0].number}</strong>.</> }] : []),
                   ].map(({ n, text }) => (
                     <div key={n} className="flex items-start gap-3">
                       <span className="text-[10px] font-light text-brand-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
@@ -384,21 +346,60 @@ export default function ContactPage() {
             </p>
 
             <div ref={infoRef} className="space-y-0">
-              {INFO_ITEMS.map((item) => (
-                <div key={item.labelKey} className="py-6 border-t border-white/20 flex items-start gap-5">
+              {contactInfo.address && (
+                <div className="py-6 border-t border-white/20 flex items-start gap-5">
                   <div className="mt-0.5 flex-shrink-0 text-white/70">
-                    {item.icon}
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                      <circle cx="10" cy="7" r="1.75" stroke="currentColor" strokeWidth="1.4"/>
+                    </svg>
                   </div>
                   <div>
-                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">
-                      {info[item.labelKey as keyof typeof info]}
-                    </p>
-                    <p className="text-[15px] text-white leading-relaxed font-normal">
-                      {info[item.valueKey as keyof typeof info]}
-                    </p>
+                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">{info.address}</p>
+                    <p className="text-[15px] text-white leading-relaxed font-normal">{contactInfo.address}</p>
+                  </div>
+                </div>
+              )}
+              {contactInfo.phones.map((p) => (
+                <div key={p.number} className="py-6 border-t border-white/20 flex items-start gap-5">
+                  <div className="mt-0.5 flex-shrink-0 text-white/70">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M4.5 3.5h3l1.5 3.5-1.75 1.25a9 9 0 0 0 4.5 4.5L13 11l3.5 1.5v3a1 1 0 0 1-1 1A14 14 0 0 1 3.5 4.5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">{p.label || info.phone}</p>
+                    <p className="text-[15px] text-white leading-relaxed font-normal">{p.number}</p>
                   </div>
                 </div>
               ))}
+              {contactInfo.email && (
+                <div className="py-6 border-t border-white/20 flex items-start gap-5">
+                  <div className="mt-0.5 flex-shrink-0 text-white/70">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M2.5 5.5A1.5 1.5 0 0 1 4 4h12a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 16 16H4a1.5 1.5 0 0 1-1.5-1.5v-9zM4 5.5l6 4.5 6-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">{info.email}</p>
+                    <p className="text-[15px] text-white leading-relaxed font-normal">{contactInfo.email}</p>
+                  </div>
+                </div>
+              )}
+              {contactInfo.workingHours && (
+                <div className="py-6 border-t border-white/20 flex items-start gap-5">
+                  <div className="mt-0.5 flex-shrink-0 text-white/70">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M10 6v4l2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">{info.hours}</p>
+                    <p className="text-[15px] text-white leading-relaxed font-normal">{contactInfo.workingHours}</p>
+                  </div>
+                </div>
+              )}
               <div className="border-t border-white/10" />
             </div>
 

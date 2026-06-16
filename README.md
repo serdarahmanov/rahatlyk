@@ -22,55 +22,55 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
-### Homepage "Our Collection" carousel managed from Payload
+### Form submissions stored in Payload
 
-The hardcoded `CATEGORIES` array that drove the homepage product-line carousel has been replaced with a `product-lines` Payload collection.
+Contact form submissions and vacancy applications are now persisted in Payload CMS after the email sends. CV files are stored on disk.
 
-- Added `src/collections/ProductLines.ts` with fields: `key` (unique slug), `name`, `description`, `body` (all localized), `image` (media relationship), `order`.
-- Registered `ProductLines` in `payload.config.ts`.
-- Added `ProductLine` / `ProductLinesSelect` to `payload-types.ts` and `PayloadProductLine` to `src/types/payload.ts`.
-- Added `normalizeProductLine` to `src/lib/payload-normalize.ts`.
-- Removed the dead fields (`icon`, `from`, `to`, `border`, `text`, `dot`) that were in the old `CATEGORIES` array but never referenced in the rendered JSX.
+- Added `src/collections/ContactSubmissions.ts` — stores `firstName`, `lastName`, `email`, `phone`, `subject`, `message`, `locale`. All fields read-only in admin. Authenticated-only read access.
+- Added `src/collections/CVDocuments.ts` — Payload upload collection. Files written to `public/cv/` with UUID-generated filenames (unpredictable, not guessable). Read access restricted to authenticated users.
+- Added `src/collections/VacancyApplications.ts` — stores applicant fields plus a relationship to `vacancies` and `cv-documents`. Authenticated-only read access.
+- Updated `/api/contact/route.ts` — after sending email, calls `payload.create()` to persist the submission. DB failure logs but does not break the 200 response.
+- Updated `/api/vacancy/route.ts` — after sending email, uploads the CV buffer via Payload's local API (`file:` property), then creates the `vacancy-applications` record referencing both the vacancy and the stored CV document.
+- All three submission collections use `access: { create: () => false }` so the public REST API cannot create records directly; only the route handler's local API call bypasses this.
 
-### Homepage split into server + client component
+### Import/Export plugin
 
-`src/app/(frontend)/page.tsx` was a 1 300-line `'use client'` file. It has been split:
+Added `@payloadcms/plugin-import-export` to enable CSV/JSON export (and import where appropriate) from the Payload admin.
 
-- `page.tsx` is now a server component that reads the locale cookie, fetches product lines from Payload with the correct locale, and renders `<HomeClient lines={lines} />`.
-- `HomeClient.tsx` contains all the animation and UI code. `CollectionsSection` now accepts `lines: PayloadProductLine[]` instead of the `cats` translation map, so text content (name, description, body) and images come directly from Payload.
-- Each product-line bottle image uses `line.imageUrl` with a fallback to the default PNG.
+- Configured in `payload.config.ts` with per-collection `{ slug }` objects.
+- `contact-submissions` and `vacancy-applications` have `import: false` — they are export-only since importing would overwrite real submission data.
 
-### Detail page category/department fixes
+### Admin collection grouping
 
-After the category and department fields were converted from plain text to relationships, the detail client components still used the raw field value as a string. Fixed:
+Collections are now grouped in the Payload admin sidebar for clarity:
 
-- `ArticleDetailClient` — `article.category.slug` for config lookups, `article.category.label` for display; removed the now-unused `getCatLabel` helper.
-- `ProductDetailClient` — `product.category.slug` / `p.category.slug` for config lookups.
-- `VacancyDetailClient` — `vacancy.department.slug` for config lookups, `vacancy.department.label` for display; same fix for the "Other Openings" cards.
+| Group | Collections |
+|---|---|
+| Products | Product Categories, Products |
+| Articles | Article Categories, Articles |
+| Vacancies | Vacancy Departments, Vacancies |
+| Home | Our Collection (product-lines) |
+| Submissions | Contact Submissions, CV Documents, Vacancy Applications |
+| Settings | Contact Info (global) |
 
-### Dynamic category filtering from Payload
+`ProductLines` is also relabelled to **"Our Collection"** (`labels.singular/plural`) to match the homepage section name.
 
-Replaced hardcoded filter arrays in `ProductsClient`, `NewsClient`, and `VacanciesClient` with categories driven entirely from Payload CMS.
+### Contact Info Global — dynamic company contact details
 
-- Added three dedicated collections:
-  - `product-categories` — `slug` + localized `label`
-  - `article-categories` — `slug` + localized `label`
-  - `vacancy-departments` — `slug` + localized `label`
-- Changed the `category` field on `products` and `articles`, and the `department` field on `vacancies`, from plain `text` to `relationship` pointing at the new collections.
-- Each `page.tsx` now fetches the relevant category collection and passes it to the client component, so filter options are always in sync with what exists in the CMS.
-- Filtering queries use the related document's numeric ID rather than a raw string.
+Company contact information (email, phone numbers, address, working hours) is now managed from Payload instead of being hardcoded.
 
-### Payload localization (en / tm / ru)
+- Added `src/globals/ContactInfo.ts` — Payload Global with `email`, `phones` (array with `label` + `number`), and localized `address` and `workingHours` fields. Multiple phone numbers supported.
+- Added `GET /api/contact-info` route — fetches the Global with `locale: 'all'` so all three locale versions are returned in a single request.
+- Added `src/lib/contact-info/ContactInfoContext.tsx` — client context provider. Fetches once on mount (the layout keeps it mounted across all navigations, so no re-fetching on page changes). Resolves the correct locale per render as the user switches language.
+- `ContactInfoProvider` is mounted inside `LanguageProvider` in the root layout so `useContactInfo()` is available to all client components.
+- Updated `Footer`, `Navbar`, and the Contact page info panel to read from `useContactInfo()` instead of hardcoded strings or translation values.
+- The Contact page info panel now renders one row per phone number, supporting any number of entries.
 
-- Added `localization` config to `payload.config.ts` with `en` (default), `tm`, and `ru` locales, with `fallback: true`.
-- The localized `label` field in all three category collections lets editors enter translations per locale directly in the Payload admin.
-- All user-facing text fields across `products`, `articles`, and `vacancies` are now marked `localized: true`:
-  - **Products**: `name`, `tagline`, `description`, `longDescription`, `features[].text`, `nutrition[].label`
-  - **Articles**: `title`, `body[].text`
-  - **Vacancies**: `title`, `location`, `overview`, `responsibilities[].text`, `requirements[].text`, `niceToHave[].text`, `benefits[].text`
-  - Non-text fields (`date`, `salary`, `volumes`, media/photo arrays) remain non-localized.
-- `LanguageContext` now writes the selected locale to a cookie (`RAHATLYK-locale`) alongside the existing `localStorage` write, so server components can read it.
-- All three `page.tsx` files read the locale cookie and pass it to every `payload.find()` call, so Payload returns already-resolved strings for the active language — no locale-picking logic needed in client components.
+### Dead code removal
+
+- Removed the "Award badge" widget (trophy SVG + "Best Beverage Brand / Central Asia Award 2025" text) from the homepage story section — it was placeholder content that was never going to be used.
+- Removed the corresponding `badge` and `badgeSub` keys from `home.story` in all three locale blocks of `translations.ts`.
+- Removed the `badge` key from `home.hero` in all three locale blocks — it existed in translations but was never rendered anywhere.
 
 ## Routes
 
@@ -87,8 +87,9 @@ Replaced hardcoded filter arrays in `ProductsClient`, `NewsClient`, and `Vacanci
 | `/contact` | Contact page with email form |
 | `/admin` | Payload admin UI |
 | `/api/[...slug]` | Payload REST API |
-| `/api/contact` | Existing contact form email handler |
-| `/api/vacancy` | Existing vacancy application email handler with CV attachment |
+| `/api/contact` | Contact form email handler — also persists to Payload |
+| `/api/vacancy` | Vacancy application email handler — stores CV file and application in Payload |
+| `/api/contact-info` | Returns the Contact Info global (all locales) for client-side context |
 
 ## Project Structure
 
@@ -115,6 +116,7 @@ src/
     api/
       contact/route.ts
       vacancy/route.ts
+      contact-info/route.ts
     globals.css
   collections/
     ArticleCategories.ts
@@ -123,11 +125,18 @@ src/
     ProductCategories.ts
     ProductLines.ts
     Products.ts
+    CVDocuments.ts
+    ContactSubmissions.ts
     Users.ts
+    VacancyApplications.ts
     VacancyDepartments.ts
     Vacancies.ts
+  globals/
+    ContactInfo.ts
   components/
   lib/
+    contact-info/
+      ContactInfoContext.tsx
     email/
     i18n/
     payload.ts
@@ -145,6 +154,8 @@ Key points:
 
 - Admin user collection: `users`
 - Public read collections: `media`, `product-categories`, `product-lines`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
+- Authenticated-only collections: `contact-submissions`, `cv-documents`, `vacancy-applications`
+- Globals: `contact-info` (public read, managed from Settings group in admin)
 - Database adapter: PostgreSQL
 - Rich text editor: Lexical
 - Image processing: Sharp
@@ -263,9 +274,10 @@ That is a local certificate/network trust issue around Google Fonts fetching, no
 - Use `CONTACT_FORM_TO_EMAIL` for internal form notifications instead of `GMAIL_USER`.
 - Add rate limiting, CAPTCHA/honeypot, or another anti-abuse control to `/api/contact` and `/api/vacancy`.
 - Escape user-submitted text before interpolating it into HTML email templates.
-- Store contact submissions and vacancy applications in Payload for audit/history.
 - Add a package script for seeding Payload data.
 - Update `.env.example` to include `DATABASE_URI` / `DATABASE_URL` and `PAYLOAD_SECRET`.
+- Run `payload generate:importmap` after adding new plugins that register admin UI components.
+- Move `public/cv/` CV file storage to a private location (e.g. Payload media with access control) for production — files in `public/` are statically served even though filenames are UUID-based.
 
 ## Quality Notes
 

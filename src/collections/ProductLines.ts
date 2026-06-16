@@ -2,10 +2,15 @@ import type { CollectionConfig } from 'payload'
 
 export const ProductLines: CollectionConfig = {
   slug: 'product-lines',
+  labels: {
+    singular: 'Our Collection',
+    plural: 'Our Collection',
+  },
   access: { read: () => true },
   admin: {
     useAsTitle: 'key',
     defaultColumns: ['key', 'name', 'order'],
+    group: 'Home',
   },
   fields: [
     { name: 'key',         type: 'text',        required: true, unique: true },
