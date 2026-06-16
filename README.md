@@ -22,6 +22,32 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### Homepage "Our Collection" carousel managed from Payload
+
+The hardcoded `CATEGORIES` array that drove the homepage product-line carousel has been replaced with a `product-lines` Payload collection.
+
+- Added `src/collections/ProductLines.ts` with fields: `key` (unique slug), `name`, `description`, `body` (all localized), `image` (media relationship), `order`.
+- Registered `ProductLines` in `payload.config.ts`.
+- Added `ProductLine` / `ProductLinesSelect` to `payload-types.ts` and `PayloadProductLine` to `src/types/payload.ts`.
+- Added `normalizeProductLine` to `src/lib/payload-normalize.ts`.
+- Removed the dead fields (`icon`, `from`, `to`, `border`, `text`, `dot`) that were in the old `CATEGORIES` array but never referenced in the rendered JSX.
+
+### Homepage split into server + client component
+
+`src/app/(frontend)/page.tsx` was a 1 300-line `'use client'` file. It has been split:
+
+- `page.tsx` is now a server component that reads the locale cookie, fetches product lines from Payload with the correct locale, and renders `<HomeClient lines={lines} />`.
+- `HomeClient.tsx` contains all the animation and UI code. `CollectionsSection` now accepts `lines: PayloadProductLine[]` instead of the `cats` translation map, so text content (name, description, body) and images come directly from Payload.
+- Each product-line bottle image uses `line.imageUrl` with a fallback to the default PNG.
+
+### Detail page category/department fixes
+
+After the category and department fields were converted from plain text to relationships, the detail client components still used the raw field value as a string. Fixed:
+
+- `ArticleDetailClient` — `article.category.slug` for config lookups, `article.category.label` for display; removed the now-unused `getCatLabel` helper.
+- `ProductDetailClient` — `product.category.slug` / `p.category.slug` for config lookups.
+- `VacancyDetailClient` — `vacancy.department.slug` for config lookups, `vacancy.department.label` for display; same fix for the "Other Openings" cards.
+
 ### Dynamic category filtering from Payload
 
 Replaced hardcoded filter arrays in `ProductsClient`, `NewsClient`, and `VacanciesClient` with categories driven entirely from Payload CMS.
@@ -74,7 +100,8 @@ src/
   app/
     (frontend)/
       layout.tsx
-      page.tsx
+      page.tsx        ← server component (fetches product lines)
+      HomeClient.tsx  ← all homepage animation/UI code
       about/page.tsx
       contact/page.tsx
       products/
@@ -94,6 +121,7 @@ src/
     Articles.ts
     Media.ts
     ProductCategories.ts
+    ProductLines.ts
     Products.ts
     Users.ts
     VacancyDepartments.ts
@@ -116,7 +144,7 @@ Payload is configured in `payload.config.ts`.
 Key points:
 
 - Admin user collection: `users`
-- Public read collections: `media`, `product-categories`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
+- Public read collections: `media`, `product-categories`, `product-lines`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
 - Database adapter: PostgreSQL
 - Rich text editor: Lexical
 - Image processing: Sharp

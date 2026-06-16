@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'product-categories': ProductCategory;
+    'product-lines': ProductLine;
     products: Product;
     'article-categories': ArticleCategory;
     articles: Article;
@@ -85,6 +86,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
+    'product-lines': ProductLinesSelect<false> | ProductLinesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     'article-categories': ArticleCategoriesSelect<false> | ArticleCategoriesSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
@@ -181,6 +183,21 @@ export interface ProductCategory {
   id: number;
   slug: string;
   label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-lines".
+ */
+export interface ProductLine {
+  id: number;
+  key: string;
+  name: string;
+  description: string;
+  body: string;
+  image?: (number | null) | Media;
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -357,6 +374,10 @@ export interface PayloadLockedDocument {
         value: number | ProductCategory;
       } | null)
     | ({
+        relationTo: 'product-lines';
+        value: number | ProductLine;
+      } | null)
+    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -465,6 +486,20 @@ export interface MediaSelect<T extends boolean = true> {
 export interface ProductCategoriesSelect<T extends boolean = true> {
   slug?: T;
   label?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-lines_select".
+ */
+export interface ProductLinesSelect<T extends boolean = true> {
+  key?: T;
+  name?: T;
+  description?: T;
+  body?: T;
+  image?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }

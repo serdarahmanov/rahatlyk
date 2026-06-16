@@ -1,5 +1,5 @@
-import type { Article, Media, Product, Vacancy } from '../../payload-types'
-import type { PayloadArticle, PayloadCategory, PayloadProduct, PayloadResult, PayloadVacancy } from '@/types/payload'
+import type { Article, Media, Product, ProductLine, Vacancy } from '../../payload-types'
+import type { PayloadArticle, PayloadCategory, PayloadProduct, PayloadProductLine, PayloadResult, PayloadVacancy } from '@/types/payload'
 
 type RawPayloadResult<T> = {
   docs: T[]
@@ -29,6 +29,16 @@ const urlRows = (items: { media?: number | Media | null; url?: string | null; id
     const url = mediaURL(item.media) ?? item.url
     return url ? [{ id: itemID(item.id, index), url }] : []
   })
+
+export const normalizeProductLine = (raw: ProductLine): PayloadProductLine => ({
+  id: String(raw.id),
+  key: raw.key,
+  name: raw.name,
+  description: raw.description,
+  body: raw.body ?? '',
+  imageUrl: mediaURL(raw.image as number | Media | null | undefined) ?? null,
+  order: raw.order ?? 0,
+})
 
 export const normalizeCategory = (
   raw: number | { id: number; slug: string; label: string },

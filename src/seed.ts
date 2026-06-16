@@ -9,7 +9,8 @@ async function seed() {
 
   console.log('Seeding articles...')
   for (const article of ARTICLES) {
-    const data = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = {
       title: article.title,
       category: article.category,
       date: article.date,
@@ -43,7 +44,8 @@ async function seed() {
 
   console.log('Seeding products...')
   for (const product of PRODUCTS) {
-    const data = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = {
       name: product.name,
       tagline: product.tagline,
       date: product.date,
@@ -80,7 +82,8 @@ async function seed() {
 
   console.log('Seeding vacancies...')
   for (const vacancy of VACANCIES) {
-    const data = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = {
       title: vacancy.title,
       department: vacancy.department,
       location: vacancy.location,

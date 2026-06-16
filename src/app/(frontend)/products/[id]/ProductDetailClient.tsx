@@ -31,7 +31,7 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
           className="text-xl font-light text-brand-950 mb-8"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
-          More in {(CAT_CONFIG[related[0]?.category] ?? CAT_CONFIG['water']).label}
+          More in {(CAT_CONFIG[related[0]?.category.slug] ?? CAT_CONFIG['water']).label}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
           {related.map((p) => (
@@ -44,7 +44,7 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
                 <ProductVisual product={p} size="sm" className="w-full h-full" />
               </div>
               <div className="absolute bottom-0 inset-x-0 px-5 pb-5 pt-16">
-                <p className="text-brand-400 text-xs mb-1">{(CAT_CONFIG[p.category] ?? CAT_CONFIG['water']).label}</p>
+                <p className="text-brand-400 text-xs mb-1">{(CAT_CONFIG[p.category.slug] ?? CAT_CONFIG['water']).label}</p>
                 <h3 className="font-light text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
                   {p.name}
                 </h3>
@@ -156,7 +156,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
     return () => st?.getAll().forEach((s: any) => s.kill())
   }, [product.photos])
 
-  const cfg = CAT_CONFIG[product.category] ?? CAT_CONFIG['water']
+  const cfg = CAT_CONFIG[product.category.slug] ?? CAT_CONFIG['water']
 
   const panels: { key: AccordionKey; label: string; content: React.ReactNode }[] = [
     {

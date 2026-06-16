@@ -34,7 +34,7 @@ function RelatedCard({ article }: { article: PayloadArticle }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <div className="absolute top-3 right-3 text-xl">{article.emoji}</div>
         <span className="absolute bottom-3 left-3 z-10 text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wider bg-white/20 backdrop-blur text-white border border-white/25">
-          {article.category}
+          {article.category.label}
         </span>
       </div>
       <div className="p-4">
@@ -107,17 +107,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
     return () => st?.getAll().forEach((s: any) => s.kill())
   }, [article.id])
 
-  const cfg = CAT_CONFIG[article.category] ?? CAT_CONFIG.company
-
-  const getCatLabel = (cat: string) => {
-    const map: Record<string, string> = {
-      company:        t.news.filterCompany,
-      health:         t.news.filterHealth,
-      products:       t.news.filterProducts,
-      sustainability: t.news.filterSustainability,
-    }
-    return map[cat] ?? cat
-  }
+  const cfg = CAT_CONFIG[article.category.slug] ?? CAT_CONFIG.company
 
   return (
     <div className="min-h-screen">
@@ -140,14 +130,14 @@ export default function ArticleDetailClient({ article, more }: Props) {
             <span>/</span>
             <Link href="/news" className="hover:text-white transition-colors">{t.nav.news}</Link>
             <span>/</span>
-            <Link href={`/news?category=${encodeURIComponent(article.category)}`} className="hover:text-white transition-colors capitalize">{article.category}</Link>
+            <Link href={`/news?category=${encodeURIComponent(article.category.slug)}`} className="hover:text-white transition-colors capitalize">{article.category.label}</Link>
             <span>/</span>
             <span className="text-white/90 truncate max-w-[200px]">{article.title}</span>
           </nav>
 
           <div className="flex items-center gap-2 mb-5">
             <span className="bg-white/20 backdrop-blur text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/25">
-              {getCatLabel(article.category)}
+              {article.category.label}
             </span>
             {article.featured && (
               <span className="bg-white/15 backdrop-blur text-white/80 text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/20">
@@ -200,7 +190,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
               <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
                 <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-3">Category</p>
                 <span className={`inline-block text-xs font-light px-3 py-1.5 rounded-full uppercase tracking-wide ${cfg.badge}`}>
-                  {getCatLabel(article.category)}
+                  {article.category.label}
                 </span>
               </div>
               <div className="bg-slate-50 rounded-md border border-slate-100 p-5">

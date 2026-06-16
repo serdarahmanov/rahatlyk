@@ -93,7 +93,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
     return () => clearTimeout(id)
   }, [formErrors])
 
-  const cfg = DEPT_CONFIG[vacancy.department] ?? DEPT_CONFIG['Production']
+  const cfg = DEPT_CONFIG[vacancy.department.slug] ?? DEPT_CONFIG['Production']
 
   const validateApplyForm = () => {
     const errors: Record<string, string> = {}
@@ -228,14 +228,14 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
             <span>/</span>
             <Link href="/vacancies" className="hover:text-brand-700 transition-colors">Vacancies</Link>
             <span>/</span>
-            <Link href={`/vacancies?department=${encodeURIComponent(vacancy.department)}`} className="hover:text-brand-700 transition-colors">{vacancy.department}</Link>
+            <Link href={`/vacancies?department=${encodeURIComponent(vacancy.department.slug)}`} className="hover:text-brand-700 transition-colors">{vacancy.department.label}</Link>
             <span>/</span>
             <span className="text-slate-600">{vacancy.title}</span>
           </nav>
 
           <div className="mb-4">
             <span className={`inline-block text-[11px] font-light px-3 py-1 rounded-full uppercase tracking-wider ${cfg.badge}`}>
-              {vacancy.department}
+              {vacancy.department.label}
             </span>
           </div>
 
@@ -472,7 +472,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {others.map((v) => {
-                const acc = DEPT_ACCENT[v.department] ?? DEPT_ACCENT['Production']
+                const acc = DEPT_ACCENT[v.department.slug] ?? DEPT_ACCENT['Production']
                 return (
                   <Link
                     key={v.id}
@@ -484,13 +484,13 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
                       style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
                       <span className="text-4xl opacity-55" aria-hidden="true">
-                        {(DEPT_CONFIG[v.department] ?? DEPT_CONFIG['Production']).icon}
+                        {(DEPT_CONFIG[v.department.slug] ?? DEPT_CONFIG['Production']).icon}
                       </span>
                     </div>
                     <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
                       <div className="flex items-center gap-2 mb-2.5">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
-                        <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>{v.department}</span>
+                        <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>{v.department.label}</span>
                       </div>
                       <h3 className="text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] mb-2" style={{ color: '#1d1d1f' }}>{v.title}</h3>
                       <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>{v.overview}</p>

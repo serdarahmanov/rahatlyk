@@ -12,6 +12,16 @@ export type PayloadCategory = {
   label: string
 }
 
+export type PayloadProductLine = {
+  id: string
+  key: string
+  name: string
+  description: string
+  body: string
+  imageUrl: string | null
+  order: number
+}
+
 export type PayloadArticle = Omit<GeneratedArticle, 'body' | 'category' | 'emoji' | 'featured' | 'images'> & {
   body: ArrayItem<{ text: string }>[]
   category: PayloadCategory

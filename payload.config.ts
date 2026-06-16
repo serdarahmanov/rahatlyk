@@ -10,6 +10,7 @@ import { ArticleCategories } from './src/collections/ArticleCategories'
 import { Articles } from './src/collections/Articles'
 import { Media } from './src/collections/Media'
 import { ProductCategories } from './src/collections/ProductCategories'
+import { ProductLines } from './src/collections/ProductLines'
 import { Products } from './src/collections/Products'
 import { Users } from './src/collections/Users'
 import { VacancyDepartments } from './src/collections/VacancyDepartments'
@@ -21,7 +22,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users, Media, ProductCategories, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies],
+  collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies],
   localization: {
     locales: [
       { label: 'English', code: 'en' },
