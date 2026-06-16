@@ -10,8 +10,8 @@ export const Articles: CollectionConfig = {
     defaultColumns: ['title', 'category', 'date', 'featured'],
   },
   fields: [
-    { name: 'title',    type: 'text',     required: true },
-    { name: 'category', type: 'text',     required: true },
+    { name: 'title',    type: 'text',     required: true, localized: true },
+    { name: 'category', type: 'relationship', relationTo: 'article-categories' as const, required: true },
     { name: 'date',     type: 'date',     required: true,
       admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'yyyy-MM-dd' } } },
     { name: 'featured', type: 'checkbox', defaultValue: false },
@@ -33,7 +33,7 @@ export const Articles: CollectionConfig = {
     {
       name: 'body',
       type: 'array',
-      fields: [{ name: 'text', type: 'textarea', required: true }],
+      fields: [{ name: 'text', type: 'textarea', required: true, localized: true }],
     },
   ],
 }

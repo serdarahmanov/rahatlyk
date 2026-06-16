@@ -6,10 +6,13 @@ import nodemailer from 'nodemailer'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
+import { ArticleCategories } from './src/collections/ArticleCategories'
 import { Articles } from './src/collections/Articles'
 import { Media } from './src/collections/Media'
+import { ProductCategories } from './src/collections/ProductCategories'
 import { Products } from './src/collections/Products'
 import { Users } from './src/collections/Users'
+import { VacancyDepartments } from './src/collections/VacancyDepartments'
 import { Vacancies } from './src/collections/Vacancies'
 
 setDefaultResultOrder('ipv4first')
@@ -18,7 +21,16 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users, Media, Products, Articles, Vacancies],
+  collections: [Users, Media, ProductCategories, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies],
+  localization: {
+    locales: [
+      { label: 'English', code: 'en' },
+      { label: 'Türkmen', code: 'tm' },
+      { label: 'Русский', code: 'ru' },
+    ],
+    defaultLocale: 'en',
+    fallback: true,
+  },
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI ?? process.env.DATABASE_URL,

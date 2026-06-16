@@ -22,27 +22,29 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
-- Added Payload CMS dependencies and switched the app to ESM with `"type": "module"`.
-- Wrapped Next config with `withPayload()` in `next.config.ts`.
-- Added `payload.config.ts` with PostgreSQL, Lexical editor, Media, Products, Articles, Vacancies, Users, Sharp, and Nodemailer email support.
-- Added Payload admin and REST routes under `src/app/(payload)/`.
-- Moved the public website into `src/app/(frontend)/` route groups.
-- Added Payload collections in `src/collections/` for:
-  - `users`
-  - `media`
-  - `products`
-  - `articles`
-  - `vacancies`
-- Added generated Payload types in `payload-types.ts`.
-- Added Payload helper and normalizer files:
-  - `src/lib/payload.ts`
-  - `src/lib/payload-normalize.ts`
-  - `src/types/payload.ts`
-- Updated Products, News, and Vacancies pages to read content from Payload server-side.
-- Added `src/seed.ts` to copy existing static data into Payload collections.
-- Updated `ProductVisual` so it can render either legacy string image URLs or Payload-style media URL objects.
-- Kept existing `/api/contact` and `/api/vacancy` form email routes in place.
-- Added reference HTML files and local media assets used during the design/CMS migration.
+### Dynamic category filtering from Payload
+
+Replaced hardcoded filter arrays in `ProductsClient`, `NewsClient`, and `VacanciesClient` with categories driven entirely from Payload CMS.
+
+- Added three dedicated collections:
+  - `product-categories` — `slug` + localized `label`
+  - `article-categories` — `slug` + localized `label`
+  - `vacancy-departments` — `slug` + localized `label`
+- Changed the `category` field on `products` and `articles`, and the `department` field on `vacancies`, from plain `text` to `relationship` pointing at the new collections.
+- Each `page.tsx` now fetches the relevant category collection and passes it to the client component, so filter options are always in sync with what exists in the CMS.
+- Filtering queries use the related document's numeric ID rather than a raw string.
+
+### Payload localization (en / tm / ru)
+
+- Added `localization` config to `payload.config.ts` with `en` (default), `tm`, and `ru` locales, with `fallback: true`.
+- The localized `label` field in all three category collections lets editors enter translations per locale directly in the Payload admin.
+- All user-facing text fields across `products`, `articles`, and `vacancies` are now marked `localized: true`:
+  - **Products**: `name`, `tagline`, `description`, `longDescription`, `features[].text`, `nutrition[].label`
+  - **Articles**: `title`, `body[].text`
+  - **Vacancies**: `title`, `location`, `overview`, `responsibilities[].text`, `requirements[].text`, `niceToHave[].text`, `benefits[].text`
+  - Non-text fields (`date`, `salary`, `volumes`, media/photo arrays) remain non-localized.
+- `LanguageContext` now writes the selected locale to a cookie (`RAHATLYK-locale`) alongside the existing `localStorage` write, so server components can read it.
+- All three `page.tsx` files read the locale cookie and pass it to every `payload.find()` call, so Payload returns already-resolved strings for the active language — no locale-picking logic needed in client components.
 
 ## Routes
 
@@ -88,10 +90,13 @@ src/
       vacancy/route.ts
     globals.css
   collections/
+    ArticleCategories.ts
     Articles.ts
     Media.ts
+    ProductCategories.ts
     Products.ts
     Users.ts
+    VacancyDepartments.ts
     Vacancies.ts
   components/
   lib/
@@ -111,13 +116,14 @@ Payload is configured in `payload.config.ts`.
 Key points:
 
 - Admin user collection: `users`
-- Public read collections: `media`, `products`, `articles`, `vacancies`
+- Public read collections: `media`, `product-categories`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
 - Database adapter: PostgreSQL
 - Rich text editor: Lexical
 - Image processing: Sharp
 - Email adapter: `@payloadcms/email-nodemailer`
 - Payload Next integration: `withPayload(nextConfig)`
 - Payload import alias: `@payload-config`
+- Localization: `en` (default), `tm`, `ru` — `fallback: true`
 
 The public listing/detail pages call `getPayloadClient()` on the server and normalize Payload's generated collection types into frontend-friendly shapes. This keeps the existing client components mostly unchanged while letting CMS content drive the pages.
 

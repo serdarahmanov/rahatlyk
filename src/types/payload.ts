@@ -6,8 +6,15 @@ import type {
 
 type ArrayItem<T> = T & { id: string }
 
-export type PayloadArticle = Omit<GeneratedArticle, 'body' | 'emoji' | 'featured' | 'images'> & {
+export type PayloadCategory = {
+  id: string
+  slug: string
+  label: string
+}
+
+export type PayloadArticle = Omit<GeneratedArticle, 'body' | 'category' | 'emoji' | 'featured' | 'images'> & {
   body: ArrayItem<{ text: string }>[]
+  category: PayloadCategory
   emoji: string | null
   featured: boolean
   images: ArrayItem<{ url: string }>[]
@@ -15,8 +22,9 @@ export type PayloadArticle = Omit<GeneratedArticle, 'body' | 'emoji' | 'featured
 
 export type PayloadProduct = Omit<
   GeneratedProduct,
-  'description' | 'features' | 'longDescription' | 'nutrition' | 'photos' | 'tagline' | 'volumes'
+  'category' | 'description' | 'features' | 'longDescription' | 'nutrition' | 'photos' | 'tagline' | 'volumes'
 > & {
+  category: PayloadCategory
   description: string | null
   features: ArrayItem<{ text: string }>[]
   longDescription: string | null
@@ -28,9 +36,10 @@ export type PayloadProduct = Omit<
 
 export type PayloadVacancy = Omit<
   GeneratedVacancy,
-  'benefits' | 'location' | 'niceToHave' | 'overview' | 'requirements' | 'responsibilities' | 'salary'
+  'benefits' | 'department' | 'location' | 'niceToHave' | 'overview' | 'requirements' | 'responsibilities' | 'salary'
 > & {
   benefits: ArrayItem<{ text: string }>[]
+  department: PayloadCategory
   location: string | null
   niceToHave: ArrayItem<{ text: string }>[]
   overview: string | null

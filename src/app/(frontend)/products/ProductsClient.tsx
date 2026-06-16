@@ -8,14 +8,15 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 import ProductVisual from '@/components/ProductVisual'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
-import type { PayloadProduct, PayloadResult } from '@/types/payload'
+import type { PayloadCategory, PayloadProduct, PayloadResult } from '@/types/payload'
 
 interface Props {
+  categories: PayloadCategory[]
   result: PayloadResult<PayloadProduct>
   category: string
 }
 
-export default function ProductsClient({ result, category }: Props) {
+export default function ProductsClient({ categories, result, category }: Props) {
   const { t } = useLanguage()
   const router = useRouter()
 
@@ -26,13 +27,8 @@ export default function ProductsClient({ result, category }: Props) {
   const gridIntroPlayedRef = useRef(false)
 
   const filters = [
-    { key: 'all',     label: t.products.filterAll },
-    { key: 'water',   label: t.products.filterWater },
-    { key: 'mineral', label: t.products.filterMineral },
-    { key: 'juices',  label: t.products.filterJuices },
-    { key: 'energy',  label: t.products.filterEnergy },
-    { key: 'tea',     label: t.products.filterTea },
-    { key: 'soft',    label: t.products.filterSoft },
+    { key: 'all', label: t.products.filterAll },
+    ...categories.map(c => ({ key: c.slug, label: c.label })),
   ]
 
   const handleFilterChange = (key: string) => {
@@ -45,18 +41,6 @@ export default function ProductsClient({ result, category }: Props) {
     if (page > 1) params.set('page', String(page))
     const qs = params.toString()
     router.push(qs ? `/products?${qs}` : '/products')
-  }
-
-  const getCatLabel = (cat: string): string => {
-    const map: Record<string, string> = {
-      water:   t.products.filterWater,
-      mineral: t.products.filterMineral,
-      juices:  t.products.filterJuices,
-      energy:  t.products.filterEnergy,
-      tea:     t.products.filterTea,
-      soft:    t.products.filterSoft,
-    }
-    return map[cat] ?? cat
   }
 
   useLayoutEffect(() => {
@@ -139,7 +123,7 @@ export default function ProductsClient({ result, category }: Props) {
                   <ProductVisual product={product} size="sm" className="w-full h-full" />
                 </div>
                 <div className="absolute bottom-0 inset-x-0 px-5 pb-5 pt-16">
-                  <p className="text-brand-400 text-xs mb-1">{getCatLabel(product.category)}</p>
+                  <p className="text-brand-400 text-xs mb-1">{product.category.label}</p>
                   <h3 className="font-light text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
                     {product.name}
                   </h3>

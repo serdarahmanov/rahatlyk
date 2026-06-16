@@ -69,8 +69,11 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'product-categories': ProductCategory;
     products: Product;
+    'article-categories': ArticleCategory;
     articles: Article;
+    'vacancy-departments': VacancyDepartment;
     vacancies: Vacancy;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -81,8 +84,11 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    'article-categories': ArticleCategoriesSelect<false> | ArticleCategoriesSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    'vacancy-departments': VacancyDepartmentsSelect<false> | VacancyDepartmentsSelect<true>;
     vacancies: VacanciesSelect<false> | VacanciesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -92,10 +98,10 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'tm' | 'ru') | ('en' | 'tm' | 'ru')[];
   globals: {};
   globalsSelect: {};
-  locale: null;
+  locale: 'en' | 'tm' | 'ru';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -169,6 +175,17 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories".
+ */
+export interface ProductCategory {
+  id: number;
+  slug: string;
+  label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
 export interface Product {
@@ -176,7 +193,7 @@ export interface Product {
   name: string;
   tagline?: string | null;
   date?: string | null;
-  category: string;
+  category: number | ProductCategory;
   description?: string | null;
   longDescription?: string | null;
   features?:
@@ -213,12 +230,23 @@ export interface Product {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "article-categories".
+ */
+export interface ArticleCategory {
+  id: number;
+  slug: string;
+  label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
  */
 export interface Article {
   id: number;
   title: string;
-  category: string;
+  category: number | ArticleCategory;
   date: string;
   featured?: boolean | null;
   emoji?: string | null;
@@ -243,12 +271,23 @@ export interface Article {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vacancy-departments".
+ */
+export interface VacancyDepartment {
+  id: number;
+  slug: string;
+  label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "vacancies".
  */
 export interface Vacancy {
   id: number;
   title: string;
-  department: string;
+  department: number | VacancyDepartment;
   location?: string | null;
   type?: ('fullTime' | 'partTime') | null;
   overview?: string | null;
@@ -314,12 +353,24 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'product-categories';
+        value: number | ProductCategory;
+      } | null)
+    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
     | ({
+        relationTo: 'article-categories';
+        value: number | ArticleCategory;
+      } | null)
+    | ({
         relationTo: 'articles';
         value: number | Article;
+      } | null)
+    | ({
+        relationTo: 'vacancy-departments';
+        value: number | VacancyDepartment;
       } | null)
     | ({
         relationTo: 'vacancies';
@@ -409,6 +460,16 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories_select".
+ */
+export interface ProductCategoriesSelect<T extends boolean = true> {
+  slug?: T;
+  label?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
@@ -449,6 +510,16 @@ export interface ProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "article-categories_select".
+ */
+export interface ArticleCategoriesSelect<T extends boolean = true> {
+  slug?: T;
+  label?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
@@ -470,6 +541,16 @@ export interface ArticlesSelect<T extends boolean = true> {
         text?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vacancy-departments_select".
+ */
+export interface VacancyDepartmentsSelect<T extends boolean = true> {
+  slug?: T;
+  label?: T;
   updatedAt?: T;
   createdAt?: T;
 }

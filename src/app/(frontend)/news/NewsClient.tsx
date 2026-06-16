@@ -9,9 +9,10 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDate } from '@/lib/formatDate'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
-import type { PayloadArticle, PayloadResult } from '@/types/payload'
+import type { PayloadArticle, PayloadCategory, PayloadResult } from '@/types/payload'
 
 interface Props {
+  categories: PayloadCategory[]
   featured: PayloadArticle | null
   result: PayloadResult<PayloadArticle>
   category: string
@@ -151,7 +152,7 @@ function NewsCard({ article }: { article: PayloadArticle }) {
   )
 }
 
-export default function NewsClient({ featured, result, category }: Props) {
+export default function NewsClient({ categories, featured, result, category }: Props) {
   const { t, locale } = useLanguage()
   const router = useRouter()
 
@@ -163,11 +164,8 @@ export default function NewsClient({ featured, result, category }: Props) {
   const contentIntroPlayedRef = useRef(false)
 
   const filters = [
-    { key: 'all',            label: t.news.filterAll },
-    { key: 'company',        label: t.news.filterCompany },
-    { key: 'health',         label: t.news.filterHealth },
-    { key: 'products',       label: t.news.filterProducts },
-    { key: 'sustainability', label: t.news.filterSustainability },
+    { key: 'all', label: t.news.filterAll },
+    ...categories.map(c => ({ key: c.slug, label: c.label })),
   ]
 
   const handleFilterChange = (key: string) => {
@@ -180,16 +178,6 @@ export default function NewsClient({ featured, result, category }: Props) {
     if (page > 1) params.set('page', String(page))
     const qs = params.toString()
     router.push(qs ? `/news?${qs}` : '/news')
-  }
-
-  const getCatLabel = (cat: string) => {
-    const map: Record<string, string> = {
-      company:        t.news.filterCompany,
-      health:         t.news.filterHealth,
-      products:       t.news.filterProducts,
-      sustainability: t.news.filterSustainability,
-    }
-    return map[cat] ?? cat
   }
 
   useLayoutEffect(() => {
@@ -286,7 +274,7 @@ export default function NewsClient({ featured, result, category }: Props) {
 
                   <div className="absolute bottom-5 left-5 right-5 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-5 py-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{getCatLabel(featured.category)}</span>
+                      <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{featured.category.label}</span>
                       <span className="text-white/30">&middot;</span>
                       <span className="text-[10px] text-white/55">{formatDate(featured.date, locale)}</span>
                     </div>

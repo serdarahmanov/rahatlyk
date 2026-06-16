@@ -1,5 +1,5 @@
 import type { Article, Media, Product, Vacancy } from '../../payload-types'
-import type { PayloadArticle, PayloadProduct, PayloadResult, PayloadVacancy } from '@/types/payload'
+import type { PayloadArticle, PayloadCategory, PayloadProduct, PayloadResult, PayloadVacancy } from '@/types/payload'
 
 type RawPayloadResult<T> = {
   docs: T[]
@@ -30,9 +30,19 @@ const urlRows = (items: { media?: number | Media | null; url?: string | null; id
     return url ? [{ id: itemID(item.id, index), url }] : []
   })
 
+export const normalizeCategory = (
+  raw: number | { id: number; slug: string; label: string },
+): PayloadCategory => {
+  if (typeof raw === 'object') {
+    return { id: String(raw.id), slug: raw.slug, label: raw.label }
+  }
+  return { id: String(raw), slug: '', label: '' }
+}
+
 export const normalizeArticle = (article: Article): PayloadArticle => ({
   ...article,
   body: textRows(article.body),
+  category: normalizeCategory(article.category),
   emoji: article.emoji ?? null,
   featured: Boolean(article.featured),
   images: urlRows(article.images),
@@ -40,6 +50,7 @@ export const normalizeArticle = (article: Article): PayloadArticle => ({
 
 export const normalizeProduct = (product: Product): PayloadProduct => ({
   ...product,
+  category: normalizeCategory(product.category),
   description: product.description ?? null,
   features: textRows(product.features),
   longDescription: product.longDescription ?? null,
@@ -59,6 +70,7 @@ export const normalizeProduct = (product: Product): PayloadProduct => ({
 export const normalizeVacancy = (vacancy: Vacancy): PayloadVacancy => ({
   ...vacancy,
   benefits: textRows(vacancy.benefits),
+  department: normalizeCategory(vacancy.department),
   location: vacancy.location ?? null,
   niceToHave: textRows(vacancy.niceToHave),
   overview: vacancy.overview ?? null,

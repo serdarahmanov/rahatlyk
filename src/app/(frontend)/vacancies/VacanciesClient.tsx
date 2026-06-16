@@ -7,7 +7,7 @@ import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
-import type { PayloadVacancy, PayloadResult } from '@/types/payload'
+import type { PayloadCategory, PayloadVacancy, PayloadResult } from '@/types/payload'
 
 const DEPT_ICONS: Record<string, React.ReactNode> = {
   Production: (
@@ -115,11 +115,12 @@ const PERKS = [
 ] as const
 
 interface Props {
+  departments: PayloadCategory[]
   result: PayloadResult<PayloadVacancy>
   department: string
 }
 
-export default function VacanciesClient({ result, department }: Props) {
+export default function VacanciesClient({ departments, result, department }: Props) {
   const { t } = useLanguage()
   const router = useRouter()
 
@@ -131,13 +132,8 @@ export default function VacanciesClient({ result, department }: Props) {
   const contentIntroPlayedRef = useRef(false)
 
   const filters = [
-    { key: 'all',              label: t.vacancies.filterAll        },
-    { key: 'Production',       label: t.vacancies.filterProduction },
-    { key: 'Sales',            label: t.vacancies.filterSales      },
-    { key: 'Marketing',        label: t.vacancies.filterMarketing  },
-    { key: 'Logistics',        label: t.vacancies.filterLogistics  },
-    { key: 'Finance',          label: t.vacancies.filterFinance    },
-    { key: 'Customer Service', label: t.vacancies.filterService    },
+    { key: 'all', label: t.vacancies.filterAll },
+    ...departments.map(d => ({ key: d.slug, label: d.label })),
   ]
 
   const handleFilterChange = (key: string) => {
@@ -265,7 +261,7 @@ export default function VacanciesClient({ result, department }: Props) {
           ) : (
             <div ref={listRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {result.docs.map((job) => {
-                const acc = DEPT_ACCENT[job.department] ?? DEPT_ACCENT['Production']
+                const acc = DEPT_ACCENT[job.department.slug] ?? DEPT_ACCENT['Production']
                 return (
                   <Link
                     key={job.id}
@@ -277,7 +273,7 @@ export default function VacanciesClient({ result, department }: Props) {
                       style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
                       <div style={{ color: acc.dot, opacity: 0.55, transform: 'scale(2)' }}>
-                        {DEPT_ICONS[job.department]}
+                        {DEPT_ICONS[job.department.slug]}
                       </div>
                     </div>
 
@@ -285,7 +281,7 @@ export default function VacanciesClient({ result, department }: Props) {
                       <div className="flex items-center gap-2 mb-2.5">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
                         <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>
-                          {job.department}
+                          {job.department.label}
                         </span>
                       </div>
 

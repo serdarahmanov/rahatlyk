@@ -1,6 +1,7 @@
+import { cookies } from 'next/headers'
 import VacanciesClient from './VacanciesClient'
 import { getPayloadClient } from '@/lib/payload'
-import { normalizeResult, normalizeVacancy } from '@/lib/payload-normalize'
+import { normalizeCategory, normalizeResult, normalizeVacancy } from '@/lib/payload-normalize'
 
 const PAGE_SIZE = 9
 
@@ -13,24 +14,29 @@ type Props = {
 
 export default async function VacanciesPage({ searchParams }: Props) {
   const params = await searchParams
-  const department = params.department ?? 'all'
+  const departmentSlug = params.department ?? 'all'
   const page = Math.max(Number(params.page ?? '1') || 1, 1)
+  const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'
   const payload = await getPayloadClient()
+
+  const departmentsResult = await payload.find({
+    collection: 'vacancy-departments',
+    locale,
+    limit: 100,
+    sort: 'label',
+  })
+  const departments = departmentsResult.docs.map(normalizeCategory)
+  const activeDepartment = departmentsResult.docs.find(d => d.slug === departmentSlug)
 
   const result = await payload.find({
     collection: 'vacancies',
     depth: 2,
+    locale,
     limit: PAGE_SIZE,
     page,
     sort: '-postedDate',
-    ...(department !== 'all'
-      ? {
-          where: {
-            department: {
-              equals: department,
-            },
-          },
-        }
+    ...(departmentSlug !== 'all' && activeDepartment
+      ? { where: { department: { equals: activeDepartment.id } } }
       : {}),
   })
 
@@ -38,7 +44,8 @@ export default async function VacanciesPage({ searchParams }: Props) {
 
   return (
     <VacanciesClient
-      department={department}
+      department={departmentSlug}
+      departments={departments}
       result={normalizeResult(result, docs, PAGE_SIZE)}
     />
   )

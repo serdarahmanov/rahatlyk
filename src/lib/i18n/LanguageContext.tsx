@@ -25,6 +25,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         const saved = localStorage.getItem('RAHATLYK-locale') as Locale | null;
         if (saved && (['en', 'ru', 'tm'] as string[]).includes(saved)) {
           setLocaleState(saved);
+          document.cookie = `RAHATLYK-locale=${saved}; path=/; max-age=31536000; SameSite=Lax`;
         }
       } catch {
         // localStorage blocked (private mode, etc.)
@@ -38,6 +39,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem('RAHATLYK-locale', newLocale);
+    document.cookie = `RAHATLYK-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
   };
 
   return (
