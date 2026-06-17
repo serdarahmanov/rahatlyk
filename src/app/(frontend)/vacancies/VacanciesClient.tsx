@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
 import type { PayloadCategory, PayloadVacancy, PayloadResult } from '@/types/payload'
@@ -250,14 +251,7 @@ export default function VacanciesClient({ departments, result, department }: Pro
           </div>
 
           {result.totalDocs === 0 ? (
-            <div className="text-center py-20 text-brand-400 bg-white rounded-md border border-brand-200">
-              <div className="mb-4">
-                <svg className="mx-auto text-brand-300" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-              </div>
-              <p className="text-base font-normal">{t.vacancies.noCurrent}</p>
-            </div>
+            <EmptyState message={t.vacancies.noCurrent} />
           ) : (
             <div ref={listRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {result.docs.map((job) => {

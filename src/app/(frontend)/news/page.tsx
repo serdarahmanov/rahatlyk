@@ -32,7 +32,7 @@ export default async function NewsPage({ searchParams }: Props) {
     collection: 'articles',
     depth: 2,
     locale,
-    limit: 1,
+    limit: 10,
     sort: '-date',
     where: {
       featured: {
@@ -41,7 +41,7 @@ export default async function NewsPage({ searchParams }: Props) {
     },
   })
 
-  const featured = featuredResult.docs[0] ? normalizeArticle(featuredResult.docs[0]) : null
+  const featured = featuredResult.docs.map(normalizeArticle)
 
   const result = await payload.find({
     collection: 'articles',

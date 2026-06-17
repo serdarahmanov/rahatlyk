@@ -1,5 +1,16 @@
 import type { Article, Media, Product, ProductLine, Vacancy } from '../../payload-types'
-import type { PayloadArticle, PayloadCategory, PayloadProduct, PayloadProductLine, PayloadResult, PayloadVacancy } from '@/types/payload'
+import type {
+  HorizontalScrollData,
+  HomeCtaBannerData,
+  HomeHeroData,
+  HomeStoryData,
+  PayloadArticle,
+  PayloadCategory,
+  PayloadProduct,
+  PayloadProductLine,
+  PayloadResult,
+  PayloadVacancy,
+} from '@/types/payload'
 
 type RawPayloadResult<T> = {
   docs: T[]
@@ -87,6 +98,68 @@ export const normalizeVacancy = (vacancy: Vacancy): PayloadVacancy => ({
   requirements: textRows(vacancy.requirements),
   responsibilities: textRows(vacancy.responsibilities),
   salary: vacancy.salary ?? null,
+})
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rawStr = (val: unknown): string | null => (typeof val === 'string' && val ? val : null)
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rawMediaUrl = (val: unknown): string | null =>
+  val && typeof val === 'object' && 'url' in val && typeof (val as Record<string, unknown>).url === 'string'
+    ? (val as { url: string }).url
+    : null
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const normalizeHorizontalScroll = (raw: any): HorizontalScrollData => {
+  const b1 = raw?.box1 ?? {}
+  const b2 = raw?.box2 ?? {}
+  const b3 = raw?.box3 ?? {}
+  const b4 = raw?.box4 ?? {}
+  const b5 = raw?.box5 ?? {}
+  const b6 = raw?.box6 ?? {}
+  return {
+    box1ImageUrl:    rawMediaUrl(b1.image),
+    box2ImageUrl:    rawMediaUrl(b2.image),
+    box2Tag:         rawStr(b2.tag),
+    box2Headline:    rawStr(b2.headline),
+    box3ImageUrl:    rawMediaUrl(b3.image),
+    box4Text:        rawStr(b4.text),
+    box4ButtonLabel: rawStr(b4.buttonLabel),
+    box4ButtonHref:  rawStr(b4.buttonHref),
+    box5VideoUrl:      rawMediaUrl(b5.video),
+    box5CoverImageUrl: rawMediaUrl(b5.coverImage),
+    box5Tag:           rawStr(b5.tag),
+    box5Headline:    rawStr(b5.headline),
+    box6ImageUrl:    rawMediaUrl(b6.image),
+    box6Tag:         rawStr(b6.tag),
+    box6Headline:    rawStr(b6.headline),
+    box6ButtonLabel: rawStr(b6.buttonLabel),
+    box6ButtonHref:  rawStr(b6.buttonHref),
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const normalizeHomeStory = (raw: any): HomeStoryData => ({
+  imageUrl: rawMediaUrl(raw?.image),
+  tag:      rawStr(raw?.tag),
+  title:    rawStr(raw?.title),
+  text:     rawStr(raw?.text),
+})
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const normalizeHomeHero = (raw: any): HomeHeroData => ({
+  videoUrl:    rawMediaUrl(raw?.video),
+  title:       rawStr(raw?.title),
+  titleAccent: rawStr(raw?.titleAccent),
+  subtitle:    rawStr(raw?.subtitle),
+})
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const normalizeHomeCtaBanner = (raw: any): HomeCtaBannerData => ({
+  title:    rawStr(raw?.title),
+  subtitle: rawStr(raw?.subtitle),
+  ctaLabel: rawStr(raw?.ctaLabel),
+  ctaHref:  rawStr(raw?.ctaHref),
 })
 
 export function normalizeResult<TInput, TOutput>(

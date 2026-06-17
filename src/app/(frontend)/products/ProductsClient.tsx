@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import EmptyState from '@/components/EmptyState'
 import ProductVisual from '@/components/ProductVisual'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
@@ -108,6 +109,10 @@ export default function ProductsClient({ categories, result, category }: Props) 
           </div>
 
           <FilterBar ref={filtersRef} filters={filters} active={category} onChange={handleFilterChange} />
+
+          {result.totalDocs === 0 && (
+            <EmptyState message={t.vacancies.noCurrent} />
+          )}
 
           <div
             ref={gridRef}

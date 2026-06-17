@@ -22,6 +22,74 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### Home page — fully CMS-driven
+
+All five major home page sections are now managed from Payload CMS. The server component at `src/app/(frontend)/page.tsx` fetches all five globals and the product lines collection in a single `Promise.allSettled` call and passes normalised data down to `HomeClient`.
+
+#### Hero Section global (`home-hero`)
+
+- Added `src/globals/HomeHero.ts` — Payload Global (Home group) with `video` (media relationship), `title`, `titleAccent`, and `subtitle` — all text fields localized in `en`, `tm`, `ru`.
+- Hero background changed from a static Next.js `Image` to a full-screen looping `<video>` element. Falls back to a solid brand colour if no video is uploaded yet.
+- Text (title, titleAccent, subtitle) is read from Payload with translation fallback so the page still renders correctly before the global is seeded.
+- Added `src/lib/data/hero-content.ts` — reference file with the original hero text in all three languages and the video filename, for copying into Payload Admin.
+- Added `src/seed-hero.ts` — standalone seed script that uploads `public/hero section/hero-section-intro-video.mp4` to Payload Media and populates the global in all three locales.
+
+#### Horizontal Scroll global (`horizontal-scroll`)
+
+- Added `src/globals/HorizontalScroll.ts` — Payload Global (Home group) with six grouped boxes.
+- Box 1 — portrait photo (image relationship).
+- Box 2 — dark text panel: optional background image + localized tag and headline.
+- Box 3 — product photo (image relationship).
+- Box 4 — CTA panel: localized text, button label, and button href. Animated gradient background is static code.
+- Box 5 — wide video panel: `video` and `coverImage` media relationships + localized tag and headline. Uses native HTML `<video poster>` attribute — single element, no layering.
+- Box 6 — closing light panel: optional background image + localized tag, headline, button label, and button href.
+- Added `src/lib/data/horizontal-scroll-content.ts` — reference file for seeding the global from Admin.
+
+#### Our Story Section global (`home-story`)
+
+- Added `src/globals/HomeStory.ts` — Payload Global (Home group) with `image` (media relationship), `tag`, `title`, and `text` — all text fields localized.
+- Section redesigned: removed black overlays, height changed to `80vh`, image wrapped in a ref div extended `±15%` beyond section bounds for a GSAP ScrollTrigger scrub parallax effect.
+- Section text colours changed to black (`text-black`, `text-black/70`, `text-black/50`) with `font-semibold` title and `font-medium` body.
+- Award badge restored: trophy SVG + "Best Beverage Brand / Central Asia Award 2025" in a frosted-glass pill, positioned bottom-right. Text is hardcoded for now; `badge` and `badgeSub` values saved to `src/lib/data/home-story-content.ts` for future Payload field addition.
+- Added `src/lib/data/home-story-content.ts` — reference file for seeding the global from Admin.
+
+#### CTA Banner global (`home-cta-banner`)
+
+- Added `src/globals/HomeCtaBanner.ts` — Payload Global (Home group) with `title`, `subtitle`, `ctaLabel` (localized) and `ctaHref` (non-localized). Animated water gradient background is static code.
+- Added `src/lib/data/home-cta-content.ts` — reference file for seeding the global from Admin.
+
+#### Latest News carousel
+
+- News carousel on the home page now fetches the five most recent articles from Payload (`articles` collection, sorted by `-date`) instead of the static `NEWS_ITEMS` array.
+- `NewsCarousel` component accepts `{ articles: PayloadArticle[] }` and uses `article.images[0]?.url`, `article.date`, and `article.title` from Payload data.
+
+### Our Collection — seed script
+
+- Added `src/lib/data/product-lines.ts` — five product line records (still water, sparkling water, fresh juices, energy drinks, herbal tea) with `key`, `imageFile`, `order`, and `name`/`description`/`body` in all three locales.
+- Added `src/seed-product-lines.ts` — standalone seed script. For each entry it uploads the corresponding image from `public/our collection images/` to Payload Media (skips if already uploaded), then creates or updates the product-line record in all three locales.
+- Image mapping: `1 (1).png` → water, `1 (2).png` → sparkling, `1 (3).png` → juice, `1 (4).png` → energy, `1 (5).png` → tea.
+
+Run:
+```bash
+npx tsx --env-file=.env.local src/seed-product-lines.ts
+npx tsx --env-file=.env.local src/seed-hero.ts
+```
+
+Both scripts are idempotent — safe to re-run. They update existing records instead of duplicating.
+
+### Shared EmptyState component
+
+- Added `src/components/EmptyState.tsx` — magnifying glass SVG + message prop, no border. Used on the vacancies, products, and news pages when a filtered view returns zero results.
+
+### News page — multiple featured articles
+
+- Featured articles query changed from `limit: 1` to `limit: 10` so multiple articles can be marked featured simultaneously.
+- `NewsClient` featured rendering adapts: single featured article renders full-width; two or more render in a `grid-cols-2` layout.
+
+### Contact page — phone number grouping
+
+- All phone numbers are now grouped into a single bordered section with dashed internal separators between entries, instead of one separate bordered row per number.
+
 ### Form submissions stored in Payload
 
 Contact form submissions and vacancy applications are now persisted in Payload CMS after the email sends. CV files are stored on disk.
@@ -35,42 +103,29 @@ Contact form submissions and vacancy applications are now persisted in Payload C
 
 ### Import/Export plugin
 
-Added `@payloadcms/plugin-import-export` to enable CSV/JSON export (and import where appropriate) from the Payload admin.
+Added `@payloadcms/plugin-import-export` to enable CSV/JSON export from the Payload admin.
 
-- Configured in `payload.config.ts` with per-collection `{ slug }` objects.
-- `contact-submissions` and `vacancy-applications` have `import: false` — they are export-only since importing would overwrite real submission data.
+- `contact-submissions` and `vacancy-applications` have `import: false` — export-only.
 
-### Admin collection grouping
+### Admin sidebar grouping
 
-Collections are now grouped in the Payload admin sidebar for clarity:
-
-| Group | Collections |
+| Group | Collections / Globals |
 |---|---|
+| Home | Hero Section (global), Horizontal Scroll (global), Our Story Section (global), CTA Banner (global), Our Collection |
 | Products | Product Categories, Products |
 | Articles | Article Categories, Articles |
 | Vacancies | Vacancy Departments, Vacancies |
-| Home | Our Collection (product-lines) |
 | Submissions | Contact Submissions, CV Documents, Vacancy Applications |
 | Settings | Contact Info (global) |
 
-`ProductLines` is also relabelled to **"Our Collection"** (`labels.singular/plural`) to match the homepage section name.
+### Contact Info Global
 
-### Contact Info Global — dynamic company contact details
+Company contact information is managed from Payload instead of being hardcoded.
 
-Company contact information (email, phone numbers, address, working hours) is now managed from Payload instead of being hardcoded.
-
-- Added `src/globals/ContactInfo.ts` — Payload Global with `email`, `phones` (array with `label` + `number`), and localized `address` and `workingHours` fields. Multiple phone numbers supported.
-- Added `GET /api/contact-info` route — fetches the Global with `locale: 'all'` so all three locale versions are returned in a single request.
-- Added `src/lib/contact-info/ContactInfoContext.tsx` — client context provider. Fetches once on mount (the layout keeps it mounted across all navigations, so no re-fetching on page changes). Resolves the correct locale per render as the user switches language.
-- `ContactInfoProvider` is mounted inside `LanguageProvider` in the root layout so `useContactInfo()` is available to all client components.
-- Updated `Footer`, `Navbar`, and the Contact page info panel to read from `useContactInfo()` instead of hardcoded strings or translation values.
-- The Contact page info panel now renders one row per phone number, supporting any number of entries.
-
-### Dead code removal
-
-- Removed the "Award badge" widget (trophy SVG + "Best Beverage Brand / Central Asia Award 2025" text) from the homepage story section — it was placeholder content that was never going to be used.
-- Removed the corresponding `badge` and `badgeSub` keys from `home.story` in all three locale blocks of `translations.ts`.
-- Removed the `badge` key from `home.hero` in all three locale blocks — it existed in translations but was never rendered anywhere.
+- Added `src/globals/ContactInfo.ts` — `email`, `phones` array (`label` + `number`), localized `address` and `workingHours`.
+- Added `GET /api/contact-info` route — returns the global in all three locales.
+- Added `src/lib/contact-info/ContactInfoContext.tsx` — client context that fetches once on mount and resolves per locale.
+- `Footer`, `Navbar`, and Contact page info panel read from `useContactInfo()`.
 
 ## Routes
 
@@ -101,8 +156,8 @@ src/
   app/
     (frontend)/
       layout.tsx
-      page.tsx        ← server component (fetches product lines)
-      HomeClient.tsx  ← all homepage animation/UI code
+      page.tsx          ← server component — fetches all home globals + product lines + news
+      HomeClient.tsx    ← all homepage animation/UI code
       about/page.tsx
       contact/page.tsx
       products/
@@ -131,12 +186,23 @@ src/
     VacancyApplications.ts
     VacancyDepartments.ts
     Vacancies.ts
+  components/
+    EmptyState.tsx
   globals/
     ContactInfo.ts
-  components/
+    HomeCtaBanner.ts
+    HomeHero.ts
+    HomeStory.ts
+    HorizontalScroll.ts
   lib/
     contact-info/
       ContactInfoContext.tsx
+    data/
+      hero-content.ts
+      home-cta-content.ts
+      home-story-content.ts
+      horizontal-scroll-content.ts
+      product-lines.ts
     email/
     i18n/
     payload.ts
@@ -144,6 +210,8 @@ src/
   types/
     payload.ts
   seed.ts
+  seed-hero.ts
+  seed-product-lines.ts
 ```
 
 ## Payload CMS
@@ -155,16 +223,30 @@ Key points:
 - Admin user collection: `users`
 - Public read collections: `media`, `product-categories`, `product-lines`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
 - Authenticated-only collections: `contact-submissions`, `cv-documents`, `vacancy-applications`
-- Globals: `contact-info` (public read, managed from Settings group in admin)
+- Globals: `contact-info`, `home-hero`, `horizontal-scroll`, `home-story`, `home-cta-banner`
 - Database adapter: PostgreSQL
 - Rich text editor: Lexical
 - Image processing: Sharp
 - Email adapter: `@payloadcms/email-nodemailer`
-- Payload Next integration: `withPayload(nextConfig)`
-- Payload import alias: `@payload-config`
 - Localization: `en` (default), `tm`, `ru` — `fallback: true`
 
-The public listing/detail pages call `getPayloadClient()` on the server and normalize Payload's generated collection types into frontend-friendly shapes. This keeps the existing client components mostly unchanged while letting CMS content drive the pages.
+The public listing/detail pages call `getPayloadClient()` on the server and normalize Payload's generated collection types into frontend-friendly shapes.
+
+## Seeding Data
+
+| Script | What it seeds |
+|---|---|
+| `src/seed.ts` | Articles, products, vacancies |
+| `src/seed-product-lines.ts` | Our Collection (5 product lines + images) |
+| `src/seed-hero.ts` | Hero Section global (video + text in 3 locales) |
+
+```bash
+npx tsx --env-file=.env.local src/seed.ts
+npx tsx --env-file=.env.local src/seed-product-lines.ts
+npx tsx --env-file=.env.local src/seed-hero.ts
+```
+
+All seed scripts are idempotent — safe to re-run.
 
 ## Email Integration
 
@@ -192,19 +274,18 @@ email: nodemailerAdapter({
 })
 ```
 
-The config also calls `setDefaultResultOrder('ipv4first')` before creating the transporter. This avoids local Gmail SMTP attempts resolving to IPv6 first on networks where Gmail IPv6 SMTP is refused.
+The config also calls `setDefaultResultOrder('ipv4first')` before creating the transporter.
 
 ### Email Problems Encountered And Fixes
 
 | Problem | Cause | Fix Applied |
 |---|---|---|
-| Public contact/vacancy forms sent email, but Payload admin email failed. | Forms and Payload used different Nodemailer configurations. | Changed Payload to use a real Nodemailer `transport` with the same `service: 'gmail'` style as the working form routes. |
-| `connect ECONNREFUSED ... :465` during Payload verify. | Explicit Gmail SMTP host/port could resolve to an IPv6 Gmail endpoint that the local network refused. | Added `setDefaultResultOrder('ipv4first')` and stopped using the explicit `smtp.gmail.com:465` transport options. |
-| `self-signed certificate in certificate chain` during Payload verify. | Local certificate trust chain rejected the SMTP TLS certificate path. | Matched the existing form routes by adding `tls: { rejectUnauthorized: false }` to the Payload transporter. |
-| TypeScript rejected `transportOptions: { service: 'gmail' }`. | Payload's `transportOptions` type is `SMTPConnection.Options`, which does not include Nodemailer's `service` shortcut. | Used Payload's `transport` option with `nodemailer.createTransport(...)` instead. |
-| Payload logs `Error verifying Nodemailer transport.` but admin still loads. | The Payload Nodemailer adapter logs verify errors instead of throwing them during setup. | Fixed the transport so verify can complete locally. |
+| Public contact/vacancy forms sent email, but Payload admin email failed. | Forms and Payload used different Nodemailer configurations. | Changed Payload to use a real Nodemailer `transport` with the same `service: 'gmail'` style. |
+| `connect ECONNREFUSED ... :465` during Payload verify. | Explicit Gmail SMTP host/port resolved to an IPv6 endpoint the local network refused. | Added `setDefaultResultOrder('ipv4first')` and removed explicit host/port. |
+| `self-signed certificate in certificate chain` during Payload verify. | Local certificate trust chain rejected the SMTP TLS path. | Added `tls: { rejectUnauthorized: false }`. |
+| TypeScript rejected `transportOptions: { service: 'gmail' }`. | `transportOptions` type is `SMTPConnection.Options`, which excludes Nodemailer's `service` shortcut. | Used Payload's `transport` option with `nodemailer.createTransport(...)` instead. |
 
-Important production note: `rejectUnauthorized: false` is a local compatibility workaround. For production, fix the server or hosting CA trust chain and remove this option from both Payload and the public form transports.
+Important production note: `rejectUnauthorized: false` is a local compatibility workaround. Remove it in production once the CA trust chain is fixed.
 
 ## Environment Variables
 
@@ -224,13 +305,6 @@ GMAIL_USER=your.gmail@gmail.com
 GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
 ```
 
-Notes:
-
-- `DATABASE_URI` or `DATABASE_URL` is required by Payload's PostgreSQL adapter.
-- `PAYLOAD_SECRET` is required for Payload auth/session security.
-- Gmail requires an App Password, not the normal account password.
-- `CONTACT_FORM_TO_EMAIL` exists in the environment template, but the current form routes still send internal notifications to `GMAIL_USER`. That should be cleaned up in a later pass if the business inbox should be separate from the SMTP login.
-
 ## Getting Started
 
 ```bash
@@ -245,27 +319,14 @@ Open:
 
 ## Verification
 
-Commands used during this integration:
-
 ```bash
 npm.cmd run lint
 npx.cmd tsc --noEmit
 ```
 
-Both passed after the Payload email fix.
+Both pass after each change set.
 
-`npm.cmd run build` was also tested, but the local machine failed before app compilation completed because `next/font/google` could not fetch Google Fonts:
-
-```text
-UNABLE_TO_VERIFY_LEAF_SIGNATURE
-Failed to fetch Cormorant Garamond, Inter, and Plus Jakarta Sans from Google Fonts.
-```
-
-That is a local certificate/network trust issue around Google Fonts fetching, not a TypeScript or Payload compilation error. Fix options:
-
-- repair the local/hosting CA trust chain,
-- configure Node with the correct CA bundle,
-- or self-host the fonts instead of using `next/font/google`.
+`npm.cmd run build` fails locally due to `next/font/google` being unable to fetch Google Fonts (`UNABLE_TO_VERIFY_LEAF_SIGNATURE`). This is a local certificate/network trust issue, not a TypeScript or Payload compilation error.
 
 ## Known Follow-Up Work
 
@@ -274,14 +335,12 @@ That is a local certificate/network trust issue around Google Fonts fetching, no
 - Use `CONTACT_FORM_TO_EMAIL` for internal form notifications instead of `GMAIL_USER`.
 - Add rate limiting, CAPTCHA/honeypot, or another anti-abuse control to `/api/contact` and `/api/vacancy`.
 - Escape user-submitted text before interpolating it into HTML email templates.
-- Add a package script for seeding Payload data.
+- Add `badge` and `badgeSub` fields to the `home-story` Payload global so the award badge text is CMS-managed. Current values are in `src/lib/data/home-story-content.ts`.
 - Update `.env.example` to include `DATABASE_URI` / `DATABASE_URL` and `PAYLOAD_SECRET`.
-- Run `payload generate:importmap` after adding new plugins that register admin UI components.
-- Move `public/cv/` CV file storage to a private location (e.g. Payload media with access control) for production — files in `public/` are statically served even though filenames are UUID-based.
+- Move `public/cv/` CV file storage to a private location for production — files in `public/` are statically served.
 
 ## Quality Notes
 
 - ESLint passes.
 - TypeScript `--noEmit` passes.
-- The Payload admin loads and the admin forgot-password email transport now verifies locally.
 - The dirty `.claude/worktrees/...` subproject marker is local agent metadata and is not part of the application change set.

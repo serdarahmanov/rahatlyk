@@ -69,3 +69,44 @@ export type PayloadResult<T> = {
   nextPage:    number | null
   prevPage:    number | null
 }
+
+export type HorizontalScrollData = {
+  box1ImageUrl:    string | null
+  box2ImageUrl:    string | null
+  box2Tag:         string | null
+  box2Headline:    string | null
+  box3ImageUrl:    string | null
+  box4Text:        string | null
+  box4ButtonLabel: string | null
+  box4ButtonHref:  string | null
+  box5VideoUrl:      string | null
+  box5CoverImageUrl: string | null
+  box5Tag:           string | null
+  box5Headline:      string | null
+  box6ImageUrl:    string | null
+  box6Tag:         string | null
+  box6Headline:    string | null
+  box6ButtonLabel: string | null
+  box6ButtonHref:  string | null
+}
+
+export type HomeStoryData = {
+  imageUrl: string | null
+  tag:      string | null
+  title:    string | null
+  text:     string | null
+}
+
+export type HomeCtaBannerData = {
+  title:    string | null
+  subtitle: string | null
+  ctaLabel: string | null
+  ctaHref:  string | null
+}
+
+export type HomeHeroData = {
+  videoUrl:    string | null
+  title:       string | null
+  titleAccent: string | null
+  subtitle:    string | null
+}

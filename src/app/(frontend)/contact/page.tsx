@@ -360,19 +360,25 @@ export default function ContactPage() {
                   </div>
                 </div>
               )}
-              {contactInfo.phones.map((p) => (
-                <div key={p.number} className="py-6 border-t border-white/20 flex items-start gap-5">
+              {contactInfo.phones.length > 0 && (
+                <div className="py-6 border-t border-white/20 flex items-start gap-5">
                   <div className="mt-0.5 flex-shrink-0 text-white/70">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                       <path d="M4.5 3.5h3l1.5 3.5-1.75 1.25a9 9 0 0 0 4.5 4.5L13 11l3.5 1.5v3a1 1 0 0 1-1 1A14 14 0 0 1 3.5 4.5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">{p.label || info.phone}</p>
-                    <p className="text-[15px] text-white leading-relaxed font-normal">{p.number}</p>
+                  <div className="flex-1">
+                    {contactInfo.phones.map((p, idx) => (
+                      <div key={p.number} className={idx > 0 ? 'border-t border-white/15 pt-4 mt-4' : ''}>
+                        <p className="text-[10px] font-normal uppercase tracking-[0.18em] text-white mb-1.5">
+                          {p.label || info.phone}
+                        </p>
+                        <p className="text-[15px] text-white leading-relaxed font-normal">{p.number}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              )}
               {contactInfo.email && (
                 <div className="py-6 border-t border-white/20 flex items-start gap-5">
                   <div className="mt-0.5 flex-shrink-0 text-white/70">

@@ -7,13 +7,14 @@ import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDate } from '@/lib/formatDate'
+import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
 import type { PayloadArticle, PayloadCategory, PayloadResult } from '@/types/payload'
 
 interface Props {
   categories: PayloadCategory[]
-  featured: PayloadArticle | null
+  featured: PayloadArticle[]
   result: PayloadResult<PayloadArticle>
   category: string
 }
@@ -247,48 +248,51 @@ export default function NewsClient({ categories, featured, result, category }: P
           <FilterBar ref={filtersRef} filters={filters} active={category} onChange={handleFilterChange} />
 
           <div ref={contentRef}>
-            {featured && (
-              <div className="mb-8">
-                <Link
-                  href={`/news/${featured.id}`}
-                  className="group relative overflow-hidden rounded-2xl block"
-                  style={{ height: 'clamp(340px, 46vw, 520px)' }}
-                >
-                  {featured.images[0]?.url && (
-                    <Image
-                      src={featured.images[0].url}
-                      alt={featured.title}
-                      fill
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                      sizes="100vw"
-                      priority
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+            {featured.length > 0 && (
+              <div className={`mb-8 ${featured.length > 1 ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}`}>
+                {featured.map((article) => (
+                  <Link
+                    key={article.id}
+                    href={`/news/${article.id}`}
+                    className="group relative overflow-hidden rounded-2xl block"
+                    style={{ height: featured.length === 1 ? 'clamp(340px, 46vw, 520px)' : 'clamp(260px, 32vw, 420px)' }}
+                  >
+                    {article.images[0]?.url && (
+                      <Image
+                        src={article.images[0].url}
+                        alt={article.title}
+                        fill
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                        sizes={featured.length === 1 ? '100vw' : '50vw'}
+                        priority
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
 
-                  <div className="absolute top-5 left-5 z-10">
-                    <span className="backdrop-blur-xl bg-white/15 border border-white/25 text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider">
-                      {t.news.featured}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-5 left-5 right-5 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-5 py-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{featured.category.label}</span>
-                      <span className="text-white/30">&middot;</span>
-                      <span className="text-[10px] text-white/55">{formatDate(featured.date, locale)}</span>
+                    <div className="absolute top-5 left-5 z-10">
+                      <span className="backdrop-blur-xl bg-white/15 border border-white/25 text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider">
+                        {t.news.featured}
+                      </span>
                     </div>
-                    <h2
-                      className="text-xl sm:text-2xl lg:text-3xl font-light text-white leading-snug"
-                      style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-                    >
-                      {featured.title}
-                    </h2>
-                    <p className="mt-1.5 text-white/55 text-xs leading-relaxed line-clamp-1 hidden sm:block">
-                      {featured.body[0]?.text}
-                    </p>
-                  </div>
-                </Link>
+
+                    <div className="absolute bottom-5 left-5 right-5 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-5 py-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{article.category.label}</span>
+                        <span className="text-white/30">&middot;</span>
+                        <span className="text-[10px] text-white/55">{formatDate(article.date, locale)}</span>
+                      </div>
+                      <h2
+                        className="text-xl sm:text-2xl lg:text-3xl font-light text-white leading-snug"
+                        style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+                      >
+                        {article.title}
+                      </h2>
+                      <p className="mt-1.5 text-white/55 text-xs leading-relaxed line-clamp-1 hidden sm:block">
+                        {article.body[0]?.text}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
 
@@ -298,11 +302,8 @@ export default function NewsClient({ categories, featured, result, category }: P
               ))}
             </div>
 
-            {result.totalDocs === 0 && (
-              <div className="text-center py-20 text-brand-400">
-                <div className="text-5xl mb-4">&#128240;</div>
-                <p className="text-lg font-normal">No articles in this category yet.</p>
-              </div>
+            {result.totalDocs === 0 && featured.length === 0 && (
+              <EmptyState message={t.vacancies.noCurrent} />
             )}
 
             <Pagination
