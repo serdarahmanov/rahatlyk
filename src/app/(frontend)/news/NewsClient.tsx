@@ -68,7 +68,7 @@ function NewsCard({ article }: { article: PayloadArticle }) {
 
   return (
     <div className="group cursor-pointer" onClick={() => router.push(`/news/${article.id}`)}>
-      <div className="relative overflow-hidden rounded-sm" style={{ paddingBottom: '125%' }}>
+      <div className="relative overflow-hidden rounded-sm" style={{ paddingBottom: '62%' }}>
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           {imgs[current] && (
             <Image
@@ -137,7 +137,7 @@ function NewsCard({ article }: { article: PayloadArticle }) {
 
       <div className="pt-3 px-0.5">
         <h3
-          className="text-[15px] font-normal text-brand-950 leading-snug mb-1"
+          className="text-[18px] font-medium text-brand-950 leading-snug mb-1"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
           {article.title}
@@ -233,13 +233,11 @@ export default function NewsClient({ categories, featured, result, category }: P
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.news.title.split(/\s+/).map((word, index, words) => (
-                <span
-                  key={`${word}-${index}`}
-                  className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
-                >
-                  <span className="title-word-inner inline-block">
-                    {word}{index < words.length - 1 ? ' ' : ''}
+                <span key={`${word}-${index}`} style={{ display: 'inline' }}>
+                  <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
+                    <span className="title-word-inner inline-block">{word}</span>
                   </span>
+                  {index < words.length - 1 ? ' ' : ''}
                 </span>
               ))}
             </h1>
@@ -296,7 +294,7 @@ export default function NewsClient({ categories, featured, result, category }: P
               </div>
             )}
 
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16">
               {result.docs.map((article) => (
                 <NewsCard key={article.id} article={article} />
               ))}

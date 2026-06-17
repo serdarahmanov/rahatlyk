@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import ProductDetailClient from './ProductDetailClient'
 import { getPayloadClient } from '@/lib/payload'
 import { normalizeProduct } from '@/lib/payload-normalize'
@@ -17,10 +18,12 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound()
   }
 
+  const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'
   const payload = await getPayloadClient()
   const productResult = await payload.find({
     collection: 'products',
     depth: 2,
+    locale,
     limit: 1,
     where: {
       id: {
@@ -38,6 +41,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const allResult = await payload.find({
     collection: 'products',
     depth: 2,
+    locale,
     limit: 100,
     sort: 'date',
   })

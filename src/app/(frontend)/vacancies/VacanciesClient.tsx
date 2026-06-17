@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useLayoutEffect, useEffect, useRef } from 'react'
 import Link from 'next/link'
@@ -227,13 +227,11 @@ export default function VacanciesClient({ departments, result, department }: Pro
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.vacancies.title.split(/\s+/).map((word, index, words) => (
-                <span
-                  key={`${word}-${index}`}
-                  className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
-                >
-                  <span className="title-word-inner inline-block">
-                    {word}{index < words.length - 1 ? ' ' : ''}
+                <span key={`${word}-${index}`} style={{ display: 'inline' }}>
+                  <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
+                    <span className="title-word-inner inline-block">{word}</span>
                   </span>
+                  {index < words.length - 1 ? ' ' : ''}
                 </span>
               ))}
             </h1>
@@ -263,12 +261,22 @@ export default function VacanciesClient({ departments, result, department }: Pro
                     className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
                   >
                     <div
-                      className="h-40 flex items-center justify-center flex-shrink-0 overflow-hidden"
-                      style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
+                      className="h-40 flex-shrink-0 overflow-hidden relative"
+                      style={job.imageUrl ? undefined : { background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
-                      <div style={{ color: acc.dot, opacity: 0.55, transform: 'scale(2)' }}>
-                        {DEPT_ICONS[job.department.slug]}
-                      </div>
+                      {job.imageUrl ? (
+                        <img
+                          src={job.imageUrl}
+                          alt={job.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-full">
+                          <div style={{ color: acc.dot, opacity: 0.55, transform: 'scale(2)' }}>
+                            {DEPT_ICONS[job.department.slug]}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>

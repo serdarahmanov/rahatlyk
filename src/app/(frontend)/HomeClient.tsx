@@ -75,8 +75,9 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
 
 /* ── Pinned horizontal-scroll section ────────────────────────────── */
 function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef     = useRef<HTMLDivElement>(null);
+  const containerRef    = useRef<HTMLDivElement>(null);
+  const trackRef        = useRef<HTMLDivElement>(null);
+  const isFirstDataRef  = useRef(true);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -91,6 +92,18 @@ function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
       ScrollTrigger.refresh();
     });
   }, [isMobile]);
+
+  // After a language switch, router.refresh() updates content in sections above this
+  // one (hero text, brand text, etc.), which shifts cumulative scroll offsets and
+  // invalidates ScrollTrigger's cached start position. Refreshing recalculates it.
+  useEffect(() => {
+    if (isFirstDataRef.current) { isFirstDataRef.current = false; return; }
+    let raf: number;
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [data]);
 
   useEffect(() => {
     let mounted = true;
@@ -740,17 +753,37 @@ export default function HomeClient({
 }) {
   const { t, locale } = useLanguage();
 
-  const titleLine1Ref = useRef<HTMLDivElement>(null);
-  const titleLine2Ref = useRef<HTMLDivElement>(null);
-  const heroSubRef    = useRef<HTMLParagraphElement>(null);
-  const brandRef      = useRef<HTMLElement>(null);
-  const brandLabelRef = useRef<HTMLSpanElement>(null);
-  const brandTextRef  = useRef<HTMLParagraphElement>(null);
-  const storyRef      = useRef<HTMLDivElement>(null);
-  const storyImgRef   = useRef<HTMLDivElement>(null);
+  const titleLine1Ref   = useRef<HTMLDivElement>(null);
+  const titleLine2Ref   = useRef<HTMLDivElement>(null);
+  const heroSubRef      = useRef<HTMLParagraphElement>(null);
+  const brandRef        = useRef<HTMLElement>(null);
+  const brandLabelRef   = useRef<HTMLSpanElement>(null);
+  const brandTextRef    = useRef<HTMLParagraphElement>(null);
+  const storyRef        = useRef<HTMLDivElement>(null);
+  const storyImgRef     = useRef<HTMLDivElement>(null);
+  const prevLocaleRef = useRef<string | undefined>(undefined);
 
   // ── Hero animation ──────────────────────────────────────────────
   useEffect(() => {
+    const line1 = titleLine1Ref.current;
+    const line2 = titleLine2Ref.current;
+    const sub   = heroSubRef.current;
+
+    const heroTitle       = hero.title       || t.home.hero.title;
+    const heroTitleAccent = hero.titleAccent || t.home.hero.titleAccent;
+    const heroSubtitle    = hero.subtitle    || t.home.hero.subtitle;
+
+    const isLocaleChange = locale !== prevLocaleRef.current;
+    prevLocaleRef.current = locale;
+
+    // hero prop re-fired by router.refresh() but locale didn't change — just swap text silently
+    if (!isLocaleChange) {
+      if (line1) line1.textContent = heroTitle;
+      if (line2) line2.textContent = heroTitleAccent;
+      if (sub)  sub.textContent   = heroSubtitle;
+      return;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let tl: any = null;
     const restores: Array<() => void> = [];
@@ -758,17 +791,10 @@ export default function HomeClient({
 
     const run = async () => {
       const { gsap } = await import('gsap');
-      const line1 = titleLine1Ref.current;
-      const line2 = titleLine2Ref.current;
-      const sub   = heroSubRef.current;
       if (!line1 || !line2) return;
 
       gsap.killTweensOf([line1, line2, ...(sub ? [sub] : [])]);
 
-      const heroT = t.home.hero;
-      const heroTitle       = hero.title       || heroT.title;
-      const heroTitleAccent = hero.titleAccent || heroT.titleAccent;
-      const heroSubtitle    = hero.subtitle    || heroT.subtitle;
       const { spans: spans1, restore: restore1 } = splitWordsIntoSpans(line1, heroTitle);
       const { spans: spans2, restore: restore2 } = splitWordsIntoSpans(line2, heroTitleAccent);
       restores.push(restore1, restore2);

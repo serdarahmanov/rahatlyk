@@ -113,8 +113,20 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'tm' | 'ru') | ('en' | 'tm' | 'ru')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'contact-info': ContactInfo;
+    'home-hero': HomeHero;
+    'horizontal-scroll': HorizontalScroll;
+    'home-story': HomeStory;
+    'home-cta-banner': HomeCtaBanner;
+  };
+  globalsSelect: {
+    'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
+    'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
+    'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
+    'home-story': HomeStorySelect<false> | HomeStorySelect<true>;
+    'home-cta-banner': HomeCtaBannerSelect<false> | HomeCtaBannerSelect<true>;
+  };
   locale: 'en' | 'tm' | 'ru';
   widgets: {
     collections: CollectionsWidget;
@@ -261,6 +273,10 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Optional product video shown on the detail page.
+   */
+  video?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -351,6 +367,7 @@ export interface Vacancy {
         id?: string | null;
       }[]
     | null;
+  image?: (number | null) | Media;
   salary?: string | null;
   postedDate?: string | null;
   updatedAt: string;
@@ -790,6 +807,7 @@ export interface ProductsSelect<T extends boolean = true> {
         url?: T;
         id?: T;
       };
+  video?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -873,6 +891,7 @@ export interface VacanciesSelect<T extends boolean = true> {
         text?: T;
         id?: T;
       };
+  image?: T;
   salary?: T;
   postedDate?: T;
   updatedAt?: T;
@@ -1056,6 +1075,218 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-info".
+ */
+export interface ContactInfo {
+  id: number;
+  email?: string | null;
+  phones?:
+    | {
+        label?: string | null;
+        number: string;
+        id?: string | null;
+      }[]
+    | null;
+  address?: string | null;
+  workingHours?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-hero".
+ */
+export interface HomeHero {
+  id: number;
+  video?: (number | null) | Media;
+  title?: string | null;
+  titleAccent?: string | null;
+  subtitle?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horizontal-scroll".
+ */
+export interface HorizontalScroll {
+  id: number;
+  box1?: {
+    image?: (number | null) | Media;
+  };
+  box2?: {
+    image?: (number | null) | Media;
+    tag?: string | null;
+    headline?: string | null;
+  };
+  box3?: {
+    image?: (number | null) | Media;
+  };
+  /**
+   * The animated blue gradient background is static code. Manage the text and button here.
+   */
+  box4?: {
+    text?: string | null;
+    buttonLabel?: string | null;
+    buttonHref?: string | null;
+  };
+  /**
+   * Upload a video for the main content. Upload a cover image to show while the video is loading or lagging.
+   */
+  box5?: {
+    video?: (number | null) | Media;
+    coverImage?: (number | null) | Media;
+    tag?: string | null;
+    headline?: string | null;
+  };
+  box6?: {
+    image?: (number | null) | Media;
+    tag?: string | null;
+    headline?: string | null;
+    buttonLabel?: string | null;
+    buttonHref?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-story".
+ */
+export interface HomeStory {
+  id: number;
+  image?: (number | null) | Media;
+  tag?: string | null;
+  title?: string | null;
+  text?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * The animated blue gradient background is static. Manage text and button link here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-cta-banner".
+ */
+export interface HomeCtaBanner {
+  id: number;
+  title?: string | null;
+  subtitle?: string | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-info_select".
+ */
+export interface ContactInfoSelect<T extends boolean = true> {
+  email?: T;
+  phones?:
+    | T
+    | {
+        label?: T;
+        number?: T;
+        id?: T;
+      };
+  address?: T;
+  workingHours?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-hero_select".
+ */
+export interface HomeHeroSelect<T extends boolean = true> {
+  video?: T;
+  title?: T;
+  titleAccent?: T;
+  subtitle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horizontal-scroll_select".
+ */
+export interface HorizontalScrollSelect<T extends boolean = true> {
+  box1?:
+    | T
+    | {
+        image?: T;
+      };
+  box2?:
+    | T
+    | {
+        image?: T;
+        tag?: T;
+        headline?: T;
+      };
+  box3?:
+    | T
+    | {
+        image?: T;
+      };
+  box4?:
+    | T
+    | {
+        text?: T;
+        buttonLabel?: T;
+        buttonHref?: T;
+      };
+  box5?:
+    | T
+    | {
+        video?: T;
+        coverImage?: T;
+        tag?: T;
+        headline?: T;
+      };
+  box6?:
+    | T
+    | {
+        image?: T;
+        tag?: T;
+        headline?: T;
+        buttonLabel?: T;
+        buttonHref?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-story_select".
+ */
+export interface HomeStorySelect<T extends boolean = true> {
+  image?: T;
+  tag?: T;
+  title?: T;
+  text?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-cta-banner_select".
+ */
+export interface HomeCtaBannerSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  ctaLabel?: T;
+  ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

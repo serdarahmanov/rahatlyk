@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { translations, Locale } from './translations';
 
 interface LanguageContextType {
@@ -18,6 +19,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // The useEffect reads localStorage and updates to the saved locale after hydration.
   const [locale, setLocaleState] = useState<Locale>('en');
   const [ready, setReady]        = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -40,6 +42,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale);
     localStorage.setItem('RAHATLYK-locale', newLocale);
     document.cookie = `RAHATLYK-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    router.refresh();
   };
 
   return (

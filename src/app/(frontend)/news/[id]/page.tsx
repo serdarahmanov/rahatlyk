@@ -50,7 +50,7 @@ export default async function ArticlePage({ params }: Props) {
         },
         {
           category: {
-            equals: normalizedArticle.category,
+            equals: Number(normalizedArticle.category.id),
           },
         },
       ],
@@ -74,7 +74,7 @@ export default async function ArticlePage({ params }: Props) {
           },
           {
             category: {
-              not_equals: normalizedArticle.category,
+              not_equals: Number(normalizedArticle.category.id),
             },
           },
         ],

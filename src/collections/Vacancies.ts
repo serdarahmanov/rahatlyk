@@ -43,6 +43,7 @@ export const Vacancies: CollectionConfig = {
       type: 'array',
       fields: [{ name: 'text', type: 'text', required: true, localized: true }],
     },
+    { name: 'image',      type: 'upload', relationTo: 'media' },
     { name: 'salary',     type: 'text' },
     { name: 'postedDate', type: 'date',
       admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'yyyy-MM-dd' } } },

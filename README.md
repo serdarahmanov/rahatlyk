@@ -22,6 +22,49 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### Vacancies — image field, seed data, and card photo
+
+- Added `image` (upload relationship to `media`) field to `src/collections/Vacancies.ts`.
+- `normalizeVacancy` in `src/lib/payload-normalize.ts` now maps the media relation to `imageUrl`; `PayloadVacancy` type in `src/types/payload.ts` updated accordingly (`image` omitted from spread, `imageUrl: string | null` added).
+- Vacancy cards in `VacanciesClient` render the uploaded photo. If no image is attached, the card falls back to the existing department-coloured gradient with SVG icon.
+- Added `src/lib/data/vacancies-payload.ts` — 8 vacancies across 5 departments, all three locales, with responsibilities, requirements, nice-to-haves, and benefits.
+- Added `src/seed-vacancies.ts` — idempotent seed for departments and vacancies. Uses an ID-passing helper so localized array fields (`responsibilities`, `requirements`, etc.) are matched to existing rows instead of duplicated.
+- Added `src/seed-vacancy-images.ts` — uploads PNGs from `public/vacancy images/` to Payload Media and links each to the matching vacancy.
+
+Run order (after `npx payload migrate`):
+```bash
+npx tsx --env-file=.env.local src/seed-vacancies.ts
+npx tsx --env-file=.env.local src/seed-vacancy-images.ts
+```
+
+### News articles — seed data, card redesign, and detail page bug fix
+
+- Added `src/lib/data/news-seed.ts` — 8 articles across 3 categories (Company News, Product Updates, Sustainability), all three locales, with 2 body paragraphs each.
+- Added `src/seed-news.ts` — idempotent seed for article categories and articles. Uploads images from `media/` to Payload Media (cached within the same run), creates articles in English first then updates `tm`/`ru` locales with proper body array IDs.
+- News listing cards redesigned: aspect ratio changed from portrait (`paddingBottom: 125%`) to landscape (`62%`); grid changed from 3 columns to 2 (`grid-cols-1 sm:grid-cols-2`); title weight/size increased from `15px / font-normal` to `18px / font-medium`; vertical row gap increased to `gap-y-16`.
+- Fixed `NaN` error on the article detail page (`src/app/(frontend)/news/[id]/page.tsx`): the "related articles" and "fallback" Payload queries were passing the whole `PayloadCategory` object as the `category` filter value instead of `Number(category.id)`.
+
+```bash
+npx tsx --env-file=.env.local src/seed-news.ts
+```
+
+### Language switch fixes
+
+- **Hero double-animation** (`HomeClient.tsx`): added `prevLocaleRef` — the hero animation `useEffect` now compares `locale` to the previous render's locale. If they match (triggered by `router.refresh()` re-firing after the server fetch, not by the user actually switching language), the effect swaps the text nodes silently without re-running the GSAP animation.
+- **Horizontal scroll pin drift** (`HomeClient.tsx` — `HorizontalScrollSection`): after a language switch, sections above the pinned area can shift height (different text lengths in different locales). Added a `useEffect` keyed on `data` that calls `ScrollTrigger.refresh()` inside a `requestAnimationFrame` after the DOM updates, so the pin's `start: 'top top'` position is recalculated against the current layout.
+
+### Detail pages — locale-aware queries
+
+- `src/app/(frontend)/vacancies/[id]/page.tsx` and `src/app/(frontend)/products/[id]/page.tsx` now read the `RAHATLYK-locale` cookie via `next/headers` `cookies()` and pass it to all Payload queries, so translated content is returned when the user has switched language.
+
+### News article detail page — redesign prototype
+
+- Added `news-detail-design.html` — standalone HTML prototype for a new article detail layout. Key differences from the current page: no full-viewport cover image; instead the typography is the visual anchor (very large Cormorant Garamond title); the featured image sits below the title in a contained cinematic-wide frame (100:44 ratio, rounded corners); sticky blurred top bar; inline article images at 16:9 within the reading column; pull quote with decorative opening mark; dark "More to Read" section with horizontal image-left / text-right cards. Apply to `ArticleDetailClient.tsx` once approved.
+
+---
+
+### Previous batch — Home page fully CMS-driven
+
 ### Home page — fully CMS-driven
 
 All five major home page sections are now managed from Payload CMS. The server component at `src/app/(frontend)/page.tsx` fetches all five globals and the product lines collection in a single `Promise.allSettled` call and passes normalised data down to `HomeClient`.
@@ -236,14 +279,18 @@ The public listing/detail pages call `getPayloadClient()` on the server and norm
 
 | Script | What it seeds |
 |---|---|
-| `src/seed.ts` | Articles, products, vacancies |
-| `src/seed-product-lines.ts` | Our Collection (5 product lines + images) |
 | `src/seed-hero.ts` | Hero Section global (video + text in 3 locales) |
+| `src/seed-product-lines.ts` | Our Collection (5 product lines + images) |
+| `src/seed-vacancies.ts` | Vacancy departments + 8 vacancies (3 locales, localized arrays) |
+| `src/seed-vacancy-images.ts` | Uploads vacancy images and links them to vacancies |
+| `src/seed-news.ts` | 3 article categories + 8 articles with images (3 locales) |
 
 ```bash
-npx tsx --env-file=.env.local src/seed.ts
-npx tsx --env-file=.env.local src/seed-product-lines.ts
 npx tsx --env-file=.env.local src/seed-hero.ts
+npx tsx --env-file=.env.local src/seed-product-lines.ts
+npx tsx --env-file=.env.local src/seed-vacancies.ts
+npx tsx --env-file=.env.local src/seed-vacancy-images.ts
+npx tsx --env-file=.env.local src/seed-news.ts
 ```
 
 All seed scripts are idempotent — safe to re-run.

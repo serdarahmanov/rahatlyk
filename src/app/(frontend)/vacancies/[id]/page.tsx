@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import VacancyDetailClient from './VacancyDetailClient'
 import { getPayloadClient } from '@/lib/payload'
 import { normalizeVacancy } from '@/lib/payload-normalize'
@@ -17,10 +18,12 @@ export default async function VacancyDetailPage({ params }: Props) {
     notFound()
   }
 
+  const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'
   const payload = await getPayloadClient()
   const vacancyResult = await payload.find({
     collection: 'vacancies',
     depth: 2,
+    locale,
     limit: 1,
     where: {
       id: {
@@ -38,6 +41,7 @@ export default async function VacancyDetailPage({ params }: Props) {
   const othersResult = await payload.find({
     collection: 'vacancies',
     depth: 2,
+    locale,
     limit: 3,
     sort: '-postedDate',
     where: {

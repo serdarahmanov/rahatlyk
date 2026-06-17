@@ -32,7 +32,7 @@ export type PayloadArticle = Omit<GeneratedArticle, 'body' | 'category' | 'emoji
 
 export type PayloadProduct = Omit<
   GeneratedProduct,
-  'category' | 'description' | 'features' | 'longDescription' | 'nutrition' | 'photos' | 'tagline' | 'volumes'
+  'category' | 'description' | 'features' | 'longDescription' | 'nutrition' | 'photos' | 'tagline' | 'volumes' | 'video'
 > & {
   category: PayloadCategory
   description: string | null
@@ -41,15 +41,17 @@ export type PayloadProduct = Omit<
   nutrition: ArrayItem<{ label: string; value: string }>[]
   photos: ArrayItem<{ url: string }>[]
   tagline: string | null
+  videoUrl: string | null
   volumes: ArrayItem<{ value: string }>[]
 }
 
 export type PayloadVacancy = Omit<
   GeneratedVacancy,
-  'benefits' | 'department' | 'location' | 'niceToHave' | 'overview' | 'requirements' | 'responsibilities' | 'salary'
+  'benefits' | 'department' | 'image' | 'location' | 'niceToHave' | 'overview' | 'requirements' | 'responsibilities' | 'salary'
 > & {
   benefits: ArrayItem<{ text: string }>[]
   department: PayloadCategory
+  imageUrl: string | null
   location: string | null
   niceToHave: ArrayItem<{ text: string }>[]
   overview: string | null

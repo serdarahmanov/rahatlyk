@@ -82,6 +82,7 @@ export const normalizeProduct = (product: Product): PayloadProduct => ({
   })),
   photos: urlRows(product.photos),
   tagline: product.tagline ?? null,
+  videoUrl: mediaURL(product.video as number | Media | null | undefined) ?? null,
   volumes: (product.volumes ?? []).map((item, index) => ({
     id: itemID(item.id, index),
     value: item.value,
@@ -92,6 +93,7 @@ export const normalizeVacancy = (vacancy: Vacancy): PayloadVacancy => ({
   ...vacancy,
   benefits: textRows(vacancy.benefits),
   department: normalizeCategory(vacancy.department),
+  imageUrl: mediaURL(vacancy.image as number | Media | null | undefined) ?? null,
   location: vacancy.location ?? null,
   niceToHave: textRows(vacancy.niceToHave),
   overview: vacancy.overview ?? null,

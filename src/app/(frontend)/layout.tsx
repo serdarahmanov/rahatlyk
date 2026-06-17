@@ -5,6 +5,7 @@ import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 import { ContactInfoProvider } from '@/lib/contact-info/ContactInfoContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import NavigationProgress from '@/components/NavigationProgress'
 import PageIntro from '@/components/PageIntro';
 import ScrollReset from '@/components/ScrollReset';
 import SmoothScroll from '@/components/SmoothScroll';
@@ -58,6 +59,7 @@ export default function RootLayout({
           <ContactInfoProvider>
             <ScrollReset />
             <SmoothScroll />
+            <NavigationProgress />
             <PageIntro />
             <Navbar />
             <main>{children}</main>

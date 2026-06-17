@@ -96,13 +96,11 @@ export default function ProductsClient({ categories, result, category }: Props) 
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.products.title.split(/\s+/).map((word, index, words) => (
-                <span
-                  key={`${word}-${index}`}
-                  className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]"
-                >
-                  <span className="title-word-inner inline-block">
-                    {word}{index < words.length - 1 ? ' ' : ''}
+                <span key={`${word}-${index}`} style={{ display: 'inline' }}>
+                  <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
+                    <span className="title-word-inner inline-block">{word}</span>
                   </span>
+                  {index < words.length - 1 ? ' ' : ''}
                 </span>
               ))}
             </h1>
@@ -122,23 +120,23 @@ export default function ProductsClient({ categories, result, category }: Props) 
               <Link
                 key={product.id}
                 href={`/products/${product.id}`}
-                className="group relative bg-white rounded-2xl overflow-hidden h-[420px] hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300"
+                className="group flex flex-col hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300 rounded-2xl overflow-hidden"
               >
-                <div className="absolute inset-0 overflow-hidden">
+                <div className="relative overflow-hidden h-[320px] bg-white rounded-2xl">
                   <ProductVisual product={product} size="sm" className="w-full h-full" />
                 </div>
-                <div className="absolute bottom-0 inset-x-0 px-5 pb-5 pt-16">
-                  <p className="text-brand-400 text-xs mb-1">{product.category.label}</p>
-                  <h3 className="font-light text-brand-950 text-base leading-tight mb-1 group-hover:text-brand-700 transition-colors duration-200">
+                <div className="px-3 pt-3 pb-4">
+                  <p className="text-brand-400 text-[10px] uppercase tracking-wider mb-1.5">{product.category.label}</p>
+                  <h3 className="font-medium text-brand-950 text-[17px] leading-tight mb-1.5 group-hover:text-brand-700 transition-colors duration-200">
                     {product.name}
                   </h3>
                   <div className="min-w-0">
                     {product.volumes.length > 1 ? (
-                      <p className="text-sm font-light text-brand-600 truncate">
+                      <p className="text-xs font-light text-brand-400 truncate">
                         {product.volumes.map((v) => v.value.replace(' L', '')).join(' · ')}{' L'}
                       </p>
                     ) : (
-                      <p className="text-sm font-light text-brand-600">{product.volumes[0]?.value}</p>
+                      <p className="text-xs font-light text-brand-400">{product.volumes[0]?.value} L</p>
                     )}
                   </div>
                 </div>

@@ -261,7 +261,7 @@ export const translations = {
     },
     products: {
       heroTag: 'Наш ассортимент',
-      title: 'Премиальные напитки',
+      title: 'Премиальные Напитки',
       subtitle: 'Откройте наш полный ассортимент — от природы к вам',
       filterAll: 'Все',
       filterWater: 'Питьевая вода',
@@ -276,7 +276,7 @@ export const translations = {
     },
     news: {
       heroTag: 'Будьте в курсе',
-      title: 'Новости и обновления',
+      title: 'Новости и Обновления',
       subtitle: 'Следите за последними событиями RAHATLYK',
       readMore: 'Читать далее',
       filterAll: 'Все',
@@ -288,7 +288,7 @@ export const translations = {
     },
     vacancies: {
       heroTag: 'Присоединяйтесь',
-      title: 'Постройте карьеру',
+      title: 'Постройте Карьеру',
       subtitle: 'Станьте частью чего-то освежающего. Постройте карьеру в RAHATLYK.',
       apply: 'Подать заявку',
       filterAll: 'Все отделы',
@@ -455,7 +455,7 @@ export const translations = {
     },
     products: {
       heroTag: 'Biziň toplumumyz',
-      title: 'Premium içgiler',
+      title: 'Premium Içgiler',
       subtitle: 'Doly toplumumyzy açyň — tebigatyň iň gowusyndan',
       filterAll: 'Hemmesi',
       filterWater: 'Içimlik suw',
@@ -470,7 +470,7 @@ export const translations = {
     },
     news: {
       heroTag: 'Habarlary yzarlaň',
-      title: 'Habarlar we täzelikler',
+      title: 'Habarlar we Täzelikler',
       subtitle: 'RAHATLYKdan iň soňky habarlary yzarlaň',
       readMore: 'Doly oka',
       filterAll: 'Hemmesi',
@@ -482,7 +482,7 @@ export const translations = {
     },
     vacancies: {
       heroTag: 'Toparymyza goşuluň',
-      title: 'Karýeraňyzy guruň',
+      title: 'Karýeraňyzy Guruň',
       subtitle: 'RAHATLYK bilen karýeraňyzy guruň.',
       apply: 'Ýüz tutuň',
       filterAll: 'Ähli bölümler',

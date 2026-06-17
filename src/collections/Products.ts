@@ -27,7 +27,7 @@ export const Products: CollectionConfig = {
       name: 'nutrition',
       type: 'array',
       fields: [
-        { name: 'label', type: 'text', required: true, localized: true },
+        { name: 'label', type: 'text', required: true },
         { name: 'value', type: 'text', required: true },
       ],
     },
@@ -49,6 +49,15 @@ export const Products: CollectionConfig = {
           },
         },
       ],
+    },
+    {
+      name: 'video',
+      type: 'relationship',
+      relationTo: 'media' as const,
+      label: 'Product Video',
+      admin: {
+        description: 'Optional product video shown on the detail page.',
+      },
     },
   ],
 }
