@@ -4,7 +4,8 @@ import { getPayload } from 'payload'
 import config from '../payload.config'
 import { ARTICLE_CATEGORIES, ARTICLES_SEED } from './lib/data/news-seed'
 
-const MEDIA_DIR = path.join(process.cwd(), 'media')
+const MEDIA_DIR       = path.join(process.cwd(), 'media')
+const NEWS_PHOTOS_DIR = path.join(process.cwd(), 'public', 'news', 'photos')
 
 async function seedNews() {
   const payload = await getPayload({ config })
@@ -56,28 +57,32 @@ async function seedNews() {
   // ── 2. Articles ─────────────────────────────────────────────────────────────
   console.log('Seeding articles...')
 
-  // Cache uploaded media by filename to avoid re-uploading on re-runs
+  // Cache uploaded media by source key to avoid re-uploading on re-runs
   const mediaIdCache: Record<string, number> = {}
 
-  const uploadImage = async (imageFile: string, mimeType: string): Promise<number> => {
-    if (mediaIdCache[imageFile]) return mediaIdCache[imageFile]
+  const uploadImage = async (file: string, dir: 'media' | 'news-photos', mimeType: string): Promise<number> => {
+    const cacheKey = `${dir}:${file}`
+    if (mediaIdCache[cacheKey]) return mediaIdCache[cacheKey]
 
-    const filePath = path.join(MEDIA_DIR, imageFile)
+    const filePath = dir === 'media'
+      ? path.join(MEDIA_DIR, file)
+      : path.join(NEWS_PHOTOS_DIR, file)
     const fileData = readFileSync(filePath)
+    const fileName = path.basename(file)
 
     const media = await payload.create({
       collection: 'media',
-      data: { alt: imageFile.replace(/\.[^.]+$/, '') },
+      data: { alt: fileName.replace(/\.[^.]+$/, '') },
       file: {
         data: fileData,
         mimetype: mimeType,
-        name: imageFile,
+        name: fileName,
         size: fileData.length,
       },
     })
 
     const id = media.id as number
-    mediaIdCache[imageFile] = id
+    mediaIdCache[cacheKey] = id
     return id
   }
 
@@ -88,8 +93,10 @@ async function seedNews() {
       continue
     }
 
-    // Upload image (idempotent within the same run via cache)
-    const mediaId = await uploadImage(a.imageFile, a.mimeType)
+    // Upload all images (idempotent within the same run via cache)
+    const mediaIds = await Promise.all(
+      a.images.map(img => uploadImage(img.file, img.dir, img.mimeType))
+    )
 
     // Build locale body data with optional IDs for existing array rows
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,7 +129,7 @@ async function seedNews() {
               category:  catId,
               date:      a.date,
               featured:  a.featured,
-              images:    [{ media: mediaId }],
+              images:    mediaIds.map(id => ({ media: id })),
             } : {}),
           },
         })
@@ -137,7 +144,7 @@ async function seedNews() {
           category: catId,
           date:     a.date,
           featured: a.featured,
-          images:   [{ media: mediaId }],
+          images:   mediaIds.map(id => ({ media: id })),
           body:     bodyForLocale('en', null),
         },
       })

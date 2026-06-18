@@ -22,6 +22,80 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### News listing page — card redesign and multilingual polish
+
+#### "Read article" button — multilingual
+
+Added `readArticle` key to all three locales in `src/lib/i18n/translations.ts`:
+
+| Locale | Value |
+|---|---|
+| `en` | `Read article` |
+| `ru` | `Читать статью` |
+| `tm` | `Makalany oka` |
+
+`NewsCard` now calls `useLanguage()` and renders `{t.news.readArticle}` instead of a hardcoded string.
+
+#### Featured cards — card-style layout
+
+Featured articles previously rendered as full-viewport hero banners with an overlaid frosted-glass text block. They now share the same `NewsCard` component as regular cards, rendered with a `featured` prop that adds:
+
+- **Featured badge** — top-left of the image, `bg-sky-500 text-white rounded-md` (water blue, low radius pill)
+- **Description line** — one truncated line of body text below the title (`text-[12px] text-gray-500 truncate`)
+
+All other card anatomy (aspect ratio, category · date row, title, "Read article →") is identical to regular cards.
+
+#### Featured / regular card divider
+
+A thin `<hr className="border-t border-brand-200 mb-16" />` is rendered between the featured grid and the regular grid when both have content.
+
+#### Photo slideshow on featured cards
+
+The multi-image slideshow (auto-advance interval, progress dashes, prev/next buttons, `news-slide-in` CSS transition) previously only ran on regular cards. Featured cards now go through the same `NewsCard` component and therefore get identical slideshow behaviour. The `Link` wrapper used in the old featured JSX was removed; `NewsCard` uses `router.push` via `onClick` for both card types. The `Link` import was removed as it is no longer used.
+
+#### Slideshow timing
+
+| Setting | Before | After |
+|---|---|---|
+| Auto-advance interval | 2 000 – 5 000 ms | 5 000 – 8 000 ms |
+| Slide-in animation duration (`globals.css`) | 1.1 s | 1.6 s |
+
+#### Typography and colour
+
+- Card title size: `text-[18px]` → `text-[21px]` (applied to both regular and featured via `replace_all`)
+- All secondary card text (category, date, separator dot, description, "Read article", arrow) changed from `text-brand-400/300/500` (warm beige) to `text-gray-400/300/500` (neutral grey)
+- Category · date row added to regular `NewsCard` (previously only on featured cards)
+
+#### Grid bottom spacing
+
+Added `mb-24` to the regular cards grid container so there is adequate breathing room between the last card row and the footer.
+
+#### News seed — multi-image support
+
+`ArticleSeed` type in `src/lib/data/news-seed.ts` changed from single `imageFile` + `mimeType` fields to an `images: ArticleImage[]` array where each entry carries `file`, `dir` (`'media' | 'news-photos'`), and `mimeType`.
+
+`src/seed-news.ts` updated accordingly:
+
+- Added `NEWS_PHOTOS_DIR` → `<cwd>/public/news/photos/`
+- `uploadImage` now accepts `dir` and resolves the correct base path; cache key is `dir:file`
+- All images uploaded in parallel with `Promise.all`; article `images` field set from the resulting ID array
+
+Image assignment from `public/news/photos/`:
+
+| Article | Category | Images |
+|---|---|---|
+| Rahatlyk Wins Best Beverage Brand 2025 | Company News | All 3 Company News photos (slideshow) |
+| Introducing Our New Sparkling Water Range | Product Updates | Photo (4) |
+| New 19-Litre Home & Office Delivery Service | Product Updates | Photo (5) |
+| Zero-Waste Packaging by 2026 | Sustainability | Photo (7) |
+| Our Annual Water Stewardship Report | Sustainability | Photo (8) |
+
+Remaining Company News articles retain their original `media/` images.
+
+---
+
+## What Changed In The Previous Commit
+
 ### About Page global — fully CMS-driven contact form
 
 Added `src/globals/AboutPage.ts` — Payload Global (About group, slug `about-page`) with five field groups, all text fields localized in `en`, `tm`, `ru`:
@@ -70,8 +144,6 @@ Fix: imported `useLanguage` and added a `useEffect` keyed on `locale` that calls
 Added `sectionLabel` (localized text) to `src/globals/ContactInfo.ts` — the "Contact Information" heading shown in the right panel of the contact page. `ContactInfoContext.tsx` now exposes `sectionLabel` and resolves it per locale, falling back to `'Contact Information'` if empty. `ContactPageClient.tsx` uses `contactInfo.sectionLabel` instead of the hardcoded string.
 
 ---
-
-## What Changed In The Previous Commit
 
 ### Vacancies — image field, seed data, and card photo
 

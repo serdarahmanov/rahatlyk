@@ -5,14 +5,19 @@ export type ArticleCategorySeed = {
   label: LocalizedText
 }
 
+export type ArticleImage = {
+  file: string              // relative to the dir below
+  dir: 'media' | 'news-photos'  // 'media' → <cwd>/media/, 'news-photos' → <cwd>/public/news/photos/
+  mimeType: string
+}
+
 export type ArticleSeed = {
   titleEn: string
   title: LocalizedText
   categorySlug: string
   date: string
   featured: boolean
-  imageFile: string       // relative to <project>/media/
-  mimeType: string
+  images: ArticleImage[]
   body: LocalizedText[]   // each element = one paragraph
 }
 
@@ -59,8 +64,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'company-news',
     date: '2025-11-15',
     featured: true,
-    imageFile: '1 (1).png',
-    mimeType: 'image/png',
+    images: [
+      { file: 'Company News/ChatGPT Image Jun 18, 2026, 08_01_43 PM (1).png', dir: 'news-photos', mimeType: 'image/png' },
+      { file: 'Company News/ChatGPT Image Jun 18, 2026, 08_01_43 PM (2).png', dir: 'news-photos', mimeType: 'image/png' },
+      { file: 'Company News/ChatGPT Image Jun 18, 2026, 08_01_43 PM (3).png', dir: 'news-photos', mimeType: 'image/png' },
+    ],
     body: [
       {
         en: 'We are proud to announce that Rahatlyk has been recognised as the Best Beverage Brand at the Central Asia Business Excellence Awards 2025. This prestigious award celebrates our unwavering commitment to delivering pure, natural water to homes and businesses across Turkmenistan.',
@@ -86,8 +94,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'product-updates',
     date: '2025-10-20',
     featured: true,
-    imageFile: '1 (2).png',
-    mimeType: 'image/png',
+    images: [
+      { file: 'Product Updates/ChatGPT Image Jun 18, 2026, 08_01_43 PM (4).png', dir: 'news-photos', mimeType: 'image/png' },
+    ],
     body: [
       {
         en: 'Rahatlyk is delighted to introduce its new sparkling water range — naturally carbonated and available in three refreshing varieties: classic, light citrus, and mint. Each bottle captures the crisp character of our mountain spring water with a gentle effervescence.',
@@ -113,8 +122,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'company-news',
     date: '2025-09-12',
     featured: false,
-    imageFile: 'scenery-majestic-snow-mountain_49071-3032.avif',
-    mimeType: 'image/avif',
+    images: [
+      { file: 'scenery-majestic-snow-mountain_49071-3032.avif', dir: 'media', mimeType: 'image/avif' },
+    ],
     body: [
       {
         en: 'Following a rigorous independent assessment, Rahatlyk\'s primary mountain spring source has received international certification for water purity. The audit, conducted by an accredited European laboratory, confirmed that our source water exceeds all WHO guidelines for drinking water quality.',
@@ -140,8 +150,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'sustainability',
     date: '2025-08-05',
     featured: false,
-    imageFile: '1 (3).png',
-    mimeType: 'image/png',
+    images: [
+      { file: 'Sustainability/ChatGPT Image Jun 18, 2026, 08_01_43 PM (7).png', dir: 'news-photos', mimeType: 'image/png' },
+    ],
     body: [
       {
         en: 'Rahatlyk is committed to achieving zero-waste packaging across its entire product range by the end of 2026. As part of this initiative, we have partnered with two Turkmenistan-based recycling organisations and are transitioning all bottle labels to plant-based, compostable materials.',
@@ -167,8 +178,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'product-updates',
     date: '2025-07-18',
     featured: false,
-    imageFile: '1 (4).png',
-    mimeType: 'image/png',
+    images: [
+      { file: 'Product Updates/ChatGPT Image Jun 18, 2026, 08_01_43 PM (5).png', dir: 'news-photos', mimeType: 'image/png' },
+    ],
     body: [
       {
         en: 'Starting this season, Rahatlyk is launching a dedicated home and office delivery service for its 19-litre water dispensers. Orders can be placed via our website or by phone, with same-day delivery available across Ashgabat and next-day delivery to major regional centres.',
@@ -194,8 +206,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'company-news',
     date: '2025-06-22',
     featured: false,
-    imageFile: '1 (5).png',
-    mimeType: 'image/png',
+    images: [
+      { file: '1 (5).png', dir: 'media', mimeType: 'image/png' },
+    ],
     body: [
       {
         en: 'Rahatlyk is proud to announce the expansion of its distribution network to every major city and district centre in Turkmenistan. New refrigerated distribution hubs have been established in Mary, Turkmenabat, Daşoguz, and Balkanabat.',
@@ -221,8 +234,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'company-news',
     date: '2025-05-10',
     featured: false,
-    imageFile: 'pexels-aeppli-1929561.jpg',
-    mimeType: 'image/jpeg',
+    images: [
+      { file: 'pexels-aeppli-1929561.jpg', dir: 'media', mimeType: 'image/jpeg' },
+    ],
     body: [
       {
         en: 'Rahatlyk has signed a multi-year official hydration partnership with the Turkmenistan National Sports Federation. As the official water of Turkmen national sports teams, Rahatlyk will be present at all major domestic competitions and international events.',
@@ -248,8 +262,9 @@ export const ARTICLES_SEED: ArticleSeed[] = [
     categorySlug: 'sustainability',
     date: '2025-04-03',
     featured: false,
-    imageFile: 'image-container01.webp',
-    mimeType: 'image/webp',
+    images: [
+      { file: 'Sustainability/ChatGPT Image Jun 18, 2026, 08_01_43 PM (8).png', dir: 'news-photos', mimeType: 'image/png' },
+    ],
     body: [
       {
         en: 'Rahatlyk has released its first annual water stewardship report, detailing the measures taken to protect and preserve our mountain spring sources. The report covers groundwater monitoring, reforestation initiatives around the spring basin, and strict limits on extraction volumes.',

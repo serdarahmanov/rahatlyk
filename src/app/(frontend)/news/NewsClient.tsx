@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
@@ -19,14 +18,15 @@ interface Props {
   category: string
 }
 
-function NewsCard({ article }: { article: PayloadArticle }) {
+function NewsCard({ article, featured = false }: { article: PayloadArticle; featured?: boolean }) {
   const router = useRouter()
+  const { t, locale } = useLanguage()
   const imgs = article.images.map((i) => i.url)
   const [current, setCurrent] = useState(0)
   const [incoming, setIncoming] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
-  const [intervalMs] = useState(() => 2000 + Math.floor(Math.random() * 3000))
+  const [intervalMs] = useState(() => 5000 + Math.floor(Math.random() * 3000))
 
   useEffect(() => { busyRef.current = busy }, [busy])
 
@@ -97,6 +97,14 @@ function NewsCard({ article }: { article: PayloadArticle }) {
           </div>
         )}
 
+        {featured && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="bg-sky-500 text-white text-[10px] font-medium px-2.5 py-1 rounded-md uppercase tracking-wider">
+              {t.news.featured}
+            </span>
+          </div>
+        )}
+
         {imgs.length > 1 && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
             {imgs.map((_, i) => (
@@ -136,15 +144,25 @@ function NewsCard({ article }: { article: PayloadArticle }) {
       </div>
 
       <div className="pt-3 px-0.5">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[11px] text-gray-400 uppercase tracking-[0.12em]">{article.category.label}</span>
+          <span className="text-gray-300">&middot;</span>
+          <span className="text-[11px] text-gray-400">{formatDate(article.date, locale)}</span>
+        </div>
         <h3
-          className="text-[18px] font-medium text-brand-950 leading-snug mb-1"
+          className="text-[21px] font-medium text-brand-950 leading-snug mb-1"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
           {article.title}
         </h3>
-        <span className="text-[12px] text-brand-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
-          Read article{' '}
-          <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-brand-500">
+        {featured && (
+          <p className="text-[12px] text-gray-500 truncate mb-1.5">
+            {article.body[0]?.text}
+          </p>
+        )}
+        <span className="text-[12px] text-gray-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
+          {t.news.readArticle}{' '}
+          <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-gray-500">
             &rarr;
           </span>
         </span>
@@ -247,54 +265,18 @@ export default function NewsClient({ categories, featured, result, category }: P
 
           <div ref={contentRef}>
             {featured.length > 0 && (
-              <div className={`mb-8 ${featured.length > 1 ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16 mb-16">
                 {featured.map((article) => (
-                  <Link
-                    key={article.id}
-                    href={`/news/${article.id}`}
-                    className="group relative overflow-hidden rounded-2xl block"
-                    style={{ height: featured.length === 1 ? 'clamp(340px, 46vw, 520px)' : 'clamp(260px, 32vw, 420px)' }}
-                  >
-                    {article.images[0]?.url && (
-                      <Image
-                        src={article.images[0].url}
-                        alt={article.title}
-                        fill
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                        sizes={featured.length === 1 ? '100vw' : '50vw'}
-                        priority
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-
-                    <div className="absolute top-5 left-5 z-10">
-                      <span className="backdrop-blur-xl bg-white/15 border border-white/25 text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider">
-                        {t.news.featured}
-                      </span>
-                    </div>
-
-                    <div className="absolute bottom-5 left-5 right-5 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-5 py-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-light text-white/55 uppercase tracking-[0.15em]">{article.category.label}</span>
-                        <span className="text-white/30">&middot;</span>
-                        <span className="text-[10px] text-white/55">{formatDate(article.date, locale)}</span>
-                      </div>
-                      <h2
-                        className="text-xl sm:text-2xl lg:text-3xl font-light text-white leading-snug"
-                        style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-                      >
-                        {article.title}
-                      </h2>
-                      <p className="mt-1.5 text-white/55 text-xs leading-relaxed line-clamp-1 hidden sm:block">
-                        {article.body[0]?.text}
-                      </p>
-                    </div>
-                  </Link>
+                  <NewsCard key={article.id} article={article} featured />
                 ))}
               </div>
             )}
 
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16">
+            {featured.length > 0 && result.docs.length > 0 && (
+              <hr className="border-t border-brand-200 mb-16" />
+            )}
+
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16 mb-24">
               {result.docs.map((article) => (
                 <NewsCard key={article.id} article={article} />
               ))}
