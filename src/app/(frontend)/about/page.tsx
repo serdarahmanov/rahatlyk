@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type MoodKey = 'fresh' | 'energy' | 'play' | 'calm';
 
@@ -181,7 +182,22 @@ export default function AboutPage() {
   const [activeCertificate, setActiveCertificate] = useState<number | null>(null);
   const [activeMood, setActiveMood] = useState<MoodKey>('fresh');
 
+  const { locale } = useLanguage();
+  const isFirstLocaleRef = useRef(true);
+
   const activeMoodData = MOODS.find((mood) => mood.key === activeMood) ?? MOODS[0];
+
+  // After a language switch, router.refresh() can shift element heights
+  // (different text lengths per locale), invalidating ScrollTrigger's cached
+  // start/end positions. Refreshing after the DOM settles fixes the lag.
+  useEffect(() => {
+    if (isFirstLocaleRef.current) { isFirstLocaleRef.current = false; return; }
+    let raf: number;
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [locale]);
 
   useEffect(() => {
     let cleanup = () => {};

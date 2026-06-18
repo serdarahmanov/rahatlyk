@@ -12,6 +12,7 @@ interface RawPhone {
 }
 
 interface RawContactInfo {
+  sectionLabel?: LocaleMap
   email?: string | null
   phones?: RawPhone[] | null
   address?: LocaleMap
@@ -24,13 +25,14 @@ export interface PhoneEntry {
 }
 
 export interface ContactInfoData {
+  sectionLabel: string
   email: string
   phones: PhoneEntry[]
   address: string
   workingHours: string
 }
 
-const defaultInfo: ContactInfoData = { email: '', phones: [], address: '', workingHours: '' }
+const defaultInfo: ContactInfoData = { sectionLabel: 'Contact Information', email: '', phones: [], address: '', workingHours: '' }
 
 const ContactInfoContext = createContext<ContactInfoData>(defaultInfo)
 
@@ -52,6 +54,7 @@ export function ContactInfoProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value: ContactInfoData = {
+    sectionLabel: resolveLocale(raw?.sectionLabel, locale) || 'Contact Information',
     email: raw?.email ?? '',
     phones: (raw?.phones ?? [])
       .filter((p): p is RawPhone & { number: string } => Boolean(p.number))

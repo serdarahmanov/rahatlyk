@@ -22,6 +22,57 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### About Page global — fully CMS-driven contact form
+
+Added `src/globals/AboutPage.ts` — Payload Global (About group, slug `about-page`) with five field groups, all text fields localized in `en`, `tm`, `ru`:
+
+| Group | Fields |
+|---|---|
+| Hero Content | `title`, `description` |
+| Form Labels | `firstName`, `lastName`, `email`, `phone`, `subject`, `message`, `submitButton` |
+| Form Messages | `success`, `error`, `sending`, `thankYou`, `whatHappensNext`, `step1`, `step2`, `step3`, `sendAnother` |
+| Form Placeholders | `firstName`, `lastName`, `email`, `phone`, `subject`, `message` |
+
+`thankYou`, `step2`, and `step3` use `{name}`, `{email}`, and `{phone}` tokens — swapped for real values at render time by the `injectTokens` helper in `ContactPageClient.tsx`.
+
+Added `src/lib/data/about-content.ts` — seed data for all five groups in all three locales.
+
+Added `src/seed-about.ts` — idempotent seed script.
+
+```bash
+npx tsx --env-file=.env.local src/seed-about.ts
+```
+
+### Contact page — split into server wrapper + locale-aware client
+
+`src/app/(frontend)/contact/page.tsx` is now a server component that reads the `RAHATLYK-locale` cookie, fetches the `about-page` global from Payload with the correct locale, and passes every string as props to the client.
+
+`src/app/(frontend)/contact/ContactPageClient.tsx` — extracted client component. No hardcoded strings remain: heading, description, all six field labels, all six placeholders, submit/sending button text, and the entire success panel (thank-you line, "What happens next" heading, steps 01–03, "Send Another Message" button) all come from Payload. English fallbacks are defined in `page.tsx` so the page renders correctly before seeding.
+
+Language switching now triggers a full server re-render via `router.refresh()`, fetching the correct locale from Payload.
+
+### Contact page — success panel redesign
+
+- All `brand-*` colours replaced with greys (`bg-gray-100`, `text-gray-500`, `border-gray-100`, etc.).
+- Hero heading and description hidden (`hidden`) once the form is submitted successfully.
+- Success heading changed from `text-xl font-light` to `text-2xl font-semibold`.
+- "What happens next" label changed from `text-[10px] font-light` to `text-xs font-medium`.
+- Name and email in the thank-you line rendered as `text-black underline` via the `injectTokens` helper (same helper used for step 2 email and step 3 phone tokens).
+
+### About page — ScrollTrigger refresh on language switch
+
+The about page is a `'use client'` component with GSAP ScrollTrigger. `router.refresh()` (called by the language switcher) does a soft server re-render without unmounting the component, so the existing `useEffect([], [])` never re-ran and ScrollTrigger kept stale position calculations from the original layout. Different locales have different text lengths which shift element heights, causing triggers to fire at wrong scroll positions and produce a laggy feel.
+
+Fix: imported `useLanguage` and added a `useEffect` keyed on `locale` that calls `ScrollTrigger.refresh()` inside a `requestAnimationFrame` after the DOM settles. An `isFirstLocaleRef` guard prevents it firing on initial mount. Matches the identical fix already applied to `HomeClient.tsx`.
+
+### ContactInfo global — localized section label
+
+Added `sectionLabel` (localized text) to `src/globals/ContactInfo.ts` — the "Contact Information" heading shown in the right panel of the contact page. `ContactInfoContext.tsx` now exposes `sectionLabel` and resolves it per locale, falling back to `'Contact Information'` if empty. `ContactPageClient.tsx` uses `contactInfo.sectionLabel` instead of the hardcoded string.
+
+---
+
+## What Changed In The Previous Commit
+
 ### Vacancies — image field, seed data, and card photo
 
 - Added `image` (upload relationship to `media`) field to `src/collections/Vacancies.ts`.
@@ -154,6 +205,7 @@ Added `@payloadcms/plugin-import-export` to enable CSV/JSON export from the Payl
 
 | Group | Collections / Globals |
 |---|---|
+| About | About Page (global) |
 | Home | Hero Section (global), Horizontal Scroll (global), Our Story Section (global), CTA Banner (global), Our Collection |
 | Products | Product Categories, Products |
 | Articles | Article Categories, Articles |
@@ -202,7 +254,9 @@ src/
       page.tsx          ← server component — fetches all home globals + product lines + news
       HomeClient.tsx    ← all homepage animation/UI code
       about/page.tsx
-      contact/page.tsx
+      contact/
+        page.tsx                ← server component — fetches about-page global + locale
+        ContactPageClient.tsx   ← all form/animation/UI code, receives strings as props
       products/
       news/
       vacancies/
@@ -232,6 +286,7 @@ src/
   components/
     EmptyState.tsx
   globals/
+    AboutPage.ts
     ContactInfo.ts
     HomeCtaBanner.ts
     HomeHero.ts
@@ -241,6 +296,7 @@ src/
     contact-info/
       ContactInfoContext.tsx
     data/
+      about-content.ts
       hero-content.ts
       home-cta-content.ts
       home-story-content.ts
@@ -253,6 +309,7 @@ src/
   types/
     payload.ts
   seed.ts
+  seed-about.ts
   seed-hero.ts
   seed-product-lines.ts
 ```
@@ -266,7 +323,7 @@ Key points:
 - Admin user collection: `users`
 - Public read collections: `media`, `product-categories`, `product-lines`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
 - Authenticated-only collections: `contact-submissions`, `cv-documents`, `vacancy-applications`
-- Globals: `contact-info`, `home-hero`, `horizontal-scroll`, `home-story`, `home-cta-banner`
+- Globals: `about-page`, `contact-info`, `home-hero`, `horizontal-scroll`, `home-story`, `home-cta-banner`
 - Database adapter: PostgreSQL
 - Rich text editor: Lexical
 - Image processing: Sharp
@@ -279,6 +336,7 @@ The public listing/detail pages call `getPayloadClient()` on the server and norm
 
 | Script | What it seeds |
 |---|---|
+| `src/seed-about.ts` | About Page global (hero, form labels, placeholders, messages — 3 locales) |
 | `src/seed-hero.ts` | Hero Section global (video + text in 3 locales) |
 | `src/seed-product-lines.ts` | Our Collection (5 product lines + images) |
 | `src/seed-vacancies.ts` | Vacancy departments + 8 vacancies (3 locales, localized arrays) |
@@ -286,6 +344,7 @@ The public listing/detail pages call `getPayloadClient()` on the server and norm
 | `src/seed-news.ts` | 3 article categories + 8 articles with images (3 locales) |
 
 ```bash
+npx tsx --env-file=.env.local src/seed-about.ts
 npx tsx --env-file=.env.local src/seed-hero.ts
 npx tsx --env-file=.env.local src/seed-product-lines.ts
 npx tsx --env-file=.env.local src/seed-vacancies.ts

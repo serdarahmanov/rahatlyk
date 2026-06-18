@@ -7,6 +7,7 @@ import nodemailer from 'nodemailer'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
+import { AboutPage } from './src/globals/AboutPage'
 import { ContactInfo } from './src/globals/ContactInfo'
 import { HomeCtaBanner } from './src/globals/HomeCtaBanner'
 import { HomeHero } from './src/globals/HomeHero'
@@ -46,7 +47,7 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [ContactInfo, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner],
+  globals: [AboutPage, ContactInfo, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner],
   collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [

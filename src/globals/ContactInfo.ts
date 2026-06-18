@@ -7,6 +7,7 @@ export const ContactInfo: GlobalConfig = {
     group: 'Settings',
   },
   fields: [
+    { name: 'sectionLabel', type: 'text', localized: true, label: 'Section Label (e.g. "Contact Information")' },
     { name: 'email', type: 'email' },
     {
       name: 'phones',

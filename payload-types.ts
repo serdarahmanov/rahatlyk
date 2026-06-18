@@ -114,6 +114,7 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'tm' | 'ru') | ('en' | 'tm' | 'ru')[];
   globals: {
+    'about-page': AboutPage;
     'contact-info': ContactInfo;
     'home-hero': HomeHero;
     'horizontal-scroll': HorizontalScroll;
@@ -121,6 +122,7 @@ export interface Config {
     'home-cta-banner': HomeCtaBanner;
   };
   globalsSelect: {
+    'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
     'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
     'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
@@ -1078,10 +1080,52 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page".
+ */
+export interface AboutPage {
+  id: number;
+  hero?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  formLabels?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    subject?: string | null;
+    message?: string | null;
+    submitButton?: string | null;
+  };
+  formMessages?: {
+    success?: string | null;
+    error?: string | null;
+    sending?: string | null;
+    thankYou?: string | null;
+    whatHappensNext?: string | null;
+    step1?: string | null;
+    step2?: string | null;
+    step3?: string | null;
+    sendAnother?: string | null;
+  };
+  formPlaceholders?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    subject?: string | null;
+    message?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact-info".
  */
 export interface ContactInfo {
   id: number;
+  sectionLabel?: string | null;
   email?: string | null;
   phones?:
     | {
@@ -1182,9 +1226,59 @@ export interface HomeCtaBanner {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page_select".
+ */
+export interface AboutPageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  formLabels?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        email?: T;
+        phone?: T;
+        subject?: T;
+        message?: T;
+        submitButton?: T;
+      };
+  formMessages?:
+    | T
+    | {
+        success?: T;
+        error?: T;
+        sending?: T;
+        thankYou?: T;
+        whatHappensNext?: T;
+        step1?: T;
+        step2?: T;
+        step3?: T;
+        sendAnother?: T;
+      };
+  formPlaceholders?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        email?: T;
+        phone?: T;
+        subject?: T;
+        message?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact-info_select".
  */
 export interface ContactInfoSelect<T extends boolean = true> {
+  sectionLabel?: T;
   email?: T;
   phones?:
     | T
