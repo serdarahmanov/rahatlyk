@@ -1,55 +1,82 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDate } from '@/lib/formatDate'
 import type { PayloadArticle } from '@/types/payload'
 
-const CAT_CONFIG: Record<string, { badge: string; dot: string }> = {
-  company:        { badge: 'bg-brand-100 text-brand-800',     dot: 'bg-brand-500'   },
-  health:         { badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
-  products:       { badge: 'bg-amber-100 text-amber-700',     dot: 'bg-amber-500'   },
-  sustainability: { badge: 'bg-lime-100 text-lime-700',       dot: 'bg-lime-500'    },
-}
-
 function RelatedCard({ article }: { article: PayloadArticle }) {
+  const router = useRouter()
   const { t, locale } = useLanguage()
+  const imgs = article.images.map((i) => i.url)
+  const [current, setCurrent] = useState(0)
+  const [incoming, setIncoming] = useState<number | null>(null)
+  const [busy, setBusy] = useState(false)
+  const busyRef = useRef(false)
+  const [intervalMs] = useState(() => 5000 + Math.floor(Math.random() * 3000))
+
+  useEffect(() => { busyRef.current = busy }, [busy])
+
+  useEffect(() => {
+    if (imgs.length <= 1) return
+    const id = setInterval(() => {
+      if (busyRef.current) return
+      setIncoming((current + 1) % imgs.length)
+      setBusy(true)
+    }, intervalMs)
+    return () => clearInterval(id)
+  }, [current, imgs.length, intervalMs])
+
+  const onAnimEnd = () => {
+    if (incoming !== null) {
+      setCurrent(incoming)
+      setIncoming(null)
+      setBusy(false)
+    }
+  }
+
   return (
-    <Link
-      href={`/news/${article.id}`}
-      className="group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-    >
-      <div className="h-40 relative overflow-hidden">
-        {article.images[0]?.url && (
-          <Image
-            src={article.images[0].url}
-            alt={article.title}
-            fill
-            className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 100vw, 33vw"
-          />
+    <div className="group cursor-pointer" onClick={() => router.push(`/news/${article.id}`)}>
+      <div className="relative overflow-hidden rounded-sm" style={{ paddingBottom: '62%' }}>
+        <div className="absolute inset-0" style={{ zIndex: 1 }}>
+          {imgs[current] && (
+            <Image
+              src={imgs[current]}
+              alt={article.title}
+              fill
+              className="object-cover object-center"
+              sizes="33vw"
+            />
+          )}
+        </div>
+        {incoming !== null && (
+          <div className="absolute inset-0 news-slide-in" style={{ zIndex: 2 }} onAnimationEnd={onAnimEnd}>
+            <Image src={imgs[incoming]} alt="" fill className="object-cover object-center" sizes="33vw" />
+          </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-        <div className="absolute top-3 right-3 text-xl">{article.emoji}</div>
-        <span className="absolute bottom-3 left-3 z-10 text-[10px] font-light px-2.5 py-1 rounded-full uppercase tracking-wider bg-white/20 backdrop-blur text-white border border-white/25">
-          {article.category.label}
-        </span>
       </div>
-      <div className="p-4">
-        <p className="text-slate-400 text-xs mb-2">{formatDate(article.date, locale)}</p>
-        <h3 className="font-light text-brand-950 text-sm leading-snug group-hover:text-brand-700 transition-colors duration-200 line-clamp-2">
+      <div className="pt-3 px-0.5">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[11px] text-gray-400 uppercase tracking-[0.12em]">{article.category.label}</span>
+          <span className="text-gray-300">&middot;</span>
+          <span className="text-[11px] text-gray-400">{formatDate(article.date, locale)}</span>
+        </div>
+        <h3
+          className="text-[21px] font-medium text-brand-950 leading-snug mb-1"
+          style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+        >
           {article.title}
         </h3>
-        <span className="mt-3 flex items-center gap-1 text-xs font-light text-brand-700">
-          {t.news.readMore}
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 5H8M8 5L5.5 2.5M8 5L5.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+        <span className="text-[12px] text-gray-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
+          {t.news.readArticle}
+          <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-gray-500">&rarr;</span>
         </span>
       </div>
-    </Link>
+    </div>
   )
 }
 
@@ -61,43 +88,58 @@ interface Props {
 export default function ArticleDetailClient({ article, more }: Props) {
   const { t, locale } = useLanguage()
 
-  const heroRef    = useRef<HTMLDivElement>(null)
+  const imgs = article.images.map(i => i.url).filter(Boolean)
+  const [activeIdx, setActiveIdx] = useState(0)
+  const [incoming, setIncoming]   = useState<number | null>(null)
+
+  const infoRef    = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const relatedRef = useRef<HTMLDivElement>(null)
+
+  const swapTo = (idx: number) => {
+    if (idx === activeIdx || incoming !== null) return
+    setIncoming(idx)
+  }
+
+  const onAnimEnd = () => {
+    if (incoming !== null) {
+      setActiveIdx(incoming)
+      setIncoming(null)
+    }
+  }
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let st: any
     const init = async () => {
-      const { gsap }          = await import('gsap')
       const { ScrollTrigger } = await import('gsap/ScrollTrigger')
       st = ScrollTrigger
       gsap.registerPlugin(ScrollTrigger)
 
-      if (heroRef.current) {
+      if (infoRef.current) {
         gsap.fromTo(
-          heroRef.current.children,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.9, stagger: 0.1, ease: 'power3.out', delay: 0.1 }
+          infoRef.current.children,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, stagger: 0.09, ease: 'power3.out', delay: 0.1 }
         )
       }
       if (contentRef.current) {
         gsap.fromTo(
           contentRef.current.querySelectorAll('.article-para'),
-          { y: 28, opacity: 0 },
+          { y: 24, opacity: 0 },
           {
-            y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
-            scrollTrigger: { trigger: contentRef.current, start: 'top 82%' },
+            y: 0, opacity: 1, duration: 0.65, stagger: 0.09, ease: 'power3.out',
+            scrollTrigger: { trigger: contentRef.current, start: 'top 83%' },
           }
         )
       }
       if (relatedRef.current && relatedRef.current.children.length) {
         gsap.fromTo(
           relatedRef.current.children,
-          { y: 30, opacity: 0 },
+          { y: 28, opacity: 0 },
           {
-            y: 0, opacity: 1, duration: 0.65, stagger: 0.1, ease: 'power3.out',
-            scrollTrigger: { trigger: relatedRef.current, start: 'top 85%' },
+            y: 0, opacity: 1, duration: 0.6, stagger: 0.09, ease: 'power3.out',
+            scrollTrigger: { trigger: relatedRef.current, start: 'top 87%' },
           }
         )
       }
@@ -107,118 +149,175 @@ export default function ArticleDetailClient({ article, more }: Props) {
     return () => st?.getAll().forEach((s: any) => s.kill())
   }, [article.id])
 
-  const cfg = CAT_CONFIG[article.category.slug] ?? CAT_CONFIG.company
-
   return (
     <div className="min-h-screen">
-      <section className="relative min-h-[420px] lg:min-h-[520px] flex items-end overflow-hidden">
-        {article.images[0]?.url && (
-          <Image
-            src={article.images[0].url}
-            alt={article.title}
-            fill
-            className="object-cover object-center"
-            sizes="100vw"
-            priority
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
-        <div className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 pb-14 pt-36" ref={heroRef}>
-          <nav className="flex items-center gap-2 text-white/60 text-xs mb-6">
-            <Link href="/" className="hover:text-white transition-colors">{t.nav.home}</Link>
-            <span>/</span>
-            <Link href="/news" className="hover:text-white transition-colors">{t.nav.news}</Link>
-            <span>/</span>
-            <Link href={`/news?category=${encodeURIComponent(article.category.slug)}`} className="hover:text-white transition-colors capitalize">{article.category.label}</Link>
-            <span>/</span>
-            <span className="text-white/90 truncate max-w-[200px]">{article.title}</span>
-          </nav>
+      {/* ── Two-column pinned section ─────────────────────────────────────────── */}
+      <section className="max-w-screen-2xl mx-auto flex items-start gap-24 pt-32 pb-40 px-6 sm:px-10 lg:px-16">
 
-          <div className="flex items-center gap-2 mb-5">
-            <span className="bg-white/20 backdrop-blur text-white text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/25">
+        {/* Left — sticky, full viewport height */}
+        <div className="sticky top-32 h-[calc(100vh-8rem)] w-[60%] shrink-0 flex flex-col bg-white overflow-hidden pb-8">
+
+          {/* Info */}
+          <div className="flex-none flex flex-col" ref={infoRef}>
+
+            <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
+              <Link href="/" className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+              <span>/</span>
+              <Link href="/news" className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
+              <span>/</span>
+              <Link
+                href={`/news?category=${encodeURIComponent(article.category.slug)}`}
+                className="hover:text-gray-700 transition-colors"
+              >
+                {article.category.label}
+              </Link>
+              <span>/</span>
+              <span className="text-black truncate max-w-[180px]">{article.title}</span>
+            </nav>
+
+            <h1
+              className="text-3xl sm:text-4xl lg:text-[2.6rem] font-normal text-gray-900 leading-tight mb-10 mt-2"
+              style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+            >
+              {article.title}
+            </h1>
+
+          </div>
+
+          {/* Badges + date — above the photo */}
+          <div className="flex-none flex items-center gap-2 mb-3 flex-wrap">
+            <span className="bg-gray-100 text-gray-600 text-[10px] font-medium px-3 py-1 rounded-md uppercase tracking-wider">
               {article.category.label}
             </span>
             {article.featured && (
-              <span className="bg-white/15 backdrop-blur text-white/80 text-[10px] font-light px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/20">
+              <span className="bg-gray-100 text-gray-500 text-[10px] font-medium px-3 py-1 rounded-md uppercase tracking-wider">
                 {t.news.featured}
               </span>
             )}
+            <span className="ml-auto bg-gray-100 text-gray-500 text-[10px] font-medium px-3 py-1 rounded-md tracking-wider">
+              {formatDate(article.date, locale)}
+            </span>
           </div>
 
-          <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight mb-5"
-            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-          >
-            {article.title}
-          </h1>
-
-          <div className="flex items-center gap-4 text-white/70 text-sm">
-            <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-            <span>{formatDate(article.date, locale)}</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-[1fr_220px] gap-14 items-start">
-            <article ref={contentRef}>
-              <p className="article-para text-slate-700 text-lg leading-relaxed mb-6 font-normal">
-                {article.body[0]?.text}
-              </p>
-              {article.body.slice(1).map((para) => (
-                <p key={para.id} className="article-para text-slate-600 text-base leading-relaxed mb-5">
-                  {para.text}
-                </p>
-              ))}
-
-              <div className="mt-12 pt-8 border-t border-slate-100 flex flex-wrap items-center gap-4">
-                <Link
-                  href="/news"
-                  className="inline-flex items-center gap-2 text-sm font-light text-brand-700 hover:text-brand-900 transition-colors"
+          {/* Main photo with prev/next navigation */}
+          {imgs[activeIdx] && (
+            <div className="relative flex-1 overflow-hidden rounded-sm min-h-0">
+              <div className="absolute inset-0" style={{ zIndex: 1 }}>
+                <Image
+                  src={imgs[activeIdx]}
+                  alt={article.title}
+                  fill
+                  className="object-cover object-center"
+                  sizes="60vw"
+                  priority
+                />
+              </div>
+              {incoming !== null && (
+                <div
+                  className="absolute inset-0 news-slide-in"
+                  style={{ zIndex: 2 }}
+                  onAnimationEnd={onAnimEnd}
                 >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M12 7H2M2 7L6 3M2 7L6 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  {t.home.news.cta}
-                </Link>
-              </div>
-            </article>
+                  <Image
+                    src={imgs[incoming]}
+                    alt=""
+                    fill
+                    className="object-cover object-center"
+                    sizes="60vw"
+                  />
+                </div>
+              )}
 
-            <aside className="hidden lg:block space-y-5 sticky top-28">
-              <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
-                <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-3">Category</p>
-                <span className={`inline-block text-xs font-light px-3 py-1.5 rounded-full uppercase tracking-wide ${cfg.badge}`}>
-                  {article.category.label}
-                </span>
-              </div>
-              <div className="bg-slate-50 rounded-md border border-slate-100 p-5">
-                <p className="text-[10px] font-light uppercase tracking-widest text-slate-400 mb-1">Published</p>
-                <p className="text-slate-700 text-sm font-light">{formatDate(article.date, locale)}</p>
-              </div>
-            </aside>
-          </div>
+              {imgs.length > 1 && (
+                <div className="absolute inset-x-0 bottom-4 flex items-center justify-between px-4" style={{ zIndex: 10 }}>
+                  <button
+                    onClick={() => swapTo((activeIdx - 1 + imgs.length) % imgs.length)}
+                    aria-label="Previous photo"
+                    className="flex items-center justify-center w-9 h-9 rounded-md bg-white/70 hover:bg-white text-gray-700 backdrop-blur-sm transition-all duration-200"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                      <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <div className="flex items-center gap-2">
+                    {imgs.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => swapTo(i)}
+                        aria-label={`Photo ${i + 1}`}
+                        className={`rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 h-[4px] bg-white' : 'w-[4px] h-[4px] bg-white/40 hover:bg-white/70'}`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => swapTo((activeIdx + 1) % imgs.length)}
+                    aria-label="Next photo"
+                    className="flex items-center justify-center w-9 h-9 rounded-md bg-white/70 hover:bg-white text-gray-700 backdrop-blur-sm transition-all duration-200"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                      <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
+
+        {/* Right — text only, scrollable */}
+        <div className="w-[40%] min-w-0 pt-[calc(50vh-8rem)]">
+
+          {/* Article body */}
+          <div className="bg-white py-0 pb-24" ref={contentRef}>
+            {article.body.map((para, i) => (
+              <p
+                key={para.id}
+                className={`article-para leading-relaxed mb-6 ${
+                  i === 0 ? 'text-black text-lg font-medium' : 'text-black text-base'
+                }`}
+              >
+                {para.text}
+              </p>
+            ))}
+
+            <div className="mt-10">
+              <Link
+                href="/news"
+                className="inline-block rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
+              >
+                {t.home.news.cta}
+              </Link>
+            </div>
+
+          </div>
+
+          {/* Sticky white mask — text scrolls behind this, height matches left column pb-8 */}
+          <div className="sticky bottom-0 h-8 bg-white pointer-events-none" />
+
+        </div>
+
+
       </section>
 
+      {/* ── Related articles ──────────────────────────────────────────────────── */}
       {more.length > 0 && (
-        <section className="py-14 bg-slate-50 border-t border-slate-100">
-          <div className="max-w-4xl mx-auto px-5 sm:px-8 lg:px-10">
+        <section className="py-14 bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
             <h2
-              className="text-xl font-light text-brand-950 mb-8"
+              className="text-xl font-normal text-gray-900 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               More Articles
             </h2>
-            <div ref={relatedRef} className="grid sm:grid-cols-3 gap-5">
-              {more.map((a) => (
-                <RelatedCard key={a.id} article={a} />
-              ))}
+            <div ref={relatedRef} className="grid grid-cols-3 gap-6">
+              {more.map(a => <RelatedCard key={a.id} article={a} />)}
             </div>
           </div>
         </section>
       )}
+
     </div>
   )
 }

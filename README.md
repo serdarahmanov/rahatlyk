@@ -22,6 +22,68 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### Article detail page — two-column redesign (`ArticleDetailClient.tsx`)
+
+The article detail page was completely redesigned from a single-column hero/content layout into a two-column pinned layout.
+
+#### Layout structure
+
+```
+┌─────────────────────────── section (max-w-screen-2xl, pt-32 pb-40) ───────────────────────────┐
+│  Left  60% (sticky top-32, h-[calc(100vh-8rem)], pb-8)  │  Right 40% (pt-[calc(50vh-8rem)])  │
+│  ┌───────────────────────────────────────────────────┐   │  ┌─────────────────────────────┐   │
+│  │ Breadcrumb                                        │   │  │ Paragraph 1 (font-medium)   │   │
+│  │ Title (mb-10 mt-2)                                │   │  │ Paragraph 2 …               │   │
+│  │ [Category badge] [Featured badge]  [Date ml-auto] │   │  │ …                           │   │
+│  │ ┌─────────────────────────────────────────────┐   │   │  │ "View All News" button      │   │
+│  │ │ Main photo (flex-1, news-slide-in anim)     │   │   │  └─────────────────────────────┘   │
+│  │ │  [← pill dots →] (bottom centre)           │   │   │  sticky white mask (h-8, bottom-0)  │
+│  │ └─────────────────────────────────────────────┘   │   └─────────────────────────────────────┘
+│  └───────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- Left column: `sticky top-32`, `h-[calc(100vh-8rem)]`, `flex-col`, `pb-8` — stays fixed while the right column scrolls.
+- Right column: `pt-[calc(50vh-8rem)]` — first paragraph begins at the vertical centre of the viewport on load.
+- Sticky white mask (`sticky bottom-0 h-8 bg-white`) at the end of the right column so paragraphs scroll behind white space instead of reaching the raw viewport edge.
+
+#### Info section (left column, top)
+
+- Breadcrumb: `Home / News / Category / Article title` — article title rendered in `text-black` (was `text-gray-500`).
+- Title: `font-normal`, `mb-10`, `mt-2`.
+- Badges + date row sits directly above the photo (not overlaid on it):
+  - `[Category badge]` — `bg-gray-100 text-gray-600 rounded-md uppercase tracking-wider text-[10px]`
+  - `[Featured badge]` — same style, rendered only when `article.featured === true`
+  - `[Date]` — same badge style, `ml-auto` to push it right
+
+#### Photo (left column, bottom — `flex-1 min-h-0`)
+
+- Single main photo fills the remaining height of the left column.
+- **Image transition**: dual-layer CSS `news-slide-in` (same as news listing cards) — incoming image slides in from right at z-index 2 over the current image at z-index 1. Replaces previous GSAP opacity fade.
+- **Navigation controls** (bottom of photo, `zIndex: 10`):
+  - Prev / Next buttons: `rounded-md` (was `rounded-full`) with `bg-white/70 backdrop-blur-sm`
+  - Pill-dot indicators between the buttons — active dot: `w-6 h-[4px] bg-white`, inactive: `w-[4px] h-[4px] bg-white/40`. Matches the Our Collection carousel on the home page. Replaces the `1 / 3` text counter.
+
+#### Article body (right column)
+
+- All paragraphs: `text-black` (was `text-gray-800` / `text-gray-600`).
+- First paragraph: additional `font-medium`.
+- "View All News" button: same style as "Explore the collection" on the About page.
+
+#### "More Articles" section
+
+- Background changed from `bg-gray-50` to `bg-white`.
+- Heading changed from `font-light` to `font-normal`.
+- `RelatedCard` component fully replaced with the same card pattern as the news listing page:
+  - Multi-image slideshow (auto-advance, `news-slide-in` CSS transition, same interval range as listing cards)
+  - Same layout: image → category · date row → title (`text-[21px] font-medium`) → "Read article →"
+  - Navigation via `useRouter().push` instead of `<Link>`
+- Grid changed from `sm:grid-cols-3 gap-5` to `grid-cols-3 gap-6` (always 3 columns).
+
+---
+
+## What Changed In The Previous Commit
+
 ### News listing page — card redesign and multilingual polish
 
 #### "Read article" button — multilingual
@@ -93,8 +155,6 @@ Image assignment from `public/news/photos/`:
 Remaining Company News articles retain their original `media/` images.
 
 ---
-
-## What Changed In The Previous Commit
 
 ### About Page global — fully CMS-driven contact form
 
