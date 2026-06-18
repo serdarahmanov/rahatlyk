@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { translations, Locale } from './translations';
 
 interface LanguageContextType {
@@ -18,22 +19,30 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // The useEffect reads localStorage and updates to the saved locale after hydration.
   const [locale, setLocaleState] = useState<Locale>('en');
   const [ready, setReady]        = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('RAHATLYK-locale') as Locale | null;
-      if (saved && (['en', 'ru', 'tm'] as string[]).includes(saved)) {
-        setLocaleState(saved);
+    const id = requestAnimationFrame(() => {
+      try {
+        const saved = localStorage.getItem('RAHATLYK-locale') as Locale | null;
+        if (saved && (['en', 'ru', 'tm'] as string[]).includes(saved)) {
+          setLocaleState(saved);
+          document.cookie = `RAHATLYK-locale=${saved}; path=/; max-age=31536000; SameSite=Lax`;
+        }
+      } catch {
+        // localStorage blocked (private mode, etc.)
       }
-    } catch {
-      // localStorage blocked (private mode, etc.)
-    }
-    setReady(true);
+      setReady(true);
+    });
+
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem('RAHATLYK-locale', newLocale);
+    document.cookie = `RAHATLYK-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    router.refresh();
   };
 
   return (

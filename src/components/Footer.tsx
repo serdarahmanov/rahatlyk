@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 
 const socialLinks = [
   {
@@ -38,6 +40,10 @@ const socialLinks = [
 
 export default function Footer() {
   const { t } = useLanguage();
+  const contactInfo = useContactInfo();
+  const pathname = usePathname();
+
+  if (pathname === '/about') return null;
 
   const quickLinks = [
     { href: '/',          label: t.nav.home      },
@@ -59,10 +65,10 @@ export default function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
           {/* ── Brand column ── */}
-          <div className="sm:col-span-2 lg:col-span-2">
+          <div className="col-span-2 lg:col-span-2">
             <Link href="/" className="inline-flex mb-5">
               <span
-                className="text-2xl font-light tracking-[0.2em] text-black"
+                className="text-2xl font-semibold tracking-[0.2em] text-black"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 RAHATLYK
@@ -123,8 +129,12 @@ export default function Footer() {
                 </li>
               ))}
               <li className="pt-4 space-y-1.5 border-t border-cyan-200 mt-1">
-                <p className="text-black text-sm">{t.contact.info.phoneValue}</p>
-                <p className="text-black text-sm">{t.contact.info.emailValue}</p>
+                {contactInfo.phones.map(p => (
+                  <p key={p.number} className="text-black text-sm">{p.number}</p>
+                ))}
+                {contactInfo.email && (
+                  <p className="text-black text-sm">{contactInfo.email}</p>
+                )}
               </li>
             </ul>
           </div>
@@ -133,14 +143,6 @@ export default function Footer() {
         {/* ── Copyright row ── */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-black text-xs">{t.footer.rights}</p>
-          <div className="flex gap-5">
-            <a href="#" className="text-black hover:text-black/70 text-xs transition-colors duration-200">
-              {t.footer.privacy}
-            </a>
-            <a href="#" className="text-black hover:text-black/70 text-xs transition-colors duration-200">
-              {t.footer.terms}
-            </a>
-          </div>
         </div>
       </div>
 

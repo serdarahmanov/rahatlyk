@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { Locale } from '@/lib/i18n/translations';
 
 // Module-level flag — persists across route changes, resets on full page reload
@@ -25,12 +26,13 @@ export default function Navbar() {
   const prevScrollY = useRef(0);
   const langRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t, ready } = useLanguage();
+  const contactInfo = useContactInfo();
   const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 30);
+      setScrolled(y > 1);
       // Direction: treat near-top as "up" so header never hides at page top
       if (y < 80) {
         setScrolledUp(true);
@@ -42,6 +44,7 @@ export default function Navbar() {
       prevScrollY.current = y;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -55,8 +58,11 @@ export default function Navbar() {
 
   // Reset nav state on every route change
   useEffect(() => {
-    setMenuOpen(false);
-    setScrolledUp(true); // always start visible on a new page
+    const id = requestAnimationFrame(() => {
+      setMenuOpen(false);
+      setScrolledUp(true); // always start visible on a new page
+    });
+    return () => cancelAnimationFrame(id);
   }, [pathname]);
 
 
@@ -73,9 +79,11 @@ export default function Navbar() {
   }, [langOpen]);
 
   // Home / About page not-scrolled → transparent + white text (both have dark hero images)
-  const isHomeHero = (pathname === '/' || pathname === '/about') && !scrolled;
+  const isHeroPage = pathname === '/' || pathname === '/about';
+  const isAboutPage = pathname === '/about';
+  const isHomeHero = isHeroPage && !scrolled;
+  const showHeaderPanel = scrolled;
   // Any page not-scrolled → transparent bg (image shows through)
-  const isTransparent = !scrolled;
 
   const navLinks = [
     { href: '/products',  label: t.nav.products },
@@ -92,7 +100,7 @@ export default function Navbar() {
     <>
     <header
       className="fixed top-0 left-0 right-0 z-50"
-      style={pathname === '/about' ? {
+      style={isAboutPage ? {
         opacity:    introComplete ? 1 : 0,
         transform:  !scrolledUp ? 'translateY(-100%)' : 'translateY(0)',
         // transition must already be in the DOM before transform changes — React owns
@@ -105,9 +113,13 @@ export default function Navbar() {
 
       {/* Background panel — slides down from above instead of fading in */}
       <div
-        className={`absolute inset-0 z-0 bg-cyan-50/90 backdrop-blur-md transition-transform duration-300 ease-out ${
-          scrolled && pathname !== '/about' ? 'translate-y-0' : '-translate-y-full'
-        }`}
+        className="absolute inset-0 z-0 border-b bg-[#fafaf8]/85 backdrop-blur-[12px]"
+        style={{
+          opacity: showHeaderPanel ? 1 : 0,
+          transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
+          borderColor: showHeaderPanel ? 'rgba(0,0,0,0.14)' : 'rgba(0,0,0,0)',
+          transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1), border-color 420ms ease',
+        }}
       />
 
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16">
@@ -117,7 +129,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <span
               className={`text-xl lg:text-2xl font-semibold tracking-[0.2em] transition-colors duration-300 ${
-                isHomeHero ? 'text-white' : isTransparent ? 'text-black' : 'text-brand-900'
+                isHomeHero ? 'text-white' : 'text-black'
               }`}
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
@@ -193,7 +205,7 @@ export default function Navbar() {
             {/* Hamburger */}
             <button
               className={`lg:hidden flex flex-col items-center justify-center w-9 h-9 gap-1.5 rounded transition-colors ${
-                isHomeHero ? 'hover:bg-white/10' : isTransparent ? 'hover:bg-black/10' : 'hover:bg-brand-50'
+                isHomeHero ? 'hover:bg-white/10' : 'hover:bg-black/10'
               }`}
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle menu"
@@ -201,17 +213,17 @@ export default function Navbar() {
             >
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : isTransparent ? 'bg-black' : 'bg-brand-900'
+                  isHomeHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
               />
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : isTransparent ? 'bg-black' : 'bg-brand-900'
+                  isHomeHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? 'opacity-0 scale-0' : ''}`}
               />
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : isTransparent ? 'bg-black' : 'bg-brand-900'
+                  isHomeHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}
               />
             </button>
@@ -295,7 +307,7 @@ export default function Navbar() {
             </svg>
           </a>
           <a
-            href="mailto:info@rahatlyk.com"
+            href={contactInfo.email ? `mailto:${contactInfo.email}` : '#'}
             aria-label="Email"
             className="text-black/60 hover:text-black transition-colors duration-200"
           >

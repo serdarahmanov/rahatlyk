@@ -146,16 +146,6 @@ function btn(href: string, text: string): string {
   </table>`;
 }
 
-/** Numbered step row. */
-function stepRow(n: number, text: string): string {
-  return `
-  <tr>
-    <td style="padding:0 0 14px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6e5a44;line-height:1.7">
-      <span style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;color:#a88e6a;letter-spacing:1px;margin-right:10px">${String(n).padStart(2, '0')}</span>${text}
-    </td>
-  </tr>`;
-}
-
 /** Thin section divider. */
 function divider(): string {
   return `<tr><td style="padding:0 44px"><div style="border-top:1px solid #f0e8d8"></div></td></tr>`;
@@ -174,7 +164,7 @@ export interface ContactConfirmationData {
   locale:    EmailLocale;
 }
 
-export function contactConfirmation({ firstName, lastName, email, subject, message, locale }: ContactConfirmationData): { subject: string; html: string } {
+export function contactConfirmation({ firstName, lastName, subject, message, locale }: ContactConfirmationData): { subject: string; html: string } {
   const s = emailI18n[locale].contactConfirm;
   const preview = message.length > 140 ? message.slice(0, 140) + '…' : message;
 

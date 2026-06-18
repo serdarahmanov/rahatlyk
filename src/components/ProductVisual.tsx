@@ -1,8 +1,15 @@
 import Image from 'next/image';
-import { Product } from '@/lib/data/products';
+
+type ProductVisualPhoto = string | { url: string };
+
+type ProductVisualProduct = {
+  name: string;
+  photos?: ProductVisualPhoto[] | null;
+  videoUrl?: string | null;
+};
 
 interface Props {
-  product: Product;
+  product: ProductVisualProduct;
   /** 'sm' = listing card  |  'lg' = detail hero */
   size?: 'sm' | 'lg';
   className?: string;
@@ -10,26 +17,46 @@ interface Props {
 
 const FALLBACK = '/products/FeatureProductImg_RTD_LT.png';
 
+const photoUrl = (p: ProductVisualPhoto | undefined): string =>
+  typeof p === 'string' ? p : p?.url ?? FALLBACK;
+
 export default function ProductVisual({ product, size = 'sm', className = '' }: Props) {
-  const src =
-    product.photos && product.photos.length > 0
-      ? product.photos[0]
-      : FALLBACK;
+  const src  = photoUrl(product.photos?.[0]);
+  const src2 = photoUrl(product.photos?.[1]);
 
   if (size === 'sm') {
-    // Fills whatever container the card gives us (w-full h-full)
+    const hoverVideo = product.videoUrl ?? null;
+    const hoverPhoto = !hoverVideo && src2 !== src ? src2 : null;
+    const hasHover   = !!(hoverVideo || hoverPhoto);
+
     return (
-      <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-        {/* Inner div: 70% of the container height — image scales within this */}
-        <div className="relative w-full h-[70%] -translate-y-[8%]">
+      <div className="relative w-full h-full group/photo">
+        <Image
+          src={src}
+          alt={product.name}
+          fill
+          className={`object-cover object-center transition-opacity duration-500 ${hasHover ? 'group-hover/photo:opacity-0' : ''}`}
+          sizes="(max-width: 640px) 200px, 320px"
+        />
+        {hoverVideo && (
+          <video
+            src={hoverVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/photo:opacity-100"
+          />
+        )}
+        {hoverPhoto && (
           <Image
-            src={src}
+            src={hoverPhoto}
             alt={product.name}
             fill
-            className="object-contain object-center"
+            className="object-cover object-center transition-opacity duration-500 opacity-0 group-hover/photo:opacity-100"
             sizes="(max-width: 640px) 200px, 320px"
           />
-        </div>
+        )}
       </div>
     );
   }

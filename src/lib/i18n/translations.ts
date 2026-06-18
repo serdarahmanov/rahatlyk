@@ -12,7 +12,6 @@ export const translations = {
     },
     home: {
       hero: {
-        badge: 'Premium Beverages · Est. 2003',
         title: 'Pure Nature,',
         titleAccent: 'Pure Life',
         subtitle: 'Premium beverages crafted from the finest natural sources of Turkmenistan',
@@ -51,8 +50,6 @@ export const translations = {
         stat2Label: 'Products',
         stat3: '5M+',
         stat3Label: 'Happy Customers',
-        badge: 'Best Beverage Brand',
-        badgeSub: 'Central Asia Award 2025',
       },
       news: {
         tag: 'Latest News',
@@ -60,7 +57,7 @@ export const translations = {
         cta: 'View All News',
       },
       brand: {
-        text: 'RAHATLYK water is drawn from the pristine underground aquifers of Turkmenistan, where nature has spent centuries filtering and perfecting each drop. We capture this exceptional purity with an unwavering commitment to quality, integrity, and elegance — ensuring that every sip delivers not just refreshment, but a genuine moment of natural wellbeing.',
+        text: 'RAHATLYK water comes from Turkmenistan\'s pristine underground aquifers, naturally filtered over centuries. We preserve that purity with strict quality standards, so every sip feels clean, refreshing and naturally balanced.',
       },
       ctaBanner: {
         title: 'Stay Pure, Stay Hydrated',
@@ -94,7 +91,6 @@ export const translations = {
       filterProducts: 'Products',
       filterSustainability: 'Sustainability',
       featured: 'Featured',
-      minRead: 'min read',
     },
     vacancies: {
       heroTag: 'Join the Team',
@@ -196,8 +192,6 @@ export const translations = {
       quickLinks: 'Quick Links',
       company: 'Company',
       rights: '© 2025 RAHATLYK. All rights reserved.',
-      privacy: 'Privacy Policy',
-      terms: 'Terms of Service',
     },
   },
 
@@ -212,7 +206,6 @@ export const translations = {
     },
     home: {
       hero: {
-        badge: 'Премиальные напитки · С 2003 года',
         title: 'Чистая природа,',
         titleAccent: 'Чистая жизнь',
         subtitle: 'Премиальные напитки из лучших природных источников Туркменистана',
@@ -251,8 +244,6 @@ export const translations = {
         stat2Label: 'Продуктов',
         stat3: '5М+',
         stat3Label: 'Довольных клиентов',
-        badge: 'Лучший напиточный бренд',
-        badgeSub: 'Награда Центральной Азии 2025',
       },
       news: {
         tag: 'Последние новости',
@@ -270,7 +261,7 @@ export const translations = {
     },
     products: {
       heroTag: 'Наш ассортимент',
-      title: 'Премиальные напитки',
+      title: 'Премиальные Напитки',
       subtitle: 'Откройте наш полный ассортимент — от природы к вам',
       filterAll: 'Все',
       filterWater: 'Питьевая вода',
@@ -285,7 +276,7 @@ export const translations = {
     },
     news: {
       heroTag: 'Будьте в курсе',
-      title: 'Новости и обновления',
+      title: 'Новости и Обновления',
       subtitle: 'Следите за последними событиями RAHATLYK',
       readMore: 'Читать далее',
       filterAll: 'Все',
@@ -294,11 +285,10 @@ export const translations = {
       filterProducts: 'Продукты',
       filterSustainability: 'Экология',
       featured: 'Главное',
-      minRead: 'мин чтения',
     },
     vacancies: {
       heroTag: 'Присоединяйтесь',
-      title: 'Постройте карьеру',
+      title: 'Постройте Карьеру',
       subtitle: 'Станьте частью чего-то освежающего. Постройте карьеру в RAHATLYK.',
       apply: 'Подать заявку',
       filterAll: 'Все отделы',
@@ -396,8 +386,6 @@ export const translations = {
       quickLinks: 'Быстрые ссылки',
       company: 'Компания',
       rights: '© 2025 RAHATLYK. Все права защищены.',
-      privacy: 'Политика конфиденциальности',
-      terms: 'Условия использования',
     },
   },
 
@@ -412,7 +400,6 @@ export const translations = {
     },
     home: {
       hero: {
-        badge: 'Premium içgiler · 2003-nji ýyldan bäri',
         title: 'Arassa tebigat,',
         titleAccent: 'Arassa ýaşaýyş',
         subtitle: 'Türkmenistanyň iň arassa tebigy çeşmelerinden öndürilen premium içgiler',
@@ -451,8 +438,6 @@ export const translations = {
         stat2Label: 'Önüm',
         stat3: '5M+',
         stat3Label: 'Bagtly müşderi',
-        badge: 'Iň gowy içgi brendy',
-        badgeSub: 'Merkezi Aziýa Sylagy 2025',
       },
       news: {
         tag: 'Soňky habarlar',
@@ -470,7 +455,7 @@ export const translations = {
     },
     products: {
       heroTag: 'Biziň toplumumyz',
-      title: 'Premium içgiler',
+      title: 'Premium Içgiler',
       subtitle: 'Doly toplumumyzy açyň — tebigatyň iň gowusyndan',
       filterAll: 'Hemmesi',
       filterWater: 'Içimlik suw',
@@ -485,7 +470,7 @@ export const translations = {
     },
     news: {
       heroTag: 'Habarlary yzarlaň',
-      title: 'Habarlar we täzelikler',
+      title: 'Habarlar we Täzelikler',
       subtitle: 'RAHATLYKdan iň soňky habarlary yzarlaň',
       readMore: 'Doly oka',
       filterAll: 'Hemmesi',
@@ -494,11 +479,10 @@ export const translations = {
       filterProducts: 'Önümler',
       filterSustainability: 'Ekologiýa',
       featured: 'Öňe çykarylan',
-      minRead: 'min okamak',
     },
     vacancies: {
       heroTag: 'Toparymyza goşuluň',
-      title: 'Karýeraňyzy guruň',
+      title: 'Karýeraňyzy Guruň',
       subtitle: 'RAHATLYK bilen karýeraňyzy guruň.',
       apply: 'Ýüz tutuň',
       filterAll: 'Ähli bölümler',
@@ -596,8 +580,6 @@ export const translations = {
       quickLinks: 'Çalt baglantylar',
       company: 'Kompaniýa',
       rights: '© 2025 RAHATLYK. Ähli hukuklar goragly.',
-      privacy: 'Gizlinlik syýasaty',
-      terms: 'Ulanyş şertleri',
     },
   },
 };

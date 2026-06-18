@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { contactConfirmation, contactNotification } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
+import { getPayloadClient } from '@/lib/payload';
 
 const VALID_LOCALES: EmailLocale[] = ['en', 'ru', 'tm'];
 
@@ -58,6 +59,17 @@ export async function POST(req: NextRequest) {
         html:    notification.html,
       }),
     ]);
+
+    // Store submission in Payload — non-blocking, failure does not affect the response
+    try {
+      const payload = await getPayloadClient();
+      await payload.create({
+        collection: 'contact-submissions',
+        data: { firstName, lastName, email, phone: phone ?? undefined, subject, message, locale },
+      });
+    } catch (dbErr) {
+      console.error('[contact route] Failed to store submission in Payload:', dbErr);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

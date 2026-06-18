@@ -3,13 +3,19 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
+declare global {
+  interface Window {
+    __pageIntroDone?: boolean;
+  }
+}
+
 export default function PageIntro() {
   const { ready } = useLanguage();
 
-  const curtainRef = useRef<HTMLDivElement>(null);
-  const logoRef    = useRef<HTMLSpanElement>(null);
-  const taglineRef = useRef<HTMLSpanElement>(null);
-  const lineRef    = useRef<HTMLDivElement>(null);
+  const curtainRef   = useRef<HTMLDivElement>(null);
+  const logoRef      = useRef<HTMLSpanElement>(null);
+  const taglineRef   = useRef<HTMLSpanElement>(null);
+  const progressRef  = useRef<HTMLDivElement>(null);
 
   // ── Hide text before first paint so there's no flash ─────────────
   useLayoutEffect(() => {
@@ -17,8 +23,10 @@ export default function PageIntro() {
     if (taglineRef.current) taglineRef.current.style.transform = 'translateY(110%)';
   }, []);
 
-  // ── Text entrance ─────────────────────────────────────────────────
+  // ── Text entrance + progress bar kick-off ─────────────────────────
   useEffect(() => {
+    const MIN_TOTAL_MS = 2800;
+
     const init = async () => {
       const { gsap } = await import('gsap');
       const tl = gsap.timeline();
@@ -33,12 +41,14 @@ export default function PageIntro() {
           y: '0%', duration: 0.85, ease: 'power4.out',
         }, '-=0.55');
       }
-      if (lineRef.current) {
-        tl.fromTo(
-          lineRef.current,
-          { scaleX: 0, transformOrigin: 'left center' },
-          { scaleX: 1, duration: 0.9, ease: 'power2.inOut' },
-          '-=0.6',
+
+      // Start the progress bar immediately and fill to 82% over the
+      // expected load window — slows near the end so it feels "almost done"
+      if (progressRef.current) {
+        gsap.fromTo(
+          progressRef.current,
+          { scaleX: 0 },
+          { scaleX: 0.82, duration: MIN_TOTAL_MS / 1000, ease: 'power1.out', transformOrigin: 'left center' },
         );
       }
     };
@@ -78,10 +88,17 @@ export default function PageIntro() {
 
       const tl = gsap.timeline();
 
+      // Snap progress bar to 100%
+      if (progressRef.current) {
+        gsap.killTweensOf(progressRef.current);
+        tl.to(progressRef.current, { scaleX: 1, duration: 0.35, ease: 'power2.out', transformOrigin: 'left center' });
+      }
+
       // Fade out text
       tl.to(
-        [logoRef.current, taglineRef.current, lineRef.current].filter(Boolean),
+        [logoRef.current, taglineRef.current].filter(Boolean),
         { opacity: 0, duration: 0.3, ease: 'power2.in' },
+        '-=0.05',
       );
 
       // Slide the solid panel straight up — no backdrop-filter means no blur seam
@@ -90,7 +107,7 @@ export default function PageIntro() {
         duration:  0.95,
         ease:      'power4.inOut',
         onStart: () => {
-          (window as any).__pageIntroDone = true;
+          window.__pageIntroDone = true;
           window.dispatchEvent(new CustomEvent('page-intro-done'));
         },
         onComplete: () => {
@@ -188,28 +205,30 @@ export default function PageIntro() {
           </span>
         </div>
 
-        {/* Thin animated line */}
+      </div>
+      {/* Progress bar — full width, pinned to bottom */}
+      <div
+        style={{
+          position:        'absolute',
+          top:             0,
+          left:            0,
+          right:           0,
+          height:          '4px',
+          backgroundColor: 'rgba(255,255,255,0.10)',
+          overflow:        'hidden',
+          zIndex:          2,
+        }}
+      >
         <div
+          ref={progressRef}
           style={{
-            width:           '2.5rem',
-            height:          '1px',
-            backgroundColor: 'rgba(255,255,255,0.12)',
-            marginTop:       '0.5rem',
-            overflow:        'hidden',
-            position:        'relative',
+            position:        'absolute',
+            inset:           0,
+            backgroundColor: 'rgba(255,255,255,0.75)',
+            transform:       'scaleX(0)',
+            transformOrigin: 'left center',
           }}
-        >
-          <div
-            ref={lineRef}
-            style={{
-              position:        'absolute',
-              inset:           0,
-              backgroundColor: 'rgba(255,255,255,0.6)',
-              transform:       'scaleX(0)',
-              transformOrigin: 'left center',
-            }}
-          />
-        </div>
+        />
       </div>
     </div>
   );

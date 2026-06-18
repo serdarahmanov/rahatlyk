@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article — Rahatlyk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --serif:   'Cormorant Garamond', Georgia, serif;
+      --sans:    'Inter', system-ui, sans-serif;
+      --bg:      #F7F6F3;
+      --text:    #111110;
+      --body:    #303030;
+      --muted:   #909088;
+      --border:  #E2E1DC;
+      --accent:  #0891b2;
+      --dark:    #0D0D0C;
+      --dark-s:  #181816;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════════════════
+       TOP BAR
+    ══════════════════════════════════════════ */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(247,246,243,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      height: 54px;
+    }
+
+    .topbar-brand {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .topbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .topbar-nav a {
+      font-size: 11.5px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .topbar-nav a:hover { color: var(--text); }
+    .topbar-nav a.active { color: var(--text); font-weight: 500; }
+
+    /* ══════════════════════════════════════════
+       ARTICLE HEADER (typography-first)
+    ══════════════════════════════════════════ */
+    .article-header {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 64px 52px 0;
+    }
+
+    /* Breadcrumb + back */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 52px;
+    }
+    .breadcrumb-trail {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+    .breadcrumb-trail a { color: inherit; text-decoration: none; transition: color 0.2s; }
+    .breadcrumb-trail a:hover { color: var(--text); }
+    .breadcrumb-trail .sep { opacity: 0.4; }
+    .breadcrumb-trail .current { color: var(--text); }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 7px 16px;
+      border-radius: 99px;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+    /* Category + featured row */
+    .header-eye {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .cat-pill-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .featured-tag {
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* THE BIG TITLE */
+    .article-title {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 7.5vw, 7rem);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 40px;
+      max-width: 880px;
+    }
+
+    /* Thin rule + meta row */
+    .header-rule {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 20px;
+    }
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 52px;
+    }
+    .meta-cell {
+      padding: 0 24px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .meta-cell:first-child { padding-left: 0; }
+    .meta-cell:last-child  { border-right: none; }
+    .meta-label {
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .meta-value {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    /* Featured image — full width of header container, cinematic ratio */
+    .header-image-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 44%;   /* 100:44 ≈ cinematic wide */
+      border-radius: 10px;
+      overflow: hidden;
+      background: #C8C5BE;
+      margin-bottom: 0;
+    }
+    .header-image-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Subtle vignette */
+    .header-image-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.18) 100%);
+      pointer-events: none;
+    }
+    .header-img-caption {
+      font-size: 11.5px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      margin-top: 12px;
+      padding: 0 4px;
+    }
+
+    /* ══════════════════════════════════════════
+       ARTICLE BODY
+    ══════════════════════════════════════════ */
+    .article-body-outer {
+      background: var(--bg);
+      padding: 80px 52px 96px;
+    }
+    .article-body-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Lead / first paragraph */
+    .para-lead {
+      font-family: var(--serif);
+      font-size: clamp(1.18rem, 2vw, 1.45rem);
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 44px;
+      padding-bottom: 44px;
+      border-bottom: 1px solid var(--border);
+    }
+    /* Drop cap */
+    .para-lead::first-letter {
+      font-family: var(--serif);
+      font-size: 4.6em;
+      font-weight: 500;
+      line-height: 0.78;
+      float: left;
+      margin-right: 0.06em;
+      margin-top: 0.07em;
+      color: var(--accent);
+    }
+
+    /* Regular body paragraphs */
+    .para-body {
+      font-size: 17.5px;
+      font-weight: 300;
+      line-height: 1.88;
+      color: var(--body);
+      letter-spacing: 0.006em;
+      margin-bottom: 30px;
+    }
+
+    /* Inline image inside article */
+    .body-img-block {
+      margin: 52px 0;
+    }
+    .body-img-block img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+    .body-img-caption {
+      margin-top: 10px;
+      font-size: 11.5px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Pull quote */
+    .pull-quote {
+      margin: 52px 0;
+      padding: 32px 36px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .pull-quote::before {
+      content: '\201C';
+      position: absolute;
+      top: -18px;
+      left: 32px;
+      font-family: var(--serif);
+      font-size: 80px;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.35;
+    }
+    .pull-quote-text {
+      font-family: var(--serif);
+      font-size: clamp(1.15rem, 2vw, 1.4rem);
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.58;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .pull-quote-cite {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* Article footer */
+    .article-footer {
+      margin-top: 60px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.22s;
+    }
+    .footer-back:hover { color: var(--text); gap: 13px; }
+    .footer-cat-pill {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 5px 15px;
+      border-radius: 99px;
+      background: #E0F5FA;
+      color: var(--accent);
+    }
+
+    /* ══════════════════════════════════════════
+       MORE ARTICLES
+    ══════════════════════════════════════════ */
+    .more-section {
+      background: var(--dark);
+      padding: 80px 52px 96px;
+    }
+    .more-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 48px;
+    }
+    .more-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 400;
+      color: white;
+    }
+    .more-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .more-all:hover { color: white; }
+
+    /* Split-style cards: image left, text right */
+    .more-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .more-card {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      text-decoration: none;
+      background: var(--dark-s);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .more-card:hover { background: #222220; }
+
+    .more-card-img-wrap { overflow: hidden; }
+    .more-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.55s ease;
+    }
+    .more-card:hover .more-card-img { transform: scale(1.05); }
+
+    .more-card-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 32px 40px;
+      gap: 12px;
+    }
+    .more-card-cat {
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .more-card-title {
+      font-family: var(--serif);
+      font-size: clamp(1.1rem, 1.8vw, 1.55rem);
+      font-weight: 400;
+      line-height: 1.38;
+      color: rgba(255,255,255,0.82);
+    }
+    .more-card-date {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.22);
+    }
+    .more-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.25s, transform 0.25s;
+      margin-top: 4px;
+    }
+    .more-card:hover .more-card-cta { opacity: 1; transform: translateX(0); }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .topbar  { padding: 0 24px; }
+      .article-header     { padding: 48px 24px 0; }
+      .article-body-outer { padding: 56px 24px 72px; }
+      .more-section       { padding: 56px 24px 72px; }
+      .more-card { grid-template-columns: 1fr; }
+      .more-card-img { height: 180px; }
+      .more-card-body { padding: 22px 24px 28px; }
+    }
+
+    @media (max-width: 600px) {
+      .breadcrumb { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .header-meta { flex-wrap: wrap; gap: 12px; }
+      .meta-cell { border-right: none; padding: 0 0 0 0; }
+      .topbar-nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     TOP BAR
+══════════════════════════════════════════ -->
+<header class="topbar">
+  <a href="/" class="topbar-brand">Rahatlyk</a>
+  <nav class="topbar-nav">
+    <a href="/">Home</a>
+    <a href="/products">Products</a>
+    <a href="/news" class="active">News</a>
+    <a href="/vacancies">Careers</a>
+    <a href="/contact">Contact</a>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════════
+     ARTICLE HEADER
+══════════════════════════════════════════ -->
+<div class="article-header">
+
+  <!-- Breadcrumb + back button -->
+  <div class="breadcrumb">
+    <div class="breadcrumb-trail">
+      <a href="/">Home</a>
+      <span class="sep">/</span>
+      <a href="/news">News</a>
+      <span class="sep">/</span>
+      <a href="/news?category=company-news">Company News</a>
+      <span class="sep">/</span>
+      <span class="current">Rahatlyk Wins Best Beverage Brand 2025</span>
+    </div>
+    <a href="/news" class="back-btn">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+        <path d="M12 7H2M2 7L6 3M2 7L6 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      All Articles
+    </a>
+  </div>
+
+  <!-- Category + featured -->
+  <div class="header-eye">
+    <span class="cat-pill">
+      <span class="cat-pill-dot"></span>
+      Company News
+    </span>
+    <span class="featured-tag">Featured</span>
+  </div>
+
+  <!-- Big title — THE hero element -->
+  <h1 class="article-title">
+    Rahatlyk Wins<br>Best Beverage<br>Brand 2025
+  </h1>
+
+  <!-- Thin rule -->
+  <div class="header-rule"></div>
+
+  <!-- Meta row -->
+  <div class="header-meta">
+    <div class="meta-cell">
+      <span class="meta-label">Published</span>
+      <span class="meta-value">15 November 2025</span>
+    </div>
+    <div class="meta-cell">
+      <span class="meta-label">Category</span>
+      <span class="meta-value">Company News</span>
+    </div>
+    <div class="meta-cell">
+      <span class="meta-label">Reading time</span>
+      <span class="meta-value">3 min</span>
+    </div>
+  </div>
+
+  <!-- Featured image — contained, cinematic wide -->
+  <div class="header-image-wrap">
+    <img
+      src="https://picsum.photos/seed/rahatlyk-award-ceremony/1400/616"
+      alt="Rahatlyk wins Best Beverage Brand 2025"
+    />
+  </div>
+  <p class="header-img-caption">The Rahatlyk team at the Central Asia Business Excellence Awards, November 2025.</p>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     ARTICLE BODY
+══════════════════════════════════════════ -->
+<div class="article-body-outer">
+  <div class="article-body-inner">
+
+    <!-- Lead paragraph — first body item -->
+    <p class="para-lead">
+      We are proud to announce that Rahatlyk has been recognised as the Best Beverage Brand
+      at the Central Asia Business Excellence Awards 2025. This prestigious award celebrates
+      our unwavering commitment to delivering pure, natural water to homes and businesses
+      across Turkmenistan.
+    </p>
+
+    <!-- Body paragraph 2 -->
+    <p class="para-body">
+      The award reflects the trust our customers place in every bottle of Rahatlyk water.
+      We remain dedicated to the highest standards of quality, sourced from protected mountain
+      springs and processed with world-class filtration technology.
+    </p>
+
+    <!-- Inline image (article.images[1]) -->
+    <div class="body-img-block">
+      <img src="https://picsum.photos/seed/rahatlyk-spring-source/1200/675" alt="Mountain spring source" />
+      <p class="body-img-caption">Rahatlyk's protected mountain spring — the foundation of every bottle.</p>
+    </div>
+
+    <!-- Pull quote -->
+    <blockquote class="pull-quote">
+      <p class="pull-quote-text">
+        Every drop of Rahatlyk is a promise — pure, natural, and sourced from the mountains
+        that have nourished this land for centuries.
+      </p>
+      <cite class="pull-quote-cite">Rahatlyk · 2025</cite>
+    </blockquote>
+
+    <!-- Body paragraph 3 -->
+    <p class="para-body">
+      This recognition comes after a year of significant investment in our production facilities,
+      sustainable sourcing practices, and community engagement across Turkmenistan. We are grateful
+      to the dedicated teams behind every stage of our process — from the spring to your glass.
+    </p>
+
+    <!-- Inline image (article.images[2]) -->
+    <div class="body-img-block">
+      <img src="https://picsum.photos/seed/rahatlyk-facility/1200/675" alt="Production facility" />
+      <p class="body-img-caption">Our state-of-the-art filtration facility in Ashgabat.</p>
+    </div>
+
+    <!-- Body paragraph 4 -->
+    <p class="para-body">
+      Looking ahead, we remain committed to expanding our reach while preserving the environmental
+      integrity of our water sources. 2026 will see the launch of our zero-waste packaging initiative
+      and new refrigerated distribution hubs across all five regions of Turkmenistan.
+    </p>
+
+    <!-- Footer -->
+    <div class="article-footer">
+      <a href="/news" class="footer-back">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+          <path d="M12 7H2M2 7L6 3M2 7L6 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to News
+      </a>
+      <span class="footer-cat-pill">Company News</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MORE ARTICLES
+══════════════════════════════════════════ -->
+<section class="more-section">
+  <div class="more-header">
+    <h2 class="more-title">More to Read</h2>
+    <a href="/news" class="more-all">
+      View all
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+        <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="more-grid">
+
+    <a href="#" class="more-card">
+      <div class="more-card-img-wrap">
+        <img class="more-card-img" src="https://picsum.photos/seed/sparkling-water-launch/800/400" alt="Sparkling water" />
+      </div>
+      <div class="more-card-body">
+        <p class="more-card-cat">Product Updates</p>
+        <h3 class="more-card-title">Introducing Our New Sparkling Water Range</h3>
+        <p class="more-card-date">20 October 2025</p>
+        <span class="more-card-cta">Read article →</span>
+      </div>
+    </a>
+
+    <a href="#" class="more-card">
+      <div class="more-card-img-wrap">
+        <img class="more-card-img" src="https://picsum.photos/seed/mountain-certified/800/400" alt="Mountain spring certified" />
+      </div>
+      <div class="more-card-body">
+        <p class="more-card-cat">Company News</p>
+        <h3 class="more-card-title">Our Mountain Spring Source: Certified Pure</h3>
+        <p class="more-card-date">12 September 2025</p>
+        <span class="more-card-cta">Read article →</span>
+      </div>
+    </a>
+
+    <a href="#" class="more-card">
+      <div class="more-card-img-wrap">
+        <img class="more-card-img" src="https://picsum.photos/seed/zero-waste-2026/800/400" alt="Zero waste packaging" />
+      </div>
+      <div class="more-card-body">
+        <p class="more-card-cat">Sustainability</p>
+        <h3 class="more-card-title">Zero-Waste Packaging by 2026</h3>
+        <p class="more-card-date">5 August 2025</p>
+        <span class="more-card-cta">Read article →</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+</body>
+</html>

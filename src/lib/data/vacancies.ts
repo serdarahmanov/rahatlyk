@@ -1,19 +1,9 @@
-﻿export type Dept =
-  | 'Production'
-  | 'Sales'
-  | 'Marketing'
-  | 'Logistics'
-  | 'Finance'
-  | 'Customer Service'
-  | 'Quality';
-
-export interface Vacancy {
+﻿export interface Vacancy {
   id: number;
   title: string;
-  department: Dept;
+  department: string;
   location: string;
   type: 'fullTime' | 'partTime';
-  shortDescription: string;
   overview: string;
   responsibilities: string[];
   requirements: string[];
@@ -30,8 +20,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Production',
     location: 'Ashgabat, TM',
     type: 'fullTime',
-    shortDescription:
-      'Oversee daily bottling and production operations, ensuring quality standards and efficiency targets are met across all product lines.',
     overview:
       'As Production Manager at RAHATLYK, you will be the engine of our manufacturing operations. You will own the end-to-end production process — from raw-material intake through to finished goods — across our flagship facility in Ashgabat. This is a senior role that combines hands-on operational leadership with strategic planning: you will set shift schedules, manage a team of 40+ operators, and drive continuous-improvement initiatives that reduce waste and increase throughput. You will work closely with Quality, Logistics, and senior management to make sure every bottle that leaves the floor meets our uncompromising standards.',
     responsibilities: [
@@ -67,7 +55,7 @@ export const VACANCIES: Vacancy[] = [
       'Modern, air-conditioned facility with on-site canteen',
     ],
     salary: 'Competitive — disclosed at interview',
-    postedDate: 'January 10, 2026',
+    postedDate: '2026-01-10',
   },
   {
     id: 2,
@@ -75,8 +63,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Sales',
     location: 'Ashgabat, TM',
     type: 'fullTime',
-    shortDescription:
-      'Lead a regional sales team, develop client relationships, and drive market-share growth for our premium beverage portfolio.',
     overview:
       'This is one of the highest-impact commercial roles at RAHATLYK. As Senior Sales Manager, you will own the revenue growth strategy for the Ashgabat region and be responsible for a portfolio of key accounts spanning modern trade, HoReCa, and institutional clients. You will build and mentor a team of 8 field sales representatives, develop territory plans, and personally lead negotiations with our most strategic partners. The role reports directly to the Chief Commercial Officer and plays a central part in our ambition to double RAHATLYK\'s market share by 2028.',
     responsibilities: [
@@ -111,7 +97,7 @@ export const VACANCIES: Vacancy[] = [
       'Free RAHATLYK product allowance',
     ],
     salary: 'Base + uncapped commission',
-    postedDate: 'January 8, 2026',
+    postedDate: '2026-01-08',
   },
   {
     id: 3,
@@ -119,8 +105,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Quality',
     location: 'Ashgabat, TM',
     type: 'fullTime',
-    shortDescription:
-      'Conduct rigorous testing and audits at every stage of production to ensure our products meet international safety and quality standards.',
     overview:
       'Quality is the cornerstone of the RAHATLYK brand, and the QA Specialist is its guardian on the factory floor. You will design and execute an end-to-end testing programme covering incoming raw materials, in-process checks, and finished-product release. When issues arise — whether a batch fails a microbiological screen or a label is misaligned — you will be the first to investigate, document, and drive resolution. This role also includes supplier audits and the ongoing maintenance of our ISO 22000 and HACCP documentation system.',
     responsibilities: [
@@ -154,7 +138,7 @@ export const VACANCIES: Vacancy[] = [
       'Collaborative, science-focused team environment',
     ],
     salary: 'Competitive — disclosed at interview',
-    postedDate: 'December 20, 2025',
+    postedDate: '2025-12-20',
   },
   {
     id: 4,
@@ -162,8 +146,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Marketing',
     location: 'Ashgabat, TM',
     type: 'fullTime',
-    shortDescription:
-      'Lead brand strategy and execute integrated campaigns across digital, print, and events to grow RAHATLYK\'s market presence.',
     overview:
       'The Marketing Manager is the creative and strategic force behind the RAHATLYK brand. You will lead a team of three (a designer, a social-media executive, and a copywriter), own the annual marketing budget, and take full accountability for brand equity, campaign effectiveness, and digital growth metrics. From seasonal activations in supermarkets to large-format outdoor campaigns and TikTok content, your fingerprints will be on everything consumers see, hear, and feel when they encounter RAHATLYK.',
     responsibilities: [
@@ -199,7 +181,7 @@ export const VACANCIES: Vacancy[] = [
       'Free RAHATLYK product allowance',
     ],
     salary: 'Competitive + annual bonus',
-    postedDate: 'January 5, 2026',
+    postedDate: '2026-01-05',
   },
   {
     id: 5,
@@ -207,8 +189,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Logistics',
     location: 'Multiple Locations',
     type: 'fullTime',
-    shortDescription:
-      'Optimise distribution routes and coordinate with the fleet team to ensure on-time delivery across Turkmenistan.',
     overview:
       'Getting RAHATLYK products from our factory to shelves across Turkmenistan — on time, at temperature, and in perfect condition — is a complex daily challenge that the Logistics Coordinator owns. You will manage a fleet of 12 delivery vehicles, coordinate with warehouse staff, plan and optimise delivery routes, and maintain relationships with third-party carriers for inter-regional distribution. This role sits at the intersection of operations, customer service, and data analysis: you will use routing software and delivery data to continuously shorten lead times and reduce cost per case.',
     responsibilities: [
@@ -242,7 +222,7 @@ export const VACANCIES: Vacancy[] = [
       'Free RAHATLYK product allowance',
     ],
     salary: 'Competitive + performance incentive',
-    postedDate: 'December 15, 2025',
+    postedDate: '2025-12-15',
   },
   {
     id: 6,
@@ -250,8 +230,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Finance',
     location: 'Ashgabat, TM',
     type: 'fullTime',
-    shortDescription:
-      'Analyse financial data, prepare forecasts, and support senior management in strategic business decisions.',
     overview:
       'RAHATLYK is in a growth phase, and the Financial Analyst plays a critical role in ensuring that growth is profitable and sustainable. You will own the monthly management accounts pack, build rolling financial forecasts, and act as the analytical partner to departmental heads as they plan investments and assess performance. You will work directly with the CFO on strategic projects — from pricing model reviews to capex appraisals — and your analysis will directly shape decisions at the highest level of the business.',
     responsibilities: [
@@ -286,7 +264,7 @@ export const VACANCIES: Vacancy[] = [
       'Free RAHATLYK product allowance',
     ],
     salary: 'Competitive — disclosed at interview',
-    postedDate: 'January 3, 2026',
+    postedDate: '2026-01-03',
   },
   {
     id: 7,
@@ -294,8 +272,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Marketing',
     location: 'Ashgabat, TM',
     type: 'fullTime',
-    shortDescription:
-      'Create compelling visuals for product packaging, advertising campaigns, and our digital platforms.',
     overview:
       'Every RAHATLYK bottle, billboard, social post, and in-store display passes through the hands of our design team — and the Graphic Designer is the creative heart of it. You will work across brand identity, packaging, digital, and print to produce work that is consistently premium, on-brand, and visually arresting. You will collaborate daily with the Marketing Manager and Copywriter, and will occasionally brief external photographers and video producers. If you have a portfolio that mixes strategic brand thinking with flawless execution, we want to see it.',
     responsibilities: [
@@ -330,7 +306,7 @@ export const VACANCIES: Vacancy[] = [
       'Free RAHATLYK product allowance',
     ],
     salary: 'Competitive — disclosed at interview',
-    postedDate: 'December 22, 2025',
+    postedDate: '2025-12-22',
   },
   {
     id: 8,
@@ -338,8 +314,6 @@ export const VACANCIES: Vacancy[] = [
     department: 'Customer Service',
     location: 'Ashgabat, TM',
     type: 'partTime',
-    shortDescription:
-      'Be the friendly first point of contact for RAHATLYK customers — handling enquiries, resolving issues, and gathering feedback.',
     overview:
       'As Customer Service Representative, you are the voice of RAHATLYK to our consumers and retail partners. You will handle inbound calls, emails, and social-media messages, resolving queries ranging from product availability to delivery tracking to quality feedback. Every interaction is an opportunity to reinforce the premium, caring brand experience that sets RAHATLYK apart — your empathy, patience, and product knowledge are what make that happen. This is a part-time role (20 hours per week) with scheduling flexibility, ideal for someone studying or managing other commitments.',
     responsibilities: [
@@ -373,6 +347,6 @@ export const VACANCIES: Vacancy[] = [
       'Path to full-time opportunities within RAHATLYK',
     ],
     salary: 'Competitive hourly rate',
-    postedDate: 'January 12, 2026',
+    postedDate: '2026-01-12',
   },
 ];
