@@ -7,7 +7,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:about-hero": "npx tsx src/seed-about-hero.ts",
+    "seed:about-who-we-are": "npx tsx src/seed-about-who-we-are.ts",
+    "seed:about-our-story": "npx tsx src/seed-about-our-story.ts",
+    "seed:about-numbers": "npx tsx src/seed-about-numbers.ts",
+    "seed:about-certificates": "npx tsx src/seed-about-certificates.ts",
+    "seed:about-all": "npx tsx src/seed-about-hero.ts && npx tsx src/seed-about-who-we-are.ts && npx tsx src/seed-about-our-story.ts && npx tsx src/seed-about-numbers.ts && npx tsx src/seed-about-certificates.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.1",

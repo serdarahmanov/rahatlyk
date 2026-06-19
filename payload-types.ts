@@ -115,6 +115,11 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'tm' | 'ru') | ('en' | 'tm' | 'ru')[];
   globals: {
     'about-page': AboutPage;
+    'about-hero': AboutHero;
+    'about-who-we-are': AboutWhoWeAre;
+    'about-our-story': AboutOurStory;
+    'about-numbers': AboutNumber;
+    'about-certificates': AboutCertificate;
     'contact-info': ContactInfo;
     'home-hero': HomeHero;
     'horizontal-scroll': HorizontalScroll;
@@ -123,6 +128,11 @@ export interface Config {
   };
   globalsSelect: {
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
+    'about-hero': AboutHeroSelect<false> | AboutHeroSelect<true>;
+    'about-who-we-are': AboutWhoWeAreSelect<false> | AboutWhoWeAreSelect<true>;
+    'about-our-story': AboutOurStorySelect<false> | AboutOurStorySelect<true>;
+    'about-numbers': AboutNumbersSelect<false> | AboutNumbersSelect<true>;
+    'about-certificates': AboutCertificatesSelect<false> | AboutCertificatesSelect<true>;
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
     'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
     'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
@@ -1121,6 +1131,137 @@ export interface AboutPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-hero".
+ */
+export interface AboutHero {
+  id: number;
+  coverImage?: (number | null) | Media;
+  title?: string | null;
+  accentWordIndex?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-who-we-are".
+ */
+export interface AboutWhoWeAre {
+  id: number;
+  statement?: {
+    text?: string | null;
+    accentWordIndex?: number | null;
+  };
+  whoWeAre?: {
+    sectionTitle?: string | null;
+    paragraph1?: string | null;
+    paragraph2?: string | null;
+    paragraph3?: string | null;
+  };
+  fullViewportImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-our-story".
+ */
+export interface AboutOurStory {
+  id: number;
+  /**
+   * e.g. "Our story"
+   */
+  sectionLabel?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  milestones?:
+    | {
+        /**
+         * e.g. "2003" or "Now"
+         */
+        year?: string | null;
+        title?: string | null;
+        body?: string | null;
+        isCurrent?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-numbers".
+ */
+export interface AboutNumber {
+  id: number;
+  stats?:
+    | {
+        value?: number | null;
+        /**
+         * e.g. "%" or "+" — leave empty for none
+         */
+        suffix?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  tagline?: {
+    /**
+     * e.g. "Comfort,"
+     */
+    text?: string | null;
+    /**
+     * e.g. "bottled."
+     */
+    accentText?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-certificates".
+ */
+export interface AboutCertificate {
+  id: number;
+  intro?: {
+    /**
+     * e.g. "Our standards,"
+     */
+    headingText?: string | null;
+    /**
+     * e.g. "on the record."
+     */
+    headingAccent?: string | null;
+    subtitle?: string | null;
+  };
+  seal?: {
+    text?: string | null;
+  };
+  certificates?:
+    | {
+        /**
+         * e.g. "ISO 9001"
+         */
+        name?: string | null;
+        /**
+         * e.g. "Quality management"
+         */
+        tag?: string | null;
+        description?: string | null;
+        /**
+         * e.g. "Issued 2019 · Valid"
+         */
+        expiryDate?: string | null;
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact-info".
  */
 export interface ContactInfo {
@@ -1268,6 +1409,117 @@ export interface AboutPageSelect<T extends boolean = true> {
         phone?: T;
         subject?: T;
         message?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-hero_select".
+ */
+export interface AboutHeroSelect<T extends boolean = true> {
+  coverImage?: T;
+  title?: T;
+  accentWordIndex?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-who-we-are_select".
+ */
+export interface AboutWhoWeAreSelect<T extends boolean = true> {
+  statement?:
+    | T
+    | {
+        text?: T;
+        accentWordIndex?: T;
+      };
+  whoWeAre?:
+    | T
+    | {
+        sectionTitle?: T;
+        paragraph1?: T;
+        paragraph2?: T;
+        paragraph3?: T;
+      };
+  fullViewportImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-our-story_select".
+ */
+export interface AboutOurStorySelect<T extends boolean = true> {
+  sectionLabel?: T;
+  title?: T;
+  subtitle?: T;
+  milestones?:
+    | T
+    | {
+        year?: T;
+        title?: T;
+        body?: T;
+        isCurrent?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-numbers_select".
+ */
+export interface AboutNumbersSelect<T extends boolean = true> {
+  stats?:
+    | T
+    | {
+        value?: T;
+        suffix?: T;
+        label?: T;
+        id?: T;
+      };
+  tagline?:
+    | T
+    | {
+        text?: T;
+        accentText?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-certificates_select".
+ */
+export interface AboutCertificatesSelect<T extends boolean = true> {
+  intro?:
+    | T
+    | {
+        headingText?: T;
+        headingAccent?: T;
+        subtitle?: T;
+      };
+  seal?:
+    | T
+    | {
+        text?: T;
+      };
+  certificates?:
+    | T
+    | {
+        name?: T;
+        tag?: T;
+        description?: T;
+        expiryDate?: T;
+        photo?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

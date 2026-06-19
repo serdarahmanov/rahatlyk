@@ -215,7 +215,6 @@ body {
 .about-mosaic-field {
   position: relative;
   overflow: hidden;
-  background: #0c3a52;
 }
 
 .about-mosaic-field::after {
@@ -256,6 +255,8 @@ body {
   z-index: 0;
   overflow: hidden;
   will-change: transform;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 12%, transparent 20%, black 62%);
+  mask-image: linear-gradient(to bottom, transparent 12%, transparent 20%, black 62%);
 }
 
 .about-mosaic-base,
@@ -428,16 +429,16 @@ body {
 }
 
 .about-mosaic-stats-grid {
-  width: min(980px, 100%);
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 0;
   padding: clamp(26px, 4vw, 52px) 0;
 }
 
 .about-mosaic-stat {
   text-align: center;
-  padding: 0 clamp(12px, 2vw, 28px);
+  padding: 0 clamp(32px, 5vw, 72px);
 }
 
 .about-mosaic-stat + .about-mosaic-stat {
@@ -449,7 +450,7 @@ body {
   align-items: baseline;
   justify-content: center;
   color: #fff;
-  font-size: clamp(36px, 5vw, 72px);
+  font-size: clamp(64px, 8vw, 110px);
   font-weight: 300;
   line-height: 0.95;
 }

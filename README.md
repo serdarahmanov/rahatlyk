@@ -22,6 +22,64 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### About page — Payload-driven content, animation polish, and layout fixes
+
+#### Our Story — `sectionLabel` field
+
+- Added `sectionLabel: string` to the `AboutPageData` type (`story` sub-object in `AboutPageClient.tsx`).
+- Replaced the hardcoded `"Our story"` label in the JSX with `{data.story.sectionLabel}`.
+- `src/globals/AboutOurStory.ts`: added `sectionLabel` (text, localized) field.
+- `src/lib/data/about-our-story-content.ts`: added `sectionLabel` in all three locales (`"Our story"` / `"Biziň taryhymyz"` / `"Наша история"`).
+- `src/seed-about-our-story.ts`: seeds `sectionLabel` for `en` on first pass and for `tm`/`ru` in the locale loop.
+- `src/app/(frontend)/about/page.tsx`: maps `storyRaw?.sectionLabel` with fallback; `sectionLabel` added to `FALLBACK.story`.
+
+Run after pulling to populate the new field:
+```bash
+npm run seed:about-our-story
+```
+
+#### Numbers section — count-up animation and layout
+
+- **Root cause fixed**: wrapping the stat value in `<span data-count-to>` caused GSAP's `fromTo({ innerText: 0 })` to reset the number to `"0"` immediately on mount, making digits appear tiny before the scroll trigger fired.
+- **Fix**: moved `data-count-to` to the `<strong>` element (no span wrapper). GSAP finds the first text-node child of `strong` and updates only that, leaving the suffix `<i>` untouched.
+- **Count-up now uses `onEnter`**: `ScrollTrigger.create({ once: true, onEnter })` wraps a `gsap.to(proxy)` with `onUpdate` writing to the text node — the number holds its rendered value until the element scrolls into view, then counts from 0 to target.
+- **Font size**: explicit inline style `clamp(48px, 6vw, 88px)` on `<strong>` so the size is always applied regardless of CSS cascade order or hot-reload state.
+- **Grid layout**: removed `width: min(980px, 100%)` cap → `width: 100%`; columns changed to `repeat(4, 1fr)` so `"100%"` no longer overflows its column divider.
+- **Column spacing**: stat item padding increased to `clamp(32px, 5vw, 72px)` (was `clamp(12px, 2vw, 28px)`).
+
+#### Statement paragraph — typography and alignment
+
+- Font weight is now locale-conditional: `font-[550]` for `en`/`tm`, `font-normal` for `ru` (Cyrillic renders heavier at the same weight in the heading font).
+- Accent word `<em>` gets explicit `font-semibold` so the serif fallback doesn't drop to 400.
+- Text alignment changed to `text-right`; block stays centred via `mx-auto`.
+
+#### Statement opacity animation — scroll timing
+
+- Changed `gsap.to()` → `gsap.fromTo()` with explicit `{ opacity: 0.12 }` from-state so stale inline styles from a previous locale never leave words at `opacity: 1` before the trigger fires.
+- `duration: 0.09` added (fade band ≈ 2 words at once; previously defaulted to 0.5 s → ~11 words).
+- **Trigger changed** from `.about-statement` (section) to `.about-statement p` (the paragraph itself). The section has `pt-[clamp(140px,22vh,260px)]`, so firing on the section top caused ~4 first-line words to reach `opacity: 1` before they were even on screen.
+- `start: 'top 90%'`, `end: 'bottom 50%'`.
+
+#### Body paragraph opacity animation
+
+- `duration: 0.07` added for the same 2-word fade band (`0.07 / 0.035 stagger = 2`).
+- `start` changed from `'top 88%'` to `'top 90%'`.
+
+#### Mosaic section — dark background fade from top
+
+- `background: #0c3a52` removed from `.about-mosaic-field`; the field is now transparent, letting the page background (`#FAFAF8`) show through at the top.
+- `mask-image` applied to `.about-mosaic-bg` (which wraps the base gradient, colour blobs, and grain layer):
+
+  ```css
+  mask-image: linear-gradient(to bottom, transparent 12%, transparent 20%, black 62%);
+  ```
+
+  `12%` aligns to the field's visible top edge (the bg element has `inset: -12% 0`). The background fades from fully transparent at the top, holds transparent through the first photo row, then becomes fully opaque by 62% of the bg height — well within the photos section. Photo rows (`z-index: 2`) are above the bg and are unaffected by the mask.
+
+---
+
+## What Changed In The Previous Session
+
 ### Article detail page — two-column redesign (`ArticleDetailClient.tsx`)
 
 The article detail page was completely redesigned from a single-column hero/content layout into a two-column pinned layout.

@@ -8,6 +8,11 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
 import { AboutPage } from './src/globals/AboutPage'
+import { AboutCertificates } from './src/globals/AboutCertificates'
+import { AboutHero } from './src/globals/AboutHero'
+import { AboutNumbers } from './src/globals/AboutNumbers'
+import { AboutOurStory } from './src/globals/AboutOurStory'
+import { AboutWhoWeAre } from './src/globals/AboutWhoWeAre'
 import { ContactInfo } from './src/globals/ContactInfo'
 import { HomeCtaBanner } from './src/globals/HomeCtaBanner'
 import { HomeHero } from './src/globals/HomeHero'
@@ -47,7 +52,7 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [AboutPage, ContactInfo, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner],
+  globals: [AboutPage, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, ContactInfo, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner],
   collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [
