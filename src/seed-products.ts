@@ -119,7 +119,31 @@ async function seedProducts() {
 
     if (existing.docs[0]) {
       const id = existing.docs[0].id
-      for (const locale of ['en', 'tm', 'ru'] as const) {
+
+      // Seed EN first so nutrition item IDs exist in the DB
+      await payload.update({
+        collection: 'products',
+        id,
+        locale: 'en',
+        data: {
+          name:            product.name.en,
+          tagline:         product.tagline.en,
+          description:     product.description.en,
+          longDescription: product.longDescription.en,
+          nutrition:       product.nutrition.map((n) => ({ label: n.label.en, value: n.value.en })),
+          date:            product.date,
+          category:        categoryId,
+          volumes:         product.volumes.map((value) => ({ value })),
+          photos,
+          video:           videoId,
+        },
+      })
+
+      // Fetch EN to get the stable nutrition item IDs
+      const fresh = await payload.findByID({ collection: 'products', id, locale: 'en', depth: 0 })
+      const nutritionIds = (fresh.nutrition ?? []).map((n: any) => n.id)
+
+      for (const locale of ['tm', 'ru'] as const) {
         await payload.update({
           collection: 'products',
           id,
@@ -129,15 +153,11 @@ async function seedProducts() {
             tagline:         product.tagline[locale],
             description:     product.description[locale],
             longDescription: product.longDescription[locale],
-            features:        product.features[locale].map((text) => ({ text })),
-            ...(locale === 'en' ? {
-              date:      product.date,
-              category:  categoryId,
-              nutrition: product.nutrition,
-              volumes:   product.volumes.map((value) => ({ value })),
-              photos,
-              video:     videoId,
-            } : {}),
+            nutrition:       product.nutrition.map((n, i) => ({
+              id:    nutritionIds[i],
+              label: n.label[locale],
+              value: n.value[locale],
+            })),
           },
         })
       }
@@ -153,13 +173,17 @@ async function seedProducts() {
           category:        categoryId,
           description:     product.description.en,
           longDescription: product.longDescription.en,
-          features:        product.features.en.map((text) => ({ text })),
-          nutrition:       product.nutrition,
+          nutrition:       product.nutrition.map((n) => ({ label: n.label.en, value: n.value.en })),
           volumes:         product.volumes.map((value) => ({ value })),
           photos,
           video:           videoId,
         },
       })
+
+      // Fetch to get the stable nutrition item IDs assigned by Payload
+      const fresh = await payload.findByID({ collection: 'products', id: created.id, locale: 'en', depth: 0 })
+      const nutritionIds = (fresh.nutrition ?? []).map((n: any) => n.id)
+
       for (const locale of ['tm', 'ru'] as const) {
         await payload.update({
           collection: 'products',
@@ -170,7 +194,11 @@ async function seedProducts() {
             tagline:         product.tagline[locale],
             description:     product.description[locale],
             longDescription: product.longDescription[locale],
-            features:        product.features[locale].map((text) => ({ text })),
+            nutrition:       product.nutrition.map((n, i) => ({
+              id:    nutritionIds[i],
+              label: n.label[locale],
+              value: n.value[locale],
+            })),
           },
         })
       }

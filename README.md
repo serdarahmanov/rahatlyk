@@ -22,6 +22,158 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 20, 2026 — product-detail UI overhaul, ProductDetailLabels global, nutrition localisation, features removal
+
+#### Product Detail page (`ProductDetailClient.tsx`)
+
+- **Icon sizing** — X (close) icon on the nutrition bar is now `16×16 / strokeWidth 1.8` to match the Back/Next arrow icons.
+- **Nutrition label** — `font-medium` weight.
+- **Volume icon hover** — `scale-105` (was `scale-110`), `text-gray-600 opacity-80 drop-shadow-sm` (was fully black).
+- **About section background** — `bg-white` (was `bg-gray-50`); top/bottom padding increased to `py-24`.
+- **About section layout** — "About" heading sits above a two-column CSS grid (`grid-cols-1 sm:grid-cols-[200px_1fr]`). Both columns sit inside grey `rounded-[10px] bg-black/[0.06] px-5 py-4` boxes, aligned at their top edges.
+- **"About" heading** — `text-5xl sm:text-6xl font-medium text-black/[0.12]` (large, light grey — Apple-style). `mb-10` gap between heading and grid.
+- **Product name in left box** — `text-xl font-semibold` (EN/TM) / `font-medium` (RU). Matches the boldness of the heading.
+- **Description text** — tagline `text-xl`; body text `text-[17px]`.
+- **Section border** — removed `border-t border-gray-200` from the About section.
+- **Thumbnail selected indicator** — absolutely positioned `<span>` overlay with `border-2 border-black/[0.06]` (sits above the image, visible at all times).
+- **Thumbnail clip-path fix** — added `onComplete: () => gsap.set(thumbCol.children, { clearProps: 'clipPath' })` to the entry animation so the GSAP inline `clip-path` style is cleared after the animation, allowing the selection border to render correctly.
+- **GSAP pin (About section, tablet/desktop only)** — `nameColRef` (left column) is pinned with `ScrollTrigger`:
+  - `start: 'top 80%'` on the grid container.
+  - `endTrigger: descBoxRef` (right column); `end` is a dynamic function so the pin releases when the bottom of the right box aligns with the bottom of the pinned name.
+  - `pinSpacing: false`, `pinType: 'transform'` — required because Lenis smooth scroll breaks the default `position: fixed` pin strategy.
+  - Guard: `window.innerWidth >= 768` — no pin on mobile.
+- **Labels from Payload** — `sizeLabel`, `nutritionLabel`, `aboutLabel`, `mineralLabel`, `perLitreLabel` are now fetched from the new `product-detail-labels` global (with inline fallbacks).
+
+#### `ProductDetailLabels` Payload global (`src/globals/ProductDetailLabels.ts`)
+
+New global registered under the **Products** admin group. Five localized text fields:
+
+| Field | EN default | TM | RU |
+|---|---|---|---|
+| `sizeLabel` | Size | Göwrüm | Объём |
+| `nutritionLabel` | Nutrition | Iýmit gymmaty | Питательная ценность |
+| `aboutLabel` | About | Barada | О продукте |
+| `mineralLabel` | Mineral | Mineral | Минерал |
+| `perLitreLabel` | Per Litre | Litrde | На литр |
+
+#### Seed script for ProductDetailLabels (`src/seed-product-detail-labels.ts`)
+
+New seed script. Seeds all five labels in EN, TM, and RU.
+
+```bash
+npx tsx src/seed-product-detail-labels.ts
+```
+
+#### Products collection — nutrition localisation (`src/collections/Products.ts`)
+
+`nutrition[].label` and `nutrition[].value` are now `localized: true`. Run a migration after pulling:
+
+```bash
+npx.cmd payload migrate
+```
+
+#### Features field removed
+
+- `features` array removed from `src/collections/Products.ts`.
+- `features` removed from `PayloadProduct` type (`src/types/payload.ts`).
+- `features` removed from `normalizeProduct` (`src/lib/payload-normalize.ts`).
+- `features` removed from `ProductSeedEntry` type and all 9 product seed entries (`src/lib/data/products-payload.ts`).
+- `features` removed from `src/seed-products.ts`.
+
+#### Seed data updates (`src/lib/data/products-payload.ts`)
+
+- **Nutrition translations** — every nutrition row now carries EN/TM/RU values for `label` and `value`.
+- **Volume format** — values are plain numbers without units: `0.5`, `0.33`, `0.7`, `1`, `10`, `19`.
+- **10 L added** — Still Water, Mineral Water, Orange Juice, Apple Juice, and Still Water 19 L product lines now include a `10` volume entry.
+
+#### Seed script fix — localized array item IDs (`src/seed-products.ts`)
+
+Payload requires existing array item IDs when updating non-default locales of a localized array field; omitting them replaces the array entirely. Fix: after seeding EN, fetch the product with `findByID` to retrieve the auto-assigned nutrition IDs, then pass those IDs in every TM/RU update:
+
+```ts
+const fresh = await payload.findByID({ collection: 'products', id, locale: 'en', depth: 0 })
+const nutritionIds = (fresh.nutrition ?? []).map((n: any) => n.id)
+// passed as { id: nutritionIds[i], label: ..., value: ... } in TM/RU updates
+```
+
+---
+
+### June 20, 2026 — home, news, and product-detail polish
+
+#### Home page
+
+- **Our Collection title handling**
+  - Long localized titles no longer split inside a word.
+  - The title mask is wider on desktop while the description/body column keeps its original width.
+- **Our Collection pin progress**
+  - Added a short, rounded vertical progress track on the left side.
+  - The black fill follows the collection pin's `ScrollTrigger.progress`.
+  - The track expands when pinning starts and collapses directionally when the user leaves the pin.
+  - Collection geometry and ScrollTrigger positions are recalculated after locale/content changes.
+- **Our Story**
+  - Section height changed from `80vh` to `100svh`.
+  - Removed the section tag.
+  - Added a `bg-white/20` image overlay for black-text readability.
+  - Body text is full black and title/body spacing was increased.
+  - Award badge now uses the same `bg-white/70 backdrop-blur-sm` surface as image navigation controls.
+- **Latest News**
+  - Header previous/next buttons now match the rounded gray controls used by Our Collection.
+  - Card captions use a translucent white blurred surface with darker, medium-weight titles.
+- **Final CTA**
+  - Subtitle changed to `text-white/70`.
+  - "Explore Products" now uses the same translucent white blurred button treatment as image controls.
+- **Footer**
+  - Facebook, Instagram, and YouTube controls changed from circles to the shared rounded-square navigation style.
+
+#### Home hero poster and video readiness
+
+- Added `poster` to the `home-hero` Payload global.
+- Added `posterUrl` to `HomeHeroData` and Payload normalization.
+- The poster image renders immediately behind the hero video.
+- The video starts at `opacity: 0` and fades in only after `onCanPlay`.
+- The poster remains visible when the video is slow or fails to load.
+- Added migration `src/migrations/20260619_225600.ts` and regenerated `payload-types.ts`.
+
+After pulling these changes:
+
+```bash
+npx.cmd payload migrate
+```
+
+Then select an image in **Payload Admin → Home → Hero Section → Video Poster**.
+
+#### Client navigation and ScrollTrigger lifecycle
+
+- `ScrollReset` now runs on every pathname change and resets both native scroll and Lenis.
+- Our Collection's asynchronous ScrollTrigger setup is guarded against initialization after unmount.
+- Horizontal-scroll cleanup restores the persistent header transform.
+- Contact, vacancy, product-detail, and article-detail pages now kill only their own ScrollTriggers instead of calling `ScrollTrigger.getAll().kill()`.
+- These changes fix pin drift and broken horizontal/collection pins after navigating away from and back to the home page.
+
+#### News listing and article detail
+
+- News card image navigation now matches the article-detail gallery:
+  - `w-9 h-9 rounded-md bg-white/70 backdrop-blur-sm` previous/next controls.
+  - Centered active pill and inactive progress dots.
+- "Read article" links are now light-gray rounded buttons with the same label/arrow anatomy as the home CTA button.
+- Related article cards use the same controls and progress indicators.
+- Article detail category/featured/date badge text increased from 10px to 12px.
+- Article detail now reads the `RAHATLYK-locale` cookie and passes `locale` to the main, related, and fallback Payload queries.
+
+#### Product detail
+
+- Replaced all warm `brand-*` colors in the product-detail component with neutral grays.
+- Breadcrumbs now match article detail: gray links/separators and a black current item.
+- Product image previous/next controls now match article-detail image controls.
+- Previous/next product links now use the rounded gray icon-button style from Home → Latest News.
+- Nutrition is now a rounded certificate-style gray row whose background expands with its content.
+- The "Size" label uses normal casing/tracking.
+- Main product titles use Plus Jakarta Sans weight 500 for English/Turkmen and retain the lighter Russian treatment.
+- Added the 500 font file to the `next/font` Plus Jakarta Sans configuration.
+- Product category labels use medium weight.
+
+---
+
 ### About page — Payload-driven content, animation polish, and layout fixes
 
 #### Our Story — `sectionLabel` field
@@ -312,8 +464,8 @@ All five major home page sections are now managed from Payload CMS. The server c
 
 #### Hero Section global (`home-hero`)
 
-- Added `src/globals/HomeHero.ts` — Payload Global (Home group) with `video` (media relationship), `title`, `titleAccent`, and `subtitle` — all text fields localized in `en`, `tm`, `ru`.
-- Hero background changed from a static Next.js `Image` to a full-screen looping `<video>` element. Falls back to a solid brand colour if no video is uploaded yet.
+- Added `src/globals/HomeHero.ts` — Payload Global (Home group) with `video`, `poster`, `title`, `titleAccent`, and `subtitle`. Text fields are localized in `en`, `tm`, and `ru`.
+- Hero background uses a full-screen looping `<video>` over a CMS-selected poster. The poster stays visible until the video can play and remains as the fallback if loading fails.
 - Text (title, titleAccent, subtitle) is read from Payload with translation fallback so the page still renders correctly before the global is seeded.
 - Added `src/lib/data/hero-content.ts` — reference file with the original hero text in all three languages and the video filename, for copying into Payload Admin.
 - Added `src/seed-hero.ts` — standalone seed script that uploads `public/hero section/hero-section-intro-video.mp4` to Payload Media and populates the global in all three locales.

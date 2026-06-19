@@ -74,13 +74,14 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
   const submitInFlightRef = useRef(false);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any;
+    let cancelled = false;
+    let ownedTriggers: Array<{ kill: () => void }> = [];
     const init = async () => {
       const { gsap } = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      st = ScrollTrigger;
+      if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
+      const existingTriggers = new Set(ScrollTrigger.getAll());
 
       if (heroRef.current) {
         gsap.fromTo(
@@ -116,10 +117,13 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
           }
         );
       }
+      ownedTriggers = ScrollTrigger.getAll().filter((trigger) => !existingTriggers.has(trigger));
     };
     init();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill());
+    return () => {
+      cancelled = true;
+      ownedTriggers.forEach((trigger) => trigger.kill());
+    };
   }, []);
 
   useEffect(() => {

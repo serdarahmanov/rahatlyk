@@ -176,13 +176,14 @@ export default function VacanciesClient({ departments, result, department }: Pro
   }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any
+    let cancelled = false
+    let ownedTriggers: Array<{ kill: () => void }> = []
     const init = async () => {
       const { gsap } = await import('gsap')
       const { ScrollTrigger } = await import('gsap/ScrollTrigger')
-      st = ScrollTrigger
+      if (cancelled) return
       gsap.registerPlugin(ScrollTrigger)
+      const existingTriggers = new Set(ScrollTrigger.getAll())
       if (perksRef.current) {
         gsap.fromTo(
           perksRef.current.children,
@@ -193,10 +194,13 @@ export default function VacanciesClient({ departments, result, department }: Pro
           }
         )
       }
+      ownedTriggers = ScrollTrigger.getAll().filter((trigger) => !existingTriggers.has(trigger))
     }
     init()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill())
+    return () => {
+      cancelled = true
+      ownedTriggers.forEach((trigger) => trigger.kill())
+    }
   }, [])
 
   useEffect(() => {

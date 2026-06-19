@@ -36,7 +36,6 @@ export type PayloadProduct = Omit<
 > & {
   category: PayloadCategory
   description: string | null
-  features: ArrayItem<{ text: string }>[]
   longDescription: string | null
   nutrition: ArrayItem<{ label: string; value: string }>[]
   photos: ArrayItem<{ url: string }>[]
@@ -108,7 +107,16 @@ export type HomeCtaBannerData = {
 
 export type HomeHeroData = {
   videoUrl:    string | null
+  posterUrl:   string | null
   title:       string | null
   titleAccent: string | null
   subtitle:    string | null
+}
+
+export type ProductDetailLabelsData = {
+  sizeLabel:      string | null
+  nutritionLabel: string | null
+  aboutLabel:     string | null
+  mineralLabel:   string | null
+  perLitreLabel:  string | null
 }

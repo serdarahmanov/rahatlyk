@@ -23,7 +23,7 @@ const EMPTY_STORY: HomeStoryData = { imageUrl: null, tag: null, title: null, tex
 
 const EMPTY_CTA: HomeCtaBannerData = { title: null, subtitle: null, ctaLabel: null, ctaHref: null }
 
-const EMPTY_HERO: HomeHeroData = { videoUrl: null, title: null, titleAccent: null, subtitle: null }
+const EMPTY_HERO: HomeHeroData = { videoUrl: null, posterUrl: null, title: null, titleAccent: null, subtitle: null }
 
 export default async function HomePage() {
   const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'

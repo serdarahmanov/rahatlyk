@@ -17,18 +17,19 @@ export const PRODUCT_CATEGORIES = [
   },
 ]
 
+type LocaleMap = { en: string; tm: string; ru: string }
+
 export type ProductSeedEntry = {
   nameEn:    string
   category:  string
   date:      string
   photos:    { folder: string; filename: string; mimetype: string }[]
   video?:    { folder: string; filename: string }
-  name:        { en: string; tm: string; ru: string }
-  tagline:     { en: string; tm: string; ru: string }
-  description: { en: string; tm: string; ru: string }
-  longDescription: { en: string; tm: string; ru: string }
-  features: { en: string[]; tm: string[]; ru: string[] }
-  nutrition: { label: string; value: string }[]
+  name:            LocaleMap
+  tagline:         LocaleMap
+  description:     LocaleMap
+  longDescription: LocaleMap
+  nutrition: { label: LocaleMap; value: LocaleMap }[]
   volumes:   string[]
 }
 
@@ -55,18 +56,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Gazsyz Suw günüň dowamynda ýönekeý we arassa serginlik üçin döredildi. Ýumşak tagamy we ýeňil häsiýeti bilen işde, sportda, ýolda, nahar wagtynda ýa-da dynç alyş pursatlarynda amatlydyr. 0.5 L we 1 L görnüşlerinde hödürlenýär.',
       ru: 'Негазированная вода создана для чистого и лёгкого освежения в течение дня. Благодаря мягкому вкусу она подходит для работы, спорта, дороги, приёма пищи и спокойного отдыха. Доступна в удобных форматах 0.5 L и 1 L.',
     },
-    features: {
-      en: ['Clean and refreshing taste', 'Ideal for daily hydration', 'Light and smooth character', 'Suitable for home, work and travel', 'Available in 0.5 L and 1 L bottles'],
-      tm: ['Arassa we serginlediji tagam', 'Gündelik suw içmek üçin amatly', 'Ýeňil we ýumşak häsiýet', 'Öý, iş we syýahat üçin laýyk', '0.5 L we 1 L çüýşelerde elýeterli'],
-      ru: ['Чистый и освежающий вкус', 'Подходит для ежедневного питья', 'Лёгкий и мягкий характер', 'Удобна для дома, работы и поездок', 'Доступна в бутылках 0.5 L и 1 L'],
-    },
     nutrition: [
-      { label: 'Calories',     value: '0 kcal' },
-      { label: 'Sugar',        value: '0 g' },
-      { label: 'Fat',          value: '0 g' },
-      { label: 'Carbonation',  value: 'Still' },
+      {
+        label: { en: 'Calories',    tm: 'Kaloriýa',      ru: 'Калории' },
+        value: { en: '0 kcal',      tm: '0 kcal',        ru: '0 ккал' },
+      },
+      {
+        label: { en: 'Sugar',       tm: 'Şeker',         ru: 'Сахар' },
+        value: { en: '0 g',         tm: '0 g',           ru: '0 г' },
+      },
+      {
+        label: { en: 'Fat',         tm: 'Ýag',           ru: 'Жир' },
+        value: { en: '0 g',         tm: '0 g',           ru: '0 г' },
+      },
+      {
+        label: { en: 'Carbonation', tm: 'Karbonlaşma',   ru: 'Газирование' },
+        value: { en: 'Still',       tm: 'Gazsyz',        ru: 'Негазированная' },
+      },
     ],
-    volumes: ['0.5L', '1L'],
+    volumes: ['0.5', '1', '10'],
   },
 
   // ── 2 · Mineral Water ─────────────────────────────────────────────
@@ -91,18 +99,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Mineral Suw tebigy deňagramly düzümi bilen rahat we serginlediji täsir berýär. Arassa tagamy we mineral häsiýeti ony gündelik suw içmek, nahar wagty, sagdyn durmuş endikleri we premium serginlik pursatlary üçin ajaýyp saýlaw edýär.',
       ru: 'Минеральная вода дарит мягкое освежение и естественный баланс. Чистый вкус и минеральный характер делают её отличным выбором для ежедневного питья, еды, здорового образа жизни и премиальных моментов.',
     },
-    features: {
-      en: ['Naturally refreshing profile', 'Clean mineral taste', 'Elegant premium bottle design', 'Suitable for dining and daily hydration', 'Available in 0.5 L and 1 L bottles'],
-      tm: ['Tebigy serginlediji häsiýet', 'Arassa mineral tagam', 'Nejislendirilen premium çüýşe dizaýny', 'Nahar wagty we gündelik suw içmek üçin amatly', '0.5 L we 1 L çüýşelerde elýeterli'],
-      ru: ['Естественно освежающий вкус', 'Чистый минеральный характер', 'Элегантный премиальный дизайн', 'Подходит для еды и ежедневного питья', 'Доступна в бутылках 0.5 L и 1 L'],
-    },
     nutrition: [
-      { label: 'Calories',   value: '0 kcal' },
-      { label: 'Sugar',      value: '0 g' },
-      { label: 'Fat',        value: '0 g' },
-      { label: 'Minerals',   value: 'Natural minerals' },
+      {
+        label: { en: 'Calories',  tm: 'Kaloriýa',       ru: 'Калории' },
+        value: { en: '0 kcal',    tm: '0 kcal',         ru: '0 ккал' },
+      },
+      {
+        label: { en: 'Sugar',     tm: 'Şeker',          ru: 'Сахар' },
+        value: { en: '0 g',       tm: '0 g',            ru: '0 г' },
+      },
+      {
+        label: { en: 'Fat',       tm: 'Ýag',            ru: 'Жир' },
+        value: { en: '0 g',       tm: '0 g',            ru: '0 г' },
+      },
+      {
+        label: { en: 'Minerals',  tm: 'Minerallar',     ru: 'Минералы' },
+        value: { en: 'Natural minerals', tm: 'Tebigy minerallar', ru: 'Природные минералы' },
+      },
     ],
-    volumes: ['0.5L', '1L'],
+    volumes: ['0.5', '1', '10'],
   },
 
   // ── 3 · Orange Juice ──────────────────────────────────────────────
@@ -127,18 +142,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Apelsin Şiresi ýagty ertirler, sergin arakesmeler we tebigy sitrus täsirini isleýän pursatlar üçin döredildi. Baý apelsin reňki, ýumşak gurluşy we janly tagamy ony ertirlik, iş arakesmesi ýa-da gündelik serginlik üçin amatly edýär.',
       ru: 'Апельсиновый сок создан для яркого утра, освежающих перерывов и моментов, когда хочется натурального цитрусового вкуса. Насыщенный цвет, мягкая текстура и живой вкус делают его отличным выбором для завтрака и ежедневной свежести.',
     },
-    features: {
-      en: ['Rich citrus flavour', 'Bright and refreshing taste', 'Smooth juice texture', 'Perfect for breakfast and breaks', 'Available in 0.5 L and 1 L bottles'],
-      tm: ['Baý sitrus tagamy', 'Ýagty we serginlediji lezzet', 'Ýumşak şire gurluşy', 'Ertirlik we arakesmeler üçin amatly', '0.5 L we 1 L çüýşelerde elýeterli'],
-      ru: ['Насыщенный цитрусовый вкус', 'Яркий и освежающий характер', 'Мягкая текстура сока', 'Отлично подходит для завтрака и перерывов', 'Доступен в бутылках 0.5 L и 1 L'],
-    },
     nutrition: [
-      { label: 'Calories',   value: '45 kcal / 100 ml' },
-      { label: 'Sugar',      value: '10 g / 100 ml' },
-      { label: 'Fat',        value: '0 g' },
-      { label: 'Vitamin C',  value: 'Source of vitamin C' },
+      {
+        label: { en: 'Calories',  tm: 'Kaloriýa',       ru: 'Калории' },
+        value: { en: '45 kcal / 100 ml', tm: '45 kcal / 100 ml', ru: '45 ккал / 100 мл' },
+      },
+      {
+        label: { en: 'Sugar',     tm: 'Şeker',          ru: 'Сахар' },
+        value: { en: '10 g / 100 ml', tm: '10 g / 100 ml', ru: '10 г / 100 мл' },
+      },
+      {
+        label: { en: 'Fat',       tm: 'Ýag',            ru: 'Жир' },
+        value: { en: '0 g',       tm: '0 g',            ru: '0 г' },
+      },
+      {
+        label: { en: 'Vitamin C', tm: 'C Witamini',     ru: 'Витамин C' },
+        value: { en: 'Source of vitamin C', tm: 'C witamininiň çeşmesi', ru: 'Источник витамина C' },
+      },
     ],
-    volumes: ['0.5L', '1L'],
+    volumes: ['0.5', '1', '10'],
   },
 
   // ── 4 · Apple Juice ───────────────────────────────────────────────
@@ -163,18 +185,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Alma Şiresi bagdan gelen ýaly arassa tagamy we altynsow ýumşak häsiýeti bilen tapawutlanýar. Ol serginlediji we içmäge ýeňil bolup, ertirlik, maşgala pursatlary, günortan arakesmeleri ýa-da ýeňil miweli içgi isleýän wagtyňyz üçin amatlydyr.',
       ru: 'Яблочный сок передаёт чистый вкус сада и мягкий золотистый характер. Он освежает, легко пьётся и подходит для завтрака, семейных моментов, обеденных перерывов и любого времени, когда хочется лёгкого фруктового напитка.',
     },
-    features: {
-      en: ['Crisp apple taste', 'Smooth golden juice', 'Light and refreshing character', 'Great for breakfast and everyday moments', 'Available in 0.5 L and 1 L bottles'],
-      tm: ['Ýeňil alma tagamy', 'Ýumşak altynsow şire', 'Serginlediji we ýeňil häsiýet', 'Ertirlik we gündelik pursatlar üçin amatly', '0.5 L we 1 L çüýşelerde elýeterli'],
-      ru: ['Свежий яблочный вкус', 'Мягкий золотистый сок', 'Лёгкий и освежающий характер', 'Подходит для завтрака и повседневных моментов', 'Доступен в бутылках 0.5 L и 1 L'],
-    },
     nutrition: [
-      { label: 'Calories',  value: '46 kcal / 100 ml' },
-      { label: 'Sugar',     value: '10 g / 100 ml' },
-      { label: 'Fat',       value: '0 g' },
-      { label: 'Fruit',     value: 'Apple' },
+      {
+        label: { en: 'Calories',  tm: 'Kaloriýa',       ru: 'Калории' },
+        value: { en: '46 kcal / 100 ml', tm: '46 kcal / 100 ml', ru: '46 ккал / 100 мл' },
+      },
+      {
+        label: { en: 'Sugar',     tm: 'Şeker',          ru: 'Сахар' },
+        value: { en: '10 g / 100 ml', tm: '10 g / 100 ml', ru: '10 г / 100 мл' },
+      },
+      {
+        label: { en: 'Fat',       tm: 'Ýag',            ru: 'Жир' },
+        value: { en: '0 g',       tm: '0 g',            ru: '0 г' },
+      },
+      {
+        label: { en: 'Fruit',     tm: 'Miwe',           ru: 'Фрукт' },
+        value: { en: 'Apple',     tm: 'Alma',           ru: 'Яблоко' },
+      },
     ],
-    volumes: ['0.5L', '1L'],
+    volumes: ['0.5', '1', '10'],
   },
 
   // ── 5 · Stress Less Tincture ──────────────────────────────────────
@@ -200,18 +229,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Stressiz Tinktura stres täsirini ýumşatmak, rahatlygy we duýgy deňagramlylygyny höweslendirmek üçin döredilen ösümlik garyndysydyr — uklandyrmazdan. Ýuwaşlyk bilen boşanmak we deňagramlylyga gaýdyp gelmek isleýän pursatlar üçin döredildi. 700 ml we 1 L görnüşlerinde elýeterli.',
       ru: 'Настойка "Stress Less" — это успокаивающая смесь трав, созданная для мягкого снятия стресса и поощрения расслабления без седативного эффекта. Создана для моментов, когда нужно спокойно расслабиться и вернуться к балансу. Доступна в форматах 700 мл и 1 L.',
     },
-    features: {
-      en: ['Calming blend of grounding herbs', 'Supports relaxation without sedation', 'Encourages emotional ease and balance', 'Clean and light taste', 'Available in 700 ml and 1 L'],
-      tm: ['Aýratyn ösümlik garyndysy', 'Uklatmazdan rahatlygy goldaýar', 'Duýgy deňagramlylygyny we rahatlygy höweslendirýär', 'Arassa we ýeňil tagam', '700 ml we 1 L görnüşlerinde elýeterli'],
-      ru: ['Успокаивающая смесь трав', 'Поддерживает расслабление без седации', 'Способствует эмоциональному равновесию', 'Чистый и лёгкий вкус', 'Доступна в 700 мл и 1 L'],
-    },
     nutrition: [
-      { label: 'Calories',  value: '5 kcal / serving' },
-      { label: 'Sugar',     value: '0 g' },
-      { label: 'Fat',       value: '0 g' },
-      { label: 'Botanicals', value: 'Herbal blend' },
+      {
+        label: { en: 'Calories',   tm: 'Kaloriýa',           ru: 'Калории' },
+        value: { en: '5 kcal / serving', tm: '5 kcal / porsiya', ru: '5 ккал / порция' },
+      },
+      {
+        label: { en: 'Sugar',      tm: 'Şeker',              ru: 'Сахар' },
+        value: { en: '0 g',        tm: '0 g',                ru: '0 г' },
+      },
+      {
+        label: { en: 'Fat',        tm: 'Ýag',                ru: 'Жир' },
+        value: { en: '0 g',        tm: '0 g',                ru: '0 г' },
+      },
+      {
+        label: { en: 'Botanicals', tm: 'Ösümlikler',         ru: 'Растительные компоненты' },
+        value: { en: 'Herbal blend', tm: 'Ösümlik garyndysy', ru: 'Растительная смесь' },
+      },
     ],
-    volumes: ['700ml', '1L'],
+    volumes: ['0.7', '1'],
   },
 
   // ── 6 · Mineral Restore ───────────────────────────────────────────
@@ -238,18 +274,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Mineral Dikeldiji iş, syýahat ýa-da işjeňlikden soň deňagramlylygy dikeltmek üçin döredilen nemiçi mineral içgidir. Esasy elektrolitler we ösümlikler nerw ulgamyny goldaýar, arassa we täze tagamy saklap galýar. Salyrça, limon we aloe tagamly gündelik täzelenme üçin ygtybarly saýlaw. 700 ml we 1 L görnüşlerinde elýeterli.',
       ru: 'Mineral Restore — это увлажняющий напиток для восстановления баланса после работы, путешествия или активности. Электролиты и растительные компоненты поддерживают нервную систему, сохраняя свежий и чистый вкус. Лёгкий вкус огурца, лимона и алоэ. Доступен в 700 мл и 1 L.',
     },
-    features: {
-      en: ['Restores electrolyte balance', 'Supports nervous system function', 'Light cucumber, lemon and aloe flavour', 'Clean and refreshing taste', 'Available in 700 ml and 1 L'],
-      tm: ['Elektrolit deňagramlylygyny dikeldýär', 'Nerw ulgamynyň işini goldaýar', 'Ýeňil salyrça, limon we aloe tagamy', 'Arassa we serginlediji tagam', '700 ml we 1 L görnüşlerinde elýeterli'],
-      ru: ['Восстанавливает баланс электролитов', 'Поддерживает работу нервной системы', 'Лёгкий вкус огурца, лимона и алоэ', 'Чистый и освежающий вкус', 'Доступен в 700 мл и 1 L'],
-    },
     nutrition: [
-      { label: 'Calories',     value: '10 kcal / 100 ml' },
-      { label: 'Sugar',        value: '2 g / 100 ml' },
-      { label: 'Electrolytes', value: 'Essential blend' },
-      { label: 'Botanicals',   value: 'Cucumber, lemon, aloe' },
+      {
+        label: { en: 'Calories',     tm: 'Kaloriýa',          ru: 'Калории' },
+        value: { en: '10 kcal / 100 ml', tm: '10 kcal / 100 ml', ru: '10 ккал / 100 мл' },
+      },
+      {
+        label: { en: 'Sugar',        tm: 'Şeker',             ru: 'Сахар' },
+        value: { en: '2 g / 100 ml', tm: '2 g / 100 ml',     ru: '2 г / 100 мл' },
+      },
+      {
+        label: { en: 'Electrolytes', tm: 'Elektrolitler',     ru: 'Электролиты' },
+        value: { en: 'Essential blend', tm: 'Esasy garyndy', ru: 'Необходимая смесь' },
+      },
+      {
+        label: { en: 'Botanicals',   tm: 'Ösümlikler',        ru: 'Растительные компоненты' },
+        value: { en: 'Cucumber, lemon, aloe', tm: 'Salyrça, limon, aloe', ru: 'Огурец, лимон, алоэ' },
+      },
     ],
-    volumes: ['700ml', '1L'],
+    volumes: ['0.7', '1'],
   },
 
   // ── 7 · Blueberry Brain ───────────────────────────────────────────
@@ -276,18 +319,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Blueberry Brain uzyn günlerde akylyňy işjeň saklamak üçin döredilen köpürjikli miweli içgidir. Antioksidantlara baý miweler ýumşak aminokislotalar bilen birleşip, ynçgadan aýdyň pikirlenmegi we deňagramly ünsi goldaýar. Çuň blueberry notalar bilen baziligiň ýeňil tagamy süýji-turşy lezzet berýär. Okuw, döredijilik iş ýa-da köpürjikli önümçilik üçin amatly. 500 ml we 330 ml görnüşlerinde elýeterli.',
       ru: 'Blueberry Brain — игристый ягодный напиток для поддержания умственной активности в течение долгого дня. Антиоксидантные фрукты с мягкими аминокислотами поддерживают ясное мышление без кофеиновых скачков. Глубокие черничные ноты с базиликом создают кисло-сладкий вкус с фиолетово-синим оттенком. Для учёбы, творческой работы и спокойной продуктивности. Доступен в 500 мл и 330 мл.',
     },
-    features: {
-      en: ['Antioxidant-rich berry blend', 'Supports focus without caffeine jitters', 'Sparkling texture with deep blueberry taste', 'Gentle amino acids for mental clarity', 'Available in 500 ml and 330 ml'],
-      tm: ['Antioksidantlara baý miweli garyndy', 'Ynçgadan ünsi goldaýar', 'Blueberry tagamly köpürjikli içgi', 'Akyl aýdyňlygy üçin ýumşak aminokislotalar', '500 ml we 330 ml görnüşlerinde elýeterli'],
-      ru: ['Богатая антиоксидантами ягодная смесь', 'Поддерживает фокус без нервозности', 'Игристый черничный вкус', 'Мягкие аминокислоты для ясности ума', 'Доступен в 500 мл и 330 мл'],
-    },
     nutrition: [
-      { label: 'Calories',      value: '25 kcal / 100 ml' },
-      { label: 'Sugar',         value: '5 g / 100 ml' },
-      { label: 'Amino acids',   value: 'Natural blend' },
-      { label: 'Antioxidants',  value: 'Blueberry extract' },
+      {
+        label: { en: 'Calories',     tm: 'Kaloriýa',           ru: 'Калории' },
+        value: { en: '25 kcal / 100 ml', tm: '25 kcal / 100 ml', ru: '25 ккал / 100 мл' },
+      },
+      {
+        label: { en: 'Sugar',        tm: 'Şeker',              ru: 'Сахар' },
+        value: { en: '5 g / 100 ml', tm: '5 g / 100 ml',      ru: '5 г / 100 мл' },
+      },
+      {
+        label: { en: 'Amino acids',  tm: 'Aminokislotalar',    ru: 'Аминокислоты' },
+        value: { en: 'Natural blend', tm: 'Tebigy garyndy',    ru: 'Природная смесь' },
+      },
+      {
+        label: { en: 'Antioxidants', tm: 'Antioksidantlar',    ru: 'Антиоксиданты' },
+        value: { en: 'Blueberry extract', tm: 'Blueberry ekstrakty', ru: 'Экстракт черники' },
+      },
     ],
-    volumes: ['500ml', '330ml'],
+    volumes: ['0.33', '0.5'],
   },
 
   // ── 8 · Mellow Mango ─────────────────────────────────────────────
@@ -313,18 +363,25 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Mellow Mango hereketli günlerden soň çuňňur rahatlygy höweslendirýän mylaýym tropik garyndysydyr. Aýratyn ösümlikler dynç alşy goldaýar, miwäniň ýyly tagamy bolsa tesellendiriji içgi adatyny döredýär. Bişen mango ýumşak papatela bilen birleşip, mylaýym tropik süýjilik berýär. 500 ml we 330 ml görnüşlerinde elýeterli.',
       ru: 'Mellow Mango — мягкий тропический напиток для глубокого расслабления после насыщенных дней. Успокаивающие травы помогают расслабиться, а тёплый фруктовый вкус создаёт уютный ритуал. Спелое манго с мягкой ромашкой дарят тропическую сладость и тёплое золотистое настроение. Доступен в 500 мл и 330 мл.',
     },
-    features: {
-      en: ['Calming herbs for deep relaxation', 'Warm ripe mango and chamomile blend', 'Supports evening wind-down routine', 'Smooth and comforting taste', 'Available in 500 ml and 330 ml'],
-      tm: ['Çuňňur rahatlyga ymykly ösümlikler', 'Ýyly bişen mango we papatela garyndysy', 'Agşamky dynç alyşy goldaýar', 'Ýumşak we tesellendiriji tagam', '500 ml we 330 ml görnüşlerinde elýeterli'],
-      ru: ['Успокаивающие травы для глубокого расслабления', 'Спелое манго и мягкая ромашка', 'Помогает расслабиться вечером', 'Мягкий и уютный вкус', 'Доступен в 500 мл и 330 мл'],
-    },
     nutrition: [
-      { label: 'Calories',   value: '30 kcal / 100 ml' },
-      { label: 'Sugar',      value: '6 g / 100 ml' },
-      { label: 'Fat',        value: '0 g' },
-      { label: 'Botanicals', value: 'Chamomile, mango' },
+      {
+        label: { en: 'Calories',   tm: 'Kaloriýa',          ru: 'Калории' },
+        value: { en: '30 kcal / 100 ml', tm: '30 kcal / 100 ml', ru: '30 ккал / 100 мл' },
+      },
+      {
+        label: { en: 'Sugar',      tm: 'Şeker',             ru: 'Сахар' },
+        value: { en: '6 g / 100 ml', tm: '6 g / 100 ml',   ru: '6 г / 100 мл' },
+      },
+      {
+        label: { en: 'Fat',        tm: 'Ýag',               ru: 'Жир' },
+        value: { en: '0 g',        tm: '0 g',               ru: '0 г' },
+      },
+      {
+        label: { en: 'Botanicals', tm: 'Ösümlikler',        ru: 'Растительные компоненты' },
+        value: { en: 'Chamomile, mango', tm: 'Papatela, mango', ru: 'Ромашка, манго' },
+      },
     ],
-    volumes: ['500ml', '330ml'],
+    volumes: ['0.33', '0.5'],
   },
 
   // ── 9 · Still Water 19 L ──────────────────────────────────────────
@@ -349,17 +406,24 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
       tm: 'Gazsyz Suw 19L arassa we yzygiderli suw üpjünçiligini gymmatly hasaplaýan öýler, iş ýerleri we maşgalalar üçin amaly uly göwrümli saýlawdyr. RAHATLYK bilen tanalýan şol bir arassa we ýumşak suw, indi dispenserlere niýetlenen amatly 19 L formatynda. Gurnamak aňsat, saklamak aňsat we hemişe taýýar.',
       ru: 'Вода 19L — это удобный большой формат для домов, офисов и семей, которые ценят постоянное обеспечение чистой водой. Та же чистая и мягкая вода, которой известен RAHATLYK, теперь в экономичном формате 19 л для кулеров. Легко устанавливать, легко хранить и всегда готова к использованию.',
     },
-    features: {
-      en: ['Large-format 19 L bottle', 'Designed for home and office dispensers', 'Same pure RAHATLYK water quality', 'Economical and practical', 'Easy to install and store'],
-      tm: ['Uly göwrümli 19 L çüýşe', 'Öý we iş ýeri dispenserleri üçin niýetlenen', 'Şol bir arassa RAHATLYK suw hili', 'Amatly we tygşytly', 'Gurnamak we saklamak aňsat'],
-      ru: ['Большой формат 19 л', 'Для домашних и офисных кулеров', 'Такое же чистое качество воды RAHATLYK', 'Экономично и практично', 'Легко устанавливать и хранить'],
-    },
     nutrition: [
-      { label: 'Calories',    value: '0 kcal' },
-      { label: 'Sugar',       value: '0 g' },
-      { label: 'Fat',         value: '0 g' },
-      { label: 'Carbonation', value: 'Still' },
+      {
+        label: { en: 'Calories',    tm: 'Kaloriýa',       ru: 'Калории' },
+        value: { en: '0 kcal',      tm: '0 kcal',         ru: '0 ккал' },
+      },
+      {
+        label: { en: 'Sugar',       tm: 'Şeker',          ru: 'Сахар' },
+        value: { en: '0 g',         tm: '0 g',            ru: '0 г' },
+      },
+      {
+        label: { en: 'Fat',         tm: 'Ýag',            ru: 'Жир' },
+        value: { en: '0 g',         tm: '0 g',            ru: '0 г' },
+      },
+      {
+        label: { en: 'Carbonation', tm: 'Karbonlaşma',    ru: 'Газирование' },
+        value: { en: 'Still',       tm: 'Gazsyz',         ru: 'Негазированная' },
+      },
     ],
-    volumes: ['19L'],
+    volumes: ['10', '19'],
   },
 ]

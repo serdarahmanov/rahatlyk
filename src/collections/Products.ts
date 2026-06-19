@@ -19,16 +19,11 @@ export const Products: CollectionConfig = {
     { name: 'description',     type: 'textarea',                  localized: true },
     { name: 'longDescription', type: 'textarea',                  localized: true },
     {
-      name: 'features',
-      type: 'array',
-      fields: [{ name: 'text', type: 'text', required: true, localized: true }],
-    },
-    {
       name: 'nutrition',
       type: 'array',
       fields: [
-        { name: 'label', type: 'text', required: true },
-        { name: 'value', type: 'text', required: true },
+        { name: 'label', type: 'text', required: true, localized: true },
+        { name: 'value', type: 'text', required: true, localized: true },
       ],
     },
     {

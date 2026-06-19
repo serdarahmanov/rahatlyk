@@ -31,6 +31,22 @@ function RelatedCard({ article }: { article: PayloadArticle }) {
     return () => clearInterval(id)
   }, [current, imgs.length, intervalMs])
 
+  const go = (dir: number, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (busy || imgs.length <= 1) return
+    setIncoming((current + dir + imgs.length) % imgs.length)
+    setBusy(true)
+  }
+
+  const goTo = (idx: number, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (busy || idx === current) return
+    setIncoming(idx)
+    setBusy(true)
+  }
+
   const onAnimEnd = () => {
     if (incoming !== null) {
       setCurrent(incoming)
@@ -58,6 +74,40 @@ function RelatedCard({ article }: { article: PayloadArticle }) {
             <Image src={imgs[incoming]} alt="" fill className="object-cover object-center" sizes="33vw" />
           </div>
         )}
+        {imgs.length > 1 && (
+          <div className="absolute inset-x-0 bottom-4 z-10 flex items-center justify-between px-4">
+            <button
+              onClick={(e) => go(-1, e)}
+              aria-label="Previous photo"
+              className="flex h-9 w-9 items-center justify-center rounded-md bg-white/70 text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
+            >
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              {imgs.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => goTo(i, e)}
+                  aria-label={`Photo ${i + 1}`}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === current ? 'h-[4px] w-6 bg-white' : 'h-[4px] w-[4px] bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={(e) => go(1, e)}
+              aria-label="Next photo"
+              className="flex h-9 w-9 items-center justify-center rounded-md bg-white/70 text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
+            >
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
       <div className="pt-3 px-0.5">
         <div className="flex items-center gap-1.5 mb-1">
@@ -71,9 +121,11 @@ function RelatedCard({ article }: { article: PayloadArticle }) {
         >
           {article.title}
         </h3>
-        <span className="text-[12px] text-gray-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
+        <span className="inline-flex h-9 items-center gap-1.5 rounded-md bg-gray-100 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 transition-all duration-200 group-hover:bg-gray-200">
           {t.news.readArticle}
-          <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-gray-500">&rarr;</span>
+          <svg className="transition-transform duration-200 group-hover:translate-x-1" width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </span>
       </div>
     </div>
@@ -109,12 +161,13 @@ export default function ArticleDetailClient({ article, more }: Props) {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any
+    let cancelled = false
+    let ownedTriggers: Array<{ kill: () => void }> = []
     const init = async () => {
       const { ScrollTrigger } = await import('gsap/ScrollTrigger')
-      st = ScrollTrigger
+      if (cancelled) return
       gsap.registerPlugin(ScrollTrigger)
+      const existingTriggers = new Set(ScrollTrigger.getAll())
 
       if (infoRef.current) {
         gsap.fromTo(
@@ -143,10 +196,13 @@ export default function ArticleDetailClient({ article, more }: Props) {
           }
         )
       }
+      ownedTriggers = ScrollTrigger.getAll().filter((trigger) => !existingTriggers.has(trigger))
     }
     init()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill())
+    return () => {
+      cancelled = true
+      ownedTriggers.forEach((trigger) => trigger.kill())
+    }
   }, [article.id])
 
   return (
@@ -187,15 +243,15 @@ export default function ArticleDetailClient({ article, more }: Props) {
 
           {/* Badges + date — above the photo */}
           <div className="flex-none flex items-center gap-2 mb-3 flex-wrap">
-            <span className="bg-gray-100 text-gray-600 text-[10px] font-medium px-3 py-1 rounded-md uppercase tracking-wider">
+            <span className="bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
               {article.category.label}
             </span>
             {article.featured && (
-              <span className="bg-gray-100 text-gray-500 text-[10px] font-medium px-3 py-1 rounded-md uppercase tracking-wider">
+              <span className="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
                 {t.news.featured}
               </span>
             )}
-            <span className="ml-auto bg-gray-100 text-gray-500 text-[10px] font-medium px-3 py-1 rounded-md tracking-wider">
+            <span className="ml-auto bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md tracking-wider">
               {formatDate(article.date, locale)}
             </span>
           </div>

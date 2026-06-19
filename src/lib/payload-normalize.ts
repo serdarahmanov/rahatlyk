@@ -73,7 +73,6 @@ export const normalizeProduct = (product: Product): PayloadProduct => ({
   ...product,
   category: normalizeCategory(product.category),
   description: product.description ?? null,
-  features: textRows(product.features),
   longDescription: product.longDescription ?? null,
   nutrition: (product.nutrition ?? []).map((item, index) => ({
     id: itemID(item.id, index),
@@ -151,6 +150,7 @@ export const normalizeHomeStory = (raw: any): HomeStoryData => ({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeHomeHero = (raw: any): HomeHeroData => ({
   videoUrl:    rawMediaUrl(raw?.video),
+  posterUrl:   rawMediaUrl(raw?.poster),
   title:       rawStr(raw?.title),
   titleAccent: rawStr(raw?.titleAccent),
   subtitle:    rawStr(raw?.subtitle),

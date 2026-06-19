@@ -1,15 +1,19 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function ScrollReset() {
+  const pathname = usePathname();
+
   useEffect(() => {
-    // Disable browser scroll restoration so every page load starts at the top
-    if (typeof window !== 'undefined' && 'scrollRestoration' in history) {
+    if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
-    window.scrollTo(0, 0);
-  }, []);
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    window.dispatchEvent(new CustomEvent('scroll-to-top'));
+  }, [pathname]);
 
   return null;
 }

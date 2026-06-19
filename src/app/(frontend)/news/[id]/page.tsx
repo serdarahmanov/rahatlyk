@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import ArticleDetailClient from './ArticleDetailClient'
 import { getPayloadClient } from '@/lib/payload'
 import { normalizeArticle } from '@/lib/payload-normalize'
@@ -17,10 +18,12 @@ export default async function ArticlePage({ params }: Props) {
     notFound()
   }
 
+  const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'
   const payload = await getPayloadClient()
   const articleResult = await payload.find({
     collection: 'articles',
     depth: 2,
+    locale,
     limit: 1,
     where: {
       id: {
@@ -39,6 +42,7 @@ export default async function ArticlePage({ params }: Props) {
   const relatedResult = await payload.find({
     collection: 'articles',
     depth: 2,
+    locale,
     limit: 3,
     sort: '-date',
     where: {
@@ -63,6 +67,7 @@ export default async function ArticlePage({ params }: Props) {
     const fallbackResult = await payload.find({
       collection: 'articles',
       depth: 2,
+      locale,
       limit: 3 - more.length,
       sort: '-date',
       where: {

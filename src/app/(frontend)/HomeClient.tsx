@@ -109,6 +109,8 @@ function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
     let mounted = true;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ctx: any;
+    let header: HTMLElement | null = null;
+    let resetHeader: (() => void) | null = null;
 
     const init = async () => {
       const { gsap }          = await import('gsap');
@@ -118,7 +120,12 @@ function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
       if (!mounted || !containerRef.current || !trackRef.current) return;
 
       const track  = trackRef.current;
-      const header = document.querySelector<HTMLElement>('header');
+      header = document.querySelector<HTMLElement>('header');
+      resetHeader = () => {
+        if (!header) return;
+        gsap.killTweensOf(header);
+        gsap.set(header, { clearProps: 'transform' });
+      };
 
       gsap.set(track, { x: 0 });
 
@@ -154,6 +161,7 @@ function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
     init();
     return () => {
       mounted = false;
+      resetHeader?.();
       ctx?.revert();
     };
   }, []);
@@ -373,14 +381,38 @@ function CollectionsSection({
   sectionTag: string;
   exploreLabel: string;
 }) {
+  const { locale } = useLanguage();
   const sectionRef   = useRef<HTMLDivElement>(null);
   const bottleEls    = useRef<(HTMLDivElement | null)[]>([]);
   const animObj      = useRef({ pos: 0 });
   const textRef      = useRef<HTMLDivElement>(null);
   const navRef       = useRef<HTMLDivElement>(null);
+  const pinProgressTrackRef = useRef<HTMLDivElement>(null);
+  const pinProgressRef = useRef<HTMLDivElement>(null);
   const isFirstRun   = useRef(true);
   const entranceMult = useRef(0);
   const [snapIndex, setSnapIndex] = useState(0);
+
+  const recalculateLayout = useCallback(() => {
+    if (!sectionRef.current) return;
+    const header = document.querySelector('header');
+    const headerH = header ? header.offsetHeight : 0;
+    const h = window.innerHeight - headerH;
+    const isMobile = window.innerWidth < 768;
+    const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
+    const sectionH = isMobile ? window.innerHeight : h;
+    sectionRef.current.style.height = `${sectionH}px`;
+    sectionRef.current.style.setProperty('--col-h', `${h}px`);
+    sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
+    if (textRef.current) {
+      if (!isMobile) {
+        const bottleTopPx = sectionH - sectionH * 0.08 - bottleH;
+        textRef.current.style.paddingTop = `${bottleTopPx}px`;
+      } else {
+        textRef.current.style.paddingTop = '';
+      }
+    }
+  }, []);
 
   useLayoutEffect(() => {
     if (textRef.current) textRef.current.style.opacity = '0';
@@ -391,22 +423,34 @@ function CollectionsSection({
   }, []);
 
   useEffect(() => {
-    const fit = () => {
-      if (!sectionRef.current) return;
-      const header = document.querySelector('header');
-      const headerH = header ? header.offsetHeight : 0;
-      const h = window.innerHeight - headerH;
-      const isMobile = window.innerWidth < 768;
-      const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
-      const sectionH = isMobile ? window.innerHeight : Math.round(window.innerHeight * 1.1);
-      sectionRef.current.style.height = `${sectionH}px`;
-      sectionRef.current.style.setProperty('--col-h', `${h}px`);
-      sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
+    recalculateLayout();
+    window.addEventListener('resize', recalculateLayout);
+    return () => window.removeEventListener('resize', recalculateLayout);
+  }, [recalculateLayout]);
+
+  useLayoutEffect(() => {
+    recalculateLayout();
+  }, [locale, lines, sectionTag, exploreLabel, recalculateLayout]);
+
+  useEffect(() => {
+    let firstRaf = 0;
+    let secondRaf = 0;
+    let cancelled = false;
+
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      if (cancelled) return;
+      firstRaf = requestAnimationFrame(() => {
+        recalculateLayout();
+        secondRaf = requestAnimationFrame(() => ScrollTrigger.refresh());
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(firstRaf);
+      cancelAnimationFrame(secondRaf);
     };
-    fit();
-    window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
-  }, []);
+  }, [locale, lines, sectionTag, exploreLabel, recalculateLayout]);
 
   const applyProgress = (pos: number) => {
     const w    = window.innerWidth;
@@ -442,10 +486,12 @@ function CollectionsSection({
 
   useEffect(() => {
     let cleanup: (() => void) | null = null;
+    let cancelled = false;
     const init = async () => {
       const { gsap }          = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
       gsap.registerPlugin(ScrollTrigger);
+      if (cancelled || !sectionRef.current) return;
 
       const st = ScrollTrigger.create({
         trigger: sectionRef.current!,
@@ -467,10 +513,58 @@ function CollectionsSection({
           }
         },
       });
-      cleanup = () => st.kill();
+
+      const headerEl = document.querySelector('header');
+      const headerH  = headerEl ? headerEl.offsetHeight : 0;
+      const setPinProgress = gsap.quickTo(pinProgressRef.current, 'scaleY', {
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+      const showPinProgress = (origin: 'top' | 'bottom') => {
+        gsap.set(pinProgressTrackRef.current, { transformOrigin: origin });
+        gsap.to(pinProgressTrackRef.current, {
+          scaleY: 1,
+          duration: 0.4,
+          ease: 'power2.out',
+          overwrite: true,
+        });
+      };
+      const hidePinProgress = (origin: 'top' | 'bottom') => {
+        gsap.set(pinProgressTrackRef.current, { transformOrigin: origin });
+        gsap.to(pinProgressTrackRef.current, {
+          scaleY: 0,
+          duration: 0.3,
+          ease: 'power2.in',
+          overwrite: true,
+        });
+      };
+
+      const pin = ScrollTrigger.create({
+        trigger:          sectionRef.current!,
+        pin:              true,
+        start:            `top top+=${headerH}`,
+        end:              `+=${Math.round(window.innerHeight * 0.35)}`,
+        pinSpacing:       true,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          setPinProgress(self.progress);
+        },
+        onRefresh: (self) => {
+          gsap.set(pinProgressRef.current, { scaleY: self.progress });
+        },
+        onEnter: () => showPinProgress('top'),
+        onEnterBack: () => showPinProgress('bottom'),
+        onLeave: () => hidePinProgress('bottom'),
+        onLeaveBack: () => hidePinProgress('top'),
+      });
+
+      cleanup = () => { pin.kill(); st.kill(); };
     };
     init();
-    return () => { cleanup?.(); };
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -502,11 +596,24 @@ function CollectionsSection({
 
   return (
     <div ref={sectionRef} className="relative overflow-hidden bg-white">
+      <div
+        ref={pinProgressTrackRef}
+        aria-hidden="true"
+        className="absolute top-[15%] bottom-[15%] left-2 md:left-4 z-40 w-[3px] overflow-hidden rounded-full bg-black/15"
+        style={{ transform: 'scaleY(0)', transformOrigin: 'top' }}
+      >
+        <div
+          ref={pinProgressRef}
+          className="h-full w-full rounded-full bg-black"
+          style={{ transform: 'scaleY(0)', transformOrigin: 'top' }}
+        />
+      </div>
+
       {lines.map((line, i) => (
         <div
           key={line.key}
           ref={(el) => { bottleEls.current[i] = el; }}
-          className="absolute bottom-[12%] md:bottom-[11%]"
+          className="absolute bottom-[18%] md:bottom-[8%] z-0"
           style={{
             left:            '50%',
             height:          'var(--bottle-h, 480px)',
@@ -530,9 +637,9 @@ function CollectionsSection({
       <div
         ref={textRef}
         className="
-          absolute z-10 flex flex-col
-          top-[8%] left-0 right-0 items-center text-center px-6
-          md:top-0 md:bottom-0 md:justify-between md:py-[11%]
+          absolute z-20 flex flex-col
+          top-[4%] left-0 right-0 items-center text-center px-6
+          md:top-0 md:bottom-auto md:gap-5
           md:right-auto md:left-[5%] md:max-w-[280px] lg:left-[7%] lg:max-w-[320px] xl:left-[8%] xl:max-w-[360px]
           md:items-start md:text-left md:px-0
         "
@@ -544,8 +651,8 @@ function CollectionsSection({
         </div>
 
         <div className="flex flex-col w-full">
-          <div className="overflow-hidden mb-2 w-full">
-            <h3 className="split-reveal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+          <div className="overflow-hidden mb-2 w-full md:w-[380px] lg:w-[420px] xl:w-[500px]">
+            <h3 className="split-reveal break-normal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif', overflowWrap: 'normal' }}>
               {activeLine?.name ?? ''}
             </h3>
           </div>
@@ -560,30 +667,31 @@ function CollectionsSection({
             </p>
           </div>
         </div>
+      </div>
 
+      <div ref={navRef} className="absolute bottom-[6%] md:bottom-[5%] left-0 right-0 z-30 flex items-center justify-between px-6 md:px-[5%] lg:px-[7%] xl:px-[8%] pb-7 md:pb-0">
         <Link
           href={`/products?category=${activeLine?.key ?? ''}`}
-          className="group inline-flex items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618] mt-4 md:mt-0"
+          className="group inline-flex items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] h-9 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
         >
           <span>{exploreLabel}</span>
           <svg className="group-hover:translate-x-1 transition-transform duration-200" width="13" height="13" viewBox="0 0 14 14" fill="none">
             <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
-      </div>
-
-      <div ref={navRef} className="absolute bottom-0 md:bottom-[7%] left-0 right-0 z-30 flex items-center justify-center pb-7 md:pb-0 gap-5">
-        <button onClick={() => goTo(snapIndex - 1)} disabled={snapIndex === 0} aria-label="Previous" className="flex items-center justify-center text-black/60 hover:text-black disabled:opacity-20 transition-all duration-200">
-          <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <div className="flex items-center gap-2">
-          {lines.map((_, i) => (
-            <button key={i} onClick={() => goTo(i)} aria-label={`Category ${i + 1}`} className={`rounded-full transition-all duration-300 ${i === snapIndex ? 'w-6 h-[4px] bg-black' : 'w-[4px] h-[4px] bg-black/25 hover:bg-black/50'}`} />
-          ))}
+        <div className="flex items-center gap-5">
+          <button onClick={() => goTo(snapIndex - 1)} disabled={snapIndex === 0} aria-label="Previous" className="flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
+            <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+          <div className="flex items-center gap-2">
+            {lines.map((_, i) => (
+              <button key={i} onClick={() => goTo(i)} aria-label={`Category ${i + 1}`} className={`rounded-full transition-all duration-300 ${i === snapIndex ? 'w-6 h-[4px] bg-black' : 'w-[4px] h-[4px] bg-black/25 hover:bg-black/50'}`} />
+            ))}
+          </div>
+          <button onClick={() => goTo(snapIndex + 1)} disabled={snapIndex === lines.length - 1} aria-label="Next" className="flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
+            <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
         </div>
-        <button onClick={() => goTo(snapIndex + 1)} disabled={snapIndex === lines.length - 1} aria-label="Next" className="flex items-center justify-center text-black/60 hover:text-black disabled:opacity-20 transition-all duration-200">
-          <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
       </div>
     </div>
   );
@@ -684,11 +792,11 @@ function NewsCarousel({ tag, articles }: { tag: string; articles: PayloadArticle
             {tag}
           </span>
           <div className="flex items-center gap-5">
-            <button onClick={() => advance(-1)} aria-label="Previous news" className="text-brand-400 hover:text-brand-950 transition-colors duration-200">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M14 5L8 11L14 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <button onClick={() => advance(-1)} aria-label="Previous news" className="flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 transition-all duration-200">
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
-            <button onClick={() => advance(1)} aria-label="Next news" className="text-brand-400 hover:text-brand-950 transition-colors duration-200">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M8 5L14 11L8 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <button onClick={() => advance(1)} aria-label="Next news" className="flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 transition-all duration-200">
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           </div>
         </div>
@@ -718,11 +826,11 @@ function NewsCarousel({ tag, articles }: { tag: string; articles: PayloadArticle
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 rounded-xl overflow-hidden backdrop-blur-xl bg-white/10 border border-white/20 px-4 py-3.5">
-                  <p className="text-[10px] text-white/55 tracking-[0.18em] uppercase mb-1.5">
+                <div className="absolute bottom-4 left-4 right-4 overflow-hidden rounded-md bg-white/70 px-4 py-3.5 backdrop-blur-sm">
+                  <p className="text-[10px] text-gray-700/60 tracking-[0.18em] uppercase mb-1.5">
                     {formatDate(article.date, locale)}
                   </p>
-                  <h3 className="text-[13px] sm:text-sm font-light text-white leading-snug">
+                  <h3 className="text-[13px] sm:text-sm font-medium text-gray-700 leading-snug">
                     {article.title}
                   </h3>
                 </div>
@@ -752,6 +860,7 @@ export default function HomeClient({
   hero: HomeHeroData
 }) {
   const { t, locale } = useLanguage();
+  const [readyHeroVideoUrl, setReadyHeroVideoUrl] = useState<string | null>(null);
 
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
@@ -945,18 +1054,34 @@ export default function HomeClient({
           HERO
       ══════════════════════════════════════════ */}
       <section className="relative min-h-screen flex items-end overflow-hidden">
+        <div className="absolute inset-0 bg-brand-900" />
+        {hero.posterUrl && (
+          <Image
+            src={hero.posterUrl}
+            alt=""
+            fill
+            priority
+            aria-hidden="true"
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        )}
         {hero.videoUrl ? (
           <video
             src={hero.videoUrl}
+            poster={hero.posterUrl ?? undefined}
             autoPlay
             muted
             loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            preload="auto"
+            onCanPlay={() => setReadyHeroVideoUrl(hero.videoUrl)}
+            onError={() => setReadyHeroVideoUrl(null)}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
+              readyHeroVideoUrl === hero.videoUrl ? 'opacity-100' : 'opacity-0'
+            }`}
           />
-        ) : (
-          <div className="absolute inset-0 bg-brand-900" />
-        )}
+        ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 lg:pb-28">
           <div id="hero-content" className="max-w-2xl">
@@ -1039,7 +1164,7 @@ export default function HomeClient({
       ══════════════════════════════════════════ */}
       <section
         ref={storyRef}
-        className="relative overflow-hidden h-[80vh] flex items-center"
+        className="relative overflow-hidden h-[100svh] flex items-center"
       >
         <div
           ref={storyImgRef}
@@ -1058,27 +1183,20 @@ export default function HomeClient({
             <div className="absolute inset-0 bg-brand-900" />
           )}
         </div>
+        <div className="pointer-events-none absolute inset-0 bg-white/20" />
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-24">
           <div className="max-w-xl mx-auto text-center">
-            {story.tag && (
-              <span
-                className="story-animate block text-black/50 text-[10px] font-bold tracking-[0.22em] uppercase mb-4"
-                style={{ fontWeight: 700 }}
-              >
-                {story.tag}
-              </span>
-            )}
             {story.title && (
               <h2
-                className="story-animate text-2xl sm:text-3xl lg:text-4xl font-semibold text-black leading-tight mb-5"
+                className="story-animate text-2xl sm:text-3xl lg:text-4xl font-semibold text-black leading-tight mb-12"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {story.title}
               </h2>
             )}
             {story.text && (
-              <p className="story-animate text-black/70 text-sm sm:text-base leading-relaxed font-medium">
+              <p className="story-animate text-black text-sm sm:text-base leading-relaxed font-medium">
                 {story.text}
               </p>
             )}
@@ -1086,9 +1204,9 @@ export default function HomeClient({
         </div>
 
         {/* Award badge — bottom-right corner */}
-        <div className="absolute bottom-7 right-7 z-10 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-3.5 flex items-center gap-3 max-w-[210px]">
+        <div className="absolute bottom-7 right-7 z-10 flex max-w-[210px] items-center gap-3 rounded-md bg-white/70 p-3.5 backdrop-blur-sm">
           <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-gray-700">
               <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
               <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
               <path d="M4 22h16" />
@@ -1098,8 +1216,8 @@ export default function HomeClient({
             </svg>
           </div>
           <div>
-            <div className="font-semibold text-white text-[11px] leading-tight">Best Beverage Brand</div>
-            <div className="text-white/55 text-[10px] mt-0.5">Central Asia Award 2025</div>
+            <div className="font-semibold text-gray-700 text-[11px] leading-tight">Best Beverage Brand</div>
+            <div className="text-gray-700/60 text-[10px] mt-0.5">Central Asia Award 2025</div>
           </div>
         </div>
       </section>
@@ -1150,13 +1268,13 @@ export default function HomeClient({
             </h2>
           )}
           {ctaBanner.subtitle && (
-            <p className="text-brand-200 text-base sm:text-lg mb-10 max-w-lg mx-auto leading-relaxed">
+            <p className="text-white/70 text-base sm:text-lg mb-10 max-w-lg mx-auto leading-relaxed">
               {ctaBanner.subtitle}
             </p>
           )}
           <Link
             href={ctaBanner.ctaHref || '/products'}
-            className="inline-flex items-center gap-1.5 text-[11px] font-light tracking-[0.22em] uppercase text-white/75 group"
+            className="group inline-flex h-9 items-center gap-1.5 rounded-md bg-white/70 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
           >
             <span>{ctaBanner.ctaLabel || t.home.ctaBanner.cta}</span>
             <svg className="group-hover:translate-x-1 transition-transform duration-200" width="13" height="13" viewBox="0 0 14 14" fill="none">

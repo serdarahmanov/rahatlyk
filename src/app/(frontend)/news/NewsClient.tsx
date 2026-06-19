@@ -106,36 +106,34 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
         )}
 
         {imgs.length > 1 && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-            {imgs.map((_, i) => (
-              <button
-                key={i}
-                onClick={(e) => goTo(i, e)}
-                className={`block w-10 h-[3px] rounded-full transition-opacity duration-300 bg-white ${
-                  i === current ? 'opacity-100' : 'opacity-35'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-
-        {imgs.length > 1 && (
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+          <div className="absolute inset-x-0 bottom-4 z-10 flex items-center justify-between px-4">
             <button
               onClick={(e) => go(-1, e)}
-              aria-label="Previous"
-              className="flex items-center justify-center text-white/70 hover:text-white transition-colors duration-200"
+              aria-label="Previous photo"
+              className="flex h-9 w-9 items-center justify-center rounded-md bg-white/70 text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
             >
-              <svg width="20" height="20" viewBox="0 0 12 12" fill="none">
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
                 <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+            <div className="flex items-center gap-2">
+              {imgs.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => goTo(i, e)}
+                  aria-label={`Photo ${i + 1}`}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === current ? 'h-[4px] w-6 bg-white' : 'h-[4px] w-[4px] bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
             <button
               onClick={(e) => go(1, e)}
-              aria-label="Next"
-              className="flex items-center justify-center text-white/70 hover:text-white transition-colors duration-200"
+              aria-label="Next photo"
+              className="flex h-9 w-9 items-center justify-center rounded-md bg-white/70 text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
             >
-              <svg width="20" height="20" viewBox="0 0 12 12" fill="none">
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
                 <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
@@ -160,11 +158,11 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
             {article.body[0]?.text}
           </p>
         )}
-        <span className="text-[12px] text-gray-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
-          {t.news.readArticle}{' '}
-          <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-200 text-gray-500">
-            &rarr;
-          </span>
+        <span className="inline-flex h-9 items-center gap-1.5 rounded-md bg-gray-100 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 transition-all duration-200 group-hover:bg-gray-200">
+          {t.news.readArticle}
+          <svg className="transition-transform duration-200 group-hover:translate-x-1" width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </span>
       </div>
     </div>

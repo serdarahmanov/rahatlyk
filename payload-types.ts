@@ -125,6 +125,7 @@ export interface Config {
     'horizontal-scroll': HorizontalScroll;
     'home-story': HomeStory;
     'home-cta-banner': HomeCtaBanner;
+    'product-detail-labels': ProductDetailLabel;
   };
   globalsSelect: {
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
@@ -138,6 +139,7 @@ export interface Config {
     'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
     'home-story': HomeStorySelect<false> | HomeStorySelect<true>;
     'home-cta-banner': HomeCtaBannerSelect<false> | HomeCtaBannerSelect<true>;
+    'product-detail-labels': ProductDetailLabelsSelect<false> | ProductDetailLabelsSelect<true>;
   };
   locale: 'en' | 'tm' | 'ru';
   widgets: {
@@ -256,12 +258,6 @@ export interface Product {
   category: number | ProductCategory;
   description?: string | null;
   longDescription?: string | null;
-  features?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
   nutrition?:
     | {
         label: string;
@@ -793,12 +789,6 @@ export interface ProductsSelect<T extends boolean = true> {
   category?: T;
   description?: T;
   longDescription?: T;
-  features?:
-    | T
-    | {
-        text?: T;
-        id?: T;
-      };
   nutrition?:
     | T
     | {
@@ -1287,6 +1277,10 @@ export interface ContactInfo {
 export interface HomeHero {
   id: number;
   video?: (number | null) | Media;
+  /**
+   * Shown immediately while the background video loads or if it cannot play.
+   */
+  poster?: (number | null) | Media;
   title?: string | null;
   titleAccent?: string | null;
   subtitle?: string | null;
@@ -1362,6 +1356,22 @@ export interface HomeCtaBanner {
   subtitle?: string | null;
   ctaLabel?: string | null;
   ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * UI labels shown on the product detail page — size, nutrition, about, and table headers.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-detail-labels".
+ */
+export interface ProductDetailLabel {
+  id: number;
+  sizeLabel?: string | null;
+  nutritionLabel?: string | null;
+  aboutLabel?: string | null;
+  mineralLabel?: string | null;
+  perLitreLabel?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1551,6 +1561,7 @@ export interface ContactInfoSelect<T extends boolean = true> {
  */
 export interface HomeHeroSelect<T extends boolean = true> {
   video?: T;
+  poster?: T;
   title?: T;
   titleAccent?: T;
   subtitle?: T;
@@ -1630,6 +1641,20 @@ export interface HomeCtaBannerSelect<T extends boolean = true> {
   subtitle?: T;
   ctaLabel?: T;
   ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-detail-labels_select".
+ */
+export interface ProductDetailLabelsSelect<T extends boolean = true> {
+  sizeLabel?: T;
+  nutritionLabel?: T;
+  aboutLabel?: T;
+  mineralLabel?: T;
+  perLitreLabel?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

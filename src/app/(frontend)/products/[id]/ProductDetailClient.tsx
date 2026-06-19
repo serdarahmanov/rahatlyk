@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import ProductVisual from '@/components/ProductVisual'
-import type { PayloadProduct } from '@/types/payload'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
+import type { PayloadProduct, ProductDetailLabelsData } from '@/types/payload'
 
 
 function RelatedProducts({ related }: { related: PayloadProduct[] }) {
@@ -14,7 +15,7 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
     <section className="py-14 bg-white">
       <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
         <h2
-          className="text-xl font-light text-brand-950 mb-8"
+          className="text-xl font-light text-gray-900 mb-8"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
           More in {related[0]?.category.label}
@@ -30,17 +31,17 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
                 <ProductVisual product={p} size="sm" className="w-full h-full" />
               </div>
               <div className="px-3 pt-3 pb-4">
-                <p className="text-brand-400 text-[10px] uppercase tracking-wider mb-1.5">{p.category.label}</p>
-                <h3 className="font-medium text-brand-950 text-[17px] leading-tight mb-1.5 group-hover:text-brand-700 transition-colors duration-200">
+                <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1.5">{p.category.label}</p>
+                <h3 className="font-medium text-gray-900 text-[17px] leading-tight mb-1.5 group-hover:text-gray-700 transition-colors duration-200">
                   {p.name}
                 </h3>
                 <div className="min-w-0">
                   {p.volumes.length > 1 ? (
-                    <p className="text-xs font-light text-brand-400 truncate">
+                    <p className="text-xs font-light text-gray-500 truncate">
                       {p.volumes.map((v) => v.value.replace(' L', '')).join(' · ')}{' L'}
                     </p>
                   ) : (
-                    <p className="text-xs font-light text-brand-400">{p.volumes[0]?.value} L</p>
+                    <p className="text-xs font-light text-gray-500">{p.volumes[0]?.value} L</p>
                   )}
                 </div>
               </div>
@@ -59,9 +60,11 @@ interface Props {
   related: PayloadProduct[]
   prevProduct: PayloadProduct | null
   nextProduct: PayloadProduct | null
+  labels: ProductDetailLabelsData
 }
 
-export default function ProductDetailClient({ product, related, prevProduct, nextProduct }: Props) {
+export default function ProductDetailClient({ product, related, prevProduct, nextProduct, labels }: Props) {
+  const { locale } = useLanguage()
   const [openPanel, setOpenPanel] = useState<AccordionKey>('' as AccordionKey)
   const [activePhoto, setActivePhoto] = useState(0)
   const [photoDir, setPhotoDir] = useState<'left' | 'right'>('right')
@@ -77,15 +80,19 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
   const bottleRef    = useRef<HTMLDivElement>(null)
   const mainPhotoRef = useRef<HTMLDivElement>(null)
   const detailRef    = useRef<HTMLDivElement>(null)
+  const nameColRef   = useRef<HTMLDivElement>(null)
+  const descBoxRef   = useRef<HTMLDivElement>(null)
+  const aboutGridRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let st: any
+    let cancelled = false
+    let ownedTriggers: Array<{ kill: () => void }> = []
     const init = async () => {
       const { gsap }          = await import('gsap')
       const { ScrollTrigger } = await import('gsap/ScrollTrigger')
-      st = ScrollTrigger
+      if (cancelled) return
       gsap.registerPlugin(ScrollTrigger)
+      const existingTriggers = new Set(ScrollTrigger.getAll())
 
       const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } })
 
@@ -120,7 +127,10 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
           tl.fromTo(
             Array.from(thumbCol.children),
             { clipPath: 'inset(50% 50% 50% 50%)', opacity: 0 },
-            { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.35, stagger: 0.07, ease: 'power2.out' },
+            {
+              clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.35, stagger: 0.07, ease: 'power2.out',
+              onComplete: () => { gsap.set(thumbCol.children, { clearProps: 'clipPath' }) },
+            },
             0.85
           )
         }
@@ -136,29 +146,49 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
           }
         )
       }
+
+      if (nameColRef.current && descBoxRef.current && window.innerWidth >= 768) {
+        ScrollTrigger.create({
+          trigger: aboutGridRef.current,
+          start: 'top 80%',
+          endTrigger: descBoxRef.current,
+          end: () => {
+            const nameH = nameColRef.current?.offsetHeight ?? 0
+            const pct  = 80 + (nameH / window.innerHeight) * 100
+            return `bottom ${pct}%`
+          },
+          pin: nameColRef.current,
+          pinSpacing: false,
+          pinType: 'transform',
+        })
+      }
+
+      ownedTriggers = ScrollTrigger.getAll().filter((trigger) => !existingTriggers.has(trigger))
     }
     init()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => st?.getAll().forEach((s: any) => s.kill())
+    return () => {
+      cancelled = true
+      ownedTriggers.forEach((trigger) => trigger.kill())
+    }
   }, [product.photos])
 
   const panels: { key: AccordionKey; label: string; content: React.ReactNode }[] = [
     {
       key: 'nutrition',
-      label: 'Nutrition',
+      label: labels.nutritionLabel ?? 'Nutrition',
       content: (
         <table className="w-full max-w-sm text-sm border-collapse">
           <thead>
-            <tr className="border-b border-brand-200">
-              <th className="text-left text-[10px] font-light uppercase tracking-widest text-brand-400 pb-3 pr-8 font-normal">Mineral</th>
-              <th className="text-left text-[10px] font-light uppercase tracking-widest text-brand-400 pb-3 font-normal">Per Litre</th>
+            <tr className="border-b border-gray-200">
+              <th className="text-left text-[10px] font-light uppercase tracking-widest text-gray-500 pb-3 pr-8 font-normal">{labels.mineralLabel ?? 'Mineral'}</th>
+              <th className="text-left text-[10px] font-light uppercase tracking-widest text-gray-500 pb-3 font-normal">{labels.perLitreLabel ?? 'Per Litre'}</th>
             </tr>
           </thead>
           <tbody>
             {product.nutrition.map((n, i) => (
-              <tr key={n.id} className={i < product.nutrition.length - 1 ? 'border-b border-brand-200' : ''}>
-                <td className="py-3 pr-8 text-brand-400">{n.label}</td>
-                <td className="py-3 text-brand-400">{n.value}</td>
+              <tr key={n.id} className={i < product.nutrition.length - 1 ? 'border-b border-gray-200' : ''}>
+                <td className="py-3 pr-8 text-gray-500">{n.label}</td>
+                <td className="py-3 text-gray-500">{n.value}</td>
               </tr>
             ))}
           </tbody>
@@ -169,16 +199,16 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
 
   return (
     <div className="min-h-screen">
-      <section className="pt-28 pb-16 relative overflow-hidden bg-white border-b border-brand-200">
+      <section className="pt-28 pb-16 relative overflow-hidden bg-white border-b border-gray-200">
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
-          <nav className="flex items-center gap-2 text-brand-400 text-xs mb-8">
-            <Link href="/" className="hover:text-brand-700 transition-colors">Home</Link>
+          <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
+            <Link href="/" className="hover:text-gray-700 transition-colors">Home</Link>
             <span>/</span>
-            <Link href="/products" className="hover:text-brand-700 transition-colors">Products</Link>
+            <Link href="/products" className="hover:text-gray-700 transition-colors">Products</Link>
             <span>/</span>
-            <Link href={`/products?category=${product.category.slug}`} className="hover:text-brand-700 transition-colors">{product.category.label}</Link>
+            <Link href={`/products?category=${product.category.slug}`} className="hover:text-gray-700 transition-colors">{product.category.label}</Link>
             <span>/</span>
-            <span className="text-brand-600 font-normal">{product.name}</span>
+            <span className="text-black truncate max-w-[180px]">{product.name}</span>
           </nav>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -190,18 +220,19 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                       key={photo.id}
                       onClick={() => goPhoto(i)}
                       className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-200 ${
-                        activePhoto === i
-                          ? 'ring-2 ring-brand-500 ring-offset-2 opacity-100'
-                          : 'opacity-50 hover:opacity-80'
+                        activePhoto === i ? 'opacity-100' : 'opacity-50 hover:opacity-80'
                       }`}
                     >
                       <Image src={photo.url} alt={`thumb ${i + 1}`} fill className="object-cover" sizes="64px" />
+                      {activePhoto === i && (
+                        <span className="absolute inset-0 rounded-lg border-2 border-black/[0.06] pointer-events-none z-10" />
+                      )}
                     </button>
                   ))}
                 </div>
               )}
 
-              <div ref={mainPhotoRef} className="relative flex-1 aspect-[3/4] rounded-2xl overflow-hidden bg-brand-100">
+              <div ref={mainPhotoRef} className="relative flex-1 aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100">
                 {product.photos && product.photos.length > 0 ? (
                   <Image
                     key={activePhoto}
@@ -227,18 +258,20 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                   <>
                     <button
                       onClick={() => goPhoto(activePhoto - 1)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] hover:scale-110 transition-all duration-200"
+                      aria-label="Previous photo"
+                      className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md bg-white/70 text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
                     >
-                      <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
-                        <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                      <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                        <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
                     <button
                       onClick={() => goPhoto(activePhoto + 1)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] hover:scale-110 transition-all duration-200"
+                      aria-label="Next photo"
+                      className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md bg-white/70 text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
                     >
-                      <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
-                        <path d="M5 2L10 7L5 12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                      <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                        <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
                   </>
@@ -247,22 +280,24 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
             </div>
 
             <div ref={heroRef}>
-              <span className="block text-[10px] font-light tracking-[0.3em] uppercase text-brand-400 mb-5">
+              <span className="block text-[10px] font-medium tracking-[0.3em] uppercase text-gray-500 mb-5">
                 {product.category.label}
               </span>
 
               <h1
-                className="text-4xl sm:text-5xl font-light text-black leading-tight mb-3"
+                className={`text-4xl sm:text-5xl text-black leading-tight mb-3 ${
+                  locale === 'ru' ? 'font-light' : 'font-medium'
+                }`}
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {product.name}
               </h1>
 
-              <p className="text-brand-400 text-sm tracking-wide mb-8">{product.tagline}</p>
+              <p className="text-gray-500 text-sm tracking-wide mb-8">{product.tagline}</p>
 
               {product.volumes.length > 0 && (
                 <div className="mb-8">
-                  <p className="text-xs font-light uppercase tracking-widest text-brand-400 mb-5">Size</p>
+                  <p className="text-xs font-light text-gray-500 mb-5">{labels.sizeLabel ?? 'Size'}</p>
                   <div className="flex items-end gap-5">
                     {[...product.volumes]
                       .sort((a, b) => parseFloat(a.value) - parseFloat(b.value))
@@ -274,7 +309,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                           <div key={vol.id} className="flex flex-col items-center gap-1.5 group">
                             <div
                               style={{ height: `${h}px` }}
-                              className="opacity-40 text-brand-400 group-hover:opacity-100 group-hover:text-brand-800 group-hover:scale-110 group-hover:drop-shadow-md transition-all duration-300"
+                              className="opacity-40 text-gray-500 group-hover:opacity-80 group-hover:text-gray-600 group-hover:scale-105 group-hover:drop-shadow-sm transition-all duration-300"
                             >
                               {val > 15 && val <= 20 ? (
                                 <svg viewBox="0 0 512 512" fill="currentColor" className="h-full w-auto" xmlns="http://www.w3.org/2000/svg">
@@ -291,7 +326,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                                 </svg>
                               )}
                             </div>
-                            <span className="text-[10px] font-light tracking-wide text-brand-400 group-hover:text-brand-700 transition-colors duration-200">
+                            <span className="text-[10px] font-light tracking-wide text-gray-500 group-hover:text-gray-700 transition-colors duration-200">
                               {vol.value} L
                             </span>
                           </div>
@@ -301,24 +336,29 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                 </div>
               )}
 
-              <div className="mb-6 border-t border-brand-200">
+              <div className="mb-6">
                 {panels.map(({ key, label, content }) => {
                   const isOpen = openPanel === key
                   return (
-                    <div key={key} className="border-b border-brand-200">
+                    <div
+                      key={key}
+                      className={`overflow-hidden rounded-[10px] transition-colors duration-300 ${
+                        isOpen ? 'bg-[#EBEBED]' : 'bg-[#F5F5F7] hover:bg-[#EBEBED]'
+                      }`}
+                    >
                       <button
                         onClick={() => setOpenPanel(isOpen ? ('' as AccordionKey) : key)}
-                        className="w-full flex items-center gap-4 py-4 group text-left"
+                        className="w-full flex items-center gap-4 px-5 py-4 group text-left"
                         aria-expanded={isOpen}
                       >
-                        <span className="flex-1 text-[10px] font-light tracking-[0.22em] uppercase text-brand-400">
+                        <span className="flex-1 text-[10px] font-medium tracking-[0.22em] uppercase text-gray-500">
                           {label}
                         </span>
                         <svg
-                          width="12" height="12" viewBox="0 0 14 14" fill="none"
-                          className={`flex-shrink-0 text-brand-400 transition-transform duration-300 ${isOpen ? 'rotate-45' : 'rotate-0'}`}
+                          width="16" height="16" viewBox="0 0 14 14" fill="none"
+                          className={`flex-shrink-0 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-45' : 'rotate-0'}`}
                         >
-                          <path d="M7 1V13M1 7H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M7 1V13M1 7H13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
                         </svg>
                       </button>
                       <div style={{
@@ -328,7 +368,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                       }}>
                         <div style={{ overflow: 'hidden' }}>
                           <div
-                            className="pb-5"
+                            className="px-5 pb-5"
                             style={{
                               opacity: isOpen ? 1 : 0,
                               transform: isOpen ? 'translateY(0)' : 'translateY(-4px)',
@@ -349,38 +389,36 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                   <Link
                     href={`/products/${prevProduct.id}`}
                     title={prevProduct.name}
-                    className="group flex items-center gap-2 text-xs font-light text-brand-400 hover:text-brand-700 transition-colors duration-200"
+                    aria-label={`Previous product: ${prevProduct.name}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11]"
                   >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                      <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span className="max-w-[110px] truncate">{prevProduct.name}</span>
                   </Link>
                 ) : (
-                  <span className="flex items-center gap-2 text-xs font-light text-brand-200 pointer-events-none select-none">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 opacity-20 pointer-events-none select-none">
+                    <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                      <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </span>
                 )}
-
-                <span className="text-brand-200 select-none">|</span>
 
                 {nextProduct ? (
                   <Link
                     href={`/products/${nextProduct.id}`}
                     title={nextProduct.name}
-                    className="group flex items-center gap-2 text-xs font-light text-brand-400 hover:text-brand-700 transition-colors duration-200"
+                    aria-label={`Next product: ${nextProduct.name}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11]"
                   >
-                    <span className="max-w-[110px] truncate">{nextProduct.name}</span>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M5 2L10 7L5 12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                      <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </Link>
                 ) : (
-                  <span className="flex items-center gap-2 text-xs font-light text-brand-200 pointer-events-none select-none">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M5 2L10 7L5 12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 opacity-20 pointer-events-none select-none">
+                    <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                      <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </span>
                 )}
@@ -390,23 +428,28 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
         </div>
       </section>
 
-      <section className="py-16 bg-brand-50 border-t border-brand-200" ref={detailRef}>
+      <section className="py-24 bg-white" ref={detailRef}>
         <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-10 sm:gap-16 lg:gap-24">
-            <div className="flex-shrink-0 sm:pt-[0.15em] sm:w-[200px]">
-              <span className="block text-[10px] font-light tracking-[0.35em] uppercase text-brand-400 mb-3">
-                About
-              </span>
-              <h3
-                className="text-lg font-light text-brand-950 leading-snug"
-                style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-              >
-                {product.name}
-              </h3>
+          <h2
+            className="text-5xl sm:text-6xl font-medium text-black/[0.12] mb-10 leading-none"
+            style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+          >
+            {labels.aboutLabel ?? 'About'}
+          </h2>
+          <div ref={aboutGridRef} className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4 sm:gap-6 lg:gap-8 items-start">
+            <div ref={nameColRef}>
+              <div className="rounded-[10px] bg-black/[0.06] px-5 py-4">
+                <h3
+                  className={`text-xl text-gray-900 leading-snug ${locale === 'ru' ? 'font-medium' : 'font-semibold'}`}
+                  style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+                >
+                  {product.name}
+                </h3>
+              </div>
             </div>
-            <div className="flex-1 space-y-4">
-              <p className="text-brand-700 text-base leading-relaxed">{product.description}</p>
-              <p className="text-brand-500 text-sm leading-relaxed">{product.longDescription}</p>
+            <div ref={descBoxRef} className="rounded-[10px] bg-black/[0.06] px-5 py-4 space-y-4">
+              <p className="text-gray-700 text-xl leading-relaxed">{product.description}</p>
+              <p className="text-gray-500 text-[17px] leading-relaxed">{product.longDescription}</p>
             </div>
           </div>
         </div>

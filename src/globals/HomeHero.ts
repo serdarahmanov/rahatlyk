@@ -15,6 +15,15 @@ export const HomeHero: GlobalConfig = {
       label: 'Background Video',
     },
     {
+      name: 'poster',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Video Poster',
+      admin: {
+        description: 'Shown immediately while the background video loads or if it cannot play.',
+      },
+    },
+    {
       name: 'title',
       type: 'text',
       localized: true,

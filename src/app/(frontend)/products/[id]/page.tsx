@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import ProductDetailClient from './ProductDetailClient'
 import { getPayloadClient } from '@/lib/payload'
 import { normalizeProduct } from '@/lib/payload-normalize'
+import type { ProductDetailLabelsData } from '@/types/payload'
 
 type Props = {
   params: Promise<{
@@ -38,6 +39,20 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound()
   }
 
+  const labelsRaw = await (payload.findGlobal as any)({
+    slug: 'product-detail-labels',
+    locale,
+    depth: 0,
+  })
+
+  const labels: ProductDetailLabelsData = {
+    sizeLabel:      labelsRaw?.sizeLabel      ?? 'Size',
+    nutritionLabel: labelsRaw?.nutritionLabel ?? 'Nutrition',
+    aboutLabel:     labelsRaw?.aboutLabel     ?? 'About',
+    mineralLabel:   labelsRaw?.mineralLabel   ?? 'Mineral',
+    perLitreLabel:  labelsRaw?.perLitreLabel  ?? 'Per Litre',
+  }
+
   const allResult = await payload.find({
     collection: 'products',
     depth: 2,
@@ -59,6 +74,7 @@ export default async function ProductDetailPage({ params }: Props) {
       related={related}
       prevProduct={currentIndex > 0 ? products[currentIndex - 1] : null}
       nextProduct={currentIndex >= 0 && currentIndex < products.length - 1 ? products[currentIndex + 1] : null}
+      labels={labels}
     />
   )
 }
