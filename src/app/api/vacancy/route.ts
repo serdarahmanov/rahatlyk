@@ -53,6 +53,27 @@ export async function POST(req: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
+
+    const vacancyIdNum = parseInt(vacancyId ?? '', 10);
+    if (!vacancyId || isNaN(vacancyIdNum) || vacancyIdNum <= 0) {
+      return NextResponse.json({ error: 'Invalid vacancy.' }, { status: 400 });
+    }
+
+    if (firstName.length > 100 || lastName.length > 100) {
+      return NextResponse.json({ error: 'Name is too long.' }, { status: 400 });
+    }
+    if (email.length > 254) {
+      return NextResponse.json({ error: 'Email address is too long.' }, { status: 400 });
+    }
+    if (phone && phone.length > 30) {
+      return NextResponse.json({ error: 'Phone number is too long.' }, { status: 400 });
+    }
+    if (dateOfBirth.length > 20) {
+      return NextResponse.json({ error: 'Invalid date of birth.' }, { status: 400 });
+    }
+    if (cover && cover.length > 5000) {
+      return NextResponse.json({ error: 'Cover letter must be under 5 000 characters.' }, { status: 400 });
+    }
     if (!cvFile || cvFile.size === 0) {
       return NextResponse.json({ error: 'CV file is required.' }, { status: 400 });
     }
@@ -73,7 +94,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cvAttachment = { filename: cvFile.name, content: cvBuffer };
-    const vacancyUrl   = `${process.env.NEXT_PUBLIC_SITE_URL}/vacancies/${vacancyId}`;
+    const vacancyUrl   = `${process.env.NEXT_PUBLIC_SITE_URL}/vacancies/${vacancyIdNum}`;
     const fromNoreply  = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite  = `"Website" <${process.env.WEBSITE_EMAIL}>`;
 
@@ -126,7 +147,7 @@ export async function POST(req: NextRequest) {
           phone:       phone ? sanitizeCsv(phone) : undefined,
           dateOfBirth: sanitizeCsv(dateOfBirth),
           cover:       cover ? sanitizeCsv(cover) : undefined,
-          vacancy:     Number(vacancyId),
+          vacancy:     vacancyIdNum,
           cv:          cvDoc.id,
         },
       });

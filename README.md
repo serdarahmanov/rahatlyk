@@ -22,7 +22,36 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
-### June 20, 2026 — Security hardening: anti-spam, XSS, CSV injection, CV file validation, private CV storage
+### June 20, 2026 — Security hardening: vacancyId injection fix, HTTP headers, field length limits, anti-spam, XSS, CSV injection, CV file validation, private CV storage
+
+#### `vacancyId` integer validation — HTML injection fix (`src/app/api/vacancy/route.ts`)
+
+`vacancyId` is submitted by the client as a form field. Previously it was used directly to construct `vacancyUrl`, which was then interpolated into the `href` attribute of internal notification emails without escaping. A crafted `vacancyId` containing `"` could break out of the attribute and inject arbitrary HTML into the admin email.
+
+Fix: `parseInt(vacancyId, 10)` is now validated to be a positive integer before any use. `vacancyUrl` and the Payload `vacancy:` relationship field both use the parsed integer `vacancyIdNum`. Requests with a non-integer `vacancyId` are rejected with `400`.
+
+#### HTTP security headers (`next.config.ts`)
+
+Added a global `headers()` function that applies four headers to every response:
+
+| Header | Value | Purpose |
+|---|---|---|
+| `X-Frame-Options` | `SAMEORIGIN` | Prevents the site being embedded in iframes on other domains (clickjacking) |
+| `X-Content-Type-Options` | `nosniff` | Prevents browsers from MIME-sniffing responses away from the declared content type |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Sends only the origin (not full path) when navigating to external sites |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Explicitly disables unused browser APIs |
+
+#### Field length limits (`src/app/api/contact/route.ts`, `src/app/api/vacancy/route.ts`)
+
+Both routes now reject oversized inputs before they reach Nodemailer or Payload. Without these limits a single POST with a megabyte-long message would pass all other validation, send a massive email to the admin inbox, and persist garbage data in Payload.
+
+| Field | Limit |
+|---|---|
+| First / Last name | 100 characters |
+| Email | 254 characters (RFC 5321 maximum) |
+| Phone | 30 characters |
+| Subject (contact) | 200 characters |
+| Message / Cover letter | 5 000 characters |
 
 #### Anti-spam — honeypot + timing check (`src/lib/spam-check.ts`)
 

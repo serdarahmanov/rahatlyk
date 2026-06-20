@@ -43,6 +43,21 @@ export async function POST(req: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
+    if (firstName.length > 100 || lastName.length > 100) {
+      return NextResponse.json({ error: 'Name is too long.' }, { status: 400 });
+    }
+    if (email.length > 254) {
+      return NextResponse.json({ error: 'Email address is too long.' }, { status: 400 });
+    }
+    if (phone && phone.length > 30) {
+      return NextResponse.json({ error: 'Phone number is too long.' }, { status: 400 });
+    }
+    if (subject.length > 200) {
+      return NextResponse.json({ error: 'Subject must be under 200 characters.' }, { status: 400 });
+    }
+    if (message.length > 5000) {
+      return NextResponse.json({ error: 'Message must be under 5 000 characters.' }, { status: 400 });
+    }
 
     const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale });
     const notification    = contactNotification({ firstName, lastName, email, phone, subject, message, locale: 'ru' });
