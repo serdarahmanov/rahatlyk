@@ -8,6 +8,7 @@ import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDate } from '@/lib/formatDate'
 import type { PayloadArticle } from '@/types/payload'
+import { LexicalContent } from '@/lib/lexical-serialize'
 
 function RelatedCard({ article }: { article: PayloadArticle }) {
   const router = useRouter()
@@ -334,7 +335,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
                   i === 0 ? 'text-black text-lg font-medium' : 'text-black text-base'
                 }`}
               >
-                {para.text}
+                <LexicalContent data={para.text} />
               </p>
             ))}
 

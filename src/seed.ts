@@ -4,6 +4,19 @@ import { ARTICLES } from './lib/data/news'
 import { PRODUCTS } from './lib/data/products'
 import { VACANCIES } from './lib/data/vacancies'
 
+const toRichText = (text: string) => ({
+  root: {
+    type: 'root', version: 1, direction: 'ltr' as const, format: '' as const, indent: 0,
+    children: [{
+      type: 'paragraph', version: 1, direction: 'ltr' as const, format: '' as const, indent: 0,
+      children: [{
+        type: 'text', version: 1, text,
+        format: 0, detail: 0, mode: 'normal' as const, style: '',
+      }],
+    }],
+  },
+})
+
 async function seed() {
   const payload = await getPayload({ config })
 
@@ -17,7 +30,7 @@ async function seed() {
       featured: article.featured,
       emoji: article.emoji,
       images: article.images.map((url) => ({ url })),
-      body: article.body.map((text) => ({ text })),
+      body: article.body.map((text) => ({ text: toRichText(text) })),
     }
 
     const existing = await payload.find({

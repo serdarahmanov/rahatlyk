@@ -8,6 +8,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDate } from '@/lib/formatDate'
 import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
+import { lexicalToPlainText } from '@/lib/lexical-serialize'
 import Pagination from '@/components/Pagination'
 import type { PayloadArticle, PayloadCategory, PayloadResult } from '@/types/payload'
 
@@ -155,7 +156,7 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
         </h3>
         {featured && (
           <p className="text-[12px] text-gray-500 truncate mb-1.5">
-            {article.body[0]?.text}
+            {lexicalToPlainText(article.body[0]?.text)}
           </p>
         )}
         <span className="inline-flex h-9 items-center gap-1.5 rounded-md bg-gray-100 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 transition-all duration-200 group-hover:bg-gray-200">

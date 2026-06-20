@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { lexicalEditor, LinkFeature, ParagraphFeature, InlineToolbarFeature } from '@payloadcms/richtext-lexical'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -34,7 +35,21 @@ export const Articles: CollectionConfig = {
     {
       name: 'body',
       type: 'array',
-      fields: [{ name: 'text', type: 'textarea', required: true, localized: true }],
+      fields: [
+        {
+          name: 'text',
+          type: 'richText',
+          required: true,
+          localized: true,
+          editor: lexicalEditor({
+            features: [
+              ParagraphFeature(),
+              InlineToolbarFeature(),
+              LinkFeature({ enabledCollections: [] }),
+            ],
+          }),
+        },
+      ],
     },
   ],
 }

@@ -32,6 +32,12 @@ const textRows = (items: { text: string; id?: string | null }[] | null | undefin
     text: item.text,
   }))
 
+const richTextRows = (items: { text: unknown; id?: string | null }[] | null | undefined) =>
+  (items ?? []).map((item, index) => ({
+    id: itemID(item.id as string | null | undefined, index),
+    text: item.text,
+  }))
+
 const mediaURL = (media: number | Media | null | undefined) =>
   typeof media === 'object' && media ? media.url : undefined
 
@@ -62,7 +68,7 @@ export const normalizeCategory = (
 
 export const normalizeArticle = (article: Article): PayloadArticle => ({
   ...article,
-  body: textRows(article.body),
+  body: richTextRows(article.body as { text: unknown; id?: string | null }[] | null | undefined),
   category: normalizeCategory(article.category),
   emoji: article.emoji ?? null,
   featured: Boolean(article.featured),

@@ -23,7 +23,7 @@ export type PayloadProductLine = {
 }
 
 export type PayloadArticle = Omit<GeneratedArticle, 'body' | 'category' | 'emoji' | 'featured' | 'images'> & {
-  body: ArrayItem<{ text: string }>[]
+  body: ArrayItem<{ text: unknown }>[]
   category: PayloadCategory
   emoji: string | null
   featured: boolean

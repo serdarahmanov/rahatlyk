@@ -22,6 +22,59 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 20, 2026 — Article body richText migration: hyperlink support
+
+#### Articles collection (`src/collections/Articles.ts`)
+
+`body[].text` changed from `textarea` (plain string) to `richText` with the Payload Lexical editor. Three features enabled:
+
+| Feature | Purpose |
+|---|---|
+| `ParagraphFeature` | Basic paragraph rendering |
+| `InlineToolbarFeature` | Floating toolbar appears on text selection |
+| `LinkFeature` | Insert external hyperlinks on selected words |
+
+**How to insert a link in the admin:**
+1. Open any article → click inside a body paragraph
+2. Select the word(s) to link
+3. Click the link icon in the floating toolbar that appears
+4. Paste the external URL and press Enter
+5. Save the article
+
+#### Custom Lexical serializer (`src/lib/lexical-serialize.tsx`)
+
+New file. Walks the Lexical `SerializedEditorState` AST and returns React nodes without any Payload runtime dependency.
+
+- **`LexicalContent`** — React component that renders inline content (text with bold/italic/underline/strikethrough/code formatting + `<a>` tags for links). Links render as `text-brand-700 underline` with `hover:text-brand-950`. Falls back to rendering the raw string if data is a plain string (backward compatibility for unmigrated rows).
+- **`lexicalToPlainText`** — extracts a plain string from Lexical JSON for use in truncated previews (news listing card). Also falls back to returning the string directly if data is not structured Lexical JSON.
+
+#### Type and normalizer updates
+
+- `src/types/payload.ts` — `PayloadArticle.body[].text` type changed from `string` to `unknown` (Lexical `SerializedEditorState`).
+- `src/lib/payload-normalize.ts` — added `richTextRows` helper that passes Lexical JSON objects through without string coercion. `normalizeArticle` now uses `richTextRows` instead of `textRows`.
+
+#### Frontend rendering updates
+
+- `ArticleDetailClient.tsx` — `{para.text}` replaced with `<LexicalContent data={para.text} />`. GSAP `.article-para` selector and paragraph styling are unchanged.
+- `NewsClient.tsx` — featured article preview changed from `{article.body[0]?.text}` to `{lexicalToPlainText(article.body[0]?.text)}`.
+
+#### Seed script updates
+
+- `src/seed.ts` line 20 — `body.map((text) => ({ text }))` updated to `body.map((text) => ({ text: toRichText(text) }))`. `toRichText` wraps a plain string in the minimal Lexical document structure.
+- `src/seed-news.ts` — same `toRichText` wrapper added (was already there from this session).
+
+#### One-time database migration (`src/migrate-article-body-to-richtext.ts`)
+
+The `articles_body_locales.text` column must be cast from `varchar` to `jsonb`. Payload's automatic schema push cannot do this cast without a `USING` clause. Run this script once against the live database **before** starting the dev server after pulling:
+
+```bash
+npx tsx --env-file=.env.local src/migrate-article-body-to-richtext.ts
+```
+
+The script connects directly via `pg` (bypassing Payload's init), runs `ALTER COLUMN … SET DATA TYPE jsonb USING jsonb_build_object(…)`, and wraps every existing plain-text value in the correct Lexical document structure so no content is lost.
+
+---
+
 ### June 20, 2026 — product-detail UI overhaul, ProductDetailLabels global, nutrition localisation, features removal
 
 #### Product Detail page (`ProductDetailClient.tsx`)
@@ -646,6 +699,7 @@ src/
       product-lines.ts
     email/
     i18n/
+    lexical-serialize.tsx
     payload.ts
     payload-normalize.ts
   types/
@@ -684,6 +738,16 @@ The public listing/detail pages call `getPayloadClient()` on the server and norm
 | `src/seed-vacancies.ts` | Vacancy departments + 8 vacancies (3 locales, localized arrays) |
 | `src/seed-vacancy-images.ts` | Uploads vacancy images and links them to vacancies |
 | `src/seed-news.ts` | 3 article categories + 8 articles with images (3 locales) |
+
+#### One-time migrations
+
+| Script | Purpose |
+|---|---|
+| `src/migrate-article-body-to-richtext.ts` | Casts `articles_body_locales.text` from `varchar` to `jsonb`, wrapping existing strings in Lexical document structure. Run once after pulling the richText body change. |
+
+```bash
+npx tsx --env-file=.env.local src/migrate-article-body-to-richtext.ts
+```
 
 ```bash
 npx tsx --env-file=.env.local src/seed-about.ts

@@ -7,6 +7,32 @@ import { ARTICLE_CATEGORIES, ARTICLES_SEED } from './lib/data/news-seed'
 const MEDIA_DIR       = path.join(process.cwd(), 'media')
 const NEWS_PHOTOS_DIR = path.join(process.cwd(), 'public', 'news', 'photos')
 
+const toRichText = (text: string) => ({
+  root: {
+    type: 'root',
+    version: 1,
+    direction: 'ltr' as const,
+    format: '' as const,
+    indent: 0,
+    children: [{
+      type: 'paragraph',
+      version: 1,
+      direction: 'ltr' as const,
+      format: '' as const,
+      indent: 0,
+      children: [{
+        type: 'text',
+        version: 1,
+        text,
+        format: 0,
+        detail: 0,
+        mode: 'normal' as const,
+        style: '',
+      }],
+    }],
+  },
+})
+
 async function seedNews() {
   const payload = await getPayload({ config })
 
@@ -103,7 +129,7 @@ async function seedNews() {
     const bodyForLocale = (locale: 'en' | 'tm' | 'ru', doc: any) =>
       a.body.map((para, i) => ({
         ...(doc?.body?.[i]?.id ? { id: doc.body[i].id } : {}),
-        text: para[locale],
+        text: toRichText(para[locale]),
       }))
 
     const existing = await payload.find({
