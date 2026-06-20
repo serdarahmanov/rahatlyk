@@ -22,6 +22,26 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 20, 2026 — Contact info panel: separate gradient class, white-fade removed
+
+#### Root cause
+
+The contact page's right-side info panel was using `about-mosaic-bg`, the same CSS class as the About page numbers section background. That class carries:
+
+```css
+mask-image: linear-gradient(to bottom, transparent 12%, transparent 20%, black 62%);
+```
+
+This mask is intentional on the About page — it creates a scroll-in fade as the dark section enters the viewport. On the contact page's sticky panel it had no purpose and made the top portion of the gradient appear white/transparent.
+
+#### Fix (`src/app/globals.css`, `src/app/(frontend)/contact/ContactPageClient.tsx`)
+
+Added `.contact-info-bg` — identical to `about-mosaic-bg` (`inset: -12% 0`, `z-index: 0`, `overflow: hidden`, `will-change: transform`) but without `mask-image`. The `-12% 0` inset is preserved so the GSAP parallax animation (`y: -10%` → `y: 10%`) still has overflow room and no gaps appear during scroll.
+
+`ContactPageClient.tsx` now uses `contact-info-bg` on the background wrapper div. The About page numbers section continues to use the original `about-mosaic-bg` class unchanged.
+
+---
+
 ### June 20, 2026 — Forms global, vacancy form CMS integration, and multilingual error handling
 
 #### Forms global (`src/globals/Forms.ts`)

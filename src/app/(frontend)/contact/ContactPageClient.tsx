@@ -388,7 +388,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
         <div className="relative lg:sticky lg:top-0 lg:h-screen overflow-hidden">
 
           {/* Parallax blob gradient */}
-          <div ref={bgRef} className="about-mosaic-bg">
+          <div ref={bgRef} className="contact-info-bg">
             <div className="about-mosaic-base" />
             <div className="about-mosaic-blob about-mosaic-blob-1" />
             <div className="about-mosaic-blob about-mosaic-blob-2" />

@@ -244,10 +244,18 @@ body {
 }
 
 .about-mosaic-bg,
+.contact-info-bg,
 .about-mosaic-base,
 .about-mosaic-grain {
   position: absolute;
   pointer-events: none;
+}
+
+.contact-info-bg {
+  inset: -12% 0;
+  z-index: 0;
+  overflow: hidden;
+  will-change: transform;
 }
 
 .about-mosaic-bg {
