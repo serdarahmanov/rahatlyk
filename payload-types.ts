@@ -121,6 +121,7 @@ export interface Config {
     'about-numbers': AboutNumber;
     'about-certificates': AboutCertificate;
     'contact-info': ContactInfo;
+    forms: Form;
     'home-hero': HomeHero;
     'horizontal-scroll': HorizontalScroll;
     'home-story': HomeStory;
@@ -135,6 +136,7 @@ export interface Config {
     'about-numbers': AboutNumbersSelect<false> | AboutNumbersSelect<true>;
     'about-certificates': AboutCertificatesSelect<false> | AboutCertificatesSelect<true>;
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
+    forms: FormsSelect<false> | FormsSelect<true>;
     'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
     'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
     'home-story': HomeStorySelect<false> | HomeStorySelect<true>;
@@ -1286,6 +1288,105 @@ export interface ContactInfo {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms".
+ */
+export interface Form {
+  id: number;
+  commonFields?: {
+    labels?: {
+      firstName?: string | null;
+      lastName?: string | null;
+      email?: string | null;
+      phone?: string | null;
+    };
+    placeholders?: {
+      firstName?: string | null;
+      lastName?: string | null;
+      email?: string | null;
+      phone?: string | null;
+    };
+  };
+  contactForm?: {
+    labels?: {
+      subject?: string | null;
+      message?: string | null;
+      submitButton?: string | null;
+    };
+    placeholders?: {
+      subject?: string | null;
+      message?: string | null;
+    };
+    messages?: {
+      success?: string | null;
+      error?: string | null;
+      sending?: string | null;
+      thankYou?: string | null;
+      whatHappensNext?: string | null;
+      step1?: string | null;
+      step2?: string | null;
+      step3?: string | null;
+      sendAnother?: string | null;
+    };
+    errors?: {
+      requiredFields?: string | null;
+      emailInvalid?: string | null;
+      nameTooLong?: string | null;
+      emailTooLong?: string | null;
+      phoneTooLong?: string | null;
+      subjectTooLong?: string | null;
+      messageTooLong?: string | null;
+      serverError?: string | null;
+    };
+  };
+  vacancyForm?: {
+    labels?: {
+      formTitle?: string | null;
+      applyButton?: string | null;
+      dateOfBirth?: string | null;
+      cv?: string | null;
+      coverLetter?: string | null;
+      submitButton?: string | null;
+    };
+    placeholders?: {
+      coverLetter?: string | null;
+    };
+    upload?: {
+      clickToUpload?: string | null;
+      dragAndDrop?: string | null;
+      hint?: string | null;
+    };
+    messages?: {
+      successHeading?: string | null;
+      successThankYou?: string | null;
+      whatHappensNext?: string | null;
+      step1?: string | null;
+      step2?: string | null;
+      step3?: string | null;
+      submitting?: string | null;
+      submitAnother?: string | null;
+      error?: string | null;
+    };
+    errors?: {
+      requiredFields?: string | null;
+      emailInvalid?: string | null;
+      vacancyInvalid?: string | null;
+      nameTooLong?: string | null;
+      emailTooLong?: string | null;
+      phoneTooLong?: string | null;
+      dobInvalid?: string | null;
+      coverTooLong?: string | null;
+      cvRequired?: string | null;
+      cvTypeInvalid?: string | null;
+      cvTooLarge?: string | null;
+      cvContentMismatch?: string | null;
+      serverError?: string | null;
+    };
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-hero".
  */
 export interface HomeHero {
@@ -1565,6 +1666,133 @@ export interface ContactInfoSelect<T extends boolean = true> {
       };
   address?: T;
   workingHours?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms_select".
+ */
+export interface FormsSelect<T extends boolean = true> {
+  commonFields?:
+    | T
+    | {
+        labels?:
+          | T
+          | {
+              firstName?: T;
+              lastName?: T;
+              email?: T;
+              phone?: T;
+            };
+        placeholders?:
+          | T
+          | {
+              firstName?: T;
+              lastName?: T;
+              email?: T;
+              phone?: T;
+            };
+      };
+  contactForm?:
+    | T
+    | {
+        labels?:
+          | T
+          | {
+              subject?: T;
+              message?: T;
+              submitButton?: T;
+            };
+        placeholders?:
+          | T
+          | {
+              subject?: T;
+              message?: T;
+            };
+        messages?:
+          | T
+          | {
+              success?: T;
+              error?: T;
+              sending?: T;
+              thankYou?: T;
+              whatHappensNext?: T;
+              step1?: T;
+              step2?: T;
+              step3?: T;
+              sendAnother?: T;
+            };
+        errors?:
+          | T
+          | {
+              requiredFields?: T;
+              emailInvalid?: T;
+              nameTooLong?: T;
+              emailTooLong?: T;
+              phoneTooLong?: T;
+              subjectTooLong?: T;
+              messageTooLong?: T;
+              serverError?: T;
+            };
+      };
+  vacancyForm?:
+    | T
+    | {
+        labels?:
+          | T
+          | {
+              formTitle?: T;
+              applyButton?: T;
+              dateOfBirth?: T;
+              cv?: T;
+              coverLetter?: T;
+              submitButton?: T;
+            };
+        placeholders?:
+          | T
+          | {
+              coverLetter?: T;
+            };
+        upload?:
+          | T
+          | {
+              clickToUpload?: T;
+              dragAndDrop?: T;
+              hint?: T;
+            };
+        messages?:
+          | T
+          | {
+              successHeading?: T;
+              successThankYou?: T;
+              whatHappensNext?: T;
+              step1?: T;
+              step2?: T;
+              step3?: T;
+              submitting?: T;
+              submitAnother?: T;
+              error?: T;
+            };
+        errors?:
+          | T
+          | {
+              requiredFields?: T;
+              emailInvalid?: T;
+              vacancyInvalid?: T;
+              nameTooLong?: T;
+              emailTooLong?: T;
+              phoneTooLong?: T;
+              dobInvalid?: T;
+              coverTooLong?: T;
+              cvRequired?: T;
+              cvTypeInvalid?: T;
+              cvTooLarge?: T;
+              cvContentMismatch?: T;
+              serverError?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

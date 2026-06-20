@@ -38,25 +38,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
-      return NextResponse.json({ error: 'Name, email, subject and message are required.' }, { status: 400 });
+      return NextResponse.json({ error: 'requiredFields' }, { status: 400 });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
+      return NextResponse.json({ error: 'emailInvalid' }, { status: 400 });
     }
     if (firstName.length > 100 || lastName.length > 100) {
-      return NextResponse.json({ error: 'Name is too long.' }, { status: 400 });
+      return NextResponse.json({ error: 'nameTooLong' }, { status: 400 });
     }
     if (email.length > 254) {
-      return NextResponse.json({ error: 'Email address is too long.' }, { status: 400 });
+      return NextResponse.json({ error: 'emailTooLong' }, { status: 400 });
     }
     if (phone && phone.length > 30) {
-      return NextResponse.json({ error: 'Phone number is too long.' }, { status: 400 });
+      return NextResponse.json({ error: 'phoneTooLong' }, { status: 400 });
     }
     if (subject.length > 200) {
-      return NextResponse.json({ error: 'Subject must be under 200 characters.' }, { status: 400 });
+      return NextResponse.json({ error: 'subjectTooLong' }, { status: 400 });
     }
     if (message.length > 5000) {
-      return NextResponse.json({ error: 'Message must be under 5 000 characters.' }, { status: 400 });
+      return NextResponse.json({ error: 'messageTooLong' }, { status: 400 });
     }
 
     const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale });
@@ -104,6 +104,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[contact route] Failed to send email:', err);
-    return NextResponse.json({ error: 'Failed to send message. Please try again later.' }, { status: 500 });
+    return NextResponse.json({ error: 'serverError' }, { status: 500 });
   }
 }

@@ -43,6 +43,7 @@ type Props = {
     step2: string
     step3: string
     sendAnother: string
+    errors: Record<string, string>
   }
 }
 
@@ -179,11 +180,12 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
         body: JSON.stringify({ ...form, locale, loadedAt: loadedAtRef.current }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      if (!res.ok) throw new Error(data.error || 'serverError')
       setSubmitted(true)
       setError(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : formMessages.error)
+      const code = err instanceof Error ? err.message : ''
+      setError(code && code !== 'Failed to fetch' ? code : 'serverError')
     } finally {
       submitInFlightRef.current = false;
       setLoading(false);
@@ -358,7 +360,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
 
                 {error && (
                   <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                    {error}
+                    {formMessages.errors[error] || formMessages.error}
                   </p>
                 )}
 

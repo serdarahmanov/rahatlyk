@@ -48,40 +48,40 @@ export async function POST(req: NextRequest) {
       : 'en';
 
     if (!firstName || !lastName || !email || !dateOfBirth || !vacancyTitle) {
-      return NextResponse.json({ error: 'Name, email, date of birth and vacancy are required.' }, { status: 400 });
+      return NextResponse.json({ error: 'requiredFields' }, { status: 400 });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
+      return NextResponse.json({ error: 'emailInvalid' }, { status: 400 });
     }
 
     const vacancyIdNum = parseInt(vacancyId ?? '', 10);
     if (!vacancyId || isNaN(vacancyIdNum) || vacancyIdNum <= 0) {
-      return NextResponse.json({ error: 'Invalid vacancy.' }, { status: 400 });
+      return NextResponse.json({ error: 'vacancyInvalid' }, { status: 400 });
     }
 
     if (firstName.length > 100 || lastName.length > 100) {
-      return NextResponse.json({ error: 'Name is too long.' }, { status: 400 });
+      return NextResponse.json({ error: 'nameTooLong' }, { status: 400 });
     }
     if (email.length > 254) {
-      return NextResponse.json({ error: 'Email address is too long.' }, { status: 400 });
+      return NextResponse.json({ error: 'emailTooLong' }, { status: 400 });
     }
     if (phone && phone.length > 30) {
-      return NextResponse.json({ error: 'Phone number is too long.' }, { status: 400 });
+      return NextResponse.json({ error: 'phoneTooLong' }, { status: 400 });
     }
     if (dateOfBirth.length > 20) {
-      return NextResponse.json({ error: 'Invalid date of birth.' }, { status: 400 });
+      return NextResponse.json({ error: 'dobInvalid' }, { status: 400 });
     }
     if (cover && cover.length > 5000) {
-      return NextResponse.json({ error: 'Cover letter must be under 5 000 characters.' }, { status: 400 });
+      return NextResponse.json({ error: 'coverTooLong' }, { status: 400 });
     }
     if (!cvFile || cvFile.size === 0) {
-      return NextResponse.json({ error: 'CV file is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'cvRequired' }, { status: 400 });
     }
     if (!ALLOWED_TYPES.includes(cvFile.type)) {
-      return NextResponse.json({ error: 'CV must be a PDF, DOC or DOCX file.' }, { status: 400 });
+      return NextResponse.json({ error: 'cvTypeInvalid' }, { status: 400 });
     }
     if (cvFile.size > MAX_SIZE_BYTES) {
-      return NextResponse.json({ error: 'CV file must be under 2 MB.' }, { status: 400 });
+      return NextResponse.json({ error: 'cvTooLarge' }, { status: 400 });
     }
 
     const cvBuffer = Buffer.from(await cvFile.arrayBuffer());
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     // and returns the real MIME type — independent of the browser-supplied Content-Type.
     const detected = await fileTypeFromBuffer(cvBuffer);
     if (!detected || detected.mime !== cvFile.type) {
-      return NextResponse.json({ error: 'CV file content does not match its declared type.' }, { status: 400 });
+      return NextResponse.json({ error: 'cvContentMismatch' }, { status: 400 });
     }
 
     const cvAttachment = { filename: cvFile.name, content: cvBuffer };
@@ -158,6 +158,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[vacancy route] Failed to send application:', err);
-    return NextResponse.json({ error: 'Failed to submit application. Please try again later.' }, { status: 500 });
+    return NextResponse.json({ error: 'serverError' }, { status: 500 });
   }
 }

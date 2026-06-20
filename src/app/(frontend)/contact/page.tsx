@@ -1,6 +1,24 @@
 import { cookies } from 'next/headers'
 import { getPayloadClient } from '@/lib/payload'
+import { FORMS_CONTENT } from '@/lib/data/forms-content'
 import ContactPageClient from './ContactPageClient'
+
+const LOCALE_FALLBACK = 'en' as const
+type Locale = 'en' | 'tm' | 'ru'
+
+function buildFallbackErrors(locale: Locale) {
+  const E = FORMS_CONTENT.contactForm_errors
+  return {
+    requiredFields: E.requiredFields[locale],
+    emailInvalid:   E.emailInvalid[locale],
+    nameTooLong:    E.nameTooLong[locale],
+    emailTooLong:   E.emailTooLong[locale],
+    phoneTooLong:   E.phoneTooLong[locale],
+    subjectTooLong: E.subjectTooLong[locale],
+    messageTooLong: E.messageTooLong[locale],
+    serverError:    E.serverError[locale],
+  }
+}
 
 const FALLBACK = {
   formMessages: {
@@ -13,6 +31,7 @@ const FALLBACK = {
     step2:           "We'll reply directly to {email}.",
     step3:           'For urgent enquiries call {phone}.',
     sendAnother:     'Send Another Message',
+    errors:          buildFallbackErrors(LOCALE_FALLBACK),
   },
   hero: {
     title: "We'd Love to Hear From You",
@@ -39,12 +58,19 @@ const FALLBACK = {
 }
 
 export default async function ContactPage() {
-  const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'
+  const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as Locale
   const payload = await getPayloadClient()
+  const fallbackErrors = buildFallbackErrors(locale)
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = await (payload.findGlobal as any)({ slug: 'about-page', locale, depth: 0 })
+    const [pageRaw, formsRaw] = await Promise.all([
+      (payload.findGlobal as any)({ slug: 'about-page', locale, depth: 0 }),
+      (payload.findGlobal as any)({ slug: 'forms', locale, depth: 0 }),
+    ])
+    const data = pageRaw
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fe: any = formsRaw?.contactForm?.errors ?? {}
 
     const hero = {
       title:       data?.hero?.title       || FALLBACK.hero.title,
@@ -78,10 +104,20 @@ export default async function ContactPage() {
       step2:           data?.formMessages?.step2           || FALLBACK.formMessages.step2,
       step3:           data?.formMessages?.step3           || FALLBACK.formMessages.step3,
       sendAnother:     data?.formMessages?.sendAnother     || FALLBACK.formMessages.sendAnother,
+      errors: {
+        requiredFields: fe.requiredFields || fallbackErrors.requiredFields,
+        emailInvalid:   fe.emailInvalid   || fallbackErrors.emailInvalid,
+        nameTooLong:    fe.nameTooLong    || fallbackErrors.nameTooLong,
+        emailTooLong:   fe.emailTooLong   || fallbackErrors.emailTooLong,
+        phoneTooLong:   fe.phoneTooLong   || fallbackErrors.phoneTooLong,
+        subjectTooLong: fe.subjectTooLong || fallbackErrors.subjectTooLong,
+        messageTooLong: fe.messageTooLong || fallbackErrors.messageTooLong,
+        serverError:    fe.serverError    || fallbackErrors.serverError,
+      },
     }
 
     return <ContactPageClient hero={hero} formLabels={formLabels} formPlaceholders={formPlaceholders} formMessages={formMessages} />
   } catch {
-    return <ContactPageClient hero={FALLBACK.hero} formLabels={FALLBACK.formLabels} formPlaceholders={FALLBACK.formPlaceholders} formMessages={FALLBACK.formMessages} />
+    return <ContactPageClient hero={FALLBACK.hero} formLabels={FALLBACK.formLabels} formPlaceholders={FALLBACK.formPlaceholders} formMessages={{ ...FALLBACK.formMessages, errors: fallbackErrors }} />
   }
 }

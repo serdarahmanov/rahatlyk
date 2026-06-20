@@ -22,6 +22,75 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 20, 2026 — Forms global, vacancy form CMS integration, and multilingual error handling
+
+#### Forms global (`src/globals/Forms.ts`)
+
+New Payload global (slug `forms`, Settings group, public read access) centralising all form UI strings for both forms in one place.
+
+Three top-level groups:
+
+| Group | Purpose |
+|---|---|
+| `commonFields` | Labels and placeholders shared across forms: firstName, lastName, email, phone |
+| `contactForm` | Labels, placeholders, messages, and validation error strings for the contact form |
+| `vacancyForm` | Labels, placeholders, upload hint, messages, and validation error strings for the vacancy form |
+
+Every field is `localized: true` — a single `findGlobal` call with the correct locale returns all strings translated.
+
+The `errors` subgroup in both `contactForm` and `vacancyForm` maps camelCase error codes to locale-specific text:
+
+- **Contact errors (8):** `requiredFields`, `emailInvalid`, `nameTooLong`, `emailTooLong`, `phoneTooLong`, `subjectTooLong`, `messageTooLong`, `serverError`
+- **Vacancy errors (13):** `requiredFields`, `emailInvalid`, `vacancyInvalid`, `nameTooLong`, `emailTooLong`, `phoneTooLong`, `dobInvalid`, `coverTooLong`, `cvRequired`, `cvTypeInvalid`, `cvTooLarge`, `cvContentMismatch`, `serverError`
+
+#### Static seed data (`src/lib/data/forms-content.ts`)
+
+New file. All form strings and error messages in all three locales. Used both as the seed source for `seed-forms.ts` and as runtime fallbacks when Payload is unavailable.
+
+#### Seed script (`src/seed-forms.ts`)
+
+```bash
+npx tsx --env-file=.env.local src/seed-forms.ts
+```
+
+Seeds the Forms global for all three locales. Idempotent — safe to re-run.
+
+#### Vacancy form — fully CMS-driven
+
+`src/app/(frontend)/vacancies/[id]/page.tsx` now fetches the `forms` global alongside the vacancy data in the same `Promise.allSettled` call. All vacancy form strings (labels, placeholders, upload hints, success panel messages, and error messages) come from Payload with English fallbacks from `forms-content.ts`. Language switching calls `router.refresh()`, which re-runs the server component with the new locale cookie and delivers freshly translated strings.
+
+#### Contact page — also pulls error strings from Forms global
+
+`src/app/(frontend)/contact/page.tsx` previously fetched only the `about-page` global. It now also fetches `forms` in the same `Promise.all` call to get the localized `contactForm.errors` map. Hero text, field labels, and success panel messages still come from `about-page`.
+
+#### Error codes in API routes
+
+Both `/api/contact/route.ts` and `/api/vacancy/route.ts` now return camelCase error codes instead of hardcoded English strings:
+
+```ts
+// Before
+return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
+
+// After
+return NextResponse.json({ error: 'emailInvalid' }, { status: 400 })
+```
+
+#### Locale-reactive error display
+
+Both client components store the error **code** in React state, not the translated string. The displayed message is derived from current props at render time:
+
+```ts
+// State holds the raw code
+setFormError(code)                                            // e.g. 'cvTooLarge'
+
+// Render resolves it through the current locale's errors map
+{forms.vacancyForm.errors[formError] || vm.error}            // → "Резюме не должно превышать 2 МБ."
+```
+
+When the user switches language, `router.refresh()` delivers new props with updated translations. Because the code is in state (not the translated string), the rendered error updates immediately — no re-submission needed. Network failures (`'Failed to fetch'`) map to the `serverError` code and go through the same translation path.
+
+---
+
 ### June 20, 2026 — Security hardening: vacancyId injection fix, HTTP headers, field length limits, anti-spam, XSS, CSV injection, CV file validation, private CV storage
 
 #### `vacancyId` integer validation — HTML injection fix (`src/app/api/vacancy/route.ts`)
@@ -102,8 +171,8 @@ Maximum CV upload size reduced from **5 MB** to **2 MB** — enforced on both th
 
 CV files are no longer stored inside `public/` where Next.js serves them statically to anyone.
 
-- `src/collections/CVDocuments.ts` — `staticDir` changed from `public/cv` to `cv` (project root, outside `public/`). `staticURL` set to `/api/cv` so Payload admin generates download links that route through the auth-protected handler.
-- `src/app/api/cv/[filename]/route.ts` — **new route handler**. Validates the Payload session via `payload.auth({ headers: req.headers })`, prevents path traversal with `path.basename(filename)`, reads the file from the root `cv/` directory, and streams it with:
+- `src/collections/CVDocuments.ts` — `staticDir` changed from `public/cv` to `cv` (project root, outside `public/`). Payload v3 serves files via its built-in endpoint at `/api/cv-documents/file/{filename}`, enforcing `access.read` automatically — no `staticURL` configuration is needed or available in v3.
+- `src/app/api/cv/[filename]/route.ts` — **additional route handler** as an explicit auth layer. Validates the Payload session via `payload.auth({ headers: req.headers })`, prevents path traversal with `path.basename(filename)`, reads the file from the root `cv/` directory, and streams it with:
   - `Content-Disposition: attachment` — forces download, not inline render
   - `X-Content-Type-Options: nosniff` — prevents MIME sniffing
   - `Cache-Control: private, no-cache` — no shared-proxy caching
@@ -676,7 +745,7 @@ Both scripts are idempotent — safe to re-run. They update existing records ins
 Contact form submissions and vacancy applications are now persisted in Payload CMS after the email sends. CV files are stored on disk.
 
 - Added `src/collections/ContactSubmissions.ts` — stores `firstName`, `lastName`, `email`, `phone`, `subject`, `message`, `locale`. All fields read-only in admin. Authenticated-only read access.
-- Added `src/collections/CVDocuments.ts` — Payload upload collection. Files written to `public/cv/` with UUID-generated filenames (unpredictable, not guessable). Read access restricted to authenticated users.
+- Added `src/collections/CVDocuments.ts` — Payload upload collection. Files written to `cv/` (project root, outside `public/`) with UUID-generated filenames (unpredictable, not guessable). Read access restricted to authenticated users.
 - Added `src/collections/VacancyApplications.ts` — stores applicant fields plus a relationship to `vacancies` and `cv-documents`. Authenticated-only read access.
 - Updated `/api/contact/route.ts` — after sending email, calls `payload.create()` to persist the submission. DB failure logs but does not break the 200 response.
 - Updated `/api/vacancy/route.ts` — after sending email, uploads the CV buffer via Payload's local API (`file:` property), then creates the `vacancy-applications` record referencing both the vacancy and the stored CV document.
@@ -698,7 +767,7 @@ Added `@payloadcms/plugin-import-export` to enable CSV/JSON export from the Payl
 | Articles | Article Categories, Articles |
 | Vacancies | Vacancy Departments, Vacancies |
 | Submissions | Contact Submissions, CV Documents, Vacancy Applications |
-| Settings | Contact Info (global) |
+| Settings | Contact Info (global), Forms (global) |
 
 ### Contact Info Global
 
@@ -775,33 +844,49 @@ src/
   components/
     EmptyState.tsx
   globals/
+    AboutOurStory.ts
     AboutPage.ts
     ContactInfo.ts
+    Forms.ts
     HomeCtaBanner.ts
     HomeHero.ts
     HomeStory.ts
     HorizontalScroll.ts
+    ProductDetailLabels.ts
   lib/
     contact-info/
       ContactInfoContext.tsx
     data/
       about-content.ts
+      about-our-story-content.ts
+      forms-content.ts
       hero-content.ts
       home-cta-content.ts
       home-story-content.ts
       horizontal-scroll-content.ts
       product-lines.ts
+      products-payload.ts
+      vacancies-payload.ts
+      news-seed.ts
     email/
     i18n/
     lexical-serialize.tsx
     payload.ts
     payload-normalize.ts
+    spam-check.ts
   types/
     payload.ts
   seed.ts
   seed-about.ts
+  seed-about-our-story.ts
+  seed-forms.ts
   seed-hero.ts
+  seed-news.ts
+  seed-product-detail-labels.ts
   seed-product-lines.ts
+  seed-products.ts
+  seed-vacancies.ts
+  seed-vacancy-images.ts
 ```
 
 ## Payload CMS
@@ -813,7 +898,7 @@ Key points:
 - Admin user collection: `users`
 - Public read collections: `media`, `product-categories`, `product-lines`, `products`, `article-categories`, `articles`, `vacancy-departments`, `vacancies`
 - Authenticated-only collections: `contact-submissions`, `cv-documents`, `vacancy-applications`
-- Globals: `about-page`, `contact-info`, `home-hero`, `horizontal-scroll`, `home-story`, `home-cta-banner`
+- Globals: `about-page`, `about-our-story`, `contact-info`, `forms`, `home-hero`, `horizontal-scroll`, `home-story`, `home-cta-banner`, `product-detail-labels`
 - Database adapter: PostgreSQL
 - Rich text editor: Lexical
 - Image processing: Sharp
@@ -827,8 +912,12 @@ The public listing/detail pages call `getPayloadClient()` on the server and norm
 | Script | What it seeds |
 |---|---|
 | `src/seed-about.ts` | About Page global (hero, form labels, placeholders, messages — 3 locales) |
+| `src/seed-about-our-story.ts` | About Our Story global (sectionLabel + story content — 3 locales) |
+| `src/seed-forms.ts` | Forms global (labels, placeholders, messages, and all error codes for contact + vacancy forms — 3 locales) |
 | `src/seed-hero.ts` | Hero Section global (video + text in 3 locales) |
 | `src/seed-product-lines.ts` | Our Collection (5 product lines + images) |
+| `src/seed-products.ts` | Products with localized nutrition data (3 locales) |
+| `src/seed-product-detail-labels.ts` | ProductDetailLabels global (size, nutrition, about, mineral, per-litre labels — 3 locales) |
 | `src/seed-vacancies.ts` | Vacancy departments + 8 vacancies (3 locales, localized arrays) |
 | `src/seed-vacancy-images.ts` | Uploads vacancy images and links them to vacancies |
 | `src/seed-news.ts` | 3 article categories + 8 articles with images (3 locales) |
@@ -845,8 +934,12 @@ npx tsx --env-file=.env.local src/migrate-article-body-to-richtext.ts
 
 ```bash
 npx tsx --env-file=.env.local src/seed-about.ts
+npx tsx --env-file=.env.local src/seed-about-our-story.ts
+npx tsx --env-file=.env.local src/seed-forms.ts
 npx tsx --env-file=.env.local src/seed-hero.ts
 npx tsx --env-file=.env.local src/seed-product-lines.ts
+npx tsx --env-file=.env.local src/seed-products.ts
+npx tsx --env-file=.env.local src/seed-product-detail-labels.ts
 npx tsx --env-file=.env.local src/seed-vacancies.ts
 npx tsx --env-file=.env.local src/seed-vacancy-images.ts
 npx tsx --env-file=.env.local src/seed-news.ts

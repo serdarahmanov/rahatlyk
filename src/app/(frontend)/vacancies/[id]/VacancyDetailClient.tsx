@@ -6,6 +6,37 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDate } from '@/lib/formatDate'
 import type { PayloadVacancy } from '@/types/payload'
 
+export interface VacancyFormStrings {
+  commonFields: {
+    labels:       { firstName: string; lastName: string; email: string; phone: string }
+    placeholders: { firstName: string; lastName: string; email: string; phone: string }
+  }
+  vacancyForm: {
+    labels: {
+      formTitle: string; applyButton: string; dateOfBirth: string
+      cv: string; coverLetter: string; submitButton: string
+    }
+    placeholders: { coverLetter: string }
+    upload:       { clickToUpload: string; dragAndDrop: string; hint: string }
+    messages: {
+      successHeading: string; successThankYou: string; whatHappensNext: string
+      step1: string; step2: string; step3: string
+      submitting: string; submitAnother: string; error: string
+    }
+    errors: Record<string, string>
+  }
+}
+
+function injectTokens(template: string, values: Record<string, string>) {
+  return template.split(/(\{name\}|\{email\})/).map((part, i) => {
+    const key = part.replace(/[{}]/g, '')
+    if (part === `{${key}}` && key in values) {
+      return <span key={i} className="text-black underline underline-offset-2">{values[key]}</span>
+    }
+    return part
+  })
+}
+
 const DEPT_CONFIG: Record<string, {
   gradient: string
   light: string
@@ -37,9 +68,16 @@ type Tab = 'overview' | 'responsibilities' | 'requirements'
 interface Props {
   vacancy: PayloadVacancy
   others: PayloadVacancy[]
+  forms: VacancyFormStrings
 }
 
-export default function VacancyDetailClient({ vacancy, others }: Props) {
+export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
+  const cl = forms.commonFields.labels
+  const cp = forms.commonFields.placeholders
+  const vl = forms.vacancyForm.labels
+  const vp = forms.vacancyForm.placeholders
+  const vu = forms.vacancyForm.upload
+  const vm = forms.vacancyForm.messages
   const { locale } = useLanguage()
 
   const [tab, setTab] = useState<Tab>('overview')
@@ -151,10 +189,11 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
 
       const res  = await fetch('/api/vacancy', { method: 'POST', body: data })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Something went wrong.')
+      if (!res.ok) throw new Error(json.error || 'serverError')
       setFormSubmitted(true)
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Something went wrong.')
+      const code = err instanceof Error ? err.message : ''
+      setFormError(code && code !== 'Failed to fetch' ? code : 'serverError')
     } finally {
       submitInFlightRef.current = false
       setFormSubmitting(false)
@@ -290,7 +329,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
 
           <div className="flex flex-wrap gap-3">
             <a href="#apply" className="btn-primary">
-              Apply for This Role
+              {vl.applyButton}
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -324,45 +363,45 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
             className="text-3xl font-light text-brand-950 mb-8"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
-            Apply for this Position
+            {vl.formTitle}
           </h2>
 
           {formSubmitted ? (
-            <div className="py-10">
+            <div className="py-6">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-brand-700">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-500">
                     <path d="M22 2 11 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M22 2 15 22 11 13 2 9l20-7z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-light text-brand-950" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-                    Application Submitted
+                  <h3 className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+                    {vm.successHeading}
                   </h3>
-                  <p className="text-brand-500 text-sm mt-0.5">
-                    Thanks <span className="font-light text-brand-800">{applyForm.firstName} {applyForm.lastName}</span> &mdash; a confirmation has been sent to <span className="font-light text-brand-800">{applyForm.email}</span>.
+                  <p className="text-gray-500 text-sm mt-0.5">
+                    {injectTokens(vm.successThankYou, { name: `${applyForm.firstName} ${applyForm.lastName}`, email: applyForm.email })}
                   </p>
                 </div>
               </div>
               <div className="border-t border-gray-100 pt-6 space-y-4">
-                <p className="text-[10px] font-light text-gray-300 uppercase tracking-[0.2em]">What happens next</p>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-[0.2em]">{vm.whatHappensNext}</p>
                 {[
-                  { n: '01', text: <>Our HR team reviews your CV within <strong className="text-gray-800 font-light">3&ndash;5 business days</strong>.</> },
-                  { n: '02', text: <>If shortlisted, we&apos;ll reach out to schedule an interview.</> },
-                  { n: '03', text: <>Check <strong className="text-gray-800 font-light">{applyForm.email}</strong> &mdash; that&apos;s where we&apos;ll contact you.</> },
+                  { n: '01', text: vm.step1 },
+                  { n: '02', text: vm.step2 },
+                  { n: '03', text: injectTokens(vm.step3, { email: applyForm.email }) },
                 ].map(({ n, text }) => (
                   <div key={n} className="flex items-start gap-3">
-                    <span className="text-[10px] font-light text-gray-300 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
+                    <span className="text-[10px] font-light text-gray-400 tracking-widest mt-0.5 w-5 flex-shrink-0">{n}</span>
                     <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
                   </div>
                 ))}
               </div>
               <button
                 onClick={() => { setFormSubmitted(false); setApplyForm({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', cover: '' }); setCvFile(null) }}
-                className="mt-8 w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200"
+                className="mt-8 w-full py-4 rounded-md bg-[#1a1a1a] hover:bg-black text-white text-base font-normal tracking-wide transition-colors duration-200 flex items-center justify-center"
               >
-                Submit Another Application
+                {vm.submitAnother}
               </button>
             </div>
           ) : (
@@ -375,15 +414,15 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
 
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-900 mb-1.5 px-1">First name <span className="text-red-400">*</span></label>
-                  <input type="text" name="firstName" value={applyForm.firstName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder="John"
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.firstName} <span className="text-red-400">*</span></label>
+                  <input type="text" name="firstName" value={applyForm.firstName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.firstName}
                     className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.firstName ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
                   />
                   {formErrors.firstName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.firstName}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Last name <span className="text-red-400">*</span></label>
-                  <input type="text" name="lastName" value={applyForm.lastName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder="Smith"
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.lastName} <span className="text-red-400">*</span></label>
+                  <input type="text" name="lastName" value={applyForm.lastName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.lastName}
                     className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.lastName ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
                   />
                   {formErrors.lastName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.lastName}</p>}
@@ -392,22 +431,22 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
 
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Email <span className="text-red-400">*</span></label>
-                  <input type="email" name="email" value={applyForm.email} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder="you@example.com"
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.email} <span className="text-red-400">*</span></label>
+                  <input type="email" name="email" value={applyForm.email} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.email}
                     className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.email ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
                   />
                   {formErrors.email && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.email}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-900 mb-1.5 px-1">Phone</label>
-                  <input type="tel" name="phone" value={applyForm.phone} onChange={handleApplyChange} placeholder="+993 ..."
+                  <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.phone}</label>
+                  <input type="tel" name="phone" value={applyForm.phone} onChange={handleApplyChange} placeholder={cp.phone}
                     className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm text-gray-900 mb-1.5 px-1">Date of birth <span className="text-red-400">*</span></label>
+                <label className="block text-sm text-gray-900 mb-1.5 px-1">{vl.dateOfBirth} <span className="text-red-400">*</span></label>
                 <input type="date" name="dateOfBirth" value={applyForm.dateOfBirth} onChange={handleApplyChange} onFocus={handleApplyFocus}
                   max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
                   className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-500 focus:outline-none focus:ring-2 transition-all ${formErrors.dateOfBirth ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
@@ -416,7 +455,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-900 mb-1.5 px-1">CV / Resume <span className="text-red-400">*</span></label>
+                <label className="block text-sm text-gray-900 mb-1.5 px-1">{vl.cv} <span className="text-red-400">*</span></label>
                 <div
                   className={`rounded-md px-4 py-6 text-center cursor-pointer transition-all duration-200 ${formErrors.cv ? 'ring-2 ring-red-400 bg-red-50' : dragOver ? 'bg-gray-200' : 'bg-[#f3f4f6] hover:bg-gray-200'}`}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
@@ -437,8 +476,8 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
                       <svg className="mx-auto mb-2 text-gray-400" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
-                      <p className="text-sm text-gray-500"><span className="font-light text-gray-700">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX &mdash; up to 2 MB</p>
+                      <p className="text-sm text-gray-500"><span className="font-light text-gray-700">{vu.clickToUpload}</span> {vu.dragAndDrop}</p>
+                      <p className="text-xs text-gray-400 mt-1">{vu.hint}</p>
                     </>
                   )}
                   <input id="cv-input" type="file" accept=".pdf,.doc,.docx" className="hidden"
@@ -449,14 +488,14 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-900 mb-1.5 px-1">Cover letter</label>
-                <textarea name="cover" value={applyForm.cover} onChange={handleApplyChange} rows={5} placeholder="Tell us why you're a great fit…"
+                <label className="block text-sm text-gray-900 mb-1.5 px-1">{vl.coverLetter}</label>
+                <textarea name="cover" value={applyForm.cover} onChange={handleApplyChange} rows={5} placeholder={vp.coverLetter}
                   className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all resize-none"
                 />
               </div>
 
               {formError && (
-                <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-4 py-3">{formError}</p>
+                <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-4 py-3">{forms.vacancyForm.errors[formError] || vm.error}</p>
               )}
 
               <button type="submit" disabled={formSubmitting}
@@ -467,9 +506,9 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4" strokeDashoffset="10" />
                     </svg>
-                    Submitting&hellip;
+                    {vm.submitting}
                   </>
-                ) : 'Submit Application'}
+                ) : vl.submitButton}
               </button>
             </form>
           )}
