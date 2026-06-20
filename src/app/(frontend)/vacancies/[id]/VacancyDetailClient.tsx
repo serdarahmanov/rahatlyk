@@ -54,6 +54,9 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
   const heroRef   = useRef<HTMLDivElement>(null)
   const detailRef = useRef<HTMLDivElement>(null)
   const submitInFlightRef = useRef(false)
+  const loadedAtRef = useRef(0)
+
+  useEffect(() => { loadedAtRef.current = Date.now() }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -107,6 +110,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
     else if (!/\S+@\S+\.\S+/.test(applyForm.email)) errors.email = 'Please enter a valid email'
     if (!applyForm.dateOfBirth) errors.dateOfBirth = 'Date of birth is required'
     if (!cvFile) errors.cv = 'Please upload your CV'
+    else if (cvFile.size > 2 * 1024 * 1024) errors.cv = 'CV file must be under 2 MB'
     return errors
   }
 
@@ -142,6 +146,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
       data.append('vacancyTitle', vacancy.title)
       data.append('vacancyId',    String(vacancy.id))
       data.append('locale',       locale)
+      data.append('loadedAt',     String(loadedAtRef.current))
       if (cvFile) data.append('cv', cvFile)
 
       const res  = await fetch('/api/vacancy', { method: 'POST', body: data })
@@ -362,6 +367,12 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
             </div>
           ) : (
             <form onSubmit={handleApplySubmit} noValidate className="space-y-3">
+
+              {/* Honeypot — invisible to humans, bots fill it and get silently rejected */}
+              <div style={{ position: 'absolute', left: '-9999px', top: 0, width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+                <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+              </div>
+
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm text-gray-900 mb-1.5 px-1">First name <span className="text-red-400">*</span></label>
@@ -427,7 +438,7 @@ export default function VacancyDetailClient({ vacancy, others }: Props) {
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                       <p className="text-sm text-gray-500"><span className="font-light text-gray-700">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX &mdash; up to 5 MB</p>
+                      <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX &mdash; up to 2 MB</p>
                     </>
                   )}
                   <input id="cv-input" type="file" accept=".pdf,.doc,.docx" className="hidden"

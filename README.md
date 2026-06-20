@@ -22,6 +22,69 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 20, 2026 — Security hardening: anti-spam, XSS, CSV injection, CV file validation, private CV storage
+
+#### Anti-spam — honeypot + timing check (`src/lib/spam-check.ts`)
+
+New shared module used by both `/api/contact` and `/api/vacancy`.
+
+- **Honeypot field** — a hidden `website` input is added to each form, positioned off-screen (`position: absolute; left: -9999px`) so real users never see it, but bots filling all fields will set it. Any non-empty value triggers silent rejection.
+- **Timing check** — `loadedAt = Date.now()` is recorded on component mount (`useEffect`) and sent with the payload. Submissions arriving less than **4 seconds** after page load are rejected — no human can complete the form that fast.
+- **Silent 200 response** — detected bots receive `{ success: true }` with a 200 status instead of a 4xx error, so they think the submission succeeded and do not retry or adapt.
+
+`isSpam(honeypot, loadedAt)` — returns `true` if the honeypot is filled or the elapsed time is under 4 000 ms.
+
+Applied to:
+- `src/app/(frontend)/contact/ContactPageClient.tsx` — `loadedAtRef`, hidden `website` input, `loadedAt` in fetch body.
+- `src/app/(frontend)/vacancies/[id]/VacancyDetailClient.tsx` — same pattern, `loadedAt` appended to `FormData`.
+
+#### XSS prevention in email templates (`src/lib/email/templates.ts`)
+
+Added `escapeHtml()` — replaces `&`, `<`, `>`, `"`, `'` with their HTML entities before any user-supplied value is interpolated into a Nodemailer HTML string. All four exported template functions (`contactConfirmation`, `contactNotification`, `vacancyConfirmation`, `vacancyNotification`) escape every user input at entry point.
+
+#### CSV formula injection protection (`src/lib/spam-check.ts`)
+
+Added `sanitizeCsv(value)` — prefixes values starting with `=`, `+`, `-`, `@`, `\t`, or `\r` with a single quote so Excel/Sheets treat them as literal text instead of executing them as formulas. Applied to every user-supplied string passed to `payload.create()` in both route handlers.
+
+#### CV file type validation — upgraded to `file-type` package (`src/app/api/vacancy/route.ts`)
+
+Replaced the manual magic-byte table and custom `isValidDocx` buffer scan with [`file-type`](https://github.com/sindresorhus/file-type).
+
+```ts
+const detected = await fileTypeFromBuffer(cvBuffer)
+if (!detected || detected.mime !== cvFile.type) { /* reject */ }
+```
+
+`file-type` inspects actual file content — not the browser-supplied `Content-Type`:
+
+| Format | How it validates |
+|---|---|
+| PDF | Reads `%PDF` magic bytes |
+| DOC | Reads OLE2 compound document header (`D0 CF 11 E0`) |
+| DOCX | Reads ZIP magic bytes **and** inspects `[Content_Types].xml` inside the archive to confirm it is an OOXML document |
+
+A plain ZIP renamed to `.docx` is detected as `application/zip` and rejected.
+
+#### CV file size limit reduced
+
+Maximum CV upload size reduced from **5 MB** to **2 MB** — enforced on both the server (`MAX_SIZE_BYTES` in `route.ts`) and the client (form validation in `VacancyDetailClient.tsx`). UI hint updated from "up to 5 MB" to "up to 2 MB".
+
+#### Private CV storage + authenticated serving route
+
+CV files are no longer stored inside `public/` where Next.js serves them statically to anyone.
+
+- `src/collections/CVDocuments.ts` — `staticDir` changed from `public/cv` to `cv` (project root, outside `public/`). `staticURL` set to `/api/cv` so Payload admin generates download links that route through the auth-protected handler.
+- `src/app/api/cv/[filename]/route.ts` — **new route handler**. Validates the Payload session via `payload.auth({ headers: req.headers })`, prevents path traversal with `path.basename(filename)`, reads the file from the root `cv/` directory, and streams it with:
+  - `Content-Disposition: attachment` — forces download, not inline render
+  - `X-Content-Type-Options: nosniff` — prevents MIME sniffing
+  - `Cache-Control: private, no-cache` — no shared-proxy caching
+
+Unauthenticated requests receive `401`. Missing files receive `404`.
+
+> **Note for existing deployments:** CV files already stored in `public/cv/` must be moved to the root `cv/` directory manually. Payload admin download links will be broken until files are migrated.
+
+---
+
 ### June 20, 2026 — Article body richText migration: hyperlink support
 
 #### Articles collection (`src/collections/Articles.ts`)
@@ -635,6 +698,7 @@ Company contact information is managed from Payload instead of being hardcoded.
 | `/api/contact` | Contact form email handler — also persists to Payload |
 | `/api/vacancy` | Vacancy application email handler — stores CV file and application in Payload |
 | `/api/contact-info` | Returns the Contact Info global (all locales) for client-side context |
+| `/api/cv/[filename]` | Authenticated CV file download — requires active Payload admin session |
 
 ## Project Structure
 
@@ -664,6 +728,7 @@ src/
       contact/route.ts
       vacancy/route.ts
       contact-info/route.ts
+      cv/[filename]/route.ts
     globals.css
   collections/
     ArticleCategories.ts
@@ -845,11 +910,9 @@ Both pass after each change set.
 - Remove `tls.rejectUnauthorized: false` after the certificate trust chain is fixed.
 - Make public form routes use the same shared Payload/Nodemailer email path.
 - Use `CONTACT_FORM_TO_EMAIL` for internal form notifications instead of `GMAIL_USER`.
-- Add rate limiting, CAPTCHA/honeypot, or another anti-abuse control to `/api/contact` and `/api/vacancy`.
-- Escape user-submitted text before interpolating it into HTML email templates.
 - Add `badge` and `badgeSub` fields to the `home-story` Payload global so the award badge text is CMS-managed. Current values are in `src/lib/data/home-story-content.ts`.
 - Update `.env.example` to include `DATABASE_URI` / `DATABASE_URL` and `PAYLOAD_SECRET`.
-- Move `public/cv/` CV file storage to a private location for production — files in `public/` are statically served.
+- Add rate limiting to `/api/contact` and `/api/vacancy` as an additional layer on top of the honeypot/timing check.
 
 ## Quality Notes
 

@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import { contactConfirmation, contactNotification } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
+import { isSpam, sanitizeCsv } from '@/lib/spam-check';
 
 const VALID_LOCALES: EmailLocale[] = ['en', 'ru', 'tm'];
 
@@ -14,6 +15,8 @@ interface ContactPayload {
   subject:   string;
   message:   string;
   locale?:   string;
+  website?:  string;
+  loadedAt?: number;
 }
 
 const transporter = nodemailer.createTransport({
@@ -29,6 +32,10 @@ export async function POST(req: NextRequest) {
     const locale: EmailLocale = VALID_LOCALES.includes(body.locale as EmailLocale)
       ? (body.locale as EmailLocale)
       : 'en';
+
+    if (isSpam(body.website, body.loadedAt)) {
+      return NextResponse.json({ success: true });
+    }
 
     if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
       return NextResponse.json({ error: 'Name, email, subject and message are required.' }, { status: 400 });
@@ -65,7 +72,15 @@ export async function POST(req: NextRequest) {
       const payload = await getPayloadClient();
       await payload.create({
         collection: 'contact-submissions',
-        data: { firstName, lastName, email, phone: phone ?? undefined, subject, message, locale },
+        data: {
+          firstName: sanitizeCsv(firstName),
+          lastName:  sanitizeCsv(lastName),
+          email:     sanitizeCsv(email),
+          phone:     phone ? sanitizeCsv(phone) : undefined,
+          subject:   sanitizeCsv(subject),
+          message:   sanitizeCsv(message),
+          locale,
+        },
       });
     } catch (dbErr) {
       console.error('[contact route] Failed to store submission in Payload:', dbErr);

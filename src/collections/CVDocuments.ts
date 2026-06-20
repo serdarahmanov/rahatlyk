@@ -14,7 +14,8 @@ export const CVDocuments: CollectionConfig = {
     group: 'Submissions',
   },
   upload: {
-    staticDir: 'public/cv',
+    staticDir: 'cv',
+    staticURL: '/api/cv',
     mimeTypes: [
       'application/pdf',
       'application/msword',

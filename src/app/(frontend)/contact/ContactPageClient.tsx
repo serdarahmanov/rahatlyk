@@ -72,6 +72,9 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
   const infoRef = useRef<HTMLDivElement>(null);
   const bgRef   = useRef<HTMLDivElement>(null);
   const submitInFlightRef = useRef(false);
+  const loadedAtRef = useRef(0);
+
+  useEffect(() => { loadedAtRef.current = Date.now(); }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -173,7 +176,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, locale }),
+        body: JSON.stringify({ ...form, locale, loadedAt: loadedAtRef.current }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong.');
@@ -259,6 +262,11 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
               </div>
             ) : (
               <form onSubmit={handleSubmit} noValidate className="space-y-3">
+
+                {/* Honeypot — invisible to humans, bots fill it and get silently rejected */}
+                <div style={{ position: 'absolute', left: '-9999px', top: 0, width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+                  <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+                </div>
 
                 {/* First Name + Last Name */}
                 <div className="grid sm:grid-cols-2 gap-3">

@@ -1,16 +1,19 @@
 import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { fileTypeFromBuffer } from 'file-type';
 import { vacancyConfirmation, vacancyNotification } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
+import { isSpam, sanitizeCsv } from '@/lib/spam-check';
 
 const ALLOWED_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
-const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_SIZE_BYTES = 2 * 1024 * 1024;
+
 const VALID_LOCALES: EmailLocale[] = ['en', 'ru', 'tm'];
 
 const transporter = nodemailer.createTransport({
@@ -32,7 +35,13 @@ export async function POST(req: NextRequest) {
     const vacancyTitle = (formData.get('vacancyTitle') as string)?.trim();
     const vacancyId    = (formData.get('vacancyId')    as string)?.trim();
     const rawLocale    = (formData.get('locale')       as string)?.trim();
+    const honeypot     = (formData.get('website')      as string) ?? '';
+    const loadedAt     = Number(formData.get('loadedAt')) || 0;
     const cvFile       = formData.get('cv') as File | null;
+
+    if (isSpam(honeypot, loadedAt)) {
+      return NextResponse.json({ success: true });
+    }
 
     const locale: EmailLocale = VALID_LOCALES.includes(rawLocale as EmailLocale)
       ? (rawLocale as EmailLocale)
@@ -51,10 +60,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'CV must be a PDF, DOC or DOCX file.' }, { status: 400 });
     }
     if (cvFile.size > MAX_SIZE_BYTES) {
-      return NextResponse.json({ error: 'CV file must be under 5 MB.' }, { status: 400 });
+      return NextResponse.json({ error: 'CV file must be under 2 MB.' }, { status: 400 });
     }
 
-    const cvBuffer     = Buffer.from(await cvFile.arrayBuffer());
+    const cvBuffer = Buffer.from(await cvFile.arrayBuffer());
+
+    // fileTypeFromBuffer inspects actual file content (magic bytes + ZIP internals for DOCX)
+    // and returns the real MIME type — independent of the browser-supplied Content-Type.
+    const detected = await fileTypeFromBuffer(cvBuffer);
+    if (!detected || detected.mime !== cvFile.type) {
+      return NextResponse.json({ error: 'CV file content does not match its declared type.' }, { status: 400 });
+    }
+
     const cvAttachment = { filename: cvFile.name, content: cvBuffer };
     const vacancyUrl   = `${process.env.NEXT_PUBLIC_SITE_URL}/vacancies/${vacancyId}`;
     const fromNoreply  = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
@@ -90,7 +107,7 @@ export async function POST(req: NextRequest) {
       const ext = cvFile.name.split('.').pop() ?? 'pdf';
       const cvDoc = await payload.create({
         collection: 'cv-documents',
-        data: { applicantName: `${firstName} ${lastName}` },
+        data: { applicantName: `${sanitizeCsv(firstName)} ${sanitizeCsv(lastName)}` },
         file: {
           data:     cvBuffer,
           mimetype: cvFile.type,
@@ -103,12 +120,12 @@ export async function POST(req: NextRequest) {
       await payload.create({
         collection: 'vacancy-applications',
         data: {
-          firstName,
-          lastName,
-          email,
-          phone:       phone || undefined,
-          dateOfBirth,
-          cover:       cover || undefined,
+          firstName:   sanitizeCsv(firstName),
+          lastName:    sanitizeCsv(lastName),
+          email:       sanitizeCsv(email),
+          phone:       phone ? sanitizeCsv(phone) : undefined,
+          dateOfBirth: sanitizeCsv(dateOfBirth),
+          cover:       cover ? sanitizeCsv(cover) : undefined,
           vacancy:     Number(vacancyId),
           cv:          cvDoc.id,
         },

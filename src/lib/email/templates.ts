@@ -8,6 +8,15 @@ import { emailI18n, type EmailLocale } from './i18n';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 /* ─────────────────────────────────────────────────────────────────
    Design tokens  (mirrors globals.css)
 ───────────────────────────────────────────────────────────────── */
@@ -166,7 +175,11 @@ export interface ContactConfirmationData {
 
 export function contactConfirmation({ firstName, lastName, subject, message, locale }: ContactConfirmationData): { subject: string; html: string } {
   const s = emailI18n[locale].contactConfirm;
-  const preview = message.length > 140 ? message.slice(0, 140) + '…' : message;
+  const safeFN      = escapeHtml(firstName);
+  const safeLN      = escapeHtml(lastName);
+  const safeSub     = escapeHtml(subject);
+  const safeMsg     = escapeHtml(message);
+  const preview     = safeMsg.length > 140 ? safeMsg.slice(0, 140) + '…' : safeMsg;
 
   return {
     subject: s.subject(subject),
@@ -175,14 +188,14 @@ export function contactConfirmation({ firstName, lastName, subject, message, loc
       <tr>
         <td style="padding:0 44px 40px">
 
-          <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting(firstName, lastName)}</p>
+          <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting(safeFN, safeLN)}</p>
           <p style="margin:0 0 36px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6e5a44;line-height:1.8">${s.intro}</p>
 
           <!-- Section label -->
           <p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;color:#c8ad88;text-transform:uppercase;letter-spacing:2px">${s.summaryHeading}</p>
           <!-- Data rows -->
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:36px;border-top:1px solid #f0e8d8">
-            ${row(s.subjectLabel, subject)}
+            ${row(s.subjectLabel, safeSub)}
             ${row(s.messageLabel, `<span style="color:#6e5a44;font-style:italic">${preview}</span>`, true)}
           </table>
 
@@ -213,27 +226,33 @@ export interface ContactNotificationData {
 
 export function contactNotification({ firstName, lastName, email, phone, subject, message, locale }: ContactNotificationData): { subject: string; html: string } {
   const s = emailI18n[locale].contactNotify;
-  const fullName = `${firstName} ${lastName}`;
+  const safeFN       = escapeHtml(firstName);
+  const safeLN       = escapeHtml(lastName);
+  const safeEmail    = escapeHtml(email);
+  const safePhone    = phone ? escapeHtml(phone) : undefined;
+  const safeSub      = escapeHtml(subject);
+  const safeMsg      = escapeHtml(message);
+  const fullName     = `${safeFN} ${safeLN}`;
 
   return {
-    subject: s.subject(fullName, subject),
-    html: wrapNotify(`${firstName} ${lastName} — ${subject}`, `
-      ${hdrNotify(s.title, s.subtitle(fullName, email))}
+    subject: s.subject(fullName, safeSub),
+    html: wrapNotify(`${fullName} — ${safeSub}`, `
+      ${hdrNotify(s.title, s.subtitle(fullName, safeEmail))}
       <tr>
         <td style="padding:28px 44px 0">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #f0e8d8">
-            ${row(s.firstNameLabel, firstName)}
-            ${row(s.lastNameLabel, lastName)}
-            ${row(s.emailLabel, `<a href="mailto:${email}" style="color:#6e5a44;text-decoration:none">${email}</a>`)}
-            ${phone ? row(s.phoneLabel, phone) : ''}
-            ${row(s.subjectLabel, subject, true)}
+            ${row(s.firstNameLabel, safeFN)}
+            ${row(s.lastNameLabel, safeLN)}
+            ${row(s.emailLabel, `<a href="mailto:${safeEmail}" style="color:#6e5a44;text-decoration:none">${safeEmail}</a>`)}
+            ${safePhone ? row(s.phoneLabel, safePhone) : ''}
+            ${row(s.subjectLabel, safeSub, true)}
           </table>
         </td>
       </tr>
       <tr>
         <td style="padding:28px 44px 40px">
           <p style="margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;color:#c8ad88;text-transform:uppercase;letter-spacing:2px">${s.messageHeading}</p>
-          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0f0b07;line-height:1.8;border-left:2px solid #dfd0b8;padding-left:16px;white-space:pre-wrap">${message}</p>
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0f0b07;line-height:1.8;border-left:2px solid #dfd0b8;padding-left:16px;white-space:pre-wrap">${safeMsg}</p>
         </td>
       </tr>
     `),
@@ -254,21 +273,24 @@ export interface VacancyConfirmationData {
 
 export function vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale }: VacancyConfirmationData): { subject: string; html: string } {
   const s = emailI18n[locale].vacancyConfirm;
+  const safeFN    = escapeHtml(firstName);
+  const safeLN    = escapeHtml(lastName);
+  const safeTitle = escapeHtml(vacancyTitle);
 
   return {
-    subject: s.subject(vacancyTitle),
-    html: wrap(s.preheader(vacancyTitle), `
-      ${hdr(s.title, s.subtitle(vacancyTitle))}
+    subject: s.subject(safeTitle),
+    html: wrap(s.preheader(safeTitle), `
+      ${hdr(s.title, s.subtitle(safeTitle))}
       <tr>
         <td style="padding:0 44px 40px">
 
-          <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting(firstName, lastName)}</p>
-          <p style="margin:0 0 36px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6e5a44;line-height:1.8">${s.intro(vacancyTitle)}</p>
+          <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting(safeFN, safeLN)}</p>
+          <p style="margin:0 0 36px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6e5a44;line-height:1.8">${s.intro(safeTitle)}</p>
 
           <!-- Position summary -->
           <p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;color:#c8ad88;text-transform:uppercase;letter-spacing:2px">${s.appliedPositionHeading}</p>
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:36px;border-top:1px solid #f0e8d8">
-            ${row(s.positionLabel, `<a href="${vacancyUrl}" style="color:#0f0b07;text-decoration:underline;text-decoration-color:#dfd0b8">${vacancyTitle}</a>`)}
+            ${row(s.positionLabel, `<a href="${vacancyUrl}" style="color:#0f0b07;text-decoration:underline;text-decoration-color:#dfd0b8">${safeTitle}</a>`)}
             ${row(s.companyLabel, s.companyValue)}
             ${row(s.locationLabel, s.locationValue, true)}
           </table>
@@ -303,30 +325,38 @@ export interface VacancyNotificationData {
 
 export function vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName, cover, locale }: VacancyNotificationData): { subject: string; html: string } {
   const s = emailI18n[locale].vacancyNotify;
-  const fullName = `${firstName} ${lastName}`;
+  const safeFN         = escapeHtml(firstName);
+  const safeLN         = escapeHtml(lastName);
+  const safeEmail      = escapeHtml(email);
+  const safePhone      = phone ? escapeHtml(phone) : undefined;
+  const safeDOB        = escapeHtml(dateOfBirth);
+  const safeTitle      = escapeHtml(vacancyTitle);
+  const safeCvFileName = escapeHtml(cvFileName);
+  const safeCover      = cover ? escapeHtml(cover) : undefined;
+  const fullName       = `${safeFN} ${safeLN}`;
 
   return {
-    subject: s.subject(vacancyTitle, fullName),
-    html: wrapNotify(`${firstName} ${lastName} — ${vacancyTitle}`, `
-      ${hdrNotify(s.title, s.subtitle(vacancyTitle))}
+    subject: s.subject(safeTitle, fullName),
+    html: wrapNotify(`${fullName} — ${safeTitle}`, `
+      ${hdrNotify(s.title, s.subtitle(safeTitle))}
       <tr>
         <td style="padding:28px 44px 0">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #f0e8d8">
-            ${row(s.firstNameLabel, firstName)}
-            ${row(s.lastNameLabel, lastName)}
-            ${row(s.dobLabel, dateOfBirth)}
-            ${row(s.emailLabel, `<a href="mailto:${email}" style="color:#6e5a44;text-decoration:none">${email}</a>`)}
-            ${phone ? row(s.phoneLabel, phone) : ''}
-            ${row(s.positionLabel, `<a href="${vacancyUrl}" style="color:#6e5a44;text-decoration:none">${vacancyTitle}</a>`)}
-            ${row(s.cvLabel, `${cvFileName} <span style="color:#c8ad88;font-size:12px">${s.cvNote}</span>`, !cover)}
+            ${row(s.firstNameLabel, safeFN)}
+            ${row(s.lastNameLabel, safeLN)}
+            ${row(s.dobLabel, safeDOB)}
+            ${row(s.emailLabel, `<a href="mailto:${safeEmail}" style="color:#6e5a44;text-decoration:none">${safeEmail}</a>`)}
+            ${safePhone ? row(s.phoneLabel, safePhone) : ''}
+            ${row(s.positionLabel, `<a href="${vacancyUrl}" style="color:#6e5a44;text-decoration:none">${safeTitle}</a>`)}
+            ${row(s.cvLabel, `${safeCvFileName} <span style="color:#c8ad88;font-size:12px">${s.cvNote}</span>`, !safeCover)}
           </table>
         </td>
       </tr>
-      ${cover ? `
+      ${safeCover ? `
       <tr>
         <td style="padding:28px 44px 40px">
           <p style="margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;color:#c8ad88;text-transform:uppercase;letter-spacing:2px">${s.coverHeading}</p>
-          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0f0b07;line-height:1.8;border-left:2px solid #dfd0b8;padding-left:16px;white-space:pre-wrap">${cover}</p>
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0f0b07;line-height:1.8;border-left:2px solid #dfd0b8;padding-left:16px;white-space:pre-wrap">${safeCover}</p>
         </td>
       </tr>` : `<tr><td style="padding:0 0 12px"></td></tr>`}
     `),
