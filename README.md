@@ -22,6 +22,29 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 21, 2026 — Article detail page: mobile layout
+
+The article detail page uses a two-column pinned layout (sticky image left, scrollable text right) that works well on desktop and tablet but was broken on mobile — the fixed percentage widths (`w-[60%]` / `w-[40%]`), viewport-height column, and `pt-[calc(50vh-8rem)]` offset produced an unusable layout on small screens.
+
+#### Approach
+
+A separate `sm:hidden` single-column block was added **above** the existing desktop section. The desktop section received `hidden sm:flex` so it is completely removed from the layout on mobile. No classes or structure inside the desktop/tablet section were changed.
+
+#### Mobile layout order (`src/app/(frontend)/news/[id]/ArticleDetailClient.tsx`)
+
+1. Breadcrumb navigation
+2. Article title (`text-2xl`)
+3. Category badge · featured badge · date (same badge style as desktop)
+4. Hero image — fixed 62 % aspect ratio with prev/next controls and dot indicators (shares the same `activeIdx` / `incoming` slideshow state as desktop)
+5. Body paragraphs — first paragraph `text-[17px] font-medium`, remaining `text-base`
+6. "View All News" button
+
+#### Related articles grid
+
+Changed from `grid-cols-3` to `grid-cols-1 sm:grid-cols-3` so related cards stack in a single column on mobile.
+
+---
+
 ### June 21, 2026 — Client-side maxLength attributes added to form inputs
 
 Both the contact form and the vacancy application form previously enforced field length limits only on the server. Inputs had no `maxLength` attributes, so users could type unlimited characters before hitting a server rejection.

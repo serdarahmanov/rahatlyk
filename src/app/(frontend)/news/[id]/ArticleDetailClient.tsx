@@ -209,8 +209,120 @@ export default function ArticleDetailClient({ article, more }: Props) {
   return (
     <div className="min-h-screen">
 
-      {/* ── Two-column pinned section ─────────────────────────────────────────── */}
-      <section className="max-w-screen-2xl mx-auto flex items-start gap-24 pt-32 pb-40 px-6 sm:px-10 lg:px-16">
+      {/* ── Mobile layout (single column, hidden on sm+) ──────────────────────── */}
+      <div className="sm:hidden pt-24 pb-16 px-5">
+
+        <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-6">
+          <Link href="/" className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+          <span>/</span>
+          <Link href="/news" className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
+          <span>/</span>
+          <Link
+            href={`/news?category=${encodeURIComponent(article.category.slug)}`}
+            className="hover:text-gray-700 transition-colors"
+          >
+            {article.category.label}
+          </Link>
+          <span>/</span>
+          <span className="text-black truncate max-w-[160px]">{article.title}</span>
+        </nav>
+
+        <h1
+          className="text-2xl font-normal text-gray-900 leading-tight mb-5 mt-2"
+          style={{ fontFamily: 'var(--font-heading), sans-serif' }}
+        >
+          {article.title}
+        </h1>
+
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          <span className="bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
+            {article.category.label}
+          </span>
+          {article.featured && (
+            <span className="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
+              {t.news.featured}
+            </span>
+          )}
+          <span className="ml-auto bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md tracking-wider">
+            {formatDate(article.date, locale)}
+          </span>
+        </div>
+
+        {imgs[activeIdx] && (
+          <div className="relative overflow-hidden rounded-sm mb-8" style={{ paddingBottom: '62%' }}>
+            <div className="absolute inset-0" style={{ zIndex: 1 }}>
+              <Image
+                src={imgs[activeIdx]}
+                alt={article.title}
+                fill
+                className="object-cover object-center"
+                sizes="100vw"
+                priority
+              />
+            </div>
+            {incoming !== null && (
+              <div className="absolute inset-0 news-slide-in" style={{ zIndex: 2 }} onAnimationEnd={onAnimEnd}>
+                <Image src={imgs[incoming]} alt="" fill className="object-cover object-center" sizes="100vw" />
+              </div>
+            )}
+            {imgs.length > 1 && (
+              <div className="absolute inset-x-0 bottom-4 flex items-center justify-between px-4" style={{ zIndex: 10 }}>
+                <button
+                  onClick={() => swapTo((activeIdx - 1 + imgs.length) % imgs.length)}
+                  aria-label="Previous photo"
+                  className="flex items-center justify-center w-9 h-9 rounded-md bg-white/70 hover:bg-white text-gray-700 backdrop-blur-sm transition-all duration-200"
+                >
+                  <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                    <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <div className="flex items-center gap-2">
+                  {imgs.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => swapTo(i)}
+                      aria-label={`Photo ${i + 1}`}
+                      className={`rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 h-[4px] bg-white' : 'w-[4px] h-[4px] bg-white/40 hover:bg-white/70'}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => swapTo((activeIdx + 1) % imgs.length)}
+                  aria-label="Next photo"
+                  className="flex items-center justify-center w-9 h-9 rounded-md bg-white/70 hover:bg-white text-gray-700 backdrop-blur-sm transition-all duration-200"
+                >
+                  <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                    <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div>
+          {article.body.map((para, i) => (
+            <p
+              key={para.id}
+              className={`leading-relaxed mb-6 ${i === 0 ? 'text-black text-[17px] font-medium' : 'text-black text-base'}`}
+            >
+              <LexicalContent data={para.text} />
+            </p>
+          ))}
+          <div className="mt-8">
+            <Link
+              href="/news"
+              className="inline-block rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
+            >
+              {t.home.news.cta}
+            </Link>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── Desktop / tablet two-column pinned section (hidden on mobile) ─────── */}
+      <section className="hidden sm:flex max-w-screen-2xl mx-auto items-start gap-24 pt-32 pb-40 px-6 sm:px-10 lg:px-16">
 
         {/* Left — sticky, full viewport height */}
         <div className="sticky top-32 h-[calc(100vh-8rem)] w-[60%] shrink-0 flex flex-col bg-white overflow-hidden pb-8">
@@ -368,7 +480,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
             >
               More Articles
             </h2>
-            <div ref={relatedRef} className="grid grid-cols-3 gap-6">
+            <div ref={relatedRef} className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-6 gap-y-10">
               {more.map(a => <RelatedCard key={a.id} article={a} />)}
             </div>
           </div>
