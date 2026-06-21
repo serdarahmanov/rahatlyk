@@ -281,6 +281,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                       onChange={handleChange}
                       onFocus={handleFocus}
                       placeholder={formPlaceholders.firstName}
+                      maxLength={100}
                       className={fieldCls(!!formErrors.firstName)}
                     />
                     {formErrors.firstName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.firstName}</p>}
@@ -294,6 +295,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                       onChange={handleChange}
                       onFocus={handleFocus}
                       placeholder={formPlaceholders.lastName}
+                      maxLength={100}
                       className={fieldCls(!!formErrors.lastName)}
                     />
                     {formErrors.lastName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.lastName}</p>}
@@ -311,6 +313,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                       onChange={handleChange}
                       onFocus={handleFocus}
                       placeholder={formPlaceholders.email}
+                      maxLength={254}
                       className={fieldCls(!!formErrors.email)}
                     />
                     {formErrors.email && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.email}</p>}
@@ -323,6 +326,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                       value={form.phone}
                       onChange={handleChange}
                       placeholder={formPlaceholders.phone}
+                      maxLength={30}
                       className={fieldCls()}
                     />
                   </div>
@@ -338,6 +342,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                     onChange={handleChange}
                     onFocus={handleFocus}
                     placeholder={formPlaceholders.subject}
+                    maxLength={200}
                     className={fieldCls(!!formErrors.subject)}
                   />
                   {formErrors.subject && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.subject}</p>}
@@ -353,6 +358,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                     onFocus={handleFocus}
                     rows={6}
                     placeholder={formPlaceholders.message}
+                    maxLength={5000}
                     className={`${fieldCls(!!formErrors.message)} resize-none`}
                   />
                   {formErrors.message && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.message}</p>}

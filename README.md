@@ -22,6 +22,29 @@ This branch integrates Payload CMS into the existing Next.js application while k
 
 ## What Changed Since The Last Commit
 
+### June 21, 2026 — Client-side maxLength attributes added to form inputs
+
+Both the contact form and the vacancy application form previously enforced field length limits only on the server. Inputs had no `maxLength` attributes, so users could type unlimited characters before hitting a server rejection.
+
+`maxLength` attributes have been added to every text input in both forms, matching the server-side limits exactly:
+
+| Field | Limit | Forms |
+|---|---|---|
+| First name | 100 | Contact, Vacancy |
+| Last name | 100 | Contact, Vacancy |
+| Email | 254 | Contact, Vacancy |
+| Phone | 30 | Contact, Vacancy |
+| Subject | 200 | Contact only |
+| Message / Cover letter | 5 000 | Contact, Vacancy |
+
+Files changed:
+- `src/app/(frontend)/contact/ContactPageClient.tsx` — 6 inputs
+- `src/app/(frontend)/vacancies/[id]/VacancyDetailClient.tsx` — 5 inputs
+
+The CV file and date-of-birth fields already had client-side constraints (`accept`, `max`, and file-size check) and are unchanged.
+
+---
+
 ### June 20, 2026 — Contact info panel: separate gradient class, white-fade removed
 
 #### Root cause

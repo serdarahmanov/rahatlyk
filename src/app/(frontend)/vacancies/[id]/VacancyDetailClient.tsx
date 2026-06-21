@@ -415,14 +415,14 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.firstName} <span className="text-red-400">*</span></label>
-                  <input type="text" name="firstName" value={applyForm.firstName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.firstName}
+                  <input type="text" name="firstName" value={applyForm.firstName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.firstName} maxLength={100}
                     className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.firstName ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
                   />
                   {formErrors.firstName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.firstName}</p>}
                 </div>
                 <div>
                   <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.lastName} <span className="text-red-400">*</span></label>
-                  <input type="text" name="lastName" value={applyForm.lastName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.lastName}
+                  <input type="text" name="lastName" value={applyForm.lastName} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.lastName} maxLength={100}
                     className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.lastName ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
                   />
                   {formErrors.lastName && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.lastName}</p>}
@@ -432,14 +432,14 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.email} <span className="text-red-400">*</span></label>
-                  <input type="email" name="email" value={applyForm.email} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.email}
+                  <input type="email" name="email" value={applyForm.email} onChange={handleApplyChange} onFocus={handleApplyFocus} placeholder={cp.email} maxLength={254}
                     className={`w-full px-4 py-4 rounded-md border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${formErrors.email ? 'ring-2 ring-red-400 bg-red-50' : 'bg-[#f3f4f6] focus:ring-gray-600'}`}
                   />
                   {formErrors.email && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-sm text-gray-900 mb-1.5 px-1">{cl.phone}</label>
-                  <input type="tel" name="phone" value={applyForm.phone} onChange={handleApplyChange} placeholder={cp.phone}
+                  <input type="tel" name="phone" value={applyForm.phone} onChange={handleApplyChange} placeholder={cp.phone} maxLength={30}
                     className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
                   />
                 </div>
@@ -489,7 +489,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
 
               <div>
                 <label className="block text-sm text-gray-900 mb-1.5 px-1">{vl.coverLetter}</label>
-                <textarea name="cover" value={applyForm.cover} onChange={handleApplyChange} rows={5} placeholder={vp.coverLetter}
+                <textarea name="cover" value={applyForm.cover} onChange={handleApplyChange} rows={5} placeholder={vp.coverLetter} maxLength={5000}
                   className="w-full px-4 py-4 rounded-md bg-[#f3f4f6] border-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all resize-none"
                 />
               </div>
