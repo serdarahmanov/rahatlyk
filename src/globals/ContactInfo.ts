@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateContactInfoGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const ContactInfo: GlobalConfig = {
   slug: 'contact-info',
+  hooks: { afterChange: [revalidateContactInfoGlobal] },
   access: { read: () => true },
   admin: {
     group: 'Settings',

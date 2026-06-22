@@ -1,8 +1,16 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor, LinkFeature, ParagraphFeature, InlineToolbarFeature } from '@payloadcms/richtext-lexical'
+import {
+  revalidateArticleChange,
+  revalidateArticleDelete,
+} from '@/lib/revalidation/payloadHooks'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
+  hooks: {
+    afterChange: [revalidateArticleChange],
+    afterDelete: [revalidateArticleDelete],
+  },
   access: {
     read: () => true,
   },

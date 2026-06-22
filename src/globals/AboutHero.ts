@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateAboutGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const AboutHero: GlobalConfig = {
   slug: 'about-hero',
+  hooks: { afterChange: [revalidateAboutGlobal] },
   label: 'Hero Section',
   access: { read: () => true },
   admin: {

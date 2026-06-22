@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateHomeGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const HomeStory: GlobalConfig = {
   slug: 'home-story',
+  hooks: { afterChange: [revalidateHomeGlobal] },
   label: 'Our Story Section',
   access: { read: () => true },
   admin: {

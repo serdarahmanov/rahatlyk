@@ -1,7 +1,15 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateVacancyDepartmentsChange,
+  revalidateVacancyDepartmentsDelete,
+} from '@/lib/revalidation/payloadHooks'
 
 export const VacancyDepartments: CollectionConfig = {
   slug: 'vacancy-departments',
+  hooks: {
+    afterChange: [revalidateVacancyDepartmentsChange],
+    afterDelete: [revalidateVacancyDepartmentsDelete],
+  },
   access: { read: () => true },
   admin: {
     useAsTitle: 'label',

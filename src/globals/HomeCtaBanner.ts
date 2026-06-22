@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateHomeGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const HomeCtaBanner: GlobalConfig = {
   slug: 'home-cta-banner',
+  hooks: { afterChange: [revalidateHomeGlobal] },
   label: 'CTA Banner (Last Section)',
   access: { read: () => true },
   admin: {

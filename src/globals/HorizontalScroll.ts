@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateHomeGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const HorizontalScroll: GlobalConfig = {
   slug: 'horizontal-scroll',
+  hooks: { afterChange: [revalidateHomeGlobal] },
   label: 'Horizontal Scroll',
   access: { read: () => true },
   admin: {

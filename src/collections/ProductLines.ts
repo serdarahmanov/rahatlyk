@@ -1,7 +1,15 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateProductLinesChange,
+  revalidateProductLinesDelete,
+} from '@/lib/revalidation/payloadHooks'
 
 export const ProductLines: CollectionConfig = {
   slug: 'product-lines',
+  hooks: {
+    afterChange: [revalidateProductLinesChange],
+    afterDelete: [revalidateProductLinesDelete],
+  },
   labels: {
     singular: 'Our Collection',
     plural: 'Our Collection',

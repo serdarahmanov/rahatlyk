@@ -1,7 +1,15 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateProductChange,
+  revalidateProductDelete,
+} from '@/lib/revalidation/payloadHooks'
 
 export const Products: CollectionConfig = {
   slug: 'products',
+  hooks: {
+    afterChange: [revalidateProductChange],
+    afterDelete: [revalidateProductDelete],
+  },
   access: {
     read: () => true,
   },

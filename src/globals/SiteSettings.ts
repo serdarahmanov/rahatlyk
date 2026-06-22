@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateSiteSettingsGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
+  hooks: { afterChange: [revalidateSiteSettingsGlobal] },
   access: { read: () => true },
   admin: {
     group: 'Settings',

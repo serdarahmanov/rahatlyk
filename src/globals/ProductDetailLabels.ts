@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateProductLabelsGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const ProductDetailLabels: GlobalConfig = {
   slug: 'product-detail-labels',
+  hooks: { afterChange: [revalidateProductLabelsGlobal] },
   label: 'Product Detail Labels',
   access: { read: () => true },
   admin: {

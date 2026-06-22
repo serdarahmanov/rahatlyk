@@ -5,9 +5,10 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
+import { withLocale } from '@/lib/i18n/locale';
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
   const contactInfo = useContactInfo();
   const social = useSocialLinks();
 
@@ -18,15 +19,15 @@ export default function Footer() {
   ].filter(s => s.href);
 
   const quickLinks = [
-    { href: '/',          label: t.nav.home      },
-    { href: '/products',  label: t.nav.products  },
-    { href: '/news',      label: t.nav.news       },
-    { href: '/vacancies', label: t.nav.vacancies  },
+    { href: withLocale(locale),               label: t.nav.home      },
+    { href: withLocale(locale, '/products'),  label: t.nav.products  },
+    { href: withLocale(locale, '/news'),      label: t.nav.news       },
+    { href: withLocale(locale, '/vacancies'), label: t.nav.vacancies  },
   ];
 
   const companyLinks = [
-    { href: '/about',   label: t.nav.about   },
-    { href: '/contact', label: t.nav.contact },
+    { href: withLocale(locale, '/about'),   label: t.nav.about   },
+    { href: withLocale(locale, '/contact'), label: t.nav.contact },
   ];
 
   return (
@@ -38,7 +39,7 @@ export default function Footer() {
 
           {/* ── Brand column ── */}
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="inline-flex mb-5">
+            <Link href={withLocale(locale)} className="inline-flex mb-5">
               <span
                 className="text-2xl font-semibold tracking-[0.2em] text-black"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}

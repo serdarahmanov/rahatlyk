@@ -1,7 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateFormsGlobal } from '@/lib/revalidation/payloadHooks'
 
 export const Forms: GlobalConfig = {
   slug: 'forms',
+  hooks: { afterChange: [revalidateFormsGlobal] },
   label: 'Forms',
   access: { read: () => true },
   admin: {

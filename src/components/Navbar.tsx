@@ -8,6 +8,7 @@ import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 import { Locale } from '@/lib/i18n/translations';
+import { withLocale } from '@/lib/i18n/locale';
 
 // Module-level flag — persists across route changes, resets on full page reload
 let pageIntroComplete = false;
@@ -82,22 +83,23 @@ export default function Navbar() {
   }, [langOpen]);
 
   // Home / About page not-scrolled → transparent + white text (both have dark hero images)
-  const isHeroPage = pathname === '/' || pathname === '/about';
-  const isAboutPage = pathname === '/about';
+  const relativePath = pathname.replace(/^\/(en|ru|tm)(?=\/|$)/, '') || '/';
+  const isHeroPage = relativePath === '/' || relativePath === '/about';
+  const isAboutPage = relativePath === '/about';
   const isHomeHero = isHeroPage && !scrolled;
   const showHeaderPanel = scrolled;
   // Any page not-scrolled → transparent bg (image shows through)
 
   const navLinks = [
-    { href: '/products',  label: t.nav.products },
-    { href: '/vacancies', label: t.nav.vacancies },
-    { href: '/news',      label: t.nav.news },
-    { href: '/about',     label: t.nav.about },
-    { href: '/contact',   label: t.nav.contact },
+    { href: withLocale(locale, '/products'),  label: t.nav.products },
+    { href: withLocale(locale, '/vacancies'), label: t.nav.vacancies },
+    { href: withLocale(locale, '/news'),      label: t.nav.news },
+    { href: withLocale(locale, '/about'),     label: t.nav.about },
+    { href: withLocale(locale, '/contact'),   label: t.nav.contact },
   ];
 
   const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname.startsWith(href);
+    href === withLocale(locale) ? pathname === href : pathname.startsWith(href);
 
   return (
     <>
@@ -129,7 +131,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* ── Logo ── */}
-          <Link href="/" className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <Link href={withLocale(locale)} className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <span
               className={`text-xl lg:text-2xl font-semibold tracking-[0.2em] transition-colors duration-300 ${
                 isHomeHero ? 'text-white' : 'text-black'
@@ -246,7 +248,7 @@ export default function Navbar() {
     >
         {/* Logo — absolutely positioned to match header exactly */}
         <Link
-          href="/"
+          href={withLocale(locale)}
           onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           className="absolute top-0 left-6 sm:left-10 h-16 flex items-center text-xl font-semibold tracking-[0.2em] text-black"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
@@ -272,11 +274,11 @@ export default function Navbar() {
           {/* All nav links — same size */}
           <div className="flex flex-col gap-1">
             {[
-              { href: '/products',  label: t.nav.products },
-              { href: '/news',      label: t.nav.news },
-              { href: '/vacancies', label: t.nav.vacancies },
-              { href: '/about',     label: t.nav.about },
-              { href: '/contact',   label: t.nav.contact },
+              { href: withLocale(locale, '/products'),  label: t.nav.products },
+              { href: withLocale(locale, '/news'),      label: t.nav.news },
+              { href: withLocale(locale, '/vacancies'), label: t.nav.vacancies },
+              { href: withLocale(locale, '/about'),     label: t.nav.about },
+              { href: withLocale(locale, '/contact'),   label: t.nav.contact },
             ].map((link) => (
               <Link
                 key={link.href}
