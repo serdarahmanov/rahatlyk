@@ -248,7 +248,7 @@ export default function VacanciesClient({ departments, result, department }: Pro
               className="text-xl sm:text-2xl font-light text-brand-950"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {result.totalDocs} {result.totalDocs === 1 ? 'open position' : 'open positions'}
+              {result.totalDocs} {result.totalDocs === 1 ? t.vacancies.openPosition : t.vacancies.openPositions}
             </h2>
           </div>
 

@@ -78,7 +78,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
   const vp = forms.vacancyForm.placeholders
   const vu = forms.vacancyForm.upload
   const vm = forms.vacancyForm.messages
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
 
   const [tab, setTab] = useState<Tab>('overview')
   const [cvFile, setCvFile] = useState<File | null>(null)
@@ -207,7 +207,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
         {vacancy.benefits && vacancy.benefits.length > 0 && (
           <>
             <h3 className="text-lg font-semibold text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-              Benefits &amp; Perks
+              {t.vacancies.benefitsPerks}
             </h3>
             <ul className="grid sm:grid-cols-2 gap-3">
               {vacancy.benefits.map((b) => (
@@ -237,7 +237,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
       <div className="space-y-8">
         <div>
           <h3 className="text-base font-semibold text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-            Required
+            {t.vacancies.required}
           </h3>
           <ul className="space-y-3">
             {vacancy.requirements.map((r) => (
@@ -251,7 +251,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
         {vacancy.niceToHave && vacancy.niceToHave.length > 0 && (
           <div>
             <h3 className="text-base font-semibold text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-              Nice to Have
+              {t.vacancies.niceToHave}
             </h3>
             <ul className="space-y-3">
               {vacancy.niceToHave.map((n) => (
@@ -272,9 +272,9 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
       <section className="bg-white pt-32 pb-12 border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10" ref={heroRef}>
           <nav className="flex items-center gap-2 text-slate-400 text-xs mb-8">
-            <Link href="/" className="hover:text-brand-700 transition-colors">Home</Link>
+            <Link href="/" className="hover:text-brand-700 transition-colors">{t.nav.home}</Link>
             <span>/</span>
-            <Link href="/vacancies" className="hover:text-brand-700 transition-colors">Vacancies</Link>
+            <Link href="/vacancies" className="hover:text-brand-700 transition-colors">{t.nav.vacancies}</Link>
             <span>/</span>
             <Link href={`/vacancies?department=${encodeURIComponent(vacancy.department.slug)}`} className="hover:text-brand-700 transition-colors">{vacancy.department.label}</Link>
             <span>/</span>
@@ -282,7 +282,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
           </nav>
 
           <div className="mb-4">
-            <span className={`inline-block text-[11px] font-light px-3 py-1 rounded-full uppercase tracking-wider ${cfg.badge}`}>
+            <span className="inline-block bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
               {vacancy.department.label}
             </span>
           </div>
@@ -309,7 +309,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                     <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
                     <path d="M7 4v3l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                   </svg>
-                  Posted {formatDate(vacancy.postedDate, locale)}
+                  {t.vacancies.posted} {formatDate(vacancy.postedDate, locale)}
                 </span>
               </>
             )}
@@ -349,7 +349,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                   tab === key ? 'bg-white text-brand-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
-                {key.charAt(0).toUpperCase() + key.slice(1)}
+                {{ overview: t.vacancies.tabOverview, responsibilities: t.vacancies.tabResponsibilities, requirements: t.vacancies.tabRequirements }[key]}
               </button>
             ))}
           </div>
@@ -522,7 +522,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
               className="text-xl sm:text-2xl font-medium text-brand-950 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              Other Openings
+              {t.vacancies.otherOpenings}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {others.map((v) => {
@@ -534,12 +534,22 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                     className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
                   >
                     <div
-                      className="h-40 flex items-center justify-center flex-shrink-0 overflow-hidden"
-                      style={{ background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
+                      className="h-40 flex-shrink-0 overflow-hidden relative"
+                      style={v.imageUrl ? undefined : { background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
-                      <span className="text-4xl opacity-55" aria-hidden="true">
-                        {(DEPT_CONFIG[v.department.slug] ?? DEPT_CONFIG['Production']).icon}
-                      </span>
+                      {v.imageUrl ? (
+                        <img
+                          src={v.imageUrl}
+                          alt={v.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-full">
+                          <span className="text-4xl opacity-55" aria-hidden="true">
+                            {(DEPT_CONFIG[v.department.slug] ?? DEPT_CONFIG['Production']).icon}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
                       <div className="flex items-center gap-2 mb-2.5">

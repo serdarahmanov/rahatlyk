@@ -1,49 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
-
-const socialLinks = [
-  {
-    label: 'Facebook',
-    href: '#',
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Instagram',
-    href: '#',
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    label: 'YouTube',
-    href: '#',
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20.05 12 20.05 12 20.05s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
-        <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white" />
-      </svg>
-    ),
-  },
-];
+import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
+import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 
 export default function Footer() {
   const { t } = useLanguage();
   const contactInfo = useContactInfo();
-  const pathname = usePathname();
+  const social = useSocialLinks();
 
-  if (pathname === '/about') return null;
+  const socialLinks = [
+    { label: 'Facebook',  href: social.facebookUrl,  icon: <FacebookIcon />  },
+    { label: 'Instagram', href: social.instagramUrl, icon: <InstagramIcon /> },
+    { label: 'YouTube',   href: social.youtubeUrl,   icon: <YoutubeIcon />   },
+  ].filter(s => s.href);
 
   const quickLinks = [
     { href: '/',          label: t.nav.home      },
@@ -79,18 +51,22 @@ export default function Footer() {
             </p>
 
             {/* Social icons */}
-            <div className="flex gap-2">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11]"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="flex gap-2">
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11]"
+                  >
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* ── Quick links ── */}

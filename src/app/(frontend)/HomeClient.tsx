@@ -1036,18 +1036,6 @@ export default function HomeClient({
     return () => { cleanupFns.forEach((fn) => fn()); };
   }, []);
 
-  // ── Track footer height ──────────────────────────────────────────
-  useEffect(() => {
-    const footer = document.querySelector('footer');
-    if (!footer) return;
-    const update = () =>
-      document.documentElement.style.setProperty('--footer-h', `${footer.getBoundingClientRect().height}px`);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(footer);
-    return () => ro.disconnect();
-  }, []);
-
   return (
     <div>
       {/* ══════════════════════════════════════════
@@ -1234,25 +1222,20 @@ export default function HomeClient({
       ══════════════════════════════════════════ */}
       <section
         className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: '#0b2e4a', height: 'calc(100vh - var(--footer-h, 320px))' }}
+        style={{ background: '#0b2e4a', height: '90svh' }}
       >
-        {/* Live water gradient blobs */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
-          <div className="water-blob-1 absolute -top-[20%] -left-[10%] w-[65%] h-[75%] rounded-full bg-[#38c8f5] blur-[90px]" />
-          <div className="water-blob-2 absolute -top-[10%] left-[25%] w-[40%] h-[55%] rounded-full bg-[#d4f2ff] blur-[70px]" />
-          <div className="water-blob-3 absolute top-[20%] right-[-5%] w-[45%] h-[60%] rounded-full bg-[#2a9fd8] blur-[80px]" />
-          <div className="water-blob-4 absolute bottom-[-15%] left-[10%] w-[50%] h-[50%] rounded-full bg-[#1a6ab8] blur-[70px]" />
-          <div className="water-blob-5 absolute top-[35%] left-[40%] w-[30%] h-[35%] rounded-full bg-[#a0e4fc] blur-[60px]" />
-          <div
-            className="absolute inset-0 opacity-[0.04] mix-blend-overlay"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
-              backgroundSize: '300px 300px',
-            }}
-          />
-        </div>
-        <div className="relative max-w-3xl mx-auto px-5 sm:px-8 text-center">
+        <video
+          src="/videos/wave video.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[#04192e]/35" />
+        <div className="relative z-10 max-w-3xl mx-auto px-5 sm:px-8 text-center">
           <div className="flex justify-center mb-5">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-white/70">
               <path d="M20 4C14 12 7 18 7 25.5a13 13 0 0 0 26 0C33 18 26 12 20 4z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>

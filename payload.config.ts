@@ -18,6 +18,7 @@ import { Forms } from './src/globals/Forms'
 import { HomeCtaBanner } from './src/globals/HomeCtaBanner'
 import { HomeHero } from './src/globals/HomeHero'
 import { ProductDetailLabels } from './src/globals/ProductDetailLabels'
+import { SiteSettings } from './src/globals/SiteSettings'
 import { HomeStory } from './src/globals/HomeStory'
 import { HorizontalScroll } from './src/globals/HorizontalScroll'
 import { ArticleCategories } from './src/collections/ArticleCategories'
@@ -54,7 +55,7 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [AboutPage, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, ContactInfo, Forms, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner, ProductDetailLabels],
+  globals: [AboutPage, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, ContactInfo, Forms, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner, ProductDetailLabels, SiteSettings],
   collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [

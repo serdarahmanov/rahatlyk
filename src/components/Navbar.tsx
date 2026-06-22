@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
+import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
+import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 import { Locale } from '@/lib/i18n/translations';
 
 // Module-level flag — persists across route changes, resets on full page reload
@@ -27,6 +29,7 @@ export default function Navbar() {
   const langRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t, ready } = useLanguage();
   const contactInfo = useContactInfo();
+  const social = useSocialLinks();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -293,29 +296,29 @@ export default function Navbar() {
 
         {/* Bottom — social icons */}
         <div className="absolute bottom-20 left-8 flex items-center gap-5">
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="text-black/60 hover:text-black transition-colors duration-200"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
-            </svg>
-          </a>
-          <a
-            href={contactInfo.email ? `mailto:${contactInfo.email}` : '#'}
-            aria-label="Email"
-            className="text-black/60 hover:text-black transition-colors duration-200"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
-              <path d="M2 7l10 7 10-7"/>
-            </svg>
-          </a>
+          {social.instagramUrl && (
+            <a href={social.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-black/60 hover:text-black transition-colors duration-200">
+              <InstagramIcon size={20} />
+            </a>
+          )}
+          {social.youtubeUrl && (
+            <a href={social.youtubeUrl} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-black/60 hover:text-black transition-colors duration-200">
+              <YoutubeIcon size={20} />
+            </a>
+          )}
+          {social.facebookUrl && (
+            <a href={social.facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-black/60 hover:text-black transition-colors duration-200">
+              <FacebookIcon size={20} />
+            </a>
+          )}
+          {contactInfo.email && (
+            <a href={`mailto:${contactInfo.email}`} aria-label="Email" className="text-black/60 hover:text-black transition-colors duration-200">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M2 7l10 7 10-7"/>
+              </svg>
+            </a>
+          )}
         </div>
 
     </div>

@@ -62,21 +62,27 @@ export default async function ContactPage() {
   const payload = await getPayloadClient()
   const fallbackErrors = buildFallbackErrors(locale)
 
+  let hero        = FALLBACK.hero
+  let formLabels  = FALLBACK.formLabels
+  let formPlaceholders = FALLBACK.formPlaceholders
+  let formMessages = { ...FALLBACK.formMessages, errors: fallbackErrors }
+
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [pageRaw, formsRaw] = await Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (payload.findGlobal as any)({ slug: 'about-page', locale, depth: 0 }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (payload.findGlobal as any)({ slug: 'forms', locale, depth: 0 }),
     ])
     const data = pageRaw
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fe: any = formsRaw?.contactForm?.errors ?? {}
+    const fe: Record<string, string> = (formsRaw as any)?.contactForm?.errors ?? {}
 
-    const hero = {
+    hero = {
       title:       data?.hero?.title       || FALLBACK.hero.title,
       description: data?.hero?.description || FALLBACK.hero.description,
     }
-    const formLabels = {
+    formLabels = {
       firstName:    data?.formLabels?.firstName    || FALLBACK.formLabels.firstName,
       lastName:     data?.formLabels?.lastName     || FALLBACK.formLabels.lastName,
       email:        data?.formLabels?.email        || FALLBACK.formLabels.email,
@@ -85,7 +91,7 @@ export default async function ContactPage() {
       message:      data?.formLabels?.message      || FALLBACK.formLabels.message,
       submitButton: data?.formLabels?.submitButton || FALLBACK.formLabels.submitButton,
     }
-    const formPlaceholders = {
+    formPlaceholders = {
       firstName: data?.formPlaceholders?.firstName || FALLBACK.formPlaceholders.firstName,
       lastName:  data?.formPlaceholders?.lastName  || FALLBACK.formPlaceholders.lastName,
       email:     data?.formPlaceholders?.email     || FALLBACK.formPlaceholders.email,
@@ -93,8 +99,7 @@ export default async function ContactPage() {
       subject:   data?.formPlaceholders?.subject   || FALLBACK.formPlaceholders.subject,
       message:   data?.formPlaceholders?.message   || FALLBACK.formPlaceholders.message,
     }
-
-    const formMessages = {
+    formMessages = {
       success:         data?.formMessages?.success         || FALLBACK.formMessages.success,
       error:           data?.formMessages?.error           || FALLBACK.formMessages.error,
       sending:         data?.formMessages?.sending         || FALLBACK.formMessages.sending,
@@ -115,9 +120,9 @@ export default async function ContactPage() {
         serverError:    fe.serverError    || fallbackErrors.serverError,
       },
     }
-
-    return <ContactPageClient hero={hero} formLabels={formLabels} formPlaceholders={formPlaceholders} formMessages={formMessages} />
   } catch {
-    return <ContactPageClient hero={FALLBACK.hero} formLabels={FALLBACK.formLabels} formPlaceholders={FALLBACK.formPlaceholders} formMessages={{ ...FALLBACK.formMessages, errors: fallbackErrors }} />
+    // props stay as fallback values
   }
+
+  return <ContactPageClient hero={hero} formLabels={formLabels} formPlaceholders={formPlaceholders} formMessages={formMessages} />
 }

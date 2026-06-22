@@ -2,20 +2,9 @@
 
 import { Fragment, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-type MoodKey = 'fresh' | 'energy' | 'play' | 'calm';
-
-type Mood = {
-  key: MoodKey;
-  label: string;
-  word: string;
-  tint: string;
-  product: string;
-  desc: string;
-};
 
 export type AboutPageData = {
   hero: {
@@ -113,62 +102,25 @@ const MOSAIC_LINES = [
   },
 ] as const;
 
-const MOODS: Mood[] = [
-  {
-    key: 'fresh',
-    label: 'Refreshed',
-    word: 'refreshed',
-    tint: '#4FA3B5',
-    product: 'Rahatlyk - Drinking Water',
-    desc: 'Cold, clear and exactly what you need. Our drinking water never misses.',
-  },
-  {
-    key: 'energy',
-    label: 'Unstoppable',
-    word: 'unstoppable',
-    tint: '#8FA84A',
-    product: 'Rahatlyk - Energy Drink',
-    desc: 'A clean spark for whatever you are about to conquer. Keep moving.',
-  },
-  {
-    key: 'play',
-    label: 'Playful',
-    word: 'playful',
-    tint: '#D98A55',
-    product: 'Rahatlyk - Juices & Soft Drinks',
-    desc: 'Bright, fruity, sparkling - made for good company and better laughs.',
-  },
-  {
-    key: 'calm',
-    label: 'Cozy',
-    word: 'cozy',
-    tint: '#B07A4E',
-    product: 'Rahatlyk - Herbal Tea',
-    desc: 'Warm hands, slow breath, quiet evening. We bottled that feeling.',
-  },
-];
 
 export default function AboutPageClient({ data }: { data: AboutPageData }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLElement>(null);
   const heroDarkRef = useRef<HTMLDivElement>(null);
   const heroImageRef = useRef<HTMLImageElement>(null);
-  const moodSectionRef = useRef<HTMLElement>(null);
-  const moodCursorRef = useRef<HTMLDivElement>(null);
-  const moodGlowRef = useRef<HTMLDivElement>(null);
-  const moodWordRef = useRef<HTMLSpanElement>(null);
-  const moodTintRef = useRef<HTMLDivElement>(null);
+  const videoScrubSectionRef = useRef<HTMLElement>(null);
+  const videoScrubRef = useRef<HTMLVideoElement>(null);
   const mosaicSectionRef = useRef<HTMLElement>(null);
+  const lastPlxSectionRef = useRef<HTMLElement>(null);
+  const lastPlxMediaRef = useRef<HTMLDivElement>(null);
   const certSectionRef = useRef<HTMLElement>(null);
   const certFloatRef = useRef<HTMLDivElement>(null);
   const certModalRef = useRef<HTMLDivElement>(null);
   const [activeCertificate, setActiveCertificate] = useState<number | null>(null);
-  const [activeMood, setActiveMood] = useState<MoodKey>('fresh');
+  const [openMilestone, setOpenMilestone] = useState<number>(0);
 
   const { locale } = useLanguage();
   const isFirstLocaleRef = useRef(true);
-
-  const activeMoodData = MOODS.find((mood) => mood.key === activeMood) ?? MOODS[0];
 
   // After a language switch, router.refresh() can shift element heights
   // (different text lengths per locale), invalidating ScrollTrigger's cached
@@ -272,6 +224,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           gsap.set('.body-word', { opacity: 1 });
           gsap.set('.about-clip', { clipPath: 'inset(0% 0% 0% 0%)' });
           gsap.set('[data-about-plx-strong]', { yPercent: 0 });
+          gsap.set('[data-last-plx-media]', { y: 0 });
           gsap.set('.about-mosaic-intro, .about-mosaic-track, .about-mosaic-card', { opacity: 1, x: 0, y: 0 });
           return;
         }
@@ -361,12 +314,13 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
         });
 
         gsap.utils.toArray<HTMLElement>('[data-about-plx-strong]').forEach((img) => {
+          const mobile = window.innerWidth < 640
           gsap.fromTo(
             img,
-            { yPercent: -14, scale: 1.08 },
+            { yPercent: mobile ? -4 : -14, scale: mobile ? 1 : 1.08 },
             {
-              yPercent: 14,
-              scale: 1.08,
+              yPercent: mobile ? 4 : 14,
+              scale: mobile ? 1 : 1.08,
               ease: 'none',
               scrollTrigger: {
                 trigger: img.parentElement,
@@ -377,6 +331,81 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             }
           );
         });
+
+        if (videoScrubSectionRef.current && videoScrubRef.current) {
+          const video = videoScrubRef.current;
+          const section = videoScrubSectionRef.current;
+
+          // Play/pause by checking actual rendered position (works during pin too)
+          const syncVideo = () => {
+            const { top, bottom } = section.getBoundingClientRect();
+            const visible = top < window.innerHeight && bottom > 0;
+            if (visible && video.paused) {
+              video.play().catch(() => {});
+            } else if (!visible && !video.paused) {
+              video.pause();
+              video.currentTime = 0;
+            }
+          };
+          window.addEventListener('scroll', syncVideo, { passive: true });
+          extraCleanup.push(() => window.removeEventListener('scroll', syncVideo));
+
+          // Pin ends exactly when para 2 (starting at y:2.5vh) reaches centre (y:0)
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top top',
+            end: () => '+=' + window.innerHeight * 2.5,
+            pin: true,
+            invalidateOnRefresh: true,
+          });
+
+          const paras = Array.from(section.querySelectorAll<HTMLElement>('[data-video-para]'));
+          if (paras.length === 3) {
+            const vh = window.innerHeight;
+
+            // Para 0 centre sits at the viewport bottom edge when pin starts,
+            // so its top edge is exactly at the fold — enters the instant user scrolls.
+            // Para 1 and 2 each sit 1 viewport further below.
+            gsap.set(paras[0], { opacity: 1, y: vh * 0.5 });
+            gsap.set(paras[1], { opacity: 1, y: vh * 1.5 });
+            gsap.set(paras[2], { opacity: 1, y: vh * 2.5 });
+
+            // Move all 2.5 viewports up — para 2 lands exactly at centre when pin ends.
+            const tl = gsap.timeline({ paused: true })
+              .to(paras, { y: `-=${2.5 * vh}`, duration: 2.5, ease: 'none' });
+
+            ScrollTrigger.create({
+              trigger: section,
+              start: 'top top',
+              end: () => '+=' + window.innerHeight * 2.5,
+              animation: tl,
+              scrub: true,
+              invalidateOnRefresh: true,
+            });
+          }
+        }
+
+        if (lastPlxSectionRef.current && lastPlxMediaRef.current) {
+          const section = lastPlxSectionRef.current;
+          const media = lastPlxMediaRef.current;
+          const travel = () => Math.max(media.offsetHeight - section.offsetHeight, 0);
+
+          gsap.fromTo(
+            media,
+            { y: () => -travel() },
+            {
+              y: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+        }
 
         gsap.utils.toArray<HTMLElement>('[data-count-to]').forEach((el) => {
           const target = Number(el.dataset.countTo);
@@ -572,37 +601,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           });
         }
 
-        if (moodSectionRef.current && moodCursorRef.current) {
-          const moodSection = moodSectionRef.current;
-          const moodCursor = moodCursorRef.current;
-          const cursorX = gsap.quickTo(moodCursor, 'x', { duration: 0.28, ease: 'power3.out' });
-          const cursorY = gsap.quickTo(moodCursor, 'y', { duration: 0.28, ease: 'power3.out' });
-
-          const onPointerMove = (event: PointerEvent) => {
-            const rect = moodSection.getBoundingClientRect();
-            cursorX(event.clientX - rect.left);
-            cursorY(event.clientY - rect.top);
-            gsap.to(moodCursor, { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' });
-          };
-
-          const onPointerEnter = () => {
-            gsap.to(moodCursor, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' });
-          };
-
-          const onPointerLeave = () => {
-            gsap.to(moodCursor, { opacity: 0, scale: 0.78, duration: 0.25, ease: 'power2.out' });
-          };
-
-          moodSection.addEventListener('pointermove', onPointerMove);
-          moodSection.addEventListener('pointerenter', onPointerEnter);
-          moodSection.addEventListener('pointerleave', onPointerLeave);
-
-          extraCleanup.push(() => {
-            moodSection.removeEventListener('pointermove', onPointerMove);
-            moodSection.removeEventListener('pointerenter', onPointerEnter);
-            moodSection.removeEventListener('pointerleave', onPointerLeave);
-          });
-        }
 
       }, rootRef);
 
@@ -620,21 +618,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
     };
   }, []);
 
-  const handleMoodChange = async (nextMood: MoodKey) => {
-    if (nextMood === activeMood) return;
-
-    const { gsap } = await import('gsap');
-    const nextMoodData = MOODS.find((mood) => mood.key === nextMood) ?? MOODS[0];
-    const textNodes = [moodWordRef.current].filter(Boolean);
-
-    gsap.timeline()
-      .to(moodTintRef.current, { background: nextMoodData.tint, duration: 0.75, ease: 'power1.inOut' }, 0)
-      .to(moodGlowRef.current, { background: nextMoodData.tint, duration: 0.75, ease: 'power1.inOut' }, 0)
-      .to(moodCursorRef.current, { color: nextMoodData.tint, duration: 0.75, ease: 'power1.inOut' }, 0)
-      .to(textNodes, { y: -16, opacity: 0, duration: 0.25, ease: 'power2.in', stagger: 0.04 }, 0)
-      .add(() => setActiveMood(nextMood), 0.28)
-      .fromTo(textNodes, { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: 'power2.out', stagger: 0.05 }, 0.34);
-  };
 
   const openCertificateModal = async (index: number) => {
     setActiveCertificate(index);
@@ -748,47 +731,45 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           </p>
         </section>
 
-        <section className="bg-[#FAFAF8] px-[clamp(18px,3.6vw,52px)] pb-[clamp(70px,10vw,140px)]">
-          <div className="mx-auto max-w-[760px]">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.28em] text-[#141618]">
-              {wwaTitleWords.map((word, i) => (
-                <Fragment key={i}>
-                  <span className="inline-block overflow-hidden pb-[0.1em] mb-[-0.1em] align-bottom">
-                    <span className="wwa-mask-word inline-block">{word}</span>
-                  </span>
-                  {i < wwaTitleWords.length - 1 && ' '}
-                </Fragment>
-              ))}
-            </p>
-            <div className="mt-8 space-y-6 text-[clamp(14px,1.2vw,17px)] leading-[1.38] text-[#141618]">
-              {data.whoWeAre.paragraphs.map((text, pi) => (
-                <p key={pi} data-about-para>
-                  {text.split(' ').map((word, wi, arr) => (
-                    <span key={wi} className="body-word" style={{ opacity: 0.12 }}>
-                      {word}{wi < arr.length - 1 ? ' ' : ''}
-                    </span>
-                  ))}
-                </p>
-              ))}
-            </div>
+        <section ref={videoScrubSectionRef} className="relative h-screen overflow-hidden bg-black">
+          <video
+            ref={videoScrubRef}
+            src="/videos/692cfdd1c69743658adb4a1f4e3fb4ef.HD-1080p-7.2Mbps-30451908.mp4"
+            muted
+            playsInline
+            loop
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 flex items-center justify-center px-[clamp(24px,8vw,120px)]">
+            {data.whoWeAre.paragraphs.map((text, i) => {
+              const firstSpace = i === 0 ? text.indexOf(' ') : -1;
+              const firstWord = firstSpace > -1 ? text.slice(0, firstSpace) : null;
+              const restText  = firstSpace > -1 ? text.slice(firstSpace + 1) : text;
+              return (
+                <div key={i} data-video-para className="absolute max-w-[90%] sm:max-w-[72ch] text-center" style={{ opacity: 0 }}>
+                  {i === 0 && (
+                    <p className="mb-1 text-[12px] font-medium uppercase tracking-[0.06em] text-white">
+                      {data.whoWeAre.sectionTitle}
+                    </p>
+                  )}
+                  {firstWord && (
+                    <p className="mb-12 text-[clamp(42px,6vw,88px)] font-normal leading-none text-white" style={headingStyle}>
+                      {firstWord}
+                    </p>
+                  )}
+                  <p className="text-[clamp(17px,1.9vw,26px)] font-normal leading-[1.4] text-white">
+                    {restText}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
-        <section className="relative h-[100svh] min-h-[560px] overflow-hidden bg-[#E9ECEB]">
-          <Image
-            data-about-plx-strong
-            src={data.whoWeAre.fullViewportImage}
-            alt="Full viewport background"
-            fill
-            sizes="100vw"
-            className="h-[128%] object-cover object-center will-change-transform"
-          />
-        </section>
-
         <section className="px-[clamp(18px,3.6vw,52px)] pb-[clamp(110px,14vw,220px)] pt-[clamp(60px,8vw,120px)]">
-          <div className="grid items-start gap-[clamp(28px,6vw,72px)] lg:grid-cols-2">
+          <div className="mx-auto grid w-[95%] sm:w-[75%] items-start gap-[clamp(28px,6vw,72px)] lg:grid-cols-2">
             <div className="lg:sticky lg:top-24">
-              <p data-about-fade className="max-w-[24ch] text-[clamp(20px,2vw,30px)] font-light leading-[1.12] tracking-[-0.01em]" style={headingStyle}>
+              <p data-about-fade className="max-w-[24ch] text-[clamp(20px,2vw,30px)] font-medium leading-[1.12] tracking-[-0.01em]" style={headingStyle}>
                 {data.story.title}
               </p>
               <p data-about-fade className="mt-[clamp(28px,4vw,56px)] max-w-[40ch] text-[13.5px] leading-[1.45] text-[#737C80]">
@@ -797,20 +778,69 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             </div>
             <div className="flex flex-col gap-[clamp(16px,1.8vw,26px)]">
               <p className="mb-1 text-[13px] text-[#141618]" style={headingStyle}>{data.story.sectionLabel}</p>
-              {data.story.milestones.map((milestone) => (
-                <article key={milestone.title} data-about-fade className="rounded-[3px] bg-[#F1F1EF] p-[clamp(14px,1.6vw,22px)]">
-                  <h3 className="flex items-baseline gap-[0.45em] text-[clamp(22px,2.8vw,42px)] font-light leading-none tracking-[-0.015em]" style={headingStyle}>
-                    <span className="font-normal tracking-[-0.015em] text-[#ABAFAA]">{milestone.year}</span>
-                    <span>
-                      {milestone.title}
-                      {milestone.isCurrent ? <sup className="align-super text-[0.3em] not-italic text-[#0891b2]">o</sup> : null}
-                    </span>
-                  </h3>
-                  <p className="mt-[clamp(52px,7vw,92px)] max-w-[58ch] text-sm leading-[1.45] text-[#141618]">
-                    {milestone.body}
-                  </p>
-                </article>
-              ))}
+              <div data-about-fade className="rounded-[3px] bg-[#F1F1EF] overflow-hidden">
+                {data.story.milestones.map((milestone, i) => {
+                  const isOpen = openMilestone === i;
+                  return (
+                    <article key={milestone.title}>
+                      {i > 0 && <div className="mx-[clamp(14px,1.6vw,22px)] h-px bg-[#DDDDD9]" />}
+                      <div className="p-[clamp(14px,1.6vw,22px)]">
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between gap-3 text-left sm:pointer-events-none sm:cursor-default"
+                          onClick={() => setOpenMilestone(isOpen ? -1 : i)}
+                        >
+                          <h3 className="flex items-baseline gap-[0.45em] text-[clamp(22px,2.8vw,42px)] font-light leading-none tracking-[-0.015em]" style={headingStyle}>
+                            <span className="font-normal tracking-[-0.015em] text-[#ABAFAA]">{milestone.year}</span>
+                            <span>
+                              {milestone.title}
+                              {milestone.isCurrent ? <sup className="align-super text-[0.3em] not-italic text-[#0891b2]">o</sup> : null}
+                            </span>
+                          </h3>
+                          <svg
+                            className={`sm:hidden shrink-0 size-5 text-[#ABAFAA] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out sm:grid-rows-[1fr] ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                          <div className="overflow-hidden">
+                            <p className="pt-10 pb-3 sm:pb-0 sm:pt-0 sm:mt-[clamp(52px,7vw,92px)] max-w-[58ch] text-sm leading-[1.45] text-[#141618]">
+                              {milestone.body}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-[clamp(18px,3.6vw,52px)] pt-[clamp(40px,6vw,80px)]">
+          <div className="mx-auto flex w-[95%] sm:w-[75%] gap-[clamp(16px,2.5vw,36px)]">
+            <div className="relative flex-1 overflow-hidden rounded-[4px]" style={{ aspectRatio: '4/5' }}>
+              <Image
+                src="/about/ChatGPT Image Jun 21, 2026, 08_44_54 PM.png"
+                alt=""
+                fill
+                sizes="(max-width: 768px) 50vw, 45vw"
+                className="object-cover object-center"
+              />
+            </div>
+            <div className="relative flex-1 overflow-hidden rounded-[4px]" style={{ aspectRatio: '4/5' }}>
+              <Image
+                src="/about/ChatGPT Image Jun 21, 2026, 08_47_24 PM.png"
+                alt=""
+                fill
+                sizes="(max-width: 768px) 50vw, 45vw"
+                className="object-cover object-center"
+              />
             </div>
           </div>
         </section>
@@ -825,28 +855,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             <div className="about-mosaic-blob about-mosaic-blob-5" />
             <div className="about-mosaic-grain" />
           </div>
-
-          <section ref={mosaicSectionRef} className="about-mosaic-lines" aria-label="Rahatlyk collections in motion">
-            {MOSAIC_LINES.map((line) => (
-              <div key={line.index} className="about-mosaic-row" data-dir={line.direction}>
-                <div className="about-mosaic-intro">
-                  <div className="about-mosaic-track">
-                    {line.cells.map((cell, index) => (
-                      <div key={`${line.index}-${cell.src}-${index}`} className={`about-mosaic-cell about-mosaic-${cell.width}`}>
-                        <Image
-                          src={cell.src}
-                          alt={cell.alt}
-                          fill
-                          sizes="(max-width: 768px) 72vw, 34vw"
-                          className="object-cover object-center"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </section>
 
           <section className="about-mosaic-followup px-[clamp(18px,3.6vw,52px)]">
             <div className="about-mosaic-stats-stage">
@@ -910,7 +918,11 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
                   </span>
                   <span className="cert-issuer">{certificate.description}</span>
                   <span className="cert-thumb">
-                    <CertificateArtwork title={certificate.name} />
+                    {certificate.photo ? (
+                      <Image src={certificate.photo} alt={certificate.name} width={1448} height={1086} style={{ width: '100%', height: 'auto' }} />
+                    ) : (
+                      <CertificateArtwork title={certificate.name} />
+                    )}
                   </span>
                   <span className="rule-bottom" data-cert-rule />
                 </button>
@@ -919,99 +931,49 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           </div>
         </section>
 
-        <section ref={moodSectionRef} className="group relative min-h-screen select-none overflow-hidden bg-[#0F1213] p-0 text-white md:cursor-none">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_38%),linear-gradient(135deg,#0F1213_0%,#171B1C_45%,#0A0C0D_100%)]" />
-          <div ref={moodTintRef} className="absolute inset-0 opacity-15 mix-blend-color" style={{ background: activeMoodData.tint }} />
-          <div
-            ref={moodGlowRef}
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-35 blur-[72px] transition-opacity duration-500 group-hover:opacity-50"
-            style={{ background: activeMoodData.tint }}
-          />
-          <div
-            ref={moodCursorRef}
-            className="pointer-events-none absolute left-0 top-0 z-[4] hidden h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-transparent opacity-0 shadow-[0_0_18px_rgba(255,255,255,0.12)] md:flex"
-            style={{ color: activeMoodData.tint }}
-          >
-            <span className="h-1 w-1 rounded-full bg-current" />
-          </div>
-          <div className="relative z-[3] flex min-h-screen flex-col items-center justify-end px-[clamp(18px,3.6vw,52px)] pb-[clamp(80px,14vh,150px)] pt-[clamp(220px,34vh,340px)] text-center">
-            <div className="mx-auto max-w-4xl">
-              <div className="flex items-center justify-center gap-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80">
-                  Find your bottle
-                </p>
-              </div>
-              <h2 className="mt-3.5 inline-grid grid-cols-[auto_minmax(8ch,1fr)] items-baseline gap-x-3 text-left text-[clamp(30px,5vw,70px)] font-light leading-none" style={headingStyle}>
-                <span className="whitespace-nowrap">Today I feel</span>
-                <span className="whitespace-nowrap">
-                  <span
-                    ref={moodWordRef}
-                    className="inline-block min-w-[8.5ch] border-b border-white/40 text-left italic"
-                    style={accentStyle}
-                  >
-                    {activeMoodData.word}
-                  </span>
-                  <span className="opacity-50">.</span>
-                </span>
-              </h2>
-            </div>
-            <div className="mt-10 flex flex-wrap justify-center gap-2.5">
-              {MOODS.map((mood) => (
-                <button
-                  key={mood.key}
-                  type="button"
-                  aria-pressed={mood.key === activeMood}
-                  onClick={() => handleMoodChange(mood.key)}
-                  className={`rounded-[3px] border px-5 py-3 text-xs font-medium tracking-[0.07em] shadow-[0_0_0_rgba(255,255,255,0)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(0,0,0,0.22)] md:cursor-none ${mood.key === activeMood ? 'border-white bg-white text-[#141618]' : 'border-white/35 bg-white/0 text-white/85 hover:border-white hover:bg-white/10 hover:text-white'}`}
-                >
-                  {mood.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
 
         <div ref={certFloatRef} className="cert-float" aria-hidden="true">
           <div className="cert-float-inner">
             {data.certs.certificates.map((certificate, index) => (
               <div key={certificate.name} data-cert-float={index}>
-                <CertificateArtwork title={certificate.name} />
+                {certificate.photo ? (
+                  <Image src={certificate.photo} alt={certificate.name} width={1448} height={1086} style={{ width: '100%', height: 'auto' }} />
+                ) : (
+                  <CertificateArtwork title={certificate.name} />
+                )}
               </div>
             ))}
           </div>
         </div>
 
-        <section className="about-end-screen">
-          <div className="about-end-cta">
-            <h2 data-about-fade className="text-[clamp(30px,4.6vw,60px)] font-light leading-none tracking-[-0.01em]" style={headingStyle}>
-              Ready to taste <em className="not-italic">comfort?</em>
+        <section ref={lastPlxSectionRef} className="relative h-screen overflow-hidden">
+          <div
+            ref={lastPlxMediaRef}
+            data-last-plx-media
+            className="absolute inset-x-0 top-0 h-[128%] will-change-transform"
+          >
+            <Image
+              src="/about/last section image/about last section image.png"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </div>
+          <div className="absolute inset-0 bg-white/50" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-[clamp(18px,3.6vw,52px)] text-center text-[#141618]">
+            <h2
+              className="max-w-[20ch] text-[clamp(32px,5vw,72px)] font-light leading-[1.06] tracking-[-0.01em]"
+              style={headingStyle}
+            >
+              Every drop, a promise kept.
             </h2>
-            <Link data-about-fade href="/products" className="rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]">
-              Explore the collection
-            </Link>
-          </div>
-
-          <div className="about-footer-links" aria-label="Rahatlyk links">
-            <div className="about-footer-links__inner">
-              <div className="about-footer-links__row" data-about-fade>
-                <span>Contact</span>
-                <Link href="/contact">Contact page</Link>
-              </div>
-              <div className="about-footer-links__row" data-about-fade>
-                <span>Careers</span>
-                <Link href="/vacancies">Open positions</Link>
-              </div>
-              <div className="about-footer-links__row" data-about-fade>
-                <span>Journal</span>
-                <Link href="/news">Latest stories</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="about-end-wordmark" aria-hidden="true" style={headingStyle}>
-            RAHATLYK
+            <p className="mt-[clamp(14px,2vw,24px)] max-w-[44ch] text-[clamp(14px,1.4vw,18px)] leading-[1.5] text-[#141618]/75">
+              From the first filtration to the final cap, Rahatlyk keeps quality in its own hands — every bottle, every time.
+            </p>
           </div>
         </section>
+
       </main>
 
       {activeCertificate !== null && activeCert && typeof document !== 'undefined'
@@ -1031,23 +993,29 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
               <button className="cert-modal-backdrop" type="button" data-close aria-label="Close certificate preview" onClick={closeCertificateModal} />
               <div className="cert-modal-panel">
                 <button className="cert-modal-close" type="button" data-close onClick={closeCertificateModal}>
-                  Close
+                  {{ en: 'Close', tm: 'Ýap', ru: 'Закрыть' }[locale]}
                 </button>
-                <div className="cert-modal-doc">
-                  {activeCert.photo ? (
-                    <Image
-                      src={activeCert.photo}
-                      alt={activeCert.name}
-                      fill
-                      className="object-contain"
-                    />
-                  ) : (
-                    <CertificateArtwork title={activeCert.name} />
-                  )}
-                </div>
-                <div className="cert-modal-caption">
-                  <h3>{activeCert.name} — {activeCert.tag}</h3>
-                  <span>{activeCert.expiryDate}</span>
+                <div style={{ display: 'inline-block', maxWidth: '80vw' }}>
+                  <div className="cert-modal-doc">
+                    {activeCert.photo ? (
+                      <Image
+                        src={activeCert.photo}
+                        alt={activeCert.name}
+                        width={1448}
+                        height={1086}
+                        style={{ width: '100%', height: 'auto', display: 'block' }}
+                      />
+                    ) : (
+                      <CertificateArtwork title={activeCert.name} />
+                    )}
+                  </div>
+                  <div className="cert-modal-caption">
+                    <h3>{activeCert.name} — {activeCert.tag}</h3>
+                    <span>{activeCert.expiryDate
+                      .replace('Issued', { en: 'Issued', tm: 'Berlen', ru: 'Выдан' }[locale] ?? 'Issued')
+                      .replace('Valid', { en: 'Valid', tm: 'Güýçli', ru: 'Действителен' }[locale] ?? 'Valid')
+                    }</span>
+                  </div>
                 </div>
               </div>
             </div>,

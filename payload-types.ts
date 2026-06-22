@@ -127,6 +127,7 @@ export interface Config {
     'home-story': HomeStory;
     'home-cta-banner': HomeCtaBanner;
     'product-detail-labels': ProductDetailLabel;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
@@ -142,6 +143,7 @@ export interface Config {
     'home-story': HomeStorySelect<false> | HomeStorySelect<true>;
     'home-cta-banner': HomeCtaBannerSelect<false> | HomeCtaBannerSelect<true>;
     'product-detail-labels': ProductDetailLabelsSelect<false> | ProductDetailLabelsSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: 'en' | 'tm' | 'ru';
   widgets: {
@@ -1492,6 +1494,18 @@ export interface ProductDetailLabel {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  instagramUrl?: string | null;
+  youtubeUrl?: string | null;
+  facebookUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-page_select".
  */
 export interface AboutPageSelect<T extends boolean = true> {
@@ -1897,6 +1911,18 @@ export interface ProductDetailLabelsSelect<T extends boolean = true> {
   aboutLabel?: T;
   mineralLabel?: T;
   perLitreLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  instagramUrl?: T;
+  youtubeUrl?: T;
+  facebookUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

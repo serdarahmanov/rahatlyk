@@ -114,6 +114,7 @@ export default async function AboutPage() {
   const locale = ((await cookies()).get('RAHATLYK-locale')?.value ?? 'en') as 'en' | 'tm' | 'ru'
   const payload = await getPayloadClient()
 
+  let data: AboutPageData = FALLBACK
   try {
     const [heroRaw, whoWeAreRaw, storyRaw, numbersRaw, certsRaw] = await Promise.all([
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,7 +129,7 @@ export default async function AboutPage() {
       (payload.findGlobal as any)({ slug: 'about-certificates', locale, depth: 1 }),
     ])
 
-    const data: AboutPageData = {
+    data = {
       hero: {
         coverImage:      heroRaw?.coverImage?.url       || FALLBACK.hero.coverImage,
         title:           heroRaw?.title                 || FALLBACK.hero.title,
@@ -198,8 +199,9 @@ export default async function AboutPage() {
       },
     }
 
-    return <AboutPageClient data={data} />
   } catch {
-    return <AboutPageClient data={FALLBACK} />
+    // data stays as FALLBACK
   }
+
+  return <AboutPageClient data={data} />
 }

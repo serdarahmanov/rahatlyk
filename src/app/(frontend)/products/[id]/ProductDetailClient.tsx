@@ -64,7 +64,7 @@ interface Props {
 }
 
 export default function ProductDetailClient({ product, related, prevProduct, nextProduct, labels }: Props) {
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
   const [openPanel, setOpenPanel] = useState<AccordionKey>('' as AccordionKey)
   const [activePhoto, setActivePhoto] = useState(0)
   const [photoDir, setPhotoDir] = useState<'left' | 'right'>('right')
@@ -202,9 +202,9 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
       <section className="pt-28 pb-16 relative overflow-hidden bg-white border-b border-gray-200">
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
           <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
-            <Link href="/" className="hover:text-gray-700 transition-colors">Home</Link>
+            <Link href="/" className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
             <span>/</span>
-            <Link href="/products" className="hover:text-gray-700 transition-colors">Products</Link>
+            <Link href="/products" className="hover:text-gray-700 transition-colors">{t.nav.products}</Link>
             <span>/</span>
             <Link href={`/products?category=${product.category.slug}`} className="hover:text-gray-700 transition-colors">{product.category.label}</Link>
             <span>/</span>

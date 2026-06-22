@@ -39,6 +39,7 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound()
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const labelsRaw = await (payload.findGlobal as any)({
     slug: 'product-detail-labels',
     locale,

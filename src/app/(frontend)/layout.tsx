@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import '../globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 import { ContactInfoProvider } from '@/lib/contact-info/ContactInfoContext';
+import { SocialLinksProvider } from '@/lib/social-links/SocialLinksContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import NavigationProgress from '@/components/NavigationProgress'
@@ -57,6 +58,7 @@ export default function RootLayout({
       >
         <LanguageProvider>
           <ContactInfoProvider>
+          <SocialLinksProvider>
             <ScrollReset />
             <SmoothScroll />
             <NavigationProgress />
@@ -64,6 +66,7 @@ export default function RootLayout({
             <Navbar />
             <main>{children}</main>
             <Footer />
+          </SocialLinksProvider>
           </ContactInfoProvider>
         </LanguageProvider>
       </body>
