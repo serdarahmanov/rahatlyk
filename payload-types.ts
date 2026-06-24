@@ -119,6 +119,7 @@ export interface Config {
     'about-who-we-are': AboutWhoWeAre;
     'about-our-story': AboutOurStory;
     'about-numbers': AboutNumber;
+    'about-mosaic': AboutMosaic;
     'about-certificates': AboutCertificate;
     'contact-info': ContactInfo;
     forms: Form;
@@ -135,6 +136,7 @@ export interface Config {
     'about-who-we-are': AboutWhoWeAreSelect<false> | AboutWhoWeAreSelect<true>;
     'about-our-story': AboutOurStorySelect<false> | AboutOurStorySelect<true>;
     'about-numbers': AboutNumbersSelect<false> | AboutNumbersSelect<true>;
+    'about-mosaic': AboutMosaicSelect<false> | AboutMosaicSelect<true>;
     'about-certificates': AboutCertificatesSelect<false> | AboutCertificatesSelect<true>;
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -1227,6 +1229,19 @@ export interface AboutNumber {
   createdAt?: string | null;
 }
 /**
+ * The two portrait images shown in the About page mosaic section.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-mosaic".
+ */
+export interface AboutMosaic {
+  id: number;
+  leftImage: number | Media;
+  rightImage: number | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-certificates".
  */
@@ -1462,13 +1477,17 @@ export interface HomeStory {
   createdAt?: string | null;
 }
 /**
- * The animated blue gradient background is static. Manage text and button link here.
+ * Manage the background video, text, and button link for the final home section.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-cta-banner".
  */
 export interface HomeCtaBanner {
   id: number;
+  /**
+   * Background video for the final CTA section.
+   */
+  video?: (number | null) | Media;
   title?: string | null;
   subtitle?: string | null;
   ctaLabel?: string | null;
@@ -1629,6 +1648,17 @@ export interface AboutNumbersSelect<T extends boolean = true> {
         text?: T;
         accentText?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-mosaic_select".
+ */
+export interface AboutMosaicSelect<T extends boolean = true> {
+  leftImage?: T;
+  rightImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1893,6 +1923,7 @@ export interface HomeStorySelect<T extends boolean = true> {
  * via the `definition` "home-cta-banner_select".
  */
 export interface HomeCtaBannerSelect<T extends boolean = true> {
+  video?: T;
   title?: T;
   subtitle?: T;
   ctaLabel?: T;

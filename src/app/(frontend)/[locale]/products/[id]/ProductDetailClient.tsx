@@ -57,11 +57,13 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
 
 type AccordionKey = 'nutrition'
 
+type ProductNavItem = { id: number | string; name: string }
+
 interface Props {
   product: PayloadProduct
   related: PayloadProduct[]
-  prevProduct: PayloadProduct | null
-  nextProduct: PayloadProduct | null
+  prevProduct: ProductNavItem | null
+  nextProduct: ProductNavItem | null
   labels: ProductDetailLabelsData
 }
 

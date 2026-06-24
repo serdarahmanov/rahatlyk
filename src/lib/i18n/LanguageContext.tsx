@@ -9,7 +9,6 @@ interface LanguageContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: typeof translations['en'];
-  ready: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
@@ -25,13 +24,6 @@ export function LanguageProvider({
   const pathname = usePathname();
 
   const setLocale = (newLocale: Locale) => {
-    try {
-      localStorage.setItem('RAHATLYK-locale', newLocale);
-      document.cookie = `RAHATLYK-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
-    } catch {
-      // Preference persistence is optional; the URL is the rendering source.
-    }
-
     const search = typeof window === 'undefined' ? '' : window.location.search;
     router.push(`${replacePathLocale(pathname, newLocale)}${search}`);
   };
@@ -41,7 +33,6 @@ export function LanguageProvider({
       locale: initialLocale,
       setLocale,
       t: translations[initialLocale],
-      ready: true,
     }}>
       {children}
     </LanguageContext.Provider>

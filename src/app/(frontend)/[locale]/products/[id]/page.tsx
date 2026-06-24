@@ -53,19 +53,22 @@ export default async function ProductDetailPage({ params }: Props) {
     perLitreLabel:  labelsRaw?.perLitreLabel  ?? 'Per Litre',
   }
 
-  const products = cached.allProducts.map(normalizeProduct)
   const normalizedProduct = normalizeProduct(product)
-  const currentIndex = products.findIndex((p) => p.id === normalizedProduct.id)
-  const related = products
-    .filter((p) => p.category === normalizedProduct.category && p.id !== normalizedProduct.id)
-    .slice(0, 4)
+  const related = cached.related.map(normalizeProduct)
+  const prevProduct = cached.prevProduct
+    ? { id: cached.prevProduct.id, name: cached.prevProduct.name ?? '' }
+    : null
+  const nextProduct = cached.nextProduct
+    ? { id: cached.nextProduct.id, name: cached.nextProduct.name ?? '' }
+    : null
 
   return (
     <ProductDetailClient
+      key={normalizedProduct.id}
       product={normalizedProduct}
       related={related}
-      prevProduct={currentIndex > 0 ? products[currentIndex - 1] : null}
-      nextProduct={currentIndex >= 0 && currentIndex < products.length - 1 ? products[currentIndex + 1] : null}
+      prevProduct={prevProduct}
+      nextProduct={nextProduct}
       labels={labels}
     />
   )

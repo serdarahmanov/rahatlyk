@@ -97,26 +97,80 @@ export const revalidateSiteSettingsGlobal = globalHook(() => ({
   tags: [siteSettingsTag()],
 }))
 
-const productTargets = (locale: (typeof supportedLocales)[number], doc: Entity) => ({
-  paths: [`/${locale}/products`, `/${locale}/products/${doc.id}`],
-  tags: [productsTag(locale), productTag(locale, doc.id)],
-})
-export const revalidateProductChange = collectionChangeHook(productTargets)
-export const revalidateProductDelete = collectionDeleteHook(productTargets)
+export const revalidateProductChange: CollectionAfterChangeHook<Entity> = async ({ doc, operation }) => {
+  await revalidateNext(forAllLocales((locale) => {
+    const tags = [productsTag(locale)]
+    const paths = [`/${locale}/products`]
 
-const newsTargets = (locale: (typeof supportedLocales)[number], doc: Entity) => ({
-  paths: [`/${locale}`, `/${locale}/news`, `/${locale}/news/${doc.id}`],
-  tags: [homeTag(locale), newsListTag(locale), newsItemTag(locale, doc.id)],
-})
-export const revalidateArticleChange = collectionChangeHook(newsTargets)
-export const revalidateArticleDelete = collectionDeleteHook(newsTargets)
+    // On create the detail page doesn't exist in cache yet — skip it.
+    // On update the specific product data and its ISR page are stale.
+    if (operation === 'update') {
+      tags.push(productTag(locale, doc.id))
+      paths.push(`/${locale}/products/${doc.id}`)
+    }
 
-const vacancyTargets = (locale: (typeof supportedLocales)[number], doc: Entity) => ({
-  paths: [`/${locale}/vacancies`, `/${locale}/vacancies/${doc.id}`],
-  tags: [vacanciesTag(locale), vacancyTag(locale, doc.id)],
-})
-export const revalidateVacancyChange = collectionChangeHook(vacancyTargets)
-export const revalidateVacancyDelete = collectionDeleteHook(vacancyTargets)
+    return { tags, paths }
+  }))
+  return doc
+}
+
+export const revalidateProductDelete: CollectionAfterDeleteHook<Entity> = async ({ doc }) => {
+  await revalidateNext(forAllLocales((locale) => ({
+    tags: [productsTag(locale), productTag(locale, doc.id)],
+    // Detail path revalidated so Next.js serves 404 immediately instead of stale ISR.
+    paths: [`/${locale}/products`, `/${locale}/products/${doc.id}`],
+  })))
+}
+
+export const revalidateArticleChange: CollectionAfterChangeHook<Entity> = async ({ doc, operation }) => {
+  await revalidateNext(forAllLocales((locale) => {
+    const tags = [homeTag(locale), newsListTag(locale)]
+    const paths = [`/${locale}`, `/${locale}/news`]
+
+    // On create the detail page doesn't exist in cache yet — skip it.
+    // On update the cached detail data is stale and the ISR page must refresh.
+    if (operation === 'update') {
+      tags.push(newsItemTag(locale, doc.id))
+      paths.push(`/${locale}/news/${doc.id}`)
+    }
+
+    return { tags, paths }
+  }))
+  return doc
+}
+
+export const revalidateArticleDelete: CollectionAfterDeleteHook<Entity> = async ({ doc }) => {
+  await revalidateNext(forAllLocales((locale) => ({
+    tags: [homeTag(locale), newsListTag(locale), newsItemTag(locale, doc.id)],
+    // Detail path revalidated so Next.js serves 404 immediately instead of stale ISR.
+    paths: [`/${locale}`, `/${locale}/news`, `/${locale}/news/${doc.id}`],
+  })))
+}
+
+export const revalidateVacancyChange: CollectionAfterChangeHook<Entity> = async ({ doc, operation }) => {
+  await revalidateNext(forAllLocales((locale) => {
+    const tags = [vacanciesTag(locale)]
+    const paths = [`/${locale}/vacancies`]
+
+    // On create the detail page doesn't exist in cache yet — skip it.
+    // On update the specific vacancy data and its ISR page are stale.
+    if (operation === 'update') {
+      tags.push(vacancyTag(locale, doc.id))
+      paths.push(`/${locale}/vacancies/${doc.id}`)
+    }
+
+    return { tags, paths }
+  }))
+  return doc
+}
+
+export const revalidateVacancyDelete: CollectionAfterDeleteHook<Entity> = async ({ doc }) => {
+  await revalidateNext(forAllLocales((locale) => ({
+    tags: [vacanciesTag(locale), vacancyTag(locale, doc.id)],
+    // Detail path revalidated so Next.js serves 404 immediately instead of stale ISR.
+    paths: [`/${locale}/vacancies`, `/${locale}/vacancies/${doc.id}`],
+  })))
+}
 
 export const revalidateProductLinesChange = collectionChangeHook((locale) => ({
   paths: [`/${locale}`],

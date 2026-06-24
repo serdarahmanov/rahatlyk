@@ -11,6 +11,7 @@ import { AboutPage } from './src/globals/AboutPage'
 import { AboutCertificates } from './src/globals/AboutCertificates'
 import { AboutHero } from './src/globals/AboutHero'
 import { AboutNumbers } from './src/globals/AboutNumbers'
+import { AboutMosaic } from './src/globals/AboutMosaic'
 import { AboutOurStory } from './src/globals/AboutOurStory'
 import { AboutWhoWeAre } from './src/globals/AboutWhoWeAre'
 import { ContactInfo } from './src/globals/ContactInfo'
@@ -55,7 +56,7 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [AboutPage, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, ContactInfo, Forms, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner, ProductDetailLabels, SiteSettings],
+  globals: [AboutPage, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutMosaic, AboutCertificates, ContactInfo, Forms, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner, ProductDetailLabels, SiteSettings],
   collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [

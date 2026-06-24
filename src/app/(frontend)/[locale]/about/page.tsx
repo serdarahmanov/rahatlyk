@@ -71,6 +71,10 @@ const FALLBACK: AboutPageData = {
       accentText: 'bottled.',
     },
   },
+  mosaic: {
+    leftImage: '/about/about-mosaic-left.png',
+    rightImage: '/about/about-mosaic-right.png',
+  },
   certs: {
     heading: {
       text: 'Our standards,',
@@ -133,6 +137,8 @@ export default async function AboutPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const numbersRaw: any = cached.numbers
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mosaicRaw: any = cached.mosaic
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const certsRaw: any = cached.certificates
 
     data = {
@@ -179,6 +185,10 @@ export default async function AboutPage({ params }: Props) {
           text:       numbersRaw?.tagline?.text       || FALLBACK.numbers.tagline.text,
           accentText: numbersRaw?.tagline?.accentText || FALLBACK.numbers.tagline.accentText,
         },
+      },
+      mosaic: {
+        leftImage:  mosaicRaw?.leftImage?.url  || FALLBACK.mosaic.leftImage,
+        rightImage: mosaicRaw?.rightImage?.url || FALLBACK.mosaic.rightImage,
       },
       certs: {
         heading: {

@@ -75,12 +75,43 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
 }
 
 /* ── Pinned horizontal-scroll section ────────────────────────────── */
-function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
+function HorizontalScrollSection({
+  data,
+  onBox5DownloadComplete,
+}: {
+  data: HorizontalScrollData;
+  onBox5DownloadComplete?: () => void;
+}) {
   const { locale } = useLanguage();
   const containerRef    = useRef<HTMLDivElement>(null);
   const trackRef        = useRef<HTMLDivElement>(null);
   const isFirstDataRef  = useRef(true);
+  const box5DownloadReportedRef = useRef(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  const reportBox5DownloadIfComplete = (video: HTMLVideoElement) => {
+    if (
+      box5DownloadReportedRef.current
+      || !Number.isFinite(video.duration)
+      || video.duration <= 0
+      || video.buffered.length === 0
+    ) {
+      return;
+    }
+
+    const tolerance = 0.25;
+    if (video.buffered.start(0) > tolerance) return;
+
+    let bufferedThrough = video.buffered.end(0);
+    for (let index = 1; index < video.buffered.length; index += 1) {
+      if (video.buffered.start(index) > bufferedThrough + tolerance) return;
+      bufferedThrough = Math.max(bufferedThrough, video.buffered.end(index));
+    }
+    if (bufferedThrough < video.duration - tolerance) return;
+
+    box5DownloadReportedRef.current = true;
+    onBox5DownloadComplete?.();
+  };
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -292,6 +323,21 @@ function HorizontalScrollSection({ data }: { data: HorizontalScrollData }) {
               muted
               loop
               playsInline
+              preload="auto"
+              onCanPlay={(event) => {
+                const video = event.currentTarget;
+                video.muted = true;
+                void video.play().catch(() => undefined);
+                reportBox5DownloadIfComplete(video);
+              }}
+              onProgress={(event) => reportBox5DownloadIfComplete(event.currentTarget)}
+              onCanPlayThrough={(event) => reportBox5DownloadIfComplete(event.currentTarget)}
+              onLoadedMetadata={(event) => reportBox5DownloadIfComplete(event.currentTarget)}
+              onError={() => {
+                if (box5DownloadReportedRef.current) return;
+                box5DownloadReportedRef.current = true;
+                onBox5DownloadComplete?.();
+              }}
               poster={data.box5CoverImageUrl ?? undefined}
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -863,6 +909,7 @@ export default function HomeClient({
 }) {
   const { t, locale } = useLanguage();
   const [readyHeroVideoUrl, setReadyHeroVideoUrl] = useState<string | null>(null);
+  const [ctaVideoActive, setCtaVideoActive] = useState(false);
 
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
@@ -872,7 +919,30 @@ export default function HomeClient({
   const brandTextRef    = useRef<HTMLParagraphElement>(null);
   const storyRef        = useRef<HTMLDivElement>(null);
   const storyImgRef     = useRef<HTMLDivElement>(null);
-  const prevLocaleRef = useRef<string | undefined>(undefined);
+  const heroVideoRef    = useRef<HTMLVideoElement>(null);
+  const prevLocaleRef   = useRef<string | undefined>(undefined);
+  const heroReadyRef    = useRef(!hero.videoUrl);
+  const box5DownloadCompleteRef = useRef(!horizontalScroll.box5VideoUrl);
+
+  const tryActivateCta = useCallback(() => {
+    if (heroReadyRef.current && box5DownloadCompleteRef.current) setCtaVideoActive(true);
+  }, []);
+
+  const handleHeroCanPlay = useCallback(() => {
+    const video = heroVideoRef.current;
+    if (video) {
+      video.muted = true;
+      void video.play().catch(() => undefined);
+    }
+    setReadyHeroVideoUrl(hero.videoUrl);
+    heroReadyRef.current = true;
+    tryActivateCta();
+  }, [hero.videoUrl, tryActivateCta]);
+
+  const handleBox5DownloadComplete = useCallback(() => {
+    box5DownloadCompleteRef.current = true;
+    tryActivateCta();
+  }, [tryActivateCta]);
 
   // ── Hero animation ──────────────────────────────────────────────
   useEffect(() => {
@@ -1058,14 +1128,15 @@ export default function HomeClient({
         )}
         {hero.videoUrl ? (
           <video
+            ref={heroVideoRef}
+            data-hero-video
             src={hero.videoUrl}
-            poster={hero.posterUrl ?? undefined}
             autoPlay
             muted
             loop
             playsInline
             preload="auto"
-            onCanPlay={() => setReadyHeroVideoUrl(hero.videoUrl)}
+            onCanPlay={handleHeroCanPlay}
             onError={() => setReadyHeroVideoUrl(null)}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
               readyHeroVideoUrl === hero.videoUrl ? 'opacity-100' : 'opacity-0'
@@ -1138,7 +1209,10 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HORIZONTAL SCROLL — pinned panels
       ══════════════════════════════════════════ */}
-      <HorizontalScrollSection data={horizontalScroll} />
+      <HorizontalScrollSection
+        data={horizontalScroll}
+        onBox5DownloadComplete={handleBox5DownloadComplete}
+      />
 
       {/* ══════════════════════════════════════════
           COLLECTIONS — bottle carousel
@@ -1167,7 +1241,6 @@ export default function HomeClient({
               fill
               className="object-cover object-center"
               sizes="100vw"
-              priority
             />
           ) : (
             <div className="absolute inset-0 bg-brand-900" />
@@ -1226,16 +1299,18 @@ export default function HomeClient({
         className="relative overflow-hidden flex flex-col items-center justify-center"
         style={{ background: '#0b2e4a', height: '90svh' }}
       >
-        <video
-          src="/videos/wave video.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
-        />
+        {ctaVideoActive && ctaBanner.videoUrl && (
+          <video
+            src={ctaBanner.videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+          />
+        )}
         <div className="pointer-events-none absolute inset-0 bg-[#04192e]/35" />
         <div className="relative z-10 max-w-3xl mx-auto px-5 sm:px-8 text-center">
           <div className="flex justify-center mb-5">

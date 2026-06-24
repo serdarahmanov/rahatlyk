@@ -25,19 +25,25 @@ export default async function NewsPage({ params, searchParams }: Props) {
   const query = await searchParams
   const categorySlug = query.category ?? 'all'
   const page = Math.max(Number(query.page ?? '1') || 1, 1)
-  const categoriesResult = await getCachedArticleCategories(locale)
+  const unfilteredNewsPromise = categorySlug === 'all'
+    ? getCachedNewsPage(locale, page)
+    : null
+  const [categoriesResult, featuredResult] = await Promise.all([
+    getCachedArticleCategories(locale),
+    getCachedFeaturedArticles(locale),
+  ])
   const categories = categoriesResult.docs.map(normalizeCategory)
   const activeCategory = categoriesResult.docs.find(c => c.slug === categorySlug)
 
-  const featuredResult = await getCachedFeaturedArticles(locale)
-
   const featured = featuredResult.docs.map(normalizeArticle)
 
-  const result = await getCachedNewsPage(
-    locale,
-    page,
-    categorySlug !== 'all' && activeCategory ? Number(activeCategory.id) : undefined,
-  )
+  const result = unfilteredNewsPromise
+    ? await unfilteredNewsPromise
+    : await getCachedNewsPage(
+        locale,
+        page,
+        activeCategory ? Number(activeCategory.id) : undefined,
+      )
 
   const docs = result.docs.map(normalizeArticle)
 

@@ -8,9 +8,15 @@ export const HomeCtaBanner: GlobalConfig = {
   access: { read: () => true },
   admin: {
     group: 'Home',
-    description: 'The animated blue gradient background is static. Manage text and button link here.',
+    description: 'Manage the background video, text, and button link for the final home section.',
   },
   fields: [
+    {
+      name: 'video',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Background video for the final CTA section.' },
+    },
     { name: 'title',    type: 'text',     localized: true },
     { name: 'subtitle', type: 'text',     localized: true },
     { name: 'ctaLabel', type: 'text',     localized: true },

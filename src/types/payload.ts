@@ -99,6 +99,7 @@ export type HomeStoryData = {
 }
 
 export type HomeCtaBannerData = {
+  videoUrl: string | null
   title:    string | null
   subtitle: string | null
   ctaLabel: string | null

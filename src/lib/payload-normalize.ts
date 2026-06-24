@@ -107,10 +107,8 @@ export const normalizeVacancy = (vacancy: Vacancy): PayloadVacancy => ({
   salary: vacancy.salary ?? null,
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rawStr = (val: unknown): string | null => (typeof val === 'string' && val ? val : null)
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rawMediaUrl = (val: unknown): string | null =>
   val && typeof val === 'object' && 'url' in val && typeof (val as Record<string, unknown>).url === 'string'
     ? (val as { url: string }).url
@@ -164,6 +162,7 @@ export const normalizeHomeHero = (raw: any): HomeHeroData => ({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeHomeCtaBanner = (raw: any): HomeCtaBannerData => ({
+  videoUrl: rawMediaUrl(raw?.video),
   title:    rawStr(raw?.title),
   subtitle: rawStr(raw?.subtitle),
   ctaLabel: rawStr(raw?.ctaLabel),

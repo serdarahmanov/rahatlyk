@@ -42,5 +42,5 @@ export default async function ArticlePage({ params }: Props) {
   const normalizedArticle = normalizeArticle(article)
   const more = cached.related.map(normalizeArticle)
 
-  return <ArticleDetailClient article={normalizedArticle} more={more} />
+  return <ArticleDetailClient key={normalizedArticle.id} article={normalizedArticle} more={more} />
 }

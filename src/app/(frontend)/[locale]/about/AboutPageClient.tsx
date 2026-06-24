@@ -43,6 +43,10 @@ export type AboutPageData = {
       accentText: string;
     };
   };
+  mosaic: {
+    leftImage: string;
+    rightImage: string;
+  };
   certs: {
     heading: {
       text: string;
@@ -731,10 +735,10 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           </p>
         </section>
 
-        <section ref={videoScrubSectionRef} className="relative h-screen overflow-hidden bg-black">
+        <section ref={videoScrubSectionRef} className="relative h-screen overflow-hidden bg-[#0c3a52]">
           <video
             ref={videoScrubRef}
-            src="/videos/692cfdd1c69743658adb4a1f4e3fb4ef.HD-1080p-7.2Mbps-30451908.mp4"
+            src="/videos/hero-optimized.mp4"
             muted
             playsInline
             loop
@@ -826,7 +830,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           <div className="mx-auto flex w-[95%] sm:w-[75%] gap-[clamp(16px,2.5vw,36px)]">
             <div className="relative flex-1 overflow-hidden rounded-[4px]" style={{ aspectRatio: '4/5' }}>
               <Image
-                src="/about/about-mosaic-left.png"
+                src={data.mosaic.leftImage}
                 alt=""
                 fill
                 sizes="(max-width: 768px) 50vw, 45vw"
@@ -835,7 +839,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             </div>
             <div className="relative flex-1 overflow-hidden rounded-[4px]" style={{ aspectRatio: '4/5' }}>
               <Image
-                src="/about/about-mosaic-right.png"
+                src={data.mosaic.rightImage}
                 alt=""
                 fill
                 sizes="(max-width: 768px) 50vw, 45vw"

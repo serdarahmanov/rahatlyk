@@ -194,6 +194,11 @@ body {
   50%       { opacity: var(--op-to);   }
 }
 
+@keyframes intro-text-up {
+  from { transform: translateY(110%); }
+  to   { transform: translateY(0);    }
+}
+
 .water-blob-1 { animation: water-drift-1 3s ease-in-out infinite, water-pulse 1.8s ease-in-out infinite; --op-from: 0.65; --op-to: 0.85; }
 .water-blob-2 { animation: water-drift-2 4s ease-in-out infinite, water-pulse 2s ease-in-out infinite 0.4s; --op-from: 0.45; --op-to: 0.65; }
 .water-blob-3 { animation: water-drift-3 2.8s ease-in-out infinite, water-pulse 1.6s ease-in-out infinite 0.2s; --op-from: 0.55; --op-to: 0.75; }
@@ -209,6 +214,127 @@ body {
 }
 .news-slide-in {
   animation: news-slide-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* ---- Listing page entry animations ---- */
+@keyframes listing-title-reveal {
+  from { transform: translateY(115%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes listing-filter-reveal {
+  from { transform: translateY(-18px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes listing-card-reveal {
+  from { transform: translateY(30px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.news-title-word,
+.listing-title-word {
+  animation: listing-title-reveal 0.9s cubic-bezier(0.165, 0.84, 0.44, 1) backwards;
+  animation-delay: calc(0.08s + var(--listing-entry-index, var(--news-entry-index, 0)) * 0.08s);
+}
+
+.filter-bar-pill-enter {
+  animation: listing-filter-reveal 0.55s cubic-bezier(0.215, 0.61, 0.355, 1) backwards;
+  animation-delay: calc(0.36s + var(--filter-entry-index, 0) * 0.055s);
+}
+
+.news-card-enter,
+.listing-card-enter {
+  animation: listing-card-reveal 0.55s cubic-bezier(0.215, 0.61, 0.355, 1) backwards;
+  animation-delay: calc(0.66s + var(--listing-entry-index, var(--news-entry-index, 0)) * 0.055s);
+}
+
+@keyframes listing-perk-reveal {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@supports (animation-timeline: view()) {
+  .vacancy-perk-enter {
+    animation-name: listing-perk-reveal;
+    animation-duration: 1ms;
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range:
+      entry calc(5% + var(--listing-entry-index, 0) * 4%)
+      entry calc(65% + var(--listing-entry-index, 0) * 4%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-title-word,
+  .listing-title-word,
+  .filter-bar-pill-enter,
+  .news-card-enter,
+  .listing-card-enter,
+  .vacancy-perk-enter {
+    animation: none;
+  }
+}
+
+/* ---- Contact page entry animations ---- */
+@keyframes contact-fade-up {
+  from { transform: translateY(var(--contact-enter-y, 24px)); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes contact-bg-shift {
+  from { transform: translateY(-10%); }
+  to   { transform: translateY(10%); }
+}
+
+.contact-hero-enter > * {
+  animation: contact-fade-up 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) backwards;
+  animation-delay: calc(0.15s + var(--contact-entry-index, 0) * 0.1s);
+  --contact-enter-y: 30px;
+}
+
+.contact-hero-enter > :nth-child(1) { --contact-entry-index: 0; }
+.contact-hero-enter > :nth-child(2) { --contact-entry-index: 1; }
+
+.contact-form-enter {
+  animation: contact-fade-up 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0.28s backwards;
+  --contact-enter-y: 20px;
+}
+
+@supports (animation-timeline: view()) {
+  .contact-info-enter > * {
+    animation-name: contact-fade-up;
+    animation-duration: 1ms;
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range:
+      entry calc(5% + var(--contact-entry-index, 0) * 3%)
+      entry calc(60% + var(--contact-entry-index, 0) * 3%);
+    --contact-enter-y: 24px;
+  }
+
+  .contact-info-enter > :nth-child(1) { --contact-entry-index: 0; }
+  .contact-info-enter > :nth-child(2) { --contact-entry-index: 1; }
+  .contact-info-enter > :nth-child(3) { --contact-entry-index: 2; }
+  .contact-info-enter > :nth-child(4) { --contact-entry-index: 3; }
+  .contact-info-enter > :nth-child(5) { --contact-entry-index: 4; }
+
+  .contact-bg-parallax {
+    animation: contact-bg-shift 1ms linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-hero-enter > *,
+  .contact-form-enter,
+  .contact-info-enter > *,
+  .contact-bg-parallax {
+    animation: none;
+  }
 }
 
 /* ---- About mosaic lines section ---- */

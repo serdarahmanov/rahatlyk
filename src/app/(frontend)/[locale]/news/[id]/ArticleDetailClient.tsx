@@ -145,6 +145,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
   const imgs = article.images.map(i => i.url).filter(Boolean)
   const [activeIdx, setActiveIdx] = useState(0)
   const [incoming, setIncoming]   = useState<number | null>(null)
+  const [visitedIndexes, setVisitedIndexes] = useState<Set<number>>(() => new Set([0]))
 
   const infoRef    = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -152,6 +153,12 @@ export default function ArticleDetailClient({ article, more }: Props) {
 
   const swapTo = (idx: number) => {
     if (idx === activeIdx || incoming !== null) return
+    setVisitedIndexes((visited) => {
+      if (visited.has(idx)) return visited
+      const next = new Set(visited)
+      next.add(idx)
+      return next
+    })
     setIncoming(idx)
   }
 
@@ -251,21 +258,31 @@ export default function ArticleDetailClient({ article, more }: Props) {
 
         {imgs[activeIdx] && (
           <div className="relative overflow-hidden rounded-sm mb-8" style={{ paddingBottom: '62%' }}>
-            <div className="absolute inset-0" style={{ zIndex: 1 }}>
-              <Image
-                src={imgs[activeIdx]}
-                alt={article.title}
-                fill
-                className="object-cover object-center"
-                sizes="100vw"
-                priority
-              />
-            </div>
-            {incoming !== null && (
-              <div className="absolute inset-0 news-slide-in" style={{ zIndex: 2 }} onAnimationEnd={onAnimEnd}>
-                <Image src={imgs[incoming]} alt="" fill className="object-cover object-center" sizes="100vw" />
-              </div>
-            )}
+            {imgs.map((src, index) => {
+              if (!visitedIndexes.has(index)) return null
+              const isActive = index === activeIdx
+              const isIncoming = index === incoming
+              return (
+                <div
+                  key={src}
+                  className={`absolute inset-0 ${isIncoming ? 'news-slide-in' : ''}`}
+                  style={{
+                    zIndex: isIncoming ? 2 : isActive ? 1 : 0,
+                    visibility: isActive || isIncoming ? 'visible' : 'hidden',
+                  }}
+                  onAnimationEnd={isIncoming ? onAnimEnd : undefined}
+                >
+                  <Image
+                    src={src}
+                    alt={isActive ? article.title : ''}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 639px) 100vw, 60vw"
+                    priority={index === 0}
+                  />
+                </div>
+              )
+            })}
             {imgs.length > 1 && (
               <div className="absolute inset-x-0 bottom-4 flex items-center justify-between px-4" style={{ zIndex: 10 }}>
                 <button
@@ -373,31 +390,31 @@ export default function ArticleDetailClient({ article, more }: Props) {
           {/* Main photo with prev/next navigation */}
           {imgs[activeIdx] && (
             <div className="relative flex-1 overflow-hidden rounded-sm min-h-0">
-              <div className="absolute inset-0" style={{ zIndex: 1 }}>
-                <Image
-                  src={imgs[activeIdx]}
-                  alt={article.title}
-                  fill
-                  className="object-cover object-center"
-                  sizes="60vw"
-                  priority
-                />
-              </div>
-              {incoming !== null && (
-                <div
-                  className="absolute inset-0 news-slide-in"
-                  style={{ zIndex: 2 }}
-                  onAnimationEnd={onAnimEnd}
-                >
-                  <Image
-                    src={imgs[incoming]}
-                    alt=""
-                    fill
-                    className="object-cover object-center"
-                    sizes="60vw"
-                  />
-                </div>
-              )}
+              {imgs.map((src, index) => {
+                if (!visitedIndexes.has(index)) return null
+                const isActive = index === activeIdx
+                const isIncoming = index === incoming
+                return (
+                  <div
+                    key={src}
+                    className={`absolute inset-0 ${isIncoming ? 'news-slide-in' : ''}`}
+                    style={{
+                      zIndex: isIncoming ? 2 : isActive ? 1 : 0,
+                      visibility: isActive || isIncoming ? 'visible' : 'hidden',
+                    }}
+                    onAnimationEnd={isIncoming ? onAnimEnd : undefined}
+                  >
+                    <Image
+                      src={src}
+                      alt={isActive ? article.title : ''}
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 639px) 100vw, 60vw"
+                      priority={index === 0}
+                    />
+                  </div>
+                )
+              })}
 
               {imgs.length > 1 && (
                 <div className="absolute inset-x-0 bottom-4 flex items-center justify-between px-4" style={{ zIndex: 10 }}>

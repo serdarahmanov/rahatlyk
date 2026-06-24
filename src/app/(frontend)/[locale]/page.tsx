@@ -22,7 +22,7 @@ const EMPTY_H_SCROLL: HorizontalScrollData = {
 
 const EMPTY_STORY: HomeStoryData = { imageUrl: null, tag: null, title: null, text: null }
 
-const EMPTY_CTA: HomeCtaBannerData = { title: null, subtitle: null, ctaLabel: null, ctaHref: null }
+const EMPTY_CTA: HomeCtaBannerData = { videoUrl: null, title: null, subtitle: null, ctaLabel: null, ctaHref: null }
 
 const EMPTY_HERO: HomeHeroData = { videoUrl: null, posterUrl: null, title: null, titleAccent: null, subtitle: null }
 

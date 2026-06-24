@@ -1,9 +1,7 @@
 'use client'
 
-import { useLayoutEffect, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import EmptyState from '@/components/EmptyState'
@@ -21,12 +19,6 @@ interface Props {
 export default function ProductsClient({ categories, result, category }: Props) {
   const { locale, t } = useLanguage()
   const router = useRouter()
-
-  const heroRef = useRef<HTMLDivElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const filtersRef = useRef<HTMLDivElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
-  const gridIntroPlayedRef = useRef(false)
 
   const filters = [
     { key: 'all', label: t.products.filterAll },
@@ -47,61 +39,24 @@ export default function ProductsClient({ categories, result, category }: Props) 
     router.push(qs ? `${productsPath}?${qs}` : productsPath)
   }
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const titleWords    = titleRef.current?.querySelectorAll('.title-word-inner')
-      const filterButtons = filtersRef.current?.querySelectorAll('button')
-      const gridCards     = gridRef.current?.children
-      const tl = gsap.timeline({ delay: 0.08 })
-
-      if (titleWords?.length) {
-        gsap.set(titleWords, { yPercent: 115 })
-        tl.to(titleWords, { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' }, 0)
-      }
-      if (filterButtons?.length) {
-        gsap.set(filterButtons, { y: -18, opacity: 0 })
-        tl.to(filterButtons, { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' }, 0.28)
-      }
-      if (gridCards?.length) {
-        gsap.set(gridCards, { y: 30, opacity: 0, scale: 0.97 })
-        tl.to(gridCards, {
-          y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out',
-          onComplete: () => { gridIntroPlayedRef.current = true },
-        }, 0.58)
-      }
-    }, heroRef)
-    return () => ctx.revert()
-  }, [])
-
-  useEffect(() => {
-    if (!gridIntroPlayedRef.current) return
-    const animate = async () => {
-      const { gsap } = await import('gsap')
-      if (gridRef.current) {
-        gsap.fromTo(
-          gridRef.current.children,
-          { y: 30, opacity: 0, scale: 0.97 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.055, ease: 'power3.out' }
-        )
-      }
-    }
-    animate()
-  }, [result.docs])
-
   return (
     <div className="min-h-screen">
       <section className="pt-32 pb-14 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="mb-5 text-left" ref={heroRef}>
+          <div className="mb-5 text-left">
             <h1
-              ref={titleRef}
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.products.title.split(/\s+/).map((word, index, words) => (
                 <span key={`${word}-${index}`} style={{ display: 'inline' }}>
                   <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
-                    <span className="title-word-inner inline-block">{word}</span>
+                    <span
+                      className="listing-title-word inline-block"
+                      style={{ '--listing-entry-index': index } as React.CSSProperties}
+                    >
+                      {word}
+                    </span>
                   </span>
                   {index < words.length - 1 ? ' ' : ''}
                 </span>
@@ -109,21 +64,21 @@ export default function ProductsClient({ categories, result, category }: Props) 
             </h1>
           </div>
 
-          <FilterBar ref={filtersRef} filters={filters} active={category} onChange={handleFilterChange} />
+          <FilterBar filters={filters} active={category} onChange={handleFilterChange} />
 
           {result.totalDocs === 0 && (
             <EmptyState message={t.vacancies.noCurrent} />
           )}
 
           <div
-            ref={gridRef}
             className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4 lg:gap-5"
           >
-            {result.docs.map((product) => (
+            {result.docs.map((product, index) => (
               <Link
-                key={product.id}
+                key={`${category}-${result.page}-${product.id}`}
                 href={withLocale(locale, `/products/${product.id}`)}
-                className="group flex flex-col hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300 rounded-2xl overflow-hidden"
+                className="listing-card-enter group flex flex-col hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300 rounded-2xl overflow-hidden"
+                style={{ '--listing-entry-index': index } as React.CSSProperties}
               >
                 <div className="relative overflow-hidden h-[320px] bg-white rounded-2xl">
                   <ProductVisual product={product} size="sm" className="w-full h-full" />

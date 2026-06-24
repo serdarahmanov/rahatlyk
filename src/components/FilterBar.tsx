@@ -40,7 +40,7 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
     };
 
     const pill = (key: string) =>
-      `flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
+      `filter-bar-pill-enter flex-shrink-0 rounded-[3px] border px-5 py-3 text-xs font-normal tracking-[0.05em] transition-[background-color,border-color,color] duration-200 ${
         active === key
           ? 'border-gray-900 bg-gray-900 text-white'
           : 'border-gray-300 bg-transparent text-gray-500 hover:border-gray-900 hover:text-gray-900'
@@ -50,14 +50,19 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
       <div className="mb-8">
 
         {/* Mobile: scrollable strip with floating arrow overlays */}
-        <div className="relative md:hidden">
+        <div key={`mobile-${active}`} className="filter-bar-enter relative md:hidden">
           <div
             ref={scrollRef}
             className="flex items-center gap-2 overflow-x-auto mx-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {filters.map((f) => (
-              <button key={f.key} onClick={() => onChange(f.key)} className={pill(f.key)}>
+            {filters.map((f, index) => (
+              <button
+                key={f.key}
+                onClick={() => onChange(f.key)}
+                className={pill(f.key)}
+                style={{ '--filter-entry-index': index } as React.CSSProperties}
+              >
                 {f.label}
               </button>
             ))}
@@ -99,9 +104,18 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
         </div>
 
         {/* Desktop: all pills visible */}
-        <div ref={desktopRef} className="hidden md:flex items-center gap-2">
-          {filters.map((f) => (
-            <button key={f.key} onClick={() => onChange(f.key)} className={pill(f.key)}>
+        <div
+          key={`desktop-${active}`}
+          ref={desktopRef}
+          className="filter-bar-enter hidden md:flex items-center gap-2"
+        >
+          {filters.map((f, index) => (
+            <button
+              key={f.key}
+              onClick={() => onChange(f.key)}
+              className={pill(f.key)}
+              style={{ '--filter-entry-index': index } as React.CSSProperties}
+            >
               {f.label}
             </button>
           ))}

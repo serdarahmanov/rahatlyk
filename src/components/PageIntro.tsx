@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef } from 'react';
-import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 declare global {
   interface Window {
@@ -10,40 +10,27 @@ declare global {
 }
 
 export default function PageIntro() {
-  const { ready } = useLanguage();
+  const pathname = usePathname();
+  const relativePath = pathname.replace(/^\/(en|ru|tm)(?=\/|$)/, '') || '/';
+  const shouldShow = relativePath === '/';
 
   const curtainRef   = useRef<HTMLDivElement>(null);
   const logoRef      = useRef<HTMLSpanElement>(null);
-  const taglineRef   = useRef<HTMLSpanElement>(null);
   const progressRef  = useRef<HTMLDivElement>(null);
 
-  // ── Hide text before first paint so there's no flash ─────────────
-  useLayoutEffect(() => {
-    if (logoRef.current)    logoRef.current.style.transform = 'translateY(110%)';
-    if (taglineRef.current) taglineRef.current.style.transform = 'translateY(110%)';
-  }, []);
-
-  // ── Text entrance + progress bar kick-off ─────────────────────────
+  // ── Text + progress bar kick-off ─────────────────────────────────
   useEffect(() => {
+    if (!shouldShow) return;
     const MIN_TOTAL_MS = 2800;
+
+    // Start the logo slide-up only after the heading font is ready,
+    // so there is no FOUT jump mid-animation.
+    document.fonts.ready.then(() => {
+      if (logoRef.current) logoRef.current.style.animationPlayState = 'running';
+    });
 
     const init = async () => {
       const { gsap } = await import('gsap');
-      const tl = gsap.timeline();
-
-      if (logoRef.current) {
-        tl.to(logoRef.current, {
-          y: '0%', duration: 1, ease: 'power4.out', delay: 0.15,
-        });
-      }
-      if (taglineRef.current) {
-        tl.to(taglineRef.current, {
-          y: '0%', duration: 0.85, ease: 'power4.out',
-        }, '-=0.55');
-      }
-
-      // Start the progress bar immediately and fill to 82% over the
-      // expected load window — slows near the end so it feels "almost done"
       if (progressRef.current) {
         gsap.fromTo(
           progressRef.current,
@@ -53,11 +40,11 @@ export default function PageIntro() {
       }
     };
     init();
-  }, []);
+  }, [shouldShow]);
 
   // ── Curtain exit when locale is ready ────────────────────────────
   useEffect(() => {
-    if (!ready) return;
+    if (!shouldShow) return;
 
     const init = async () => {
       const { gsap } = await import('gsap');
@@ -69,18 +56,29 @@ export default function PageIntro() {
       //   2. minimum hold — intro always shows for at least MIN_TOTAL_MS from
       //      navigation start, with a floor of MIN_AFTER_READY_MS after the
       //      locale became ready (in case resources load unusually fast)
-      const MIN_TOTAL_MS       = 2800; // total ms from page-navigation start
-      const MIN_AFTER_READY_MS = 1200; // floor after locale/ready gate
+      const MIN_TOTAL_MS       = 2800;
+      const MIN_AFTER_READY_MS = 1200;
 
       const elapsed = performance.now();
 
       await Promise.all([
-        // All images + fonts done
+        // Fonts + hero video metadata — query the DOM directly; the hero element
+        // is already committed before any useEffect runs. Hard cap so a stalled
+        // asset never blocks the curtain indefinitely.
         new Promise<void>((resolve) => {
-          if (document.readyState === 'complete') resolve();
-          else window.addEventListener('load', () => resolve(), { once: true });
+          const LOAD_CAP_MS = 4000;
+          const capTimer = setTimeout(resolve, LOAD_CAP_MS);
+          const done = () => { clearTimeout(capTimer); resolve(); };
+
+          const videoReady = new Promise<void>((res) => {
+            const v = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+            if (!v || v.readyState >= 1) { res(); return; }
+            v.addEventListener('loadedmetadata', () => res(), { once: true });
+            v.addEventListener('error',          () => res(), { once: true });
+          });
+
+          Promise.all([document.fonts.ready, videoReady]).then(done);
         }),
-        // Minimum display time
         new Promise<void>((resolve) =>
           setTimeout(resolve, Math.max(MIN_AFTER_READY_MS, MIN_TOTAL_MS - elapsed)),
         ),
@@ -94,12 +92,10 @@ export default function PageIntro() {
         tl.to(progressRef.current, { scaleX: 1, duration: 0.35, ease: 'power2.out', transformOrigin: 'left center' });
       }
 
-      // Fade out text
-      tl.to(
-        [logoRef.current, taglineRef.current].filter(Boolean),
-        { opacity: 0, duration: 0.3, ease: 'power2.in' },
-        '-=0.05',
-      );
+      // Fade out logo
+      if (logoRef.current) {
+        tl.to(logoRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.05');
+      }
 
       // Slide the solid panel straight up — no backdrop-filter means no blur seam
       tl.to(curtain, {
@@ -118,7 +114,9 @@ export default function PageIntro() {
     };
 
     init();
-  }, [ready]);
+  }, [shouldShow]);
+
+  if (!shouldShow) return null;
 
   return (
     <div
@@ -169,39 +167,23 @@ export default function PageIntro() {
           gap:            '1.25rem',
         }}
       >
-        {/* Wordmark */}
+        {/* Wordmark — starts paused; JS releases it after fonts.ready */}
         <div style={{ overflow: 'hidden', paddingBottom: '0.12em' }}>
           <span
             ref={logoRef}
             className="intro-item"
             style={{
-              display:       'block',
-              color:         'white',
-              fontSize:      'clamp(1.4rem, 4vw, 2.25rem)',
-              fontWeight:    700,
-              letterSpacing: '0.55em',
-              fontFamily:    'var(--font-heading), sans-serif',
+              display:          'block',
+              color:            'white',
+              fontSize:         'clamp(1.4rem, 4vw, 2.25rem)',
+              fontWeight:       700,
+              letterSpacing:    '0.55em',
+              fontFamily:       'var(--font-heading), sans-serif',
+              animation:        'intro-text-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both',
+              animationPlayState: 'paused',
             }}
           >
             RAHATLYK
-          </span>
-        </div>
-
-        {/* Tagline */}
-        <div style={{ overflow: 'hidden', paddingBottom: '0.1em' }}>
-          <span
-            ref={taglineRef}
-            className="intro-item"
-            style={{
-              display:       'block',
-              color:         'rgba(255,255,255,0.55)',
-              fontSize:      'clamp(0.55rem, 1.2vw, 0.7rem)',
-              letterSpacing: '0.35em',
-              fontFamily:    'var(--font-heading), sans-serif',
-              textTransform: 'uppercase',
-            }}
-          >
-            Pure · Natural · Life
           </span>
         </div>
 

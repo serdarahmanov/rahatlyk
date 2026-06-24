@@ -17,6 +17,9 @@ if (typeof window !== 'undefined') {
 }
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const relativePath = pathname.replace(/^\/(en|ru|tm)(?=\/|$)/, '') || '/';
+  const hasPageIntro = relativePath === '/';
   const [scrolled,       setScrolled]       = useState(false);
   const [scrolledUp,     setScrolledUp]     = useState(true);
   const [menuOpen,       setMenuOpen]       = useState(false);
@@ -28,10 +31,9 @@ export default function Navbar() {
   );
   const prevScrollY = useRef(0);
   const langRef = useRef<HTMLDivElement>(null);
-  const { locale, setLocale, t, ready } = useLanguage();
+  const { locale, setLocale, t } = useLanguage();
   const contactInfo = useContactInfo();
   const social = useSocialLinks();
-  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,11 +56,11 @@ export default function Navbar() {
 
   // Reveal header when PageIntro finishes (first page load only)
   useEffect(() => {
-    if (pageIntroComplete) return; // already done — no listener needed
+    if (!hasPageIntro || pageIntroComplete) return; // already done — no listener needed
     const onDone = () => setIntroComplete(true);
     window.addEventListener('page-intro-complete', onDone, { once: true });
     return () => window.removeEventListener('page-intro-complete', onDone);
-  }, []);
+  }, [hasPageIntro]);
 
   // Reset nav state on every route change
   useEffect(() => {
@@ -83,11 +85,11 @@ export default function Navbar() {
   }, [langOpen]);
 
   // Home / About page not-scrolled → transparent + white text (both have dark hero images)
-  const relativePath = pathname.replace(/^\/(en|ru|tm)(?=\/|$)/, '') || '/';
   const isHeroPage = relativePath === '/' || relativePath === '/about';
   const isAboutPage = relativePath === '/about';
   const isHomeHero = isHeroPage && !scrolled;
   const showHeaderPanel = scrolled;
+  const showNavbar = !hasPageIntro || introComplete;
   // Any page not-scrolled → transparent bg (image shows through)
 
   const navLinks = [
@@ -106,13 +108,13 @@ export default function Navbar() {
     <header
       className="fixed top-0 left-0 right-0 z-50"
       style={isAboutPage ? {
-        opacity:    introComplete ? 1 : 0,
+        opacity:    showNavbar ? 1 : 0,
         transform:  !scrolledUp ? 'translateY(-100%)' : 'translateY(0)',
         // transition must already be in the DOM before transform changes — React owns
         // it so there's no external write that can desync the virtual DOM
-        transition: introComplete ? 'transform 0.3s ease-in-out' : 'none',
+        transition: showNavbar ? 'transform 0.3s ease-in-out' : 'none',
       } : {
-        opacity: introComplete ? 1 : 0,
+        opacity: showNavbar ? 1 : 0,
       }}
     >
 
@@ -148,7 +150,6 @@ export default function Navbar() {
           {/* ── Desktop Nav ── */}
           <nav
             className="hidden lg:flex items-center gap-12"
-            style={{ opacity: ready ? 1 : 0, transition: 'opacity 0.15s ease' }}
             aria-label="Main navigation"
           >
             {navLinks.map((link) => (
@@ -268,9 +269,7 @@ export default function Navbar() {
         </button>
 
         {/* Nav links */}
-        <div className="flex-1 flex flex-col justify-center px-8 pb-10"
-          style={{ opacity: ready ? 1 : 0, transition: 'opacity 0.15s ease' }}
-        >
+        <div className="flex-1 flex flex-col justify-center px-8 pb-10">
           {/* All nav links — same size */}
           <div className="flex flex-col gap-1">
             {[

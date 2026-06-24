@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import { formatDate } from '@/lib/formatDate'
@@ -20,7 +19,17 @@ interface Props {
   category: string
 }
 
-function NewsCard({ article, featured = false }: { article: PayloadArticle; featured?: boolean }) {
+function NewsCard({
+  article,
+  featured = false,
+  priority = false,
+  entryIndex = 0,
+}: {
+  article: PayloadArticle
+  featured?: boolean
+  priority?: boolean
+  entryIndex?: number
+}) {
   const router = useRouter()
   const { t, locale } = useLanguage()
   const imgs = article.images.map((i) => i.url)
@@ -28,19 +37,34 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
   const [incoming, setIncoming] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
+  const cardRef = useRef<HTMLDivElement>(null)
   const [intervalMs] = useState(() => 5000 + Math.floor(Math.random() * 3000))
 
   useEffect(() => { busyRef.current = busy }, [busy])
 
   useEffect(() => {
     if (imgs.length <= 1) return
-    const id = setInterval(() => {
-      if (busyRef.current) return
-      const next = (current + 1) % imgs.length
-      setIncoming(next)
-      setBusy(true)
-    }, intervalMs)
-    return () => clearInterval(id)
+    let id: ReturnType<typeof setInterval> | undefined
+
+    const start = () => {
+      id = setInterval(() => {
+        if (busyRef.current) return
+        const next = (current + 1) % imgs.length
+        setIncoming(next)
+        setBusy(true)
+      }, intervalMs)
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) { if (!id) start() }
+        else { clearInterval(id); id = undefined }
+      },
+      { threshold: 0.1 },
+    )
+
+    if (cardRef.current) observer.observe(cardRef.current)
+    return () => { observer.disconnect(); clearInterval(id) }
   }, [current, imgs.length, intervalMs])
 
   const go = (dir: 1 | -1, e: React.MouseEvent) => {
@@ -69,7 +93,12 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
   }
 
   return (
-    <div className="group cursor-pointer" onClick={() => router.push(withLocale(locale, `/news/${article.id}`))}>
+    <div
+      ref={cardRef}
+      className="news-card-enter group cursor-pointer"
+      style={{ '--news-entry-index': entryIndex } as React.CSSProperties}
+      onClick={() => router.push(withLocale(locale, `/news/${article.id}`))}
+    >
       <div className="relative overflow-hidden rounded-sm" style={{ paddingBottom: '62%' }}>
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           {imgs[current] && (
@@ -77,8 +106,9 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
               src={imgs[current]}
               alt={article.title}
               fill
+              priority={priority}
               className="object-cover object-center"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 640px"
             />
           )}
         </div>
@@ -94,7 +124,7 @@ function NewsCard({ article, featured = false }: { article: PayloadArticle; feat
               alt=""
               fill
               className="object-cover object-center"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 640px"
             />
           </div>
         )}
@@ -175,13 +205,6 @@ export default function NewsClient({ categories, featured, result, category }: P
   const { t, locale } = useLanguage()
   const router = useRouter()
 
-  const heroRef = useRef<HTMLDivElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const filtersRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
-  const contentIntroPlayedRef = useRef(false)
-
   const filters = [
     { key: 'all', label: t.news.filterAll },
     ...categories.map(c => ({ key: c.slug, label: c.label })),
@@ -201,61 +224,24 @@ export default function NewsClient({ categories, featured, result, category }: P
     router.push(qs ? `${newsPath}?${qs}` : newsPath)
   }
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const titleWords    = titleRef.current?.querySelectorAll('.title-word-inner')
-      const filterButtons = filtersRef.current?.querySelectorAll('button')
-      const contentItems  = contentRef.current?.children
-      const tl = gsap.timeline({ delay: 0.08 })
-
-      if (titleWords?.length) {
-        gsap.set(titleWords, { yPercent: 115 })
-        tl.to(titleWords, { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' }, 0)
-      }
-      if (filterButtons?.length) {
-        gsap.set(filterButtons, { y: -18, opacity: 0 })
-        tl.to(filterButtons, { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' }, 0.28)
-      }
-      if (contentItems?.length) {
-        gsap.set(contentItems, { y: 30, opacity: 0, scale: 0.97 })
-        tl.to(contentItems, {
-          y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out',
-          onComplete: () => { contentIntroPlayedRef.current = true },
-        }, 0.58)
-      }
-    })
-    return () => ctx.revert()
-  }, [])
-
-  useEffect(() => {
-    if (!contentIntroPlayedRef.current) return
-    const animate = async () => {
-      const { gsap } = await import('gsap')
-      if (gridRef.current && gridRef.current.children.length) {
-        gsap.fromTo(
-          gridRef.current.children,
-          { y: 30, opacity: 0, scale: 0.97 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.055, ease: 'power3.out' }
-        )
-      }
-    }
-    animate()
-  }, [result.docs])
-
   return (
     <div className="min-h-screen">
       <section className="pt-32 pb-10 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="mb-5 text-left" ref={heroRef}>
+          <div className="mb-5 text-left">
             <h1
-              ref={titleRef}
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.news.title.split(/\s+/).map((word, index, words) => (
                 <span key={`${word}-${index}`} style={{ display: 'inline' }}>
                   <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
-                    <span className="title-word-inner inline-block">{word}</span>
+                    <span
+                      className="news-title-word inline-block"
+                      style={{ '--news-entry-index': index } as React.CSSProperties}
+                    >
+                      {word}
+                    </span>
                   </span>
                   {index < words.length - 1 ? ' ' : ''}
                 </span>
@@ -263,13 +249,19 @@ export default function NewsClient({ categories, featured, result, category }: P
             </h1>
           </div>
 
-          <FilterBar ref={filtersRef} filters={filters} active={category} onChange={handleFilterChange} />
+          <FilterBar filters={filters} active={category} onChange={handleFilterChange} />
 
-          <div ref={contentRef}>
+          <div>
             {featured.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16 mb-16">
-                {featured.map((article) => (
-                  <NewsCard key={article.id} article={article} featured />
+                {featured.map((article, index) => (
+                  <NewsCard
+                    key={`${category}-${result.page}-${article.id}`}
+                    article={article}
+                    featured
+                    priority={index === 0}
+                    entryIndex={index}
+                  />
                 ))}
               </div>
             )}
@@ -278,9 +270,14 @@ export default function NewsClient({ categories, featured, result, category }: P
               <hr className="border-t border-brand-200 mb-16" />
             )}
 
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16 mb-24">
-              {result.docs.map((article) => (
-                <NewsCard key={article.id} article={article} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-16 mb-24">
+              {result.docs.map((article, index) => (
+                <NewsCard
+                  key={`${category}-${result.page}-${article.id}`}
+                  article={article}
+                  priority={featured.length === 0 && index === 0}
+                  entryIndex={featured.length + index}
+                />
               ))}
             </div>
 

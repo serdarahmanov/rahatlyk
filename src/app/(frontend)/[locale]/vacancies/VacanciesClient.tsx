@@ -1,9 +1,7 @@
 ﻿'use client'
 
-import { useLayoutEffect, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import EmptyState from '@/components/EmptyState'
@@ -126,13 +124,6 @@ export default function VacanciesClient({ departments, result, department }: Pro
   const { locale, t } = useLanguage()
   const router = useRouter()
 
-  const heroRef    = useRef<HTMLDivElement>(null)
-  const titleRef   = useRef<HTMLHeadingElement>(null)
-  const filtersRef = useRef<HTMLDivElement>(null)
-  const listRef    = useRef<HTMLDivElement>(null)
-  const perksRef   = useRef<HTMLDivElement>(null)
-  const contentIntroPlayedRef = useRef(false)
-
   const filters = [
     { key: 'all', label: t.vacancies.filterAll },
     ...departments.map(d => ({ key: d.slug, label: d.label })),
@@ -152,91 +143,26 @@ export default function VacanciesClient({ departments, result, department }: Pro
     router.push(qs ? `${vacanciesPath}?${qs}` : vacanciesPath)
   }
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const titleWords    = titleRef.current?.querySelectorAll('.title-word-inner')
-      const filterButtons = filtersRef.current?.querySelectorAll('button')
-      const vacancyCards  = listRef.current?.children
-      const tl = gsap.timeline({ delay: 0.08 })
-
-      if (titleWords?.length) {
-        gsap.set(titleWords, { yPercent: 115 })
-        tl.to(titleWords, { yPercent: 0, duration: 0.9, stagger: 0.08, ease: 'power4.out' }, 0)
-      }
-      if (filterButtons?.length) {
-        gsap.set(filterButtons, { y: -18, opacity: 0 })
-        tl.to(filterButtons, { y: 0, opacity: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out' }, 0.28)
-      }
-      if (vacancyCards?.length) {
-        gsap.set(vacancyCards, { y: 30, opacity: 0, scale: 0.97 })
-        tl.to(vacancyCards, {
-          y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.055, ease: 'power3.out',
-          onComplete: () => { contentIntroPlayedRef.current = true },
-        }, 0.58)
-      }
-    })
-    return () => ctx.revert()
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-    let ownedTriggers: Array<{ kill: () => void }> = []
-    const init = async () => {
-      const { gsap } = await import('gsap')
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
-      if (cancelled) return
-      gsap.registerPlugin(ScrollTrigger)
-      const existingTriggers = new Set(ScrollTrigger.getAll())
-      if (perksRef.current) {
-        gsap.fromTo(
-          perksRef.current.children,
-          { y: 40, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
-            scrollTrigger: { trigger: perksRef.current, start: 'top 82%' },
-          }
-        )
-      }
-      ownedTriggers = ScrollTrigger.getAll().filter((trigger) => !existingTriggers.has(trigger))
-    }
-    init()
-    return () => {
-      cancelled = true
-      ownedTriggers.forEach((trigger) => trigger.kill())
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!contentIntroPlayedRef.current) return
-    const animate = async () => {
-      const { gsap } = await import('gsap')
-      if (listRef.current && listRef.current.children.length) {
-        gsap.fromTo(
-          listRef.current.children,
-          { y: 30, opacity: 0, scale: 0.97 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.055, ease: 'power3.out' }
-        )
-      }
-    }
-    animate()
-  }, [result.docs])
-
   const perks = t.vacancies.perks
 
   return (
     <div className="min-h-screen">
       <section className="pt-32 pb-12 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="mb-5 text-left" ref={heroRef}>
+          <div className="mb-5 text-left">
             <h1
-              ref={titleRef}
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
               {t.vacancies.title.split(/\s+/).map((word, index, words) => (
                 <span key={`${word}-${index}`} style={{ display: 'inline' }}>
                   <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
-                    <span className="title-word-inner inline-block">{word}</span>
+                    <span
+                      className="listing-title-word inline-block"
+                      style={{ '--listing-entry-index': index } as React.CSSProperties}
+                    >
+                      {word}
+                    </span>
                   </span>
                   {index < words.length - 1 ? ' ' : ''}
                 </span>
@@ -244,7 +170,7 @@ export default function VacanciesClient({ departments, result, department }: Pro
             </h1>
           </div>
 
-          <FilterBar ref={filtersRef} filters={filters} active={department} onChange={handleFilterChange} />
+          <FilterBar filters={filters} active={department} onChange={handleFilterChange} />
 
           <div className="mb-8">
             <h2
@@ -258,14 +184,15 @@ export default function VacanciesClient({ departments, result, department }: Pro
           {result.totalDocs === 0 ? (
             <EmptyState message={t.vacancies.noCurrent} />
           ) : (
-            <div ref={listRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {result.docs.map((job) => {
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {result.docs.map((job, index) => {
                 const acc = DEPT_ACCENT[job.department.slug] ?? DEPT_ACCENT['Production']
                 return (
                   <Link
-                    key={job.id}
+                    key={`${department}-${result.page}-${job.id}`}
                     href={withLocale(locale, `/vacancies/${job.id}`)}
-                    className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
+                    className="listing-card-enter group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
+                    style={{ '--listing-entry-index': index } as React.CSSProperties}
                   >
                     <div
                       className="h-40 flex-shrink-0 overflow-hidden relative"
@@ -345,11 +272,12 @@ export default function VacanciesClient({ departments, result, department }: Pro
           >
             {perks.title}
           </h2>
-          <div ref={perksRef} className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {PERKS.map((perk) => (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {PERKS.map((perk, index) => (
               <div
                 key={perk.titleKey}
-                className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow duration-300"
+                className="vacancy-perk-enter bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow duration-300"
+                style={{ '--listing-entry-index': index } as React.CSSProperties}
               >
                 <div className="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mx-auto mb-4">
                   {perk.icon}

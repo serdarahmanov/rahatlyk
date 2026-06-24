@@ -68,67 +68,10 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
     message:   '',
   });
 
-  const heroRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-  const infoRef = useRef<HTMLDivElement>(null);
-  const bgRef   = useRef<HTMLDivElement>(null);
   const submitInFlightRef = useRef(false);
   const loadedAtRef = useRef(0);
 
   useEffect(() => { loadedAtRef.current = Date.now(); }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    let ownedTriggers: Array<{ kill: () => void }> = [];
-    const init = async () => {
-      const { gsap } = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      if (cancelled) return;
-      gsap.registerPlugin(ScrollTrigger);
-      const existingTriggers = new Set(ScrollTrigger.getAll());
-
-      if (heroRef.current) {
-        gsap.fromTo(
-          heroRef.current.children,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out', delay: 0.15 }
-        );
-      }
-      if (formRef.current) {
-        gsap.fromTo(formRef.current, { y: 20, opacity: 0 }, {
-          y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
-          scrollTrigger: { trigger: formRef.current, start: 'top 88%' },
-        });
-      }
-      if (infoRef.current) {
-        gsap.fromTo(infoRef.current.children, { y: 24, opacity: 0 }, {
-          y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
-          scrollTrigger: { trigger: infoRef.current, start: 'top 85%' },
-        });
-      }
-      if (bgRef.current) {
-        gsap.fromTo(bgRef.current,
-          { y: '-10%' },
-          {
-            y: '10%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: document.documentElement,
-              start: 'top top',
-              end: 'bottom bottom',
-              scrub: true,
-            },
-          }
-        );
-      }
-      ownedTriggers = ScrollTrigger.getAll().filter((trigger) => !existingTriggers.has(trigger));
-    };
-    init();
-    return () => {
-      cancelled = true;
-      ownedTriggers.forEach((trigger) => trigger.kill());
-    };
-  }, []);
 
   useEffect(() => {
     if (Object.keys(formErrors).length === 0) return;
@@ -202,7 +145,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
         <div className="px-5 sm:px-10 lg:px-16 xl:px-24 pt-32 pb-24">
 
           {/* Heading */}
-          <div className={`mb-10 ${submitted ? 'hidden' : ''}`} ref={heroRef}>
+          <div className={`contact-hero-enter mb-10 ${submitted ? 'hidden' : ''}`}>
             <h1
               className="text-4xl sm:text-5xl font-light text-brand-950 leading-tight mb-5"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
@@ -215,7 +158,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
           </div>
 
           {/* Form */}
-          <div ref={formRef}>
+          <div className="contact-form-enter">
             {submitted ? (
               <div className="py-6">
                 <div className="flex items-center gap-4 mb-6">
@@ -394,7 +337,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
         <div className="relative lg:sticky lg:top-0 lg:h-screen overflow-hidden">
 
           {/* Parallax blob gradient */}
-          <div ref={bgRef} className="contact-info-bg">
+          <div className="contact-info-bg contact-bg-parallax">
             <div className="about-mosaic-base" />
             <div className="about-mosaic-blob about-mosaic-blob-1" />
             <div className="about-mosaic-blob about-mosaic-blob-2" />
@@ -411,7 +354,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
               {contactInfo.sectionLabel}
             </p>
 
-            <div ref={infoRef} className="space-y-0">
+            <div className="contact-info-enter space-y-0">
               {contactInfo.address && (
                 <div className="py-6 border-t border-white/20 flex items-start gap-5">
                   <div className="mt-0.5 flex-shrink-0 text-white/70">

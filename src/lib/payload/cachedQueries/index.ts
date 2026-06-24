@@ -60,15 +60,16 @@ export function getCachedAboutData(locale: Locale) {
     [aboutTag(locale)],
     async () => {
       const payload = await getPayloadClient()
-      const [hero, whoWeAre, story, numbers, certificates] = await Promise.all([
+      const [hero, whoWeAre, story, numbers, mosaic, certificates] = await Promise.all([
         payload.findGlobal({ slug: 'about-hero', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-who-we-are', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-our-story', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-numbers', locale, depth: 1 }),
+        payload.findGlobal({ slug: 'about-mosaic', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-certificates', locale, depth: 1 }),
       ])
 
-      return { hero, whoWeAre, story, numbers, certificates }
+      return { hero, whoWeAre, story, numbers, mosaic, certificates }
     },
   )
 }
@@ -132,32 +133,69 @@ export function getCachedProductsPage(
 
 export function getCachedProductDetail(locale: Locale, id: number) {
   return cachedQuery(
-    ['payload', 'product-detail', locale, String(id)],
+    ['payload', 'product-detail-v2', locale, String(id)],
     [productsTag(locale), productTag(locale, id)],
     async () => {
       const payload = await getPayloadClient()
-      const [productResult, labels, allResult] = await Promise.all([
+
+      const productResult = await payload.find({
+        collection: 'products',
+        depth: 2,
+        locale,
+        limit: 1,
+        where: { id: { equals: id } },
+      })
+      const product = productResult.docs[0] ?? null
+
+      if (!product) {
+        return { product: null, labels: null, related: [], prevProduct: null, nextProduct: null }
+      }
+
+      const categoryID = typeof product.category === 'number'
+        ? product.category
+        : product.category.id
+
+      const [labels, relatedResult, navigationResult] = await Promise.all([
+        payload.findGlobal({ slug: 'product-detail-labels', locale, depth: 0 }),
+
+        // Related: same category, only the fields needed to render a product card.
         payload.find({
           collection: 'products',
           depth: 2,
           locale,
-          limit: 1,
-          where: { id: { equals: id } },
+          limit: 4,
+          sort: 'date',
+          where: { and: [{ id: { not_equals: id } }, { category: { equals: categoryID } }] },
+          select: { id: true, name: true, category: true, volumes: true, photos: true, video: true },
         }),
-        payload.findGlobal({
-          slug: 'product-detail-labels',
-          locale,
+
+        // Use the same ordering as the products page. Deriving neighbors from
+        // the ordered result also handles products that share the same date.
+        payload.find({
+          collection: 'products',
           depth: 0,
-        }),
-        payload.find({
-          collection: 'products',
-          depth: 2,
           locale,
           limit: 100,
           sort: 'date',
+          select: { id: true, name: true },
         }),
       ])
-      return { product: productResult.docs[0] ?? null, labels, allProducts: allResult.docs }
+
+      const currentIndex = navigationResult.docs.findIndex((item) => item.id === id)
+      const prevProduct = currentIndex > 0
+        ? navigationResult.docs[currentIndex - 1]
+        : null
+      const nextProduct = currentIndex >= 0 && currentIndex < navigationResult.docs.length - 1
+        ? navigationResult.docs[currentIndex + 1]
+        : null
+
+      return {
+        product,
+        labels,
+        related: relatedResult.docs,
+        prevProduct,
+        nextProduct,
+      }
     },
   )
 }
@@ -186,7 +224,7 @@ export function getCachedFeaturedArticles(locale: Locale) {
       const payload = await getPayloadClient()
       return payload.find({
         collection: 'articles',
-        depth: 2,
+        depth: 1,
         locale,
         limit: 10,
         sort: '-date',
@@ -209,7 +247,7 @@ export function getCachedNewsPage(
       const payload = await getPayloadClient()
       return payload.find({
         collection: 'articles',
-        depth: 2,
+        depth: 1,
         locale,
         limit: 9,
         page,
@@ -218,6 +256,7 @@ export function getCachedNewsPage(
           ...(categoryID === undefined ? {} : { category: { equals: categoryID } }),
           featured: { not_equals: true },
         },
+        select: { id: true, title: true, category: true, date: true, featured: true, images: true },
       })
     },
   )
