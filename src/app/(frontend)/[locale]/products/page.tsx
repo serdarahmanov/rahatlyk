@@ -1,10 +1,25 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ProductsClient from './ProductsClient'
-import { getValidLocale } from '@/lib/i18n/locale'
+import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
+import { buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeCategory, normalizeProduct, normalizeResult } from '@/lib/payload-normalize'
-import { getCachedProductCategories, getCachedProductsPage } from '@/lib/payload/cachedQueries'
+import { getCachedProductCategories, getCachedProductLabels, getCachedProductsPage } from '@/lib/payload/cachedQueries'
+import { resolveProductLabels } from '@/lib/product-labels'
 
 const PAGE_SIZE = 12
+
+const TITLES: Record<string, string> = {
+  tm: 'Önümler',
+  ru: 'Продукты',
+  en: 'Products',
+}
+
+const DESCRIPTIONS: Record<string, string> = {
+  tm: 'RAHATLYK önümleriniň doly toplumyny açyň — içimlik suw, mineral suw, şireler, energetik içgiler, otly çaý we beýlekiler.',
+  ru: 'Откройте весь ассортимент RAHATLYK — питьевая вода, минеральная вода, соки, энергетики, травяной чай и другое.',
+  en: 'Explore the full RAHATLYK range — drinking water, mineral water, juices, energy drinks, herbal tea and more.',
+}
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -14,6 +29,18 @@ type Props = {
   }>
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const locale = getValidLocale((await params).locale) ?? defaultLocale
+  return {
+    title: TITLES[locale] ?? TITLES[defaultLocale],
+    description: DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale],
+    alternates: {
+      canonical: `/${locale}/products`,
+      languages: buildLanguageAlternates('/products'),
+    },
+  }
+}
+
 export default async function ProductsPage({ params, searchParams }: Props) {
   const locale = getValidLocale((await params).locale)
   if (!locale) notFound()
@@ -21,7 +48,10 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   const query = await searchParams
   const categorySlug = query.category ?? 'all'
   const page = Math.max(Number(query.page ?? '1') || 1, 1)
-  const categoriesResult = await getCachedProductCategories(locale)
+  const [categoriesResult, labelsRaw] = await Promise.all([
+    getCachedProductCategories(locale),
+    getCachedProductLabels(locale),
+  ])
   const categories = categoriesResult.docs.map(normalizeCategory)
   const activeCategory = categoriesResult.docs.find(c => c.slug === categorySlug)
 
@@ -32,12 +62,14 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   )
 
   const docs = result.docs.map(normalizeProduct)
+  const labels = resolveProductLabels(locale, labelsRaw)
 
   return (
     <ProductsClient
       categories={categories}
       category={categorySlug}
       result={normalizeResult(result, docs, PAGE_SIZE)}
+      labels={labels}
     />
   )
 }

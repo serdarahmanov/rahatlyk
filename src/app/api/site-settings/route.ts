@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getCachedSiteSettings } from '@/lib/payload/cachedQueries'
+import { getCachedContactInfo } from '@/lib/payload/cachedQueries'
 
 export async function GET() {
   try {
-    const data = await getCachedSiteSettings()
-    return NextResponse.json(data)
+    const data = await getCachedContactInfo()
+    return NextResponse.json(data?.socialLinks ?? { instagramUrl: '', youtubeUrl: '', facebookUrl: '' })
   } catch {
     return NextResponse.json({ instagramUrl: '', youtubeUrl: '', facebookUrl: '' })
   }

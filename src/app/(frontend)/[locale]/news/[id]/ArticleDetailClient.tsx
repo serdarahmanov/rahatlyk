@@ -8,12 +8,12 @@ import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import { formatDate } from '@/lib/formatDate'
-import type { PayloadArticle } from '@/types/payload'
+import type { ArticleLabelsData, PayloadArticle } from '@/types/payload'
 import { LexicalContent } from '@/lib/lexical-serialize'
 
-function RelatedCard({ article }: { article: PayloadArticle }) {
+function RelatedCard({ article, labels }: { article: PayloadArticle; labels: ArticleLabelsData }) {
   const router = useRouter()
-  const { t, locale } = useLanguage()
+  const { locale } = useLanguage()
   const imgs = article.images.map((i) => i.url)
   const [current, setCurrent] = useState(0)
   const [incoming, setIncoming] = useState<number | null>(null)
@@ -124,7 +124,7 @@ function RelatedCard({ article }: { article: PayloadArticle }) {
           {article.title}
         </h3>
         <span className="inline-flex h-9 items-center gap-1.5 rounded-md bg-gray-100 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 transition-all duration-200 group-hover:bg-gray-200">
-          {t.news.readArticle}
+          {labels.readArticleLabel}
           <svg className="transition-transform duration-200 group-hover:translate-x-1" width="13" height="13" viewBox="0 0 14 14" fill="none">
             <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -137,9 +137,10 @@ function RelatedCard({ article }: { article: PayloadArticle }) {
 interface Props {
   article: PayloadArticle
   more: PayloadArticle[]
+  labels: ArticleLabelsData
 }
 
-export default function ArticleDetailClient({ article, more }: Props) {
+export default function ArticleDetailClient({ article, more, labels }: Props) {
   const { t, locale } = useLanguage()
 
   const imgs = article.images.map(i => i.url).filter(Boolean)
@@ -248,7 +249,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
           </span>
           {article.featured && (
             <span className="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
-              {t.news.featured}
+              {labels.featuredLabel}
             </span>
           )}
           <span className="ml-auto bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md tracking-wider">
@@ -332,7 +333,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
               href={withLocale(locale, '/news')}
               className="inline-block rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
             >
-              {t.home.news.cta}
+              {labels.backToNewsLabel}
             </Link>
           </div>
         </div>
@@ -379,7 +380,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
             </span>
             {article.featured && (
               <span className="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md uppercase tracking-wider">
-                {t.news.featured}
+                {labels.featuredLabel}
               </span>
             )}
             <span className="ml-auto bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-md tracking-wider">
@@ -474,7 +475,7 @@ export default function ArticleDetailClient({ article, more }: Props) {
                 href={withLocale(locale, '/news')}
                 className="inline-block rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
               >
-                {t.home.news.cta}
+                {labels.backToNewsLabel}
               </Link>
             </div>
 
@@ -496,10 +497,10 @@ export default function ArticleDetailClient({ article, more }: Props) {
               className="text-xl font-normal text-gray-900 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              More Articles
+              {labels.moreArticlesHeading}
             </h2>
             <div ref={relatedRef} className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-6 gap-y-10">
-              {more.map(a => <RelatedCard key={a.id} article={a} />)}
+              {more.map(a => <RelatedCard key={a.id} article={a} labels={labels} />)}
             </div>
           </div>
         </section>

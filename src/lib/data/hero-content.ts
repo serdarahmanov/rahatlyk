@@ -1,12 +1,10 @@
 /**
  * Current content for the Hero section.
- * Copy these values into the "Hero Section" global in Payload Admin.
- *
- * For the video: upload public/hero section/hero-section-intro-video.mp4
- * to Payload Media first, then set the media relationship.
+ * Media files are uploaded to Payload Media by src/seed-hero.ts.
  */
 export const HERO_CONTENT = {
-  videoFile: 'hero-section-intro-video.mp4',
+  videoFile: 'hero-section-intro-video-optimized.mp4',
+  coverImageFile: 'hero-section-video-cover.webp',
   title: {
     en: 'Pure Nature,',
     ru: 'Чистая природа,',

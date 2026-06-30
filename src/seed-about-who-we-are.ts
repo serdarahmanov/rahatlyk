@@ -1,52 +1,77 @@
 import fs from 'fs'
+import { createRequire } from 'node:module'
 import path from 'path'
 import { getPayload } from 'payload'
-import config from '../payload.config'
 import { ABOUT_WHO_WE_ARE_CONTENT } from './lib/data/about-who-we-are-content'
 
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
+
+async function uploadMedia(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  filePath: string,
+  filename: string,
+  mimetype: string,
+  alt: string,
+) {
+  const existing = await payload.find({
+    collection: 'media',
+    limit: 1,
+    where: { filename: { equals: filename } },
+  })
+
+  if (existing.docs[0]) {
+    console.log(`  [media] already exists: ${filename}`)
+    return existing.docs[0].id as number
+  }
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Media file not found: ${filePath}`)
+  }
+
+  const buffer = fs.readFileSync(filePath)
+  const uploaded = await payload.create({
+    collection: 'media',
+    data: { alt },
+    file: {
+      data: buffer,
+      mimetype,
+      name: filename,
+      size: buffer.length,
+    },
+  })
+
+  console.log(`  [media] uploaded: ${filename}`)
+  return uploaded.id as number
+}
+
 async function seedAboutWhoWeAre() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
   console.log('Seeding About Who We Are...')
 
-  // Upload full viewport image if not already in media
-  const { fullViewportImageFile, fullViewportImageDir } = ABOUT_WHO_WE_ARE_CONTENT
-  const existing = await payload.find({
-    collection: 'media',
-    limit: 1,
-    where: { filename: { equals: fullViewportImageFile } },
-  })
+  const { fullViewportImageFile, fullViewportImageDir, fullViewportImageMimeType } = ABOUT_WHO_WE_ARE_CONTENT
+  const imageId = await uploadMedia(
+    payload,
+    path.resolve(fullViewportImageDir, fullViewportImageFile),
+    fullViewportImageFile,
+    fullViewportImageMimeType,
+    'Who We Are - full viewport background',
+  )
 
-  let mediaId: number | undefined
-
-  if (existing.docs[0]) {
-    mediaId = existing.docs[0].id as number
-    console.log(`  [media] already exists: ${fullViewportImageFile}`)
-  } else {
-    const imgPath = path.resolve(fullViewportImageDir, fullViewportImageFile)
-    if (fs.existsSync(imgPath)) {
-      const buffer = fs.readFileSync(imgPath)
-      const uploaded = await payload.create({
-        collection: 'media',
-        data: { alt: 'Who We Are — full viewport background' },
-        file: {
-          data: buffer,
-          mimetype: 'image/jpeg',
-          name: fullViewportImageFile,
-          size: buffer.length,
-        },
-      })
-      mediaId = uploaded.id as number
-      console.log(`  [media] uploaded: ${fullViewportImageFile}`)
-    } else {
-      console.warn(`  [media] file not found: ${imgPath}`)
-    }
-  }
+  const videoId = await uploadMedia(
+    payload,
+    path.resolve(ABOUT_WHO_WE_ARE_CONTENT.backgroundVideoPath),
+    ABOUT_WHO_WE_ARE_CONTENT.backgroundVideoFile,
+    'video/mp4',
+    'Who We Are - background video',
+  )
 
   const { statement, whoWeAre } = ABOUT_WHO_WE_ARE_CONTENT
 
   for (const locale of ['en', 'tm', 'ru'] as const) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (payload.updateGlobal as any)({
       slug: 'about-who-we-are',
       locale,
@@ -61,7 +86,8 @@ async function seedAboutWhoWeAre() {
           paragraph2: whoWeAre.paragraph2[locale],
           paragraph3: whoWeAre.paragraph3[locale],
         },
-        ...(locale === 'en' ? { fullViewportImage: mediaId } : {}),
+        fullViewportImage: imageId,
+        backgroundVideo: videoId,
       },
     })
     console.log(`  [global] updated locale: ${locale}`)

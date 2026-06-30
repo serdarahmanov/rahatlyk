@@ -1,8 +1,11 @@
 import fs from 'fs'
+import { createRequire } from 'node:module'
 import path from 'path'
 import { getPayload } from 'payload'
-import config from '../payload.config'
 import { ABOUT_CERTIFICATES_CONTENT } from './lib/data/about-certificates-content'
+
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
 
 const CERT_IMAGES: Record<string, string> = {
   'ISO 9001':       'ISO 9001.png',
@@ -43,6 +46,8 @@ async function uploadCertImage(payload: Awaited<ReturnType<typeof getPayload>>, 
 }
 
 async function seedAboutCertificates() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
   console.log('Seeding About Certificates...')

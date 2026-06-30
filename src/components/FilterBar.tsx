@@ -13,6 +13,7 @@ interface FilterBarProps {
 const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
   ({ filters, active, onChange }, desktopRef) => {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const activeButtonRef = useRef<HTMLButtonElement | null>(null);
     const [canScrollLeft,  setCanScrollLeft]  = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -29,11 +30,30 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
       if (!el) return;
       el.addEventListener('scroll', check, { passive: true });
       window.addEventListener('resize', check);
+      const resizeObserver = new ResizeObserver(check);
+      resizeObserver.observe(el);
+      Array.from(el.children).forEach((child) => resizeObserver.observe(child));
       return () => {
         el.removeEventListener('scroll', check);
         window.removeEventListener('resize', check);
+        resizeObserver.disconnect();
       };
-    }, [check]);
+    }, [check, filters]);
+
+    useEffect(() => {
+      const activeButton = activeButtonRef.current;
+      const scrollContainer = scrollRef.current;
+      if (!activeButton || !scrollContainer) return;
+
+      activeButton.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+
+      const timeout = window.setTimeout(check, 350);
+      return () => window.clearTimeout(timeout);
+    }, [active, check]);
 
     const scroll = (dir: -1 | 1) => {
       scrollRef.current?.scrollBy({ left: dir * 160, behavior: 'smooth' });
@@ -50,15 +70,16 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
       <div className="mb-8">
 
         {/* Mobile: scrollable strip with floating arrow overlays */}
-        <div key={`mobile-${active}`} className="filter-bar-enter relative md:hidden">
+        <div className="filter-bar-enter relative md:hidden">
           <div
             ref={scrollRef}
-            className="flex items-center gap-2 overflow-x-auto mx-1"
+            className="mx-0.5 flex items-center gap-2 overflow-x-auto"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {filters.map((f, index) => (
               <button
                 key={f.key}
+                ref={active === f.key ? activeButtonRef : undefined}
                 onClick={() => onChange(f.key)}
                 className={pill(f.key)}
                 style={{ '--filter-entry-index': index } as React.CSSProperties}
@@ -76,7 +97,7 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
               <button
                 onClick={() => scroll(-1)}
                 aria-label="Scroll categories left"
-                className="pointer-events-auto text-gray-400 hover:text-gray-900 transition-colors duration-200"
+                className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-md text-gray-500 transition-colors duration-200 hover:bg-white hover:text-gray-900"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -93,7 +114,7 @@ const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(
               <button
                 onClick={() => scroll(1)}
                 aria-label="Scroll categories right"
-                className="pointer-events-auto text-gray-400 hover:text-gray-900 transition-colors duration-200"
+                className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-md text-gray-500 transition-colors duration-200 hover:bg-white hover:text-gray-900"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

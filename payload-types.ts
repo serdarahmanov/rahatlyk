@@ -70,7 +70,6 @@ export interface Config {
     users: User;
     media: Media;
     'product-categories': ProductCategory;
-    'product-lines': ProductLine;
     products: Product;
     'article-categories': ArticleCategory;
     articles: Article;
@@ -92,7 +91,6 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
-    'product-lines': ProductLinesSelect<false> | ProductLinesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     'article-categories': ArticleCategoriesSelect<false> | ArticleCategoriesSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
@@ -114,38 +112,42 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'tm' | 'ru') | ('en' | 'tm' | 'ru')[];
   globals: {
+    'contact-info': ContactInfo;
     'about-page': AboutPage;
+    forms: Form;
     'about-hero': AboutHero;
     'about-who-we-are': AboutWhoWeAre;
     'about-our-story': AboutOurStory;
     'about-numbers': AboutNumber;
-    'about-mosaic': AboutMosaic;
     'about-certificates': AboutCertificate;
-    'contact-info': ContactInfo;
-    forms: Form;
+    'about-final-section': AboutFinalSection;
     'home-hero': HomeHero;
     'horizontal-scroll': HorizontalScroll;
+    'our-collection': OurCollection;
     'home-story': HomeStory;
     'home-cta-banner': HomeCtaBanner;
+    'article-labels': ArticleLabel;
     'product-detail-labels': ProductDetailLabel;
-    'site-settings': SiteSetting;
+    'vacancy-labels': VacancyLabel;
   };
   globalsSelect: {
+    'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
+    forms: FormsSelect<false> | FormsSelect<true>;
     'about-hero': AboutHeroSelect<false> | AboutHeroSelect<true>;
     'about-who-we-are': AboutWhoWeAreSelect<false> | AboutWhoWeAreSelect<true>;
     'about-our-story': AboutOurStorySelect<false> | AboutOurStorySelect<true>;
     'about-numbers': AboutNumbersSelect<false> | AboutNumbersSelect<true>;
-    'about-mosaic': AboutMosaicSelect<false> | AboutMosaicSelect<true>;
     'about-certificates': AboutCertificatesSelect<false> | AboutCertificatesSelect<true>;
-    'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
-    forms: FormsSelect<false> | FormsSelect<true>;
+    'about-final-section': AboutFinalSectionSelect<false> | AboutFinalSectionSelect<true>;
     'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
     'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
+    'our-collection': OurCollectionSelect<false> | OurCollectionSelect<true>;
     'home-story': HomeStorySelect<false> | HomeStorySelect<true>;
     'home-cta-banner': HomeCtaBannerSelect<false> | HomeCtaBannerSelect<true>;
+    'article-labels': ArticleLabelsSelect<false> | ArticleLabelsSelect<true>;
     'product-detail-labels': ProductDetailLabelsSelect<false> | ProductDetailLabelsSelect<true>;
-    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'vacancy-labels': VacancyLabelsSelect<false> | VacancyLabelsSelect<true>;
   };
   locale: 'en' | 'tm' | 'ru';
   widgets: {
@@ -234,21 +236,6 @@ export interface ProductCategory {
   id: number;
   slug: string;
   label: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-lines".
- */
-export interface ProductLine {
-  id: number;
-  key: string;
-  name: string;
-  description: string;
-  body: string;
-  image?: (number | null) | Media;
-  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -657,10 +644,6 @@ export interface PayloadLockedDocument {
         value: number | ProductCategory;
       } | null)
     | ({
-        relationTo: 'product-lines';
-        value: number | ProductLine;
-      } | null)
-    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -781,20 +764,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface ProductCategoriesSelect<T extends boolean = true> {
   slug?: T;
   label?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-lines_select".
- */
-export interface ProductLinesSelect<T extends boolean = true> {
-  key?: T;
-  name?: T;
-  description?: T;
-  body?: T;
-  image?: T;
-  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1100,195 +1069,14 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-page".
- */
-export interface AboutPage {
-  id: number;
-  hero?: {
-    title?: string | null;
-    description?: string | null;
-  };
-  formLabels?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    email?: string | null;
-    phone?: string | null;
-    subject?: string | null;
-    message?: string | null;
-    submitButton?: string | null;
-  };
-  formMessages?: {
-    success?: string | null;
-    error?: string | null;
-    sending?: string | null;
-    thankYou?: string | null;
-    whatHappensNext?: string | null;
-    step1?: string | null;
-    step2?: string | null;
-    step3?: string | null;
-    sendAnother?: string | null;
-  };
-  formPlaceholders?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    email?: string | null;
-    phone?: string | null;
-    subject?: string | null;
-    message?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-hero".
- */
-export interface AboutHero {
-  id: number;
-  coverImage?: (number | null) | Media;
-  title?: string | null;
-  accentWordIndex?: number | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-who-we-are".
- */
-export interface AboutWhoWeAre {
-  id: number;
-  statement?: {
-    text?: string | null;
-    accentWordIndex?: number | null;
-  };
-  whoWeAre?: {
-    sectionTitle?: string | null;
-    paragraph1?: string | null;
-    paragraph2?: string | null;
-    paragraph3?: string | null;
-  };
-  fullViewportImage?: (number | null) | Media;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-our-story".
- */
-export interface AboutOurStory {
-  id: number;
-  /**
-   * e.g. "Our story"
-   */
-  sectionLabel?: string | null;
-  title?: string | null;
-  subtitle?: string | null;
-  milestones?:
-    | {
-        /**
-         * e.g. "2003" or "Now"
-         */
-        year?: string | null;
-        title?: string | null;
-        body?: string | null;
-        isCurrent?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-numbers".
- */
-export interface AboutNumber {
-  id: number;
-  stats?:
-    | {
-        value?: number | null;
-        /**
-         * e.g. "%" or "+" — leave empty for none
-         */
-        suffix?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  tagline?: {
-    /**
-     * e.g. "Comfort,"
-     */
-    text?: string | null;
-    /**
-     * e.g. "bottled."
-     */
-    accentText?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * The two portrait images shown in the About page mosaic section.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-mosaic".
- */
-export interface AboutMosaic {
-  id: number;
-  leftImage: number | Media;
-  rightImage: number | Media;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-certificates".
- */
-export interface AboutCertificate {
-  id: number;
-  intro?: {
-    /**
-     * e.g. "Our standards,"
-     */
-    headingText?: string | null;
-    /**
-     * e.g. "on the record."
-     */
-    headingAccent?: string | null;
-    subtitle?: string | null;
-  };
-  seal?: {
-    text?: string | null;
-  };
-  certificates?:
-    | {
-        /**
-         * e.g. "ISO 9001"
-         */
-        name?: string | null;
-        /**
-         * e.g. "Quality management"
-         */
-        tag?: string | null;
-        description?: string | null;
-        /**
-         * e.g. "Issued 2019 · Valid"
-         */
-        expiryDate?: string | null;
-        photo?: (number | null) | Media;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact-info".
  */
 export interface ContactInfo {
   id: number;
+  /**
+   * Recommended: square PNG or ICO, at least 512×512 px. Displayed in browser tabs, bookmarks and mobile home screens.
+   */
+  siteIcon?: (number | null) | Media;
   sectionLabel?: string | null;
   email?: string | null;
   phones?:
@@ -1300,6 +1088,24 @@ export interface ContactInfo {
     | null;
   address?: string | null;
   workingHours?: string | null;
+  socialLinks?: {
+    instagramUrl?: string | null;
+    youtubeUrl?: string | null;
+    facebookUrl?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page".
+ */
+export interface AboutPage {
+  id: number;
+  hero?: {
+    title?: string | null;
+    description?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1404,13 +1210,164 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-hero".
+ */
+export interface AboutHero {
+  id: number;
+  coverImage?: (number | null) | Media;
+  title?: string | null;
+  accentWordIndex?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-who-we-are".
+ */
+export interface AboutWhoWeAre {
+  id: number;
+  statement?: {
+    text?: string | null;
+    accentWordIndex?: number | null;
+  };
+  whoWeAre?: {
+    sectionTitle?: string | null;
+    paragraph1?: string | null;
+    paragraph2?: string | null;
+    paragraph3?: string | null;
+  };
+  fullViewportImage?: (number | null) | Media;
+  /**
+   * Video used in the pinned Who We Are section.
+   */
+  backgroundVideo?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-our-story".
+ */
+export interface AboutOurStory {
+  id: number;
+  /**
+   * e.g. "Our story"
+   */
+  sectionLabel?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  leftImage: number | Media;
+  rightImage: number | Media;
+  milestones?:
+    | {
+        /**
+         * e.g. "2003" or "Now"
+         */
+        year?: string | null;
+        title?: string | null;
+        body?: string | null;
+        isCurrent?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-numbers".
+ */
+export interface AboutNumber {
+  id: number;
+  stats?:
+    | {
+        value?: number | null;
+        /**
+         * e.g. "%" or "+" — leave empty for none
+         */
+        suffix?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  tagline?: {
+    /**
+     * e.g. "Comfort,"
+     */
+    text?: string | null;
+    /**
+     * e.g. "bottled."
+     */
+    accentText?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-certificates".
+ */
+export interface AboutCertificate {
+  id: number;
+  intro?: {
+    /**
+     * e.g. "Our standards,"
+     */
+    headingText?: string | null;
+    /**
+     * e.g. "on the record."
+     */
+    headingAccent?: string | null;
+    subtitle?: string | null;
+  };
+  seal?: {
+    text?: string | null;
+  };
+  certificates?:
+    | {
+        /**
+         * e.g. "ISO 9001"
+         */
+        name?: string | null;
+        /**
+         * e.g. "Quality management"
+         */
+        tag?: string | null;
+        description?: string | null;
+        /**
+         * e.g. "Issued 2019 · Valid"
+         */
+        expiryDate?: string | null;
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * The final full-screen image and message shown at the bottom of the About page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-final-section".
+ */
+export interface AboutFinalSection {
+  id: number;
+  image: number | Media;
+  heading: string;
+  body: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-hero".
  */
 export interface HomeHero {
   id: number;
   video?: (number | null) | Media;
   /**
-   * Shown immediately while the background video loads or if it cannot play.
+   * Loaded first for the home hero. The intro exits when this image is ready; the video loads afterward.
    */
   poster?: (number | null) | Media;
   title?: string | null;
@@ -1445,7 +1402,7 @@ export interface HorizontalScroll {
     buttonHref?: string | null;
   };
   /**
-   * Upload a video for the main content. Upload a cover image to show while the video is loading or lagging.
+   * Upload a cover image and video. The site loads the cover first and delays this video until the home hero video is fully buffered.
    */
   box5?: {
     video?: (number | null) | Media;
@@ -1464,6 +1421,28 @@ export interface HorizontalScroll {
   createdAt?: string | null;
 }
 /**
+ * Manage the product collection carousel shown on the home page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "our-collection".
+ */
+export interface OurCollection {
+  id: number;
+  items?:
+    | {
+        key: string;
+        name: string;
+        description: string;
+        body: string;
+        image?: (number | null) | Media;
+        order?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-story".
  */
@@ -1477,7 +1456,7 @@ export interface HomeStory {
   createdAt?: string | null;
 }
 /**
- * Manage the background video, text, and button link for the final home section.
+ * Manage the background image, text, and button link for the final home section.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-cta-banner".
@@ -1485,9 +1464,9 @@ export interface HomeStory {
 export interface HomeCtaBanner {
   id: number;
   /**
-   * Background video for the final CTA section.
+   * Background image for the final CTA section.
    */
-  video?: (number | null) | Media;
+  image?: (number | null) | Media;
   title?: string | null;
   subtitle?: string | null;
   ctaLabel?: string | null;
@@ -1496,32 +1475,111 @@ export interface HomeCtaBanner {
   createdAt?: string | null;
 }
 /**
- * UI labels shown on the product detail page — size, nutrition, about, and table headers.
+ * Localized section names and button labels for news listing, detail, and home article sections.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "article-labels".
+ */
+export interface ArticleLabel {
+  id: number;
+  homeSectionTag?: string | null;
+  pageTitle?: string | null;
+  filterAllLabel?: string | null;
+  featuredLabel?: string | null;
+  readArticleLabel?: string | null;
+  backToNewsLabel?: string | null;
+  moreArticlesHeading?: string | null;
+  noArticlesMessage?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Localized product listing and detail page titles, section names, and button labels.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "product-detail-labels".
  */
 export interface ProductDetailLabel {
   id: number;
+  listingTitle?: string | null;
+  filterAllLabel?: string | null;
+  noProductsMessage?: string | null;
+  paginationItemLabel?: string | null;
   sizeLabel?: string | null;
   nutritionLabel?: string | null;
   aboutLabel?: string | null;
+  /**
+   * Use {category} where the category name should appear.
+   */
+  relatedHeading?: string | null;
   mineralLabel?: string | null;
   perLitreLabel?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * Localized vacancy listing and detail page titles, tab labels, and section headings.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings".
+ * via the `definition` "vacancy-labels".
  */
-export interface SiteSetting {
+export interface VacancyLabel {
   id: number;
-  instagramUrl?: string | null;
-  youtubeUrl?: string | null;
-  facebookUrl?: string | null;
+  pageTitle?: string | null;
+  filterAllLabel?: string | null;
+  openPosition?: string | null;
+  openPositions?: string | null;
+  noOpeningsMessage?: string | null;
+  paginationItemLabel?: string | null;
+  perks?: {
+    title?: string | null;
+    growthTitle?: string | null;
+    growthDesc?: string | null;
+    healthTitle?: string | null;
+    healthDesc?: string | null;
+    cultureTitle?: string | null;
+    cultureDesc?: string | null;
+    impactTitle?: string | null;
+    impactDesc?: string | null;
+  };
+  postedLabel?: string | null;
+  tabOverview?: string | null;
+  tabResponsibilities?: string | null;
+  tabRequirements?: string | null;
+  benefitsPerks?: string | null;
+  required?: string | null;
+  niceToHave?: string | null;
+  otherOpenings?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-info_select".
+ */
+export interface ContactInfoSelect<T extends boolean = true> {
+  siteIcon?: T;
+  sectionLabel?: T;
+  email?: T;
+  phones?:
+    | T
+    | {
+        label?: T;
+        number?: T;
+        id?: T;
+      };
+  address?: T;
+  workingHours?: T;
+  socialLinks?:
+    | T
+    | {
+        instagramUrl?: T;
+        youtubeUrl?: T;
+        facebookUrl?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1534,182 +1592,6 @@ export interface AboutPageSelect<T extends boolean = true> {
         title?: T;
         description?: T;
       };
-  formLabels?:
-    | T
-    | {
-        firstName?: T;
-        lastName?: T;
-        email?: T;
-        phone?: T;
-        subject?: T;
-        message?: T;
-        submitButton?: T;
-      };
-  formMessages?:
-    | T
-    | {
-        success?: T;
-        error?: T;
-        sending?: T;
-        thankYou?: T;
-        whatHappensNext?: T;
-        step1?: T;
-        step2?: T;
-        step3?: T;
-        sendAnother?: T;
-      };
-  formPlaceholders?:
-    | T
-    | {
-        firstName?: T;
-        lastName?: T;
-        email?: T;
-        phone?: T;
-        subject?: T;
-        message?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-hero_select".
- */
-export interface AboutHeroSelect<T extends boolean = true> {
-  coverImage?: T;
-  title?: T;
-  accentWordIndex?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-who-we-are_select".
- */
-export interface AboutWhoWeAreSelect<T extends boolean = true> {
-  statement?:
-    | T
-    | {
-        text?: T;
-        accentWordIndex?: T;
-      };
-  whoWeAre?:
-    | T
-    | {
-        sectionTitle?: T;
-        paragraph1?: T;
-        paragraph2?: T;
-        paragraph3?: T;
-      };
-  fullViewportImage?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-our-story_select".
- */
-export interface AboutOurStorySelect<T extends boolean = true> {
-  sectionLabel?: T;
-  title?: T;
-  subtitle?: T;
-  milestones?:
-    | T
-    | {
-        year?: T;
-        title?: T;
-        body?: T;
-        isCurrent?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-numbers_select".
- */
-export interface AboutNumbersSelect<T extends boolean = true> {
-  stats?:
-    | T
-    | {
-        value?: T;
-        suffix?: T;
-        label?: T;
-        id?: T;
-      };
-  tagline?:
-    | T
-    | {
-        text?: T;
-        accentText?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-mosaic_select".
- */
-export interface AboutMosaicSelect<T extends boolean = true> {
-  leftImage?: T;
-  rightImage?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-certificates_select".
- */
-export interface AboutCertificatesSelect<T extends boolean = true> {
-  intro?:
-    | T
-    | {
-        headingText?: T;
-        headingAccent?: T;
-        subtitle?: T;
-      };
-  seal?:
-    | T
-    | {
-        text?: T;
-      };
-  certificates?:
-    | T
-    | {
-        name?: T;
-        tag?: T;
-        description?: T;
-        expiryDate?: T;
-        photo?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contact-info_select".
- */
-export interface ContactInfoSelect<T extends boolean = true> {
-  sectionLabel?: T;
-  email?: T;
-  phones?:
-    | T
-    | {
-        label?: T;
-        number?: T;
-        id?: T;
-      };
-  address?: T;
-  workingHours?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1843,6 +1725,132 @@ export interface FormsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-hero_select".
+ */
+export interface AboutHeroSelect<T extends boolean = true> {
+  coverImage?: T;
+  title?: T;
+  accentWordIndex?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-who-we-are_select".
+ */
+export interface AboutWhoWeAreSelect<T extends boolean = true> {
+  statement?:
+    | T
+    | {
+        text?: T;
+        accentWordIndex?: T;
+      };
+  whoWeAre?:
+    | T
+    | {
+        sectionTitle?: T;
+        paragraph1?: T;
+        paragraph2?: T;
+        paragraph3?: T;
+      };
+  fullViewportImage?: T;
+  backgroundVideo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-our-story_select".
+ */
+export interface AboutOurStorySelect<T extends boolean = true> {
+  sectionLabel?: T;
+  title?: T;
+  subtitle?: T;
+  leftImage?: T;
+  rightImage?: T;
+  milestones?:
+    | T
+    | {
+        year?: T;
+        title?: T;
+        body?: T;
+        isCurrent?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-numbers_select".
+ */
+export interface AboutNumbersSelect<T extends boolean = true> {
+  stats?:
+    | T
+    | {
+        value?: T;
+        suffix?: T;
+        label?: T;
+        id?: T;
+      };
+  tagline?:
+    | T
+    | {
+        text?: T;
+        accentText?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-certificates_select".
+ */
+export interface AboutCertificatesSelect<T extends boolean = true> {
+  intro?:
+    | T
+    | {
+        headingText?: T;
+        headingAccent?: T;
+        subtitle?: T;
+      };
+  seal?:
+    | T
+    | {
+        text?: T;
+      };
+  certificates?:
+    | T
+    | {
+        name?: T;
+        tag?: T;
+        description?: T;
+        expiryDate?: T;
+        photo?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-final-section_select".
+ */
+export interface AboutFinalSectionSelect<T extends boolean = true> {
+  image?: T;
+  heading?: T;
+  body?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-hero_select".
  */
 export interface HomeHeroSelect<T extends boolean = true> {
@@ -1907,6 +1915,26 @@ export interface HorizontalScrollSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "our-collection_select".
+ */
+export interface OurCollectionSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        key?: T;
+        name?: T;
+        description?: T;
+        body?: T;
+        image?: T;
+        order?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-story_select".
  */
 export interface HomeStorySelect<T extends boolean = true> {
@@ -1923,7 +1951,7 @@ export interface HomeStorySelect<T extends boolean = true> {
  * via the `definition` "home-cta-banner_select".
  */
 export interface HomeCtaBannerSelect<T extends boolean = true> {
-  video?: T;
+  image?: T;
   title?: T;
   subtitle?: T;
   ctaLabel?: T;
@@ -1934,12 +1962,34 @@ export interface HomeCtaBannerSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "article-labels_select".
+ */
+export interface ArticleLabelsSelect<T extends boolean = true> {
+  homeSectionTag?: T;
+  pageTitle?: T;
+  filterAllLabel?: T;
+  featuredLabel?: T;
+  readArticleLabel?: T;
+  backToNewsLabel?: T;
+  moreArticlesHeading?: T;
+  noArticlesMessage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "product-detail-labels_select".
  */
 export interface ProductDetailLabelsSelect<T extends boolean = true> {
+  listingTitle?: T;
+  filterAllLabel?: T;
+  noProductsMessage?: T;
+  paginationItemLabel?: T;
   sizeLabel?: T;
   nutritionLabel?: T;
   aboutLabel?: T;
+  relatedHeading?: T;
   mineralLabel?: T;
   perLitreLabel?: T;
   updatedAt?: T;
@@ -1948,12 +1998,36 @@ export interface ProductDetailLabelsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
+ * via the `definition` "vacancy-labels_select".
  */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  instagramUrl?: T;
-  youtubeUrl?: T;
-  facebookUrl?: T;
+export interface VacancyLabelsSelect<T extends boolean = true> {
+  pageTitle?: T;
+  filterAllLabel?: T;
+  openPosition?: T;
+  openPositions?: T;
+  noOpeningsMessage?: T;
+  paginationItemLabel?: T;
+  perks?:
+    | T
+    | {
+        title?: T;
+        growthTitle?: T;
+        growthDesc?: T;
+        healthTitle?: T;
+        healthDesc?: T;
+        cultureTitle?: T;
+        cultureDesc?: T;
+        impactTitle?: T;
+        impactDesc?: T;
+      };
+  postedLabel?: T;
+  tabOverview?: T;
+  tabResponsibilities?: T;
+  tabRequirements?: T;
+  benefitsPerks?: T;
+  required?: T;
+  niceToHave?: T;
+  otherOpenings?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1981,7 +2055,6 @@ export interface TaskCreateCollectionExport {
       | 'users'
       | 'media'
       | 'product-categories'
-      | 'product-lines'
       | 'products'
       | 'article-categories'
       | 'articles'

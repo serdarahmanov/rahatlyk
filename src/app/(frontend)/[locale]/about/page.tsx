@@ -1,11 +1,14 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getValidLocale } from '@/lib/i18n/locale'
+import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
 import { getCachedAboutData } from '@/lib/payload/cachedQueries'
+import { buildLanguageAlternates } from '@/lib/i18n/metadata'
+import { ABOUT_HERO_CONTENT } from '@/lib/data/about-hero-content'
 import AboutPageClient, { type AboutPageData } from './AboutPageClient'
 
 const FALLBACK: AboutPageData = {
   hero: {
-    coverImage: '/story/photo-8.jpg',
+    coverImage: '/story/webp/photo-8.webp',
     title: 'The taste of comfort, made in Turkmenistan.',
     accentWordIndex: 4,
   },
@@ -21,6 +24,7 @@ const FALLBACK: AboutPageData = {
       'We are building a direct connection with the people who drink what we make. Because comfort, to us, includes being within reach.',
     ],
     fullViewportImage: '/story/photo-2.jpg',
+    backgroundVideo: null,
   },
   story: {
     sectionLabel: 'Our story',
@@ -113,10 +117,47 @@ const FALLBACK: AboutPageData = {
       },
     ],
   },
+  finalSection: {
+    image: '/story/photo-1.jpg',
+    heading: 'Every drop, a promise kept.',
+    body: 'From the first filtration to the final cap, Rahatlyk keeps quality in its own hands - every bottle, every time.',
+  },
+}
+
+function resolveAboutHeroImage(coverImage: { filename?: string | null; url?: string | null } | null | undefined) {
+  if (coverImage?.filename === ABOUT_HERO_CONTENT.imageFile) {
+    return ABOUT_HERO_CONTENT.publicPath
+  }
+
+  return coverImage?.url || FALLBACK.hero.coverImage
 }
 
 type Props = {
   params: Promise<{ locale: string }>
+}
+
+const TITLES: Record<string, string> = {
+  tm: 'Biz hakda',
+  ru: 'О компании',
+  en: 'About Us',
+}
+
+const DESCRIPTIONS: Record<string, string> = {
+  tm: 'RAHATLYK hakda — taryhymyz, gymmatlyklarymyz, şahadatnamalarymyz we Türkmenistanyň premium içgi brendiniň topary.',
+  ru: 'О компании RAHATLYK — наша история, ценности, сертификаты и команда за брендом премиальных напитков.',
+  en: 'About RAHATLYK — our story, values, certifications and the team behind Turkmenistan\'s premium beverage brand.',
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const locale = getValidLocale((await params).locale) ?? defaultLocale
+  return {
+    title: TITLES[locale] ?? TITLES[defaultLocale],
+    description: DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale],
+    alternates: {
+      canonical: `/${locale}/about`,
+      languages: buildLanguageAlternates('/about'),
+    },
+  }
 }
 
 export default async function AboutPage({ params }: Props) {
@@ -137,13 +178,13 @@ export default async function AboutPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const numbersRaw: any = cached.numbers
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mosaicRaw: any = cached.mosaic
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const certsRaw: any = cached.certificates
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const finalSectionRaw: any = cached.finalSection
 
     data = {
       hero: {
-        coverImage:      heroRaw?.coverImage?.url       || FALLBACK.hero.coverImage,
+        coverImage:      resolveAboutHeroImage(heroRaw?.coverImage),
         title:           heroRaw?.title                 || FALLBACK.hero.title,
         accentWordIndex: heroRaw?.accentWordIndex       ?? FALLBACK.hero.accentWordIndex,
       },
@@ -159,6 +200,7 @@ export default async function AboutPage({ params }: Props) {
           whoWeAreRaw?.whoWeAre?.paragraph3 || FALLBACK.whoWeAre.paragraphs[2],
         ].filter(Boolean) as string[],
         fullViewportImage: whoWeAreRaw?.fullViewportImage?.url   || FALLBACK.whoWeAre.fullViewportImage,
+        backgroundVideo:   whoWeAreRaw?.backgroundVideo?.url     || FALLBACK.whoWeAre.backgroundVideo,
       },
       story: {
         sectionLabel: storyRaw?.sectionLabel || FALLBACK.story.sectionLabel,
@@ -187,8 +229,8 @@ export default async function AboutPage({ params }: Props) {
         },
       },
       mosaic: {
-        leftImage:  mosaicRaw?.leftImage?.url  || FALLBACK.mosaic.leftImage,
-        rightImage: mosaicRaw?.rightImage?.url || FALLBACK.mosaic.rightImage,
+        leftImage:  storyRaw?.leftImage?.url  || FALLBACK.mosaic.leftImage,
+        rightImage: storyRaw?.rightImage?.url || FALLBACK.mosaic.rightImage,
       },
       certs: {
         heading: {
@@ -212,6 +254,11 @@ export default async function AboutPage({ params }: Props) {
               photo:       c.photo?.url || null,
             }))
           : FALLBACK.certs.certificates,
+      },
+      finalSection: {
+        image:   finalSectionRaw?.image?.url || FALLBACK.finalSection.image,
+        heading: finalSectionRaw?.heading    || FALLBACK.finalSection.heading,
+        body:    finalSectionRaw?.body       || FALLBACK.finalSection.body,
       },
     }
 

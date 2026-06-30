@@ -5,8 +5,9 @@
  * Note: The animated blue gradient background is static code — not managed here.
  */
 export const HOME_CTA_CONTENT = {
-  videoFile: 'wave-video-optimized.mp4',
-  videoPath: 'public/videos/wave-video-optimized.mp4',
+  imageFile: 'photo-4.webp',
+  imagePath: 'public/story/webp/photo-4.webp',
+  imageMimetype: 'image/webp',
   title: {
     en: 'Stay Pure, Stay Hydrated',
     tm: 'Arassa we suwly boluň',

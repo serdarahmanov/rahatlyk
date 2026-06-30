@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import VacancyDetailClient from './VacancyDetailClient'
-import { getValidLocale, supportedLocales } from '@/lib/i18n/locale'
+import { getValidLocale, supportedLocales, defaultLocale } from '@/lib/i18n/locale'
+import { buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeVacancy } from '@/lib/payload-normalize'
 import { FORMS_CONTENT } from '@/lib/data/forms-content'
+import { resolveVacancyLabels } from '@/lib/vacancy-labels'
 import type { VacancyFormStrings } from './VacancyDetailClient'
 import type { Locale } from '@/lib/i18n/translations'
 import {
@@ -18,6 +21,36 @@ export async function generateStaticParams() {
     }),
   )
   return params.flat()
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { id, locale: localeParam } = await params
+  const locale = getValidLocale(localeParam) ?? defaultLocale
+  const vacancyID = Number(id)
+  if (!Number.isFinite(vacancyID)) return {}
+
+  try {
+    const cached = await getCachedVacancyDetail(locale, vacancyID)
+    const vacancy = cached.vacancy
+    if (!vacancy) return {}
+
+    const title = vacancy.title ?? ''
+    const dept = typeof vacancy.department === 'object' ? (vacancy.department?.label ?? '') : ''
+    const description = vacancy.overview
+      ?? (dept ? `${title} — ${dept}.` : title)
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: `/${locale}/vacancies/${id}`,
+        languages: buildLanguageAlternates(`/vacancies/${id}`),
+      },
+      openGraph: { title, description },
+    }
+  } catch {
+    return {}
+  }
 }
 
 function buildFallbackVacancyErrors(locale: Locale) {
@@ -92,6 +125,7 @@ export default async function VacancyDetailPage({ params }: Props) {
   if (!vacancy) notFound()
 
   const others = cached.others
+  const labels = resolveVacancyLabels(locale, cached.vacancyLabels)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const f: any = cached.forms
   const fe = f?.vacancyForm?.errors ?? {}
@@ -163,6 +197,7 @@ export default async function VacancyDetailPage({ params }: Props) {
       vacancy={normalizeVacancy(vacancy)}
       others={others.map(normalizeVacancy)}
       forms={forms}
+      labels={labels}
     />
   )
 }

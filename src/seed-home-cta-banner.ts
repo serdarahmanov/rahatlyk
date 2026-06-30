@@ -17,35 +17,35 @@ async function seedHomeCtaBanner() {
   const existingMedia = await payload.find({
     collection: 'media',
     limit: 1,
-    where: { filename: { equals: HOME_CTA_CONTENT.videoFile } },
+    where: { filename: { equals: HOME_CTA_CONTENT.imageFile } },
   })
 
   let mediaId: number | undefined
 
   if (existingMedia.docs[0]) {
     mediaId = existingMedia.docs[0].id as number
-    console.log(`  [media] already exists: ${HOME_CTA_CONTENT.videoFile}`)
+    console.log(`  [media] already exists: ${HOME_CTA_CONTENT.imageFile}`)
   } else {
-    const videoPath = path.resolve(HOME_CTA_CONTENT.videoPath)
+    const imagePath = path.resolve(HOME_CTA_CONTENT.imagePath)
 
-    if (!fs.existsSync(videoPath)) {
-      throw new Error(`CTA video file not found: ${videoPath}`)
+    if (!fs.existsSync(imagePath)) {
+      throw new Error(`CTA image file not found: ${imagePath}`)
     }
 
-    const buffer = fs.readFileSync(videoPath)
+    const buffer = fs.readFileSync(imagePath)
     const uploaded = await payload.create({
       collection: 'media',
-      data: { alt: 'Home CTA background video' },
+      data: { alt: 'Home CTA background image' },
       file: {
         data: buffer,
-        mimetype: 'video/mp4',
-        name: HOME_CTA_CONTENT.videoFile,
+        mimetype: HOME_CTA_CONTENT.imageMimetype,
+        name: HOME_CTA_CONTENT.imageFile,
         size: buffer.length,
       },
     })
 
     mediaId = uploaded.id as number
-    console.log(`  [media] uploaded: ${HOME_CTA_CONTENT.videoFile}`)
+    console.log(`  [media] uploaded: ${HOME_CTA_CONTENT.imageFile}`)
   }
 
   for (const locale of ['en', 'tm', 'ru'] as const) {
@@ -58,7 +58,7 @@ async function seedHomeCtaBanner() {
         subtitle: HOME_CTA_CONTENT.subtitle[locale],
         ctaLabel: HOME_CTA_CONTENT.ctaLabel[locale],
         ctaHref: HOME_CTA_CONTENT.ctaHref,
-        ...(locale === 'en' ? { video: mediaId } : {}),
+        image: mediaId,
       },
     })
     console.log(`  [global] updated locale: ${locale}`)

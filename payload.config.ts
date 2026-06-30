@@ -9,26 +9,27 @@ import sharp from 'sharp'
 
 import { AboutPage } from './src/globals/AboutPage'
 import { AboutCertificates } from './src/globals/AboutCertificates'
+import { AboutFinalSection } from './src/globals/AboutFinalSection'
 import { AboutHero } from './src/globals/AboutHero'
 import { AboutNumbers } from './src/globals/AboutNumbers'
-import { AboutMosaic } from './src/globals/AboutMosaic'
 import { AboutOurStory } from './src/globals/AboutOurStory'
 import { AboutWhoWeAre } from './src/globals/AboutWhoWeAre'
 import { ContactInfo } from './src/globals/ContactInfo'
 import { Forms } from './src/globals/Forms'
 import { HomeCtaBanner } from './src/globals/HomeCtaBanner'
 import { HomeHero } from './src/globals/HomeHero'
+import { OurCollection } from './src/globals/OurCollection'
 import { ProductDetailLabels } from './src/globals/ProductDetailLabels'
-import { SiteSettings } from './src/globals/SiteSettings'
 import { HomeStory } from './src/globals/HomeStory'
 import { HorizontalScroll } from './src/globals/HorizontalScroll'
+import { ArticleLabels } from './src/globals/ArticleLabels'
+import { VacancyLabels } from './src/globals/VacancyLabels'
 import { ArticleCategories } from './src/collections/ArticleCategories'
 import { Articles } from './src/collections/Articles'
 import { ContactSubmissions } from './src/collections/ContactSubmissions'
 import { CVDocuments } from './src/collections/CVDocuments'
 import { Media } from './src/collections/Media'
 import { ProductCategories } from './src/collections/ProductCategories'
-import { ProductLines } from './src/collections/ProductLines'
 import { Products } from './src/collections/Products'
 import { Users } from './src/collections/Users'
 import { VacancyApplications } from './src/collections/VacancyApplications'
@@ -45,7 +46,6 @@ export default buildConfig({
     importExportPlugin({
       collections: [
         { slug: 'product-categories' },
-        { slug: 'product-lines' },
         { slug: 'products' },
         { slug: 'article-categories' },
         { slug: 'articles' },
@@ -56,8 +56,8 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [AboutPage, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutMosaic, AboutCertificates, ContactInfo, Forms, HomeHero, HorizontalScroll, HomeStory, HomeCtaBanner, ProductDetailLabels, SiteSettings],
-  collections: [Users, Media, ProductCategories, ProductLines, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
+  globals: [ContactInfo, AboutPage, Forms, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, AboutFinalSection, HomeHero, HorizontalScroll, OurCollection, HomeStory, HomeCtaBanner, ArticleLabels, ProductDetailLabels, VacancyLabels],
+  collections: [Users, Media, ProductCategories, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [
       { label: 'English', code: 'en' },

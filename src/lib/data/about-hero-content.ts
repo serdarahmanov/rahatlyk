@@ -1,6 +1,7 @@
 export const ABOUT_HERO_CONTENT = {
-  imageFile: 'photo-8.jpg',
-  imageDir: 'public/story',
+  imageFile: 'photo-8.webp',
+  imageDir: 'public/story/webp',
+  publicPath: '/story/webp/photo-8.webp',
   title: {
     en: 'The taste of comfort, made in Turkmenistan.',
     tm: 'Rahatlygyň tagamy, Türkmenistanda ýasaldy.',

@@ -3,16 +3,18 @@ import { getPayloadClient } from '@/lib/payload'
 import type { Locale } from '@/lib/i18n/translations'
 import {
   aboutTag,
+  articleLabelsTag,
   CACHE_REVALIDATE_SECONDS,
   contactInfoTag,
   contactTag,
   homeTag,
   newsItemTag,
   newsListTag,
+  productLabelsTag,
   productTag,
   productsTag,
-  siteSettingsTag,
   vacanciesTag,
+  vacancyLabelsTag,
   vacancyTag,
 } from '@/lib/cache/cacheTags'
 
@@ -33,22 +35,28 @@ export function getCachedHomeData(locale: Locale) {
     [homeTag(locale)],
     async () => {
       const payload = await getPayloadClient()
-      const [lines, articles, horizontalScroll, story, ctaBanner, hero] = await Promise.allSettled([
-        payload.find({ collection: 'product-lines', depth: 1, locale, limit: 20, sort: 'order' }),
+      const [collection, articles, horizontalScroll, story, ctaBanner, hero, articleLabels] = await Promise.allSettled([
+        payload.findGlobal({ slug: 'our-collection', locale, depth: 1 }),
         payload.find({ collection: 'articles', depth: 1, locale, limit: 5, sort: '-date' }),
         payload.findGlobal({ slug: 'horizontal-scroll', locale, depth: 1 }),
         payload.findGlobal({ slug: 'home-story', locale, depth: 1 }),
         payload.findGlobal({ slug: 'home-cta-banner', locale, depth: 1 }),
         payload.findGlobal({ slug: 'home-hero', locale, depth: 1 }),
+        payload.findGlobal({ slug: 'article-labels', locale, depth: 0 }),
       ])
 
+      const collectionItems = collection.status === 'fulfilled' && Array.isArray(collection.value?.items)
+        ? [...collection.value.items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        : []
+
       return {
-        lines: lines.status === 'fulfilled' ? lines.value.docs : [],
+        lines: collectionItems,
         articles: articles.status === 'fulfilled' ? articles.value.docs : [],
         horizontalScroll: horizontalScroll.status === 'fulfilled' ? horizontalScroll.value : null,
         story: story.status === 'fulfilled' ? story.value : null,
         ctaBanner: ctaBanner.status === 'fulfilled' ? ctaBanner.value : null,
         hero: hero.status === 'fulfilled' ? hero.value : null,
+        articleLabels: articleLabels.status === 'fulfilled' ? articleLabels.value : null,
       }
     },
   )
@@ -60,16 +68,16 @@ export function getCachedAboutData(locale: Locale) {
     [aboutTag(locale)],
     async () => {
       const payload = await getPayloadClient()
-      const [hero, whoWeAre, story, numbers, mosaic, certificates] = await Promise.all([
+      const [hero, whoWeAre, story, numbers, certificates, finalSection] = await Promise.all([
         payload.findGlobal({ slug: 'about-hero', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-who-we-are', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-our-story', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-numbers', locale, depth: 1 }),
-        payload.findGlobal({ slug: 'about-mosaic', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-certificates', locale, depth: 1 }),
+        payload.findGlobal({ slug: 'about-final-section', locale, depth: 1 }),
       ])
 
-      return { hero, whoWeAre, story, numbers, mosaic, certificates }
+      return { hero, whoWeAre, story, numbers, certificates, finalSection }
     },
   )
 }
@@ -101,6 +109,17 @@ export function getCachedProductCategories(locale: Locale) {
         limit: 100,
         sort: 'label',
       })
+    },
+  )
+}
+
+export function getCachedProductLabels(locale: Locale) {
+  return cachedQuery(
+    ['payload', 'product-labels', locale],
+    [productLabelsTag(locale)],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({ slug: 'product-detail-labels', locale, depth: 0 })
     },
   )
 }
@@ -216,6 +235,17 @@ export function getCachedArticleCategories(locale: Locale) {
   )
 }
 
+export function getCachedArticleLabels(locale: Locale) {
+  return cachedQuery(
+    ['payload', 'article-labels', locale],
+    [articleLabelsTag(locale)],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({ slug: 'article-labels', locale, depth: 0 })
+    },
+  )
+}
+
 export function getCachedFeaturedArticles(locale: Locale) {
   return cachedQuery(
     ['payload', 'featured-articles', locale],
@@ -281,7 +311,8 @@ export function getCachedNewsDetail(locale: Locale, id: number) {
       const categoryID = typeof article.category === 'number'
         ? article.category
         : article.category.id
-      const relatedResult = await payload.find({
+      const [relatedResult, labels] = await Promise.all([
+        payload.find({
         collection: 'articles',
         depth: 2,
         locale,
@@ -293,7 +324,9 @@ export function getCachedNewsDetail(locale: Locale, id: number) {
             { category: { equals: categoryID } },
           ],
         },
-      })
+        }),
+        payload.findGlobal({ slug: 'article-labels', locale, depth: 0 }),
+      ])
 
       let related = relatedResult.docs
       if (related.length < 3) {
@@ -313,7 +346,18 @@ export function getCachedNewsDetail(locale: Locale, id: number) {
         related = [...related, ...fallbackResult.docs]
       }
 
-      return { article, related }
+      return { article, related, labels }
+    },
+  )
+}
+
+export function getCachedVacancyLabels(locale: Locale) {
+  return cachedQuery(
+    ['payload', 'vacancy-labels', locale],
+    [vacancyLabelsTag(locale)],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({ slug: 'vacancy-labels', locale, depth: 0 })
     },
   )
 }
@@ -366,7 +410,7 @@ export function getCachedVacancyDetail(locale: Locale, id: number) {
     [vacanciesTag(locale), vacancyTag(locale, id)],
     async () => {
       const payload = await getPayloadClient()
-      const [vacancyResult, othersResult, forms] = await Promise.all([
+      const [vacancyResult, othersResult, forms, vacancyLabels] = await Promise.all([
         payload.find({
           collection: 'vacancies',
           depth: 2,
@@ -383,11 +427,13 @@ export function getCachedVacancyDetail(locale: Locale, id: number) {
           where: { id: { not_equals: id } },
         }),
         payload.findGlobal({ slug: 'forms', locale, depth: 0 }),
+        payload.findGlobal({ slug: 'vacancy-labels', locale, depth: 0 }),
       ])
       return {
         vacancy: vacancyResult.docs[0] ?? null,
         others: othersResult.docs,
         forms,
+        vacancyLabels,
       }
     },
   )
@@ -402,18 +448,8 @@ export function getCachedContactInfo() {
       return payload.findGlobal({
         slug: 'contact-info',
         locale: 'all',
+        depth: 1,
       })
-    },
-  )
-}
-
-export function getCachedSiteSettings() {
-  return cachedQuery(
-    ['payload', 'site-settings'],
-    [siteSettingsTag()],
-    async () => {
-      const payload = await getPayloadClient()
-      return payload.findGlobal({ slug: 'site-settings' })
     },
   )
 }

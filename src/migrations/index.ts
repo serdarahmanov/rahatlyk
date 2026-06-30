@@ -16,6 +16,18 @@ import * as migration_20260619_202622 from './20260619_202622';
 import * as migration_20260619_225600 from './20260619_225600';
 import * as migration_20260620_122542 from './20260620_122542';
 import * as migration_20260620_122835 from './20260620_122835';
+import * as migration_20260629_145106_about_final_section from './20260629_145106_about_final_section';
+import * as migration_20260629_152217_our_collection_global from './20260629_152217_our_collection_global';
+import * as migration_20260629_153100_drop_product_lines from './20260629_153100_drop_product_lines';
+import * as migration_20260629_154200_merge_site_settings_into_contact_info from './20260629_154200_merge_site_settings_into_contact_info';
+import * as migration_20260629_155100_contact_hero_form_cleanup from './20260629_155100_contact_hero_form_cleanup';
+import * as migration_20260629_160000_move_about_mosaic_to_story from './20260629_160000_move_about_mosaic_to_story';
+import * as migration_20260629_161000_product_detail_related_heading from './20260629_161000_product_detail_related_heading';
+import * as migration_20260629_162000_article_labels_global from './20260629_162000_article_labels_global';
+import * as migration_20260629_162500_remove_unused_article_label_fields from './20260629_162500_remove_unused_article_label_fields';
+import * as migration_20260629_163000_product_listing_labels from './20260629_163000_product_listing_labels';
+import * as migration_20260630_000000_about_who_we_are_background_video from './20260630_000000_about_who_we_are_background_video';
+import * as migration_20260630_001000_home_cta_banner_image from './20260630_001000_home_cta_banner_image';
 
 export const migrations = [
   {
@@ -106,6 +118,66 @@ export const migrations = [
   {
     up: migration_20260620_122835.up,
     down: migration_20260620_122835.down,
-    name: '20260620_122835'
+    name: '20260620_122835',
+  },
+  {
+    up: migration_20260629_145106_about_final_section.up,
+    down: migration_20260629_145106_about_final_section.down,
+    name: '20260629_145106_about_final_section',
+  },
+  {
+    up: migration_20260629_152217_our_collection_global.up,
+    down: migration_20260629_152217_our_collection_global.down,
+    name: '20260629_152217_our_collection_global',
+  },
+  {
+    up: migration_20260629_153100_drop_product_lines.up,
+    down: migration_20260629_153100_drop_product_lines.down,
+    name: '20260629_153100_drop_product_lines',
+  },
+  {
+    up: migration_20260629_154200_merge_site_settings_into_contact_info.up,
+    down: migration_20260629_154200_merge_site_settings_into_contact_info.down,
+    name: '20260629_154200_merge_site_settings_into_contact_info'
+  },
+  {
+    up: migration_20260629_155100_contact_hero_form_cleanup.up,
+    down: migration_20260629_155100_contact_hero_form_cleanup.down,
+    name: '20260629_155100_contact_hero_form_cleanup'
+  },
+  {
+    up: migration_20260629_160000_move_about_mosaic_to_story.up,
+    down: migration_20260629_160000_move_about_mosaic_to_story.down,
+    name: '20260629_160000_move_about_mosaic_to_story'
+  },
+  {
+    up: migration_20260629_161000_product_detail_related_heading.up,
+    down: migration_20260629_161000_product_detail_related_heading.down,
+    name: '20260629_161000_product_detail_related_heading'
+  },
+  {
+    up: migration_20260629_162000_article_labels_global.up,
+    down: migration_20260629_162000_article_labels_global.down,
+    name: '20260629_162000_article_labels_global'
+  },
+  {
+    up: migration_20260629_162500_remove_unused_article_label_fields.up,
+    down: migration_20260629_162500_remove_unused_article_label_fields.down,
+    name: '20260629_162500_remove_unused_article_label_fields'
+  },
+  {
+    up: migration_20260629_163000_product_listing_labels.up,
+    down: migration_20260629_163000_product_listing_labels.down,
+    name: '20260629_163000_product_listing_labels'
+  },
+  {
+    up: migration_20260630_000000_about_who_we_are_background_video.up,
+    down: migration_20260630_000000_about_who_we_are_background_video.down,
+    name: '20260630_000000_about_who_we_are_background_video'
+  },
+  {
+    up: migration_20260630_001000_home_cta_banner_image.up,
+    down: migration_20260630_001000_home_cta_banner_image.down,
+    name: '20260630_001000_home_cta_banner_image'
   },
 ];

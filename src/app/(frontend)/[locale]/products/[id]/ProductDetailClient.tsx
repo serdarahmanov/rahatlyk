@@ -9,9 +9,11 @@ import { withLocale } from '@/lib/i18n/locale'
 import type { PayloadProduct, ProductDetailLabelsData } from '@/types/payload'
 
 
-function RelatedProducts({ related }: { related: PayloadProduct[] }) {
+function RelatedProducts({ related, headingTemplate }: { related: PayloadProduct[]; headingTemplate: string | null }) {
   const { locale } = useLanguage()
   if (related.length === 0) return null
+  const categoryLabel = related[0]?.category.label ?? ''
+  const heading = (headingTemplate || 'More in {category}').replace('{category}', categoryLabel)
 
   return (
     <section className="py-14 bg-white">
@@ -20,7 +22,7 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
           className="text-xl font-light text-gray-900 mb-8"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
-          More in {related[0]?.category.label}
+          {heading}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
           {related.map((p) => (
@@ -58,6 +60,15 @@ function RelatedProducts({ related }: { related: PayloadProduct[] }) {
 type AccordionKey = 'nutrition'
 
 type ProductNavItem = { id: number | string; name: string }
+type GalleryItem = { id: string; type: 'image' | 'video'; url: string }
+
+function getVolumeIconHeight(value: number) {
+  if (value <= 0.75) return 34
+  if (value <= 1) return 38
+  if (value <= 5) return 44
+  if (value <= 15) return 50
+  return 56
+}
 
 interface Props {
   product: PayloadProduct
@@ -72,11 +83,21 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
   const [openPanel, setOpenPanel] = useState<AccordionKey>('' as AccordionKey)
   const [activePhoto, setActivePhoto] = useState(0)
   const [photoDir, setPhotoDir] = useState<'left' | 'right'>('right')
+  const galleryItems: GalleryItem[] = [
+    ...(product.photos ?? []).map((photo, index) => ({
+      id: photo.id ?? `photo-${index}`,
+      type: 'image' as const,
+      url: photo.url,
+    })),
+    ...(product.videoUrl ? [{ id: 'product-video', type: 'video' as const, url: product.videoUrl }] : []),
+  ]
+  const activeGalleryIndex = galleryItems[activePhoto] ? activePhoto : 0
+  const activeGalleryItem = galleryItems[activeGalleryIndex]
 
   const goPhoto = (next: number) => {
-    const total = product.photos?.length ?? 1
+    const total = galleryItems.length || 1
     const resolved = (next + total) % total
-    setPhotoDir(next > activePhoto || (activePhoto === total - 1 && next === 0) ? 'right' : 'left')
+    setPhotoDir(next > activeGalleryIndex || (activeGalleryIndex === total - 1 && next === 0) ? 'right' : 'left')
     setActivePhoto(resolved)
   }
 
@@ -125,7 +146,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
         )
       }
 
-      if (bottleRef.current && product.photos && product.photos.length > 1) {
+      if (bottleRef.current && galleryItems.length > 1) {
         const thumbCol = bottleRef.current.firstElementChild
         if (thumbCol) {
           tl.fromTo(
@@ -174,7 +195,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
       cancelled = true
       ownedTriggers.forEach((trigger) => trigger.kill())
     }
-  }, [product.photos])
+  }, [product.photos, galleryItems.length])
 
   const panels: { key: AccordionKey; label: string; content: React.ReactNode }[] = [
     {
@@ -217,18 +238,29 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div ref={bottleRef} className="flex gap-3">
-              {product.photos && product.photos.length > 1 && (
+              {galleryItems.length > 1 && (
                 <div className="hidden lg:flex flex-col gap-2 flex-shrink-0">
-                  {product.photos.map((photo, i) => (
+                  {galleryItems.map((item, i) => (
                     <button
-                      key={photo.id}
+                      key={item.id}
                       onClick={() => goPhoto(i)}
                       className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-200 ${
-                        activePhoto === i ? 'opacity-100' : 'opacity-50 hover:opacity-80'
+                        activeGalleryIndex === i ? 'opacity-100' : 'opacity-50 hover:opacity-80'
                       }`}
                     >
-                      <Image src={photo.url} alt={`thumb ${i + 1}`} fill className="object-cover" sizes="64px" />
-                      {activePhoto === i && (
+                      {item.type === 'video' ? (
+                        <>
+                          <video src={item.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                          <span className="absolute inset-0 flex items-center justify-center bg-black/20 text-white">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </span>
+                        </>
+                      ) : (
+                        <Image src={item.url} alt={`thumb ${i + 1}`} fill className="object-cover" sizes="64px" />
+                      )}
+                      {activeGalleryIndex === i && (
                         <span className="absolute inset-0 rounded-lg border-2 border-black/[0.06] pointer-events-none z-10" />
                       )}
                     </button>
@@ -237,11 +269,20 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
               )}
 
               <div ref={mainPhotoRef} className="relative flex-1 aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100">
-                {product.photos && product.photos.length > 0 ? (
+                {activeGalleryItem?.type === 'video' ? (
+                  <video
+                    key={activeGalleryItem.url}
+                    src={activeGalleryItem.url}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className={`h-full w-full object-cover ${photoDir === 'right' ? 'photo-enter-right' : 'photo-enter-left'}`}
+                  />
+                ) : activeGalleryItem?.type === 'image' ? (
                   <Image
-                    key={activePhoto}
-                    src={product.photos[activePhoto].url}
-                    alt={`${product.name} photo ${activePhoto + 1}`}
+                    key={activeGalleryItem.url}
+                    src={activeGalleryItem.url}
+                    alt={`${product.name} photo ${activeGalleryIndex + 1}`}
                     fill
                     className={`object-cover ${photoDir === 'right' ? 'photo-enter-right' : 'photo-enter-left'}`}
                     sizes="(max-width: 1024px) 100vw, 50vw"
@@ -258,7 +299,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                   />
                 )}
 
-                {product.photos && product.photos.length > 1 && (
+                {galleryItems.length > 1 && (
                   <>
                     <button
                       onClick={() => goPhoto(activePhoto - 1)}
@@ -307,8 +348,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                       .sort((a, b) => parseFloat(a.value) - parseFloat(b.value))
                       .map((vol) => {
                         const val = parseFloat(vol.value)
-                        const max = Math.max(...product.volumes.map(x => parseFloat(x.value)))
-                        const h   = Math.max(28, Math.round((val / max) * 60))
+                        const h   = getVolumeIconHeight(val)
                         return (
                           <div key={vol.id} className="flex flex-col items-center gap-1.5 group">
                             <div
@@ -321,7 +361,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                                   <path d="M190.163,327.046c0.278,0.668,0.624,1.313,1.024,1.914c0.401,0.612,0.868,1.18,1.38,1.692 c2.07,2.07,4.942,3.261,7.869,3.261c0.722,0,1.458-0.078,2.182-0.223c0.701-0.134,1.402-0.356,2.081-0.634 c0.668-0.278,1.313-0.623,1.914-1.024c0.612-0.401,1.18-0.868,1.692-1.38c0.512-0.512,0.981-1.08,1.391-1.692 c0.401-0.601,0.746-1.247,1.024-1.914c0.278-0.679,0.49-1.38,0.634-2.093s0.211-1.447,0.211-2.17c0-0.723-0.068-1.458-0.211-2.17 c-0.144-0.712-0.356-1.414-0.634-2.081c-0.278-0.679-0.623-1.325-1.024-1.926c-0.411-0.612-0.879-1.18-1.391-1.692 s-1.08-0.979-1.692-1.38c-0.601-0.401-1.247-0.746-1.914-1.024c-0.679-0.278-1.38-0.501-2.081-0.634 c-3.629-0.735-7.469,0.456-10.051,3.039c-0.512,0.512-0.979,1.08-1.38,1.692c-0.4,0.601-0.746,1.247-1.024,1.926 c-0.278,0.668-0.489,1.369-0.633,2.081c-0.146,0.712-0.223,1.447-0.223,2.17c0,0.723,0.077,1.458,0.223,2.17 C189.674,325.665,189.885,326.367,190.163,327.046z"/>
                                 </svg>
                               ) : val > 1 && val <= 15 ? (
-                                <svg viewBox="0 0 512 512" fill="currentColor" className="h-full w-auto" xmlns="http://www.w3.org/2000/svg">
+                                <svg viewBox="0 0 512 512" fill="currentColor" stroke="#fff" strokeWidth="18" strokeLinejoin="round" vectorEffect="non-scaling-stroke" className="h-full w-auto" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M389.03,234.667c10.135-11.322,16.303-26.269,16.303-42.667c0-35.355-28.645-64-64-64H320v-21.333h21.333 c11.782,0,21.333-9.551,21.333-21.333v-64C362.667,9.551,353.115,0,341.333,0H170.667c-11.782,0-21.333,9.551-21.333,21.333v64 c0,11.782,9.551,21.333,21.333,21.333H192V128h-21.333c-35.355,0-64,28.645-64,64c0,16.397,6.169,31.344,16.303,42.667 c-10.135,11.322-16.303,26.269-16.303,42.667s6.169,31.344,16.303,42.667c-10.135,11.322-16.303,26.269-16.303,42.667 s6.169,31.344,16.303,42.667c-10.135,11.322-16.303,26.269-16.303,42.667c0,35.355,28.645,64,64,64h170.667 c35.355,0,64-28.645,64-64c0-16.397-6.169-31.344-16.303-42.667c10.135-11.322,16.303-26.269,16.303-42.667 S399.165,331.322,389.03,320c10.135-11.322,16.303-26.269,16.303-42.667S399.165,245.989,389.03,234.667z M362.667,362.667 c0,11.791-9.542,21.333-21.333,21.333H170.667c-11.791,0-21.333-9.542-21.333-21.333s9.542-21.333,21.333-21.333h170.667 C353.125,341.333,362.667,350.875,362.667,362.667z M170.667,298.667c-11.791,0-21.333-9.542-21.333-21.333 S158.875,256,170.667,256h170.667c11.791,0,21.333,9.542,21.333,21.333s-9.542,21.333-21.333,21.333H170.667z M192,42.667h128V64 h-21.333h-85.333H192V42.667z M234.667,106.667h42.667V128h-42.667V106.667z M170.667,170.667h42.667h85.333h42.667 c11.791,0,21.333,9.542,21.333,21.333s-9.542,21.333-21.333,21.333H170.667c-11.791,0-21.333-9.542-21.333-21.333 S158.875,170.667,170.667,170.667z M341.333,469.333H170.667c-11.791,0-21.333-9.542-21.333-21.333s9.542-21.333,21.333-21.333 h170.667c11.791,0,21.333,9.542,21.333,21.333S353.125,469.333,341.333,469.333z"/>
                                 </svg>
                               ) : (
@@ -444,7 +484,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
             <div ref={nameColRef}>
               <div className="rounded-[10px] bg-black/[0.06] px-5 py-4">
                 <h3
-                  className={`text-xl text-gray-900 leading-snug ${locale === 'ru' ? 'font-medium' : 'font-semibold'}`}
+                  className="text-xl text-gray-900 leading-snug font-medium"
                   style={{ fontFamily: 'var(--font-heading), sans-serif' }}
                 >
                   {product.name}
@@ -459,7 +499,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
         </div>
       </section>
 
-      <RelatedProducts related={related} />
+      <RelatedProducts related={related} headingTemplate={labels.relatedHeading} />
     </div>
   )
 }

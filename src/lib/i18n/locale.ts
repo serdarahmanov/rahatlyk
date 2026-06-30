@@ -1,7 +1,7 @@
 import type { Locale } from './translations'
 
 export const supportedLocales = ['en', 'ru', 'tm'] as const satisfies readonly Locale[]
-export const defaultLocale: Locale = 'en'
+export const defaultLocale: Locale = 'tm'
 
 export function validateLocale(value: string | null | undefined): value is Locale {
   return supportedLocales.includes(value as Locale)

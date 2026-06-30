@@ -1,18 +1,22 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 declare global {
   interface Window {
     __pageIntroDone?: boolean;
+    __homeHeroCoverReady?: boolean;
   }
 }
 
 export default function PageIntro() {
   const pathname = usePathname();
   const relativePath = pathname.replace(/^\/(en|ru|tm)(?=\/|$)/, '') || '/';
-  const shouldShow = relativePath === '/';
+
+  // Frozen at mount — SPA navigation never changes this, so the intro
+  // cannot re-trigger when the user navigates back to the home page.
+  const [shouldPlay] = useState(() => relativePath === '/');
 
   const curtainRef   = useRef<HTMLDivElement>(null);
   const logoRef      = useRef<HTMLSpanElement>(null);
@@ -20,7 +24,7 @@ export default function PageIntro() {
 
   // ── Text + progress bar kick-off ─────────────────────────────────
   useEffect(() => {
-    if (!shouldShow) return;
+    if (!shouldPlay) return;
     const MIN_TOTAL_MS = 2800;
 
     // Start the logo slide-up only after the heading font is ready,
@@ -40,11 +44,11 @@ export default function PageIntro() {
       }
     };
     init();
-  }, [shouldShow]);
+  }, [shouldPlay]);
 
   // ── Curtain exit when locale is ready ────────────────────────────
   useEffect(() => {
-    if (!shouldShow) return;
+    if (!shouldPlay) return;
 
     const init = async () => {
       const { gsap } = await import('gsap');
@@ -56,33 +60,25 @@ export default function PageIntro() {
       //   2. minimum hold — intro always shows for at least MIN_TOTAL_MS from
       //      navigation start, with a floor of MIN_AFTER_READY_MS after the
       //      locale became ready (in case resources load unusually fast)
-      const MIN_TOTAL_MS       = 2800;
-      const MIN_AFTER_READY_MS = 1200;
-
-      const elapsed = performance.now();
-
-      await Promise.all([
+      await new Promise<void>((resolve) => {
         // Fonts + hero video metadata — query the DOM directly; the hero element
         // is already committed before any useEffect runs. Hard cap so a stalled
         // asset never blocks the curtain indefinitely.
-        new Promise<void>((resolve) => {
-          const LOAD_CAP_MS = 4000;
-          const capTimer = setTimeout(resolve, LOAD_CAP_MS);
-          const done = () => { clearTimeout(capTimer); resolve(); };
+        const LOAD_CAP_MS = 4000;
+        const capTimer = setTimeout(resolve, LOAD_CAP_MS);
+        const done = () => {
+          clearTimeout(capTimer);
+          window.removeEventListener('home-hero-cover-ready', done);
+          resolve();
+        };
 
-          const videoReady = new Promise<void>((res) => {
-            const v = document.querySelector<HTMLVideoElement>('[data-hero-video]');
-            if (!v || v.readyState >= 1) { res(); return; }
-            v.addEventListener('loadedmetadata', () => res(), { once: true });
-            v.addEventListener('error',          () => res(), { once: true });
-          });
+        if (window.__homeHeroCoverReady) {
+          done();
+          return;
+        }
 
-          Promise.all([document.fonts.ready, videoReady]).then(done);
-        }),
-        new Promise<void>((resolve) =>
-          setTimeout(resolve, Math.max(MIN_AFTER_READY_MS, MIN_TOTAL_MS - elapsed)),
-        ),
-      ]);
+        window.addEventListener('home-hero-cover-ready', done, { once: true });
+      });
 
       const tl = gsap.timeline();
 
@@ -114,9 +110,9 @@ export default function PageIntro() {
     };
 
     init();
-  }, [shouldShow]);
+  }, [shouldPlay]);
 
-  if (!shouldShow) return null;
+  if (!shouldPlay) return null;
 
   return (
     <div

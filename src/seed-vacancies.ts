@@ -1,8 +1,13 @@
+import { createRequire } from 'node:module'
 import { getPayload } from 'payload'
-import config from '../payload.config'
 import { VACANCY_DEPARTMENTS, VACANCIES_SEED } from './lib/data/vacancies-payload'
 
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
+
 async function seedVacancies() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
   // ── 1. Departments ──────────────────────────────────────────────────────────
@@ -101,12 +106,10 @@ async function seedVacancies() {
           locale,
           data: {
             ...localizedDataWithIds(locale, fullDoc),
-            ...(locale === 'en' ? {
-              department: deptId,
-              type:       v.type,
-              salary:     v.salary,
-              postedDate: v.postedDate,
-            } : {}),
+            department: deptId,
+            type:       v.type,
+            salary:     v.salary,
+            postedDate: v.postedDate,
           },
         })
       }

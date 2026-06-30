@@ -1,14 +1,14 @@
 /**
  * Current content for the Horizontal Scroll section.
- * Copy these values into the "Horizontal Scroll" global in Payload Admin.
- *
- * For images (box1, box3, box5): upload the file from public/reference/
- * to Payload Media first, then set the media relationship.
+ * Media files are uploaded to Payload Media by src/seed-horizontal-scroll.ts.
  */
 export const HORIZONTAL_SCROLL_CONTENT = {
   box1: {
-    // Upload: /public/reference/KarunaJuice_Photo_RainbowlFoods.jpg → Media
-    image: '/reference/KarunaJuice_Photo_RainbowlFoods.jpg',
+    image: {
+      path: '/reference/KarunaJuice_Photo_RainbowlFoods.jpg',
+      mimetype: 'image/jpeg',
+      alt: 'Fresh drinks on a colorful surface',
+    },
   },
   box2: {
     tag: {
@@ -17,17 +17,19 @@ export const HORIZONTAL_SCROLL_CONTENT = {
       ru: 'PRISTINE BY NATURE',
     },
     headline: {
-      en: 'Purity you can taste — straight from the source',
-      tm: 'Purity you can taste — straight from the source',
-      ru: 'Чистота, которую можно попробовать — прямо из источника',
+      en: 'Purity you can taste - straight from the source',
+      tm: 'Purity you can taste - straight from the source',
+      ru: 'Чистота, которую можно попробовать - прямо из источника',
     },
   },
   box3: {
-    // Upload: /public/reference/Smoothie-Drink-Product-Photography-Studio-in-London-Innocent-Smoothies-Neve-Studios-1.webp → Media
-    image: '/reference/Smoothie-Drink-Product-Photography-Studio-in-London-Innocent-Smoothies-Neve-Studios-1.webp',
+    image: {
+      path: '/reference/Smoothie-Drink-Product-Photography-Studio-in-London-Innocent-Smoothies-Neve-Studios-1.webp',
+      mimetype: 'image/webp',
+      alt: 'Bottled smoothie product photography',
+    },
   },
   box4: {
-    // Background gradient is static/hardcoded — not managed in Payload
     text: {
       en: 'Discover our story and what drives us',
       tm: 'Biziň taryhymyzy we bizi herekete getirýän zady açyň',
@@ -41,8 +43,16 @@ export const HORIZONTAL_SCROLL_CONTENT = {
     buttonHref: '/about',
   },
   box5: {
-    // Upload: /public/reference/New-250ml-Juice-Banner-Website.jpg → Media
-    image: '/reference/New-250ml-Juice-Banner-Website.jpg',
+    video: {
+      path: '/videos/box-5-video-optimized.mp4',
+      mimetype: 'video/mp4',
+      alt: 'Horizontal scroll feature video',
+    },
+    coverImage: {
+      path: '/story/webp/box-5-video-cover.webp',
+      mimetype: 'image/webp',
+      alt: 'Friends sharing drinks at an outdoor table',
+    },
     tag: {
       en: 'CENTURIES OF FILTRATION',
       tm: 'ASYRLAR BOÝY FILTRLEME',
@@ -51,7 +61,7 @@ export const HORIZONTAL_SCROLL_CONTENT = {
     headline: {
       en: 'Each sip delivers a purity you can feel',
       tm: 'Her owurt duýup boljak arassalygy getirýär',
-      ru: 'Каждый глоток несёт чистоту, которую можно почувствовать',
+      ru: 'Каждый глоток несет чистоту, которую можно почувствовать',
     },
   },
   box6: {

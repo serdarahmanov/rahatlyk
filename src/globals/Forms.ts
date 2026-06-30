@@ -7,7 +7,7 @@ export const Forms: GlobalConfig = {
   label: 'Forms',
   access: { read: () => true },
   admin: {
-    group: 'Settings',
+    group: 'Contact Page',
   },
   fields: [
     // ─── Common Fields ────────────────────────────────────────────────────────

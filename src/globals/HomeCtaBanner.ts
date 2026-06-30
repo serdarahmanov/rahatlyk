@@ -8,14 +8,14 @@ export const HomeCtaBanner: GlobalConfig = {
   access: { read: () => true },
   admin: {
     group: 'Home',
-    description: 'Manage the background video, text, and button link for the final home section.',
+    description: 'Manage the background image, text, and button link for the final home section.',
   },
   fields: [
     {
-      name: 'video',
+      name: 'image',
       type: 'upload',
       relationTo: 'media',
-      admin: { description: 'Background video for the final CTA section.' },
+      admin: { description: 'Background image for the final CTA section.' },
     },
     { name: 'title',    type: 'text',     localized: true },
     { name: 'subtitle', type: 'text',     localized: true },

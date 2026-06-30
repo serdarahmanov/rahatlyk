@@ -169,7 +169,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+                    <h3 className="text-2xl font-medium text-gray-900" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
                       {formMessages.success}
                     </h3>
                     <p className="text-gray-500 text-sm mt-0.5">

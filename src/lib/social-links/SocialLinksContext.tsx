@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, ReactNode } from 'react'
+import { useContactInfo } from '@/lib/contact-info/ContactInfoContext'
 
 export interface SocialLinks {
   instagramUrl: string
@@ -13,23 +14,10 @@ const defaultLinks: SocialLinks = { instagramUrl: '', youtubeUrl: '', facebookUr
 const SocialLinksContext = createContext<SocialLinks>(defaultLinks)
 
 export function SocialLinksProvider({ children }: { children: ReactNode }) {
-  const [links, setLinks] = useState<SocialLinks>(defaultLinks)
-
-  useEffect(() => {
-    fetch('/api/site-settings')
-      .then(r => r.json())
-      .then((data: Partial<SocialLinks>) => {
-        setLinks({
-          instagramUrl: data.instagramUrl ?? '',
-          youtubeUrl:   data.youtubeUrl   ?? '',
-          facebookUrl:  data.facebookUrl  ?? '',
-        })
-      })
-      .catch(() => {})
-  }, [])
+  const contactInfo = useContactInfo()
 
   return (
-    <SocialLinksContext.Provider value={links}>
+    <SocialLinksContext.Provider value={contactInfo.socialLinks}>
       {children}
     </SocialLinksContext.Provider>
   )

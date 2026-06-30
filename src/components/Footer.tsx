@@ -39,9 +39,9 @@ export default function Footer() {
 
           {/* ── Brand column ── */}
           <div className="col-span-2 lg:col-span-2">
-            <Link href={withLocale(locale)} className="inline-flex mb-5">
+            <Link href={withLocale(locale)} prefetch={false} className="inline-flex mb-5">
               <span
-                className="text-2xl font-semibold tracking-[0.2em] text-black"
+                className="text-2xl font-medium tracking-[0.2em] text-black"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 RAHATLYK
@@ -72,7 +72,7 @@ export default function Footer() {
 
           {/* ── Quick links ── */}
           <div>
-            <h4 className="font-extrabold text-[10px] tracking-[0.2em] uppercase text-black mb-5">
+            <h4 className="font-medium text-[10px] tracking-[0.2em] uppercase text-black mb-5">
               {t.footer.quickLinks}
             </h4>
             <ul className="space-y-3">
@@ -80,6 +80,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
+                    prefetch={false}
                     className="text-black hover:text-black/70 text-sm transition-colors duration-200"
                   >
                     {link.label}
@@ -91,7 +92,7 @@ export default function Footer() {
 
           {/* ── Company + contact ── */}
           <div>
-            <h4 className="font-extrabold text-[10px] tracking-[0.2em] uppercase text-black mb-5">
+            <h4 className="font-medium text-[10px] tracking-[0.2em] uppercase text-black mb-5">
               {t.footer.company}
             </h4>
             <ul className="space-y-3">
@@ -99,6 +100,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
+                    prefetch={false}
                     className="text-black hover:text-black/70 text-sm transition-colors duration-200"
                   >
                     {link.label}

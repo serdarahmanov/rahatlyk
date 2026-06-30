@@ -1,11 +1,49 @@
 import path from 'path'
-import { readFileSync } from 'fs'
+import fs, { readFileSync } from 'fs'
+import { createRequire } from 'node:module'
 import { getPayload } from 'payload'
-import config from '../payload.config'
 import { ARTICLE_CATEGORIES, ARTICLES_SEED } from './lib/data/news-seed'
 
 const MEDIA_DIR       = path.join(process.cwd(), 'media')
 const NEWS_PHOTOS_DIR = path.join(process.cwd(), 'public', 'news', 'photos')
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
+
+const MIME_BY_EXT: Record<string, string> = {
+  '.avif': 'image/avif',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+}
+
+function resolveArticleImage(file: string, dir: 'media' | 'news-photos', fallbackMimeType: string) {
+  const root = dir === 'media' ? MEDIA_DIR : NEWS_PHOTOS_DIR
+  const originalPath = path.join(root, file)
+  const ext = path.extname(file)
+  const base = path.basename(file, ext)
+  const parent = path.dirname(file)
+  const candidates = dir === 'news-photos'
+    ? [
+        path.join(root, parent, 'web', `${base} copy.webp`),
+        path.join(root, parent, 'web', `${base}.webp`),
+        path.join(root, parent, `${base} copy.webp`),
+        path.join(root, parent, `${base}.webp`),
+        originalPath,
+      ]
+    : [
+        path.join(root, `${base} copy.webp`),
+        path.join(root, `${base}.webp`),
+        path.join(root, `${base}.avif`),
+        originalPath,
+      ]
+
+  const filePath = candidates.find((candidate) => fs.existsSync(candidate)) ?? originalPath
+  const filename = path.basename(filePath)
+  const mimeType = MIME_BY_EXT[path.extname(filename).toLowerCase()] ?? fallbackMimeType
+
+  return { filePath, filename, mimeType }
+}
 
 const toRichText = (text: string) => ({
   root: {
@@ -34,6 +72,8 @@ const toRichText = (text: string) => ({
 })
 
 async function seedNews() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
   // ── 1. Article categories ───────────────────────────────────────────────────
@@ -87,22 +127,31 @@ async function seedNews() {
   const mediaIdCache: Record<string, number> = {}
 
   const uploadImage = async (file: string, dir: 'media' | 'news-photos', mimeType: string): Promise<number> => {
-    const cacheKey = `${dir}:${file}`
+    const source = resolveArticleImage(file, dir, mimeType)
+    const cacheKey = `${dir}:${source.filename}`
     if (mediaIdCache[cacheKey]) return mediaIdCache[cacheKey]
 
-    const filePath = dir === 'media'
-      ? path.join(MEDIA_DIR, file)
-      : path.join(NEWS_PHOTOS_DIR, file)
-    const fileData = readFileSync(filePath)
-    const fileName = path.basename(file)
+    const existing = await payload.find({
+      collection: 'media',
+      limit: 1,
+      where: { filename: { equals: source.filename } },
+    })
+
+    if (existing.docs[0]) {
+      const id = existing.docs[0].id as number
+      mediaIdCache[cacheKey] = id
+      return id
+    }
+
+    const fileData = readFileSync(source.filePath)
 
     const media = await payload.create({
       collection: 'media',
-      data: { alt: fileName.replace(/\.[^.]+$/, '') },
+      data: { alt: source.filename.replace(/\.[^.]+$/, '') },
       file: {
         data: fileData,
-        mimetype: mimeType,
-        name: fileName,
+        mimetype: source.mimeType,
+        name: source.filename,
         size: fileData.length,
       },
     })
@@ -151,12 +200,10 @@ async function seedNews() {
           data: {
             title: a.title[locale],
             body: bodyForLocale(locale, fullDoc),
-            ...(locale === 'en' ? {
-              category:  catId,
-              date:      a.date,
-              featured:  a.featured,
-              images:    mediaIds.map(id => ({ media: id })),
-            } : {}),
+            category:  catId,
+            date:      a.date,
+            featured:  a.featured,
+            images:    mediaIds.map(id => ({ media: id })),
           },
         })
       }

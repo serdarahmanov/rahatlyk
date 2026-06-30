@@ -10,6 +10,7 @@ import {
   normalizeHorizontalScroll,
   normalizeProductLine,
 } from '@/lib/payload-normalize'
+import { resolveArticleLabels } from '@/lib/article-labels'
 import type { HorizontalScrollData, HomeStoryData, HomeCtaBannerData, HomeHeroData } from '@/types/payload'
 
 const EMPTY_H_SCROLL: HorizontalScrollData = {
@@ -22,7 +23,7 @@ const EMPTY_H_SCROLL: HorizontalScrollData = {
 
 const EMPTY_STORY: HomeStoryData = { imageUrl: null, tag: null, title: null, text: null }
 
-const EMPTY_CTA: HomeCtaBannerData = { videoUrl: null, title: null, subtitle: null, ctaLabel: null, ctaHref: null }
+const EMPTY_CTA: HomeCtaBannerData = { imageUrl: null, title: null, subtitle: null, ctaLabel: null, ctaHref: null }
 
 const EMPTY_HERO: HomeHeroData = { videoUrl: null, posterUrl: null, title: null, titleAccent: null, subtitle: null }
 
@@ -43,6 +44,7 @@ export default async function HomePage({ params }: Props) {
   const story = data.story ? normalizeHomeStory(data.story) : EMPTY_STORY
   const ctaBanner = data.ctaBanner ? normalizeHomeCtaBanner(data.ctaBanner) : EMPTY_CTA
   const hero = data.hero ? normalizeHomeHero(data.hero) : EMPTY_HERO
+  const articleLabels = resolveArticleLabels(locale, data.articleLabels)
 
   return (
     <HomeClient
@@ -52,6 +54,7 @@ export default async function HomePage({ params }: Props) {
       newsArticles={newsArticles}
       ctaBanner={ctaBanner}
       hero={hero}
+      articleLabels={articleLabels}
     />
   )
 }

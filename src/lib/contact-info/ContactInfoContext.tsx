@@ -11,12 +11,17 @@ interface RawPhone {
   number?: string | null
 }
 
-interface RawContactInfo {
+export interface RawContactInfo {
   sectionLabel?: LocaleMap
   email?: string | null
   phones?: RawPhone[] | null
   address?: LocaleMap
   workingHours?: LocaleMap
+  socialLinks?: {
+    instagramUrl?: string | null
+    youtubeUrl?: string | null
+    facebookUrl?: string | null
+  } | null
 }
 
 export interface PhoneEntry {
@@ -30,9 +35,21 @@ export interface ContactInfoData {
   phones: PhoneEntry[]
   address: string
   workingHours: string
+  socialLinks: {
+    instagramUrl: string
+    youtubeUrl: string
+    facebookUrl: string
+  }
 }
 
-const defaultInfo: ContactInfoData = { sectionLabel: 'Contact Information', email: '', phones: [], address: '', workingHours: '' }
+const defaultInfo: ContactInfoData = {
+  sectionLabel: 'Contact Information',
+  email: '',
+  phones: [],
+  address: '',
+  workingHours: '',
+  socialLinks: { instagramUrl: '', youtubeUrl: '', facebookUrl: '' },
+}
 
 const ContactInfoContext = createContext<ContactInfoData>(defaultInfo)
 
@@ -42,16 +59,24 @@ function resolveLocale(value: LocaleMap, locale: string): string {
   return (value as Record<string, string>)[locale] ?? value.en ?? ''
 }
 
-export function ContactInfoProvider({ children }: { children: ReactNode }) {
+export function ContactInfoProvider({
+  children,
+  initialContactInfo = null,
+}: {
+  children: ReactNode
+  initialContactInfo?: RawContactInfo | null
+}) {
   const { locale } = useLanguage()
-  const [raw, setRaw] = useState<RawContactInfo | null>(null)
+  const [raw, setRaw] = useState<RawContactInfo | null>(initialContactInfo)
 
   useEffect(() => {
+    if (initialContactInfo) return
+
     fetch('/api/contact-info')
       .then(r => r.json())
       .then((data: RawContactInfo) => setRaw(data))
       .catch(() => {})
-  }, [])
+  }, [initialContactInfo])
 
   const value: ContactInfoData = {
     sectionLabel: resolveLocale(raw?.sectionLabel, locale) || 'Contact Information',
@@ -61,6 +86,11 @@ export function ContactInfoProvider({ children }: { children: ReactNode }) {
       .map(p => ({ label: p.label ?? '', number: p.number })),
     address: resolveLocale(raw?.address, locale),
     workingHours: resolveLocale(raw?.workingHours, locale),
+    socialLinks: {
+      instagramUrl: raw?.socialLinks?.instagramUrl ?? '',
+      youtubeUrl: raw?.socialLinks?.youtubeUrl ?? '',
+      facebookUrl: raw?.socialLinks?.facebookUrl ?? '',
+    },
   }
 
   return (

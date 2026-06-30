@@ -2,9 +2,10 @@ import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { fileTypeFromBuffer } from 'file-type';
-import { vacancyConfirmation, vacancyNotification } from '@/lib/email/templates';
+import { vacancyConfirmation, vacancyNotification, extractEmailContact } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
+import { getCachedContactInfo } from '@/lib/payload/cachedQueries';
 import { isSpam, sanitizeCsv } from '@/lib/spam-check';
 
 const ALLOWED_TYPES = [
@@ -98,8 +99,10 @@ export async function POST(req: NextRequest) {
     const fromNoreply  = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite  = `"Website" <${process.env.WEBSITE_EMAIL}>`;
 
-    const confirmation = vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale });
-    const notification = vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName: cvFile.name, cover, locale: 'ru' });
+    const rawContact   = await getCachedContactInfo().catch(() => null)
+    const contact      = extractEmailContact(rawContact, locale)
+    const confirmation = vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact });
+    const notification = vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName: cvFile.name, cover, locale: 'ru', contact });
 
     await Promise.all([
       // 1. Confirmation → applicant (in their language)

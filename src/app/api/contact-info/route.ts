@@ -6,6 +6,12 @@ export async function GET() {
     const data = await getCachedContactInfo()
     return NextResponse.json(data)
   } catch {
-    return NextResponse.json({ email: '', phones: [], address: {}, workingHours: {} })
+    return NextResponse.json({
+      email: '',
+      phones: [],
+      address: {},
+      workingHours: {},
+      socialLinks: { instagramUrl: '', youtubeUrl: '', facebookUrl: '' },
+    })
   }
 }

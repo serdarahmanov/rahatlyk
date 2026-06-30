@@ -20,9 +20,9 @@ export const HomeHero: GlobalConfig = {
       name: 'poster',
       type: 'upload',
       relationTo: 'media',
-      label: 'Video Poster',
+      label: 'Cover Image',
       admin: {
-        description: 'Shown immediately while the background video loads or if it cannot play.',
+        description: 'Loaded first for the home hero. The intro exits when this image is ready; the video loads afterward.',
       },
     },
     {

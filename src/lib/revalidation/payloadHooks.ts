@@ -6,15 +6,17 @@ import type {
 import { supportedLocales } from '@/lib/i18n/locale'
 import {
   aboutTag,
+  articleLabelsTag,
   contactInfoTag,
   contactTag,
   homeTag,
   newsItemTag,
   newsListTag,
+  productLabelsTag,
   productTag,
   productsTag,
-  siteSettingsTag,
   vacanciesTag,
+  vacancyLabelsTag,
   vacancyTag,
 } from '@/lib/cache/cacheTags'
 import { revalidateNext, type RevalidationTargets } from './revalidateNext'
@@ -85,16 +87,41 @@ export const revalidateFormsGlobal = globalHook((locale) => ({
 }))
 
 export const revalidateProductLabelsGlobal = globalHook((locale) => ({
-  paths: [`/${locale}/products/[id]`],
-  tags: [productsTag(locale)],
+  paths: [`/${locale}/products`, `/${locale}/products/[id]`],
+  tags: [productLabelsTag(locale), productsTag(locale)],
 }))
 
-export const revalidateContactInfoGlobal = globalHook(() => ({
-  tags: [contactInfoTag()],
+export const revalidateArticleLabelsGlobal = globalHook((locale) => ({
+  paths: [`/${locale}`, `/${locale}/news`, `/${locale}/news/[id]`],
+  tags: [articleLabelsTag(locale), homeTag(locale), newsListTag(locale)],
 }))
 
-export const revalidateSiteSettingsGlobal = globalHook(() => ({
-  tags: [siteSettingsTag()],
+export const revalidateVacancyLabelsGlobal = globalHook((locale) => ({
+  paths: [`/${locale}/vacancies`, `/${locale}/vacancies/[id]`],
+  tags: [vacancyLabelsTag(locale), vacanciesTag(locale)],
+}))
+
+export const revalidateContactInfoGlobal = globalHook((locale) => ({
+  paths: [
+    `/${locale}`,
+    `/${locale}/about`,
+    `/${locale}/contact`,
+    `/${locale}/products`,
+    `/${locale}/products/[id]`,
+    `/${locale}/news`,
+    `/${locale}/news/[id]`,
+    `/${locale}/vacancies`,
+    `/${locale}/vacancies/[id]`,
+  ],
+  tags: [
+    contactInfoTag(),
+    homeTag(locale),
+    aboutTag(locale),
+    contactTag(locale),
+    productsTag(locale),
+    newsListTag(locale),
+    vacanciesTag(locale),
+  ],
 }))
 
 export const revalidateProductChange: CollectionAfterChangeHook<Entity> = async ({ doc, operation }) => {
@@ -172,15 +199,6 @@ export const revalidateVacancyDelete: CollectionAfterDeleteHook<Entity> = async 
   })))
 }
 
-export const revalidateProductLinesChange = collectionChangeHook((locale) => ({
-  paths: [`/${locale}`],
-  tags: [homeTag(locale)],
-}))
-export const revalidateProductLinesDelete = collectionDeleteHook((locale) => ({
-  paths: [`/${locale}`],
-  tags: [homeTag(locale)],
-}))
-
 export const revalidateProductCategoriesChange = collectionChangeHook((locale) => ({
   paths: [`/${locale}/products`, `/${locale}/products/[id]`],
   tags: [productsTag(locale)],
@@ -212,6 +230,7 @@ export const revalidateMediaChange = collectionChangeHook((locale) => ({
   paths: [
     `/${locale}`,
     `/${locale}/about`,
+    `/${locale}/contact`,
     `/${locale}/products`,
     `/${locale}/products/[id]`,
     `/${locale}/news`,
@@ -222,6 +241,8 @@ export const revalidateMediaChange = collectionChangeHook((locale) => ({
   tags: [
     homeTag(locale),
     aboutTag(locale),
+    contactTag(locale),
+    contactInfoTag(),
     productsTag(locale),
     newsListTag(locale),
     vacanciesTag(locale),
@@ -231,6 +252,7 @@ export const revalidateMediaDelete = collectionDeleteHook((locale) => ({
   paths: [
     `/${locale}`,
     `/${locale}/about`,
+    `/${locale}/contact`,
     `/${locale}/products`,
     `/${locale}/products/[id]`,
     `/${locale}/news`,
@@ -241,6 +263,8 @@ export const revalidateMediaDelete = collectionDeleteHook((locale) => ({
   tags: [
     homeTag(locale),
     aboutTag(locale),
+    contactTag(locale),
+    contactInfoTag(),
     productsTag(locale),
     newsListTag(locale),
     vacanciesTag(locale),

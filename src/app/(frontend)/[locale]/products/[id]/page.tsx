@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ProductDetailClient from './ProductDetailClient'
-import { getValidLocale, supportedLocales } from '@/lib/i18n/locale'
+import { getValidLocale, supportedLocales, defaultLocale } from '@/lib/i18n/locale'
+import { buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeProduct } from '@/lib/payload-normalize'
 import type { ProductDetailLabelsData } from '@/types/payload'
+import { resolveProductLabels } from '@/lib/product-labels'
 import {
   getCachedProductDetail,
   getCachedProductStaticIDs,
@@ -25,6 +28,48 @@ type Props = {
   }>
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id, locale: localeParam } = await params
+  const locale = getValidLocale(localeParam) ?? defaultLocale
+  const productID = Number(id)
+  if (!Number.isFinite(productID)) return {}
+
+  try {
+    const cached = await getCachedProductDetail(locale, productID)
+    const product = cached.product
+    if (!product) return {}
+
+    const name = product.name ?? ''
+    const categoryName = typeof product.category === 'object' ? (product.category?.label ?? '') : ''
+    const description = product.description
+      ?? (categoryName ? `${name} — ${categoryName}.` : name)
+
+    const firstPhoto = product.photos?.[0]
+    const imageUrl = firstPhoto
+      ? (typeof firstPhoto.media === 'object' && firstPhoto.media?.url
+          ? firstPhoto.media.url
+          : firstPhoto.url ?? null)
+      : null
+
+    return {
+      title: name,
+      description,
+      alternates: {
+        canonical: `/${locale}/products/${id}`,
+        languages: buildLanguageAlternates(`/products/${id}`),
+      },
+      openGraph: {
+        title: name,
+        description,
+        type: 'website',
+        ...(imageUrl ? { images: [{ url: imageUrl }] } : {}),
+      },
+    }
+  } catch {
+    return {}
+  }
+}
+
 export default async function ProductDetailPage({ params }: Props) {
   const { id, locale: localeParam } = await params
   const locale = getValidLocale(localeParam)
@@ -45,13 +90,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const labelsRaw = cached.labels
 
-  const labels: ProductDetailLabelsData = {
-    sizeLabel:      labelsRaw?.sizeLabel      ?? 'Size',
-    nutritionLabel: labelsRaw?.nutritionLabel ?? 'Nutrition',
-    aboutLabel:     labelsRaw?.aboutLabel     ?? 'About',
-    mineralLabel:   labelsRaw?.mineralLabel   ?? 'Mineral',
-    perLitreLabel:  labelsRaw?.perLitreLabel  ?? 'Per Litre',
-  }
+  const labels: ProductDetailLabelsData = resolveProductLabels(locale, labelsRaw)
 
   const normalizedProduct = normalizeProduct(product)
   const related = cached.related.map(normalizeProduct)

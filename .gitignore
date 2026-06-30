@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Local/generated news photos
 public/news/photos/
+
+# database dumps
+*.dump

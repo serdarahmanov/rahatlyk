@@ -1,10 +1,15 @@
 import fs from 'fs'
+import { createRequire } from 'node:module'
 import path from 'path'
 import { getPayload } from 'payload'
-import config from '../payload.config'
 import { ABOUT_HERO_CONTENT } from './lib/data/about-hero-content'
 
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
+
 async function seedAboutHero() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
   console.log('Seeding About Hero...')
@@ -30,7 +35,7 @@ async function seedAboutHero() {
         data: { alt: 'About page hero cover image' },
         file: {
           data: buffer,
-          mimetype: 'image/jpeg',
+          mimetype: 'image/webp',
           name: ABOUT_HERO_CONTENT.imageFile,
           size: buffer.length,
         },
@@ -50,7 +55,7 @@ async function seedAboutHero() {
       data: {
         title: ABOUT_HERO_CONTENT.title[locale],
         accentWordIndex: ABOUT_HERO_CONTENT.accentWordIndex[locale],
-        ...(locale === 'en' ? { coverImage: mediaId } : {}),
+        coverImage: mediaId,
       },
     })
     console.log(`  [global] updated locale: ${locale}`)

@@ -67,5 +67,14 @@ export const AboutWhoWeAre: GlobalConfig = {
       relationTo: 'media' as const,
       label: 'Full Viewport Image',
     },
+    {
+      name: 'backgroundVideo',
+      type: 'relationship',
+      relationTo: 'media' as const,
+      label: 'Background Video',
+      admin: {
+        description: 'Video used in the pinned Who We Are section.',
+      },
+    },
   ],
 }

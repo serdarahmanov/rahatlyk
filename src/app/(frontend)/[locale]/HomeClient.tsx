@@ -11,6 +11,7 @@ import type {
   HomeCtaBannerData,
   HomeHeroData,
   HomeStoryData,
+  ArticleLabelsData,
   PayloadArticle,
   PayloadProductLine,
 } from '@/types/payload';
@@ -18,6 +19,7 @@ import type {
 declare global {
   interface Window {
     __pageIntroDone?: boolean;
+    __homeHeroCoverReady?: boolean;
   }
 }
 
@@ -34,6 +36,11 @@ if (typeof window !== 'undefined' && !introHasCompleted) {
 }
 
 /* ── Word-level mask-reveal helper ───────────────────────────────── */
+function pauseVideo(video: HTMLVideoElement | null) {
+  if (!video) return;
+  video.pause();
+}
+
 function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
   spans: HTMLElement[];
   restore: () => void;
@@ -77,47 +84,29 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
 /* ── Pinned horizontal-scroll section ────────────────────────────── */
 function HorizontalScrollSection({
   data,
-  onBox5DownloadComplete,
+  box5VideoEnabled,
 }: {
   data: HorizontalScrollData;
-  onBox5DownloadComplete?: () => void;
+  box5VideoEnabled: boolean;
 }) {
   const { locale } = useLanguage();
   const containerRef    = useRef<HTMLDivElement>(null);
   const trackRef        = useRef<HTMLDivElement>(null);
   const isFirstDataRef  = useRef(true);
-  const box5DownloadReportedRef = useRef(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [loadedBox5CoverUrl, setLoadedBox5CoverUrl] = useState<string | null>(null);
 
-  const reportBox5DownloadIfComplete = (video: HTMLVideoElement) => {
-    if (
-      box5DownloadReportedRef.current
-      || !Number.isFinite(video.duration)
-      || video.duration <= 0
-      || video.buffered.length === 0
-    ) {
-      return;
-    }
-
-    const tolerance = 0.25;
-    if (video.buffered.start(0) > tolerance) return;
-
-    let bufferedThrough = video.buffered.end(0);
-    for (let index = 1; index < video.buffered.length; index += 1) {
-      if (video.buffered.start(index) > bufferedThrough + tolerance) return;
-      bufferedThrough = Math.max(bufferedThrough, video.buffered.end(index));
-    }
-    if (bufferedThrough < video.duration - tolerance) return;
-
-    box5DownloadReportedRef.current = true;
-    onBox5DownloadComplete?.();
-  };
+  const shouldLoadBox5Video = box5VideoEnabled && (!data.box5CoverImageUrl || loadedBox5CoverUrl === data.box5CoverImageUrl);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
+  }, []);
+
+  useEffect(() => {
+    return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-box5-video]'));
   }, []);
 
   useEffect(() => {
@@ -241,7 +230,7 @@ function HorizontalScrollSection({
           <div className="absolute inset-0 bg-brand-950/75" />
           <div className="relative z-10">
             {data.box2Tag && (
-              <span className="block text-brand-400 text-[10px] font-bold tracking-[0.35em] uppercase mb-6">
+              <span className="block text-brand-400 text-[10px] font-medium tracking-[0.35em] uppercase mb-6">
                 {data.box2Tag}
               </span>
             )}
@@ -316,9 +305,22 @@ function HorizontalScrollSection({
           className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100"
           style={{ width: isMobile ? '90vw' : '52vw' }}
         >
-          {data.box5VideoUrl && (
+          {data.box5CoverImageUrl && (
+            <Image
+              src={data.box5CoverImageUrl}
+              alt=""
+              fill
+              aria-hidden="true"
+              sizes="(max-width: 767px) 90vw, 52vw"
+              onLoad={() => setLoadedBox5CoverUrl(data.box5CoverImageUrl)}
+              onError={() => setLoadedBox5CoverUrl(data.box5CoverImageUrl)}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+          {data.box5VideoUrl && shouldLoadBox5Video && (
             <video
               src={data.box5VideoUrl}
+              data-box5-video
               autoPlay
               muted
               loop
@@ -328,17 +330,7 @@ function HorizontalScrollSection({
                 const video = event.currentTarget;
                 video.muted = true;
                 void video.play().catch(() => undefined);
-                reportBox5DownloadIfComplete(video);
               }}
-              onProgress={(event) => reportBox5DownloadIfComplete(event.currentTarget)}
-              onCanPlayThrough={(event) => reportBox5DownloadIfComplete(event.currentTarget)}
-              onLoadedMetadata={(event) => reportBox5DownloadIfComplete(event.currentTarget)}
-              onError={() => {
-                if (box5DownloadReportedRef.current) return;
-                box5DownloadReportedRef.current = true;
-                onBox5DownloadComplete?.();
-              }}
-              poster={data.box5CoverImageUrl ?? undefined}
               className="absolute inset-0 w-full h-full object-cover"
             />
           )}
@@ -346,7 +338,7 @@ function HorizontalScrollSection({
           {(data.box5Tag || data.box5Headline) && (
             <div className="absolute bottom-14 left-[8%] right-[8%]">
               {data.box5Tag && (
-                <span className="block text-white/55 text-[10px] font-bold tracking-[0.35em] uppercase mb-4">
+                <span className="block text-white/55 text-[10px] font-medium tracking-[0.35em] uppercase mb-4">
                   {data.box5Tag}
                 </span>
               )}
@@ -385,7 +377,7 @@ function HorizontalScrollSection({
           )}
           <div className="relative z-10">
             {data.box6Tag && (
-              <span className="block text-brand-600 text-[10px] font-bold tracking-[0.35em] uppercase mb-5">
+              <span className="block text-brand-600 text-[10px] font-medium tracking-[0.35em] uppercase mb-5">
                 {data.box6Tag}
               </span>
             )}
@@ -693,14 +685,14 @@ function CollectionsSection({
         "
       >
         <div className="hidden md:block">
-          <span className="block text-[10px] font-bold tracking-[0.2em] uppercase text-black/40" style={{ fontWeight: 700 }}>
+          <span className="block text-[10px] font-medium tracking-[0.2em] uppercase text-black/40" style={{ fontWeight: 500 }}>
             {sectionTag}
           </span>
         </div>
 
         <div className="flex flex-col w-full">
           <div className="overflow-hidden mb-2 w-full md:w-[380px] lg:w-[420px] xl:w-[500px]">
-            <h3 className="split-reveal break-normal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif', overflowWrap: 'normal' }}>
+            <h3 className="split-reveal break-normal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif', overflowWrap: 'normal' }}>
               {activeLine?.name ?? ''}
             </h3>
           </div>
@@ -836,7 +828,7 @@ function NewsCarousel({ tag, articles }: { tag: string; articles: PayloadArticle
     <div className="flex flex-col h-full">
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16 pt-24 w-full flex-shrink-0" style={{ paddingBottom: '20px' }}>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand-400" style={{ fontWeight: 700 }}>
+          <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-brand-400" style={{ fontWeight: 500 }}>
             {tag}
           </span>
           <div className="flex items-center gap-5">
@@ -899,6 +891,7 @@ export default function HomeClient({
   newsArticles,
   ctaBanner,
   hero,
+  articleLabels,
 }: {
   lines: PayloadProductLine[]
   horizontalScroll: HorizontalScrollData
@@ -906,10 +899,16 @@ export default function HomeClient({
   newsArticles: PayloadArticle[]
   ctaBanner: HomeCtaBannerData
   hero: HomeHeroData
+  articleLabels: ArticleLabelsData
 }) {
   const { t, locale } = useLanguage();
   const [readyHeroVideoUrl, setReadyHeroVideoUrl] = useState<string | null>(null);
-  const [ctaVideoActive, setCtaVideoActive] = useState(false);
+  const [fullyLoadedHeroVideoUrl, setFullyLoadedHeroVideoUrl] = useState<string | null>(null);
+  const [loadedHeroCoverUrl, setLoadedHeroCoverUrl] = useState<string | null>(null);
+  const [homePageAssetsReady, setHomePageAssetsReady] = useState(false);
+  const isHeroCoverReady = !hero.posterUrl || loadedHeroCoverUrl === hero.posterUrl;
+  const shouldLoadHeroVideo = !!hero.videoUrl && isHeroCoverReady && homePageAssetsReady;
+  const isHeroVideoFullyLoaded = !hero.videoUrl || fullyLoadedHeroVideoUrl === hero.videoUrl;
 
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
@@ -921,11 +920,45 @@ export default function HomeClient({
   const storyImgRef     = useRef<HTMLDivElement>(null);
   const heroVideoRef    = useRef<HTMLVideoElement>(null);
   const prevLocaleRef   = useRef<string | undefined>(undefined);
-  const heroReadyRef    = useRef(!hero.videoUrl);
-  const box5DownloadCompleteRef = useRef(!horizontalScroll.box5VideoUrl);
 
-  const tryActivateCta = useCallback(() => {
-    if (heroReadyRef.current && box5DownloadCompleteRef.current) setCtaVideoActive(true);
+  const markHeroCoverReady = useCallback(() => {
+    setLoadedHeroCoverUrl(hero.posterUrl);
+    if (typeof window !== 'undefined') {
+      window.__homeHeroCoverReady = true;
+      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
+    }
+  }, [hero.posterUrl]);
+
+  useEffect(() => {
+    if (!hero.posterUrl && typeof window !== 'undefined') {
+      window.__homeHeroCoverReady = true;
+      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
+    }
+  }, [hero.posterUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const markReady = () => {
+      void document.fonts.ready.then(() => {
+        if (!cancelled) setHomePageAssetsReady(true);
+      });
+    };
+
+    if (document.readyState === 'complete') {
+      markReady();
+    } else {
+      window.addEventListener('load', markReady, { once: true });
+    }
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('load', markReady);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-hero-video]'));
   }, []);
 
   const handleHeroCanPlay = useCallback(() => {
@@ -935,14 +968,25 @@ export default function HomeClient({
       void video.play().catch(() => undefined);
     }
     setReadyHeroVideoUrl(hero.videoUrl);
-    heroReadyRef.current = true;
-    tryActivateCta();
-  }, [hero.videoUrl, tryActivateCta]);
+  }, [hero.videoUrl]);
 
-  const handleBox5DownloadComplete = useCallback(() => {
-    box5DownloadCompleteRef.current = true;
-    tryActivateCta();
-  }, [tryActivateCta]);
+  const checkHeroVideoFullyLoaded = useCallback(() => {
+    const video = heroVideoRef.current;
+    if (!hero.videoUrl || !video) {
+      setFullyLoadedHeroVideoUrl(hero.videoUrl);
+      return;
+    }
+
+    const duration = video.duration;
+    if (!Number.isFinite(duration) || duration <= 0 || video.buffered.length === 0) return;
+
+    for (let index = 0; index < video.buffered.length; index += 1) {
+      if (video.buffered.start(index) <= 0.25 && video.buffered.end(index) >= duration - 0.25) {
+        setFullyLoadedHeroVideoUrl(hero.videoUrl);
+        return;
+      }
+    }
+  }, [hero.videoUrl]);
 
   // ── Hero animation ──────────────────────────────────────────────
   useEffect(() => {
@@ -1122,22 +1166,30 @@ export default function HomeClient({
             fill
             priority
             aria-hidden="true"
+            onLoad={markHeroCoverReady}
+            onError={markHeroCoverReady}
             className="object-cover object-center"
             sizes="100vw"
           />
         )}
-        {hero.videoUrl ? (
+        {shouldLoadHeroVideo ? (
           <video
             ref={heroVideoRef}
             data-hero-video
-            src={hero.videoUrl}
+            src={hero.videoUrl ?? undefined}
             autoPlay
             muted
             loop
             playsInline
             preload="auto"
             onCanPlay={handleHeroCanPlay}
-            onError={() => setReadyHeroVideoUrl(null)}
+            onCanPlayThrough={checkHeroVideoFullyLoaded}
+            onLoadedMetadata={checkHeroVideoFullyLoaded}
+            onProgress={checkHeroVideoFullyLoaded}
+            onError={() => {
+              setReadyHeroVideoUrl(null);
+              setFullyLoadedHeroVideoUrl(hero.videoUrl);
+            }}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
               readyHeroVideoUrl === hero.videoUrl ? 'opacity-100' : 'opacity-0'
             }`}
@@ -1146,7 +1198,7 @@ export default function HomeClient({
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 lg:pb-28">
           <div id="hero-content" className="max-w-2xl">
-            <div className="text-6xl sm:text-7xl lg:text-8xl font-light text-white leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+            <div className="text-5xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
               <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
                 <div ref={titleLine1Ref}>{hero.title || t.home.hero.title}</div>
               </div>
@@ -1172,8 +1224,8 @@ export default function HomeClient({
             <div className="sm:pt-[0.2em] text-center">
               <span
                 ref={brandLabelRef}
-                className="block text-[15px] font-bold tracking-[0.45em] text-black uppercase"
-                style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 700, overflow: 'hidden', paddingBottom: '0.1em' }}
+                className="block text-[15px] font-medium tracking-[0.45em] text-black uppercase"
+                style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 500, overflow: 'hidden', paddingBottom: '0.1em' }}
               >
                 RAHATLYK
               </span>
@@ -1209,10 +1261,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HORIZONTAL SCROLL — pinned panels
       ══════════════════════════════════════════ */}
-      <HorizontalScrollSection
-        data={horizontalScroll}
-        onBox5DownloadComplete={handleBox5DownloadComplete}
-      />
+      <HorizontalScrollSection data={horizontalScroll} box5VideoEnabled={isHeroVideoFullyLoaded} />
 
       {/* ══════════════════════════════════════════
           COLLECTIONS — bottle carousel
@@ -1252,7 +1301,7 @@ export default function HomeClient({
           <div className="max-w-xl mx-auto text-center">
             {story.title && (
               <h2
-                className="story-animate text-2xl sm:text-3xl lg:text-4xl font-semibold text-black leading-tight mb-12"
+                className="story-animate text-2xl sm:text-3xl lg:text-4xl font-medium text-black leading-tight mb-12"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {story.title}
@@ -1279,7 +1328,7 @@ export default function HomeClient({
             </svg>
           </div>
           <div>
-            <div className="font-semibold text-gray-700 text-[11px] leading-tight">Best Beverage Brand</div>
+            <div className="font-medium text-gray-700 text-[11px] leading-tight">Best Beverage Brand</div>
             <div className="text-gray-700/60 text-[10px] mt-0.5">Central Asia Award 2025</div>
           </div>
         </div>
@@ -1289,7 +1338,7 @@ export default function HomeClient({
           LATEST NEWS CAROUSEL
       ══════════════════════════════════════════ */}
       <section className="bg-white overflow-hidden" style={{ height: '100svh' }}>
-        <NewsCarousel tag={t.home.news.tag} articles={newsArticles} />
+        <NewsCarousel tag={articleLabels.homeSectionTag} articles={newsArticles} />
       </section>
 
       {/* ══════════════════════════════════════════
@@ -1299,14 +1348,12 @@ export default function HomeClient({
         className="relative overflow-hidden flex flex-col items-center justify-center"
         style={{ background: '#0b2e4a', height: '90svh' }}
       >
-        {ctaVideoActive && ctaBanner.videoUrl && (
-          <video
-            src={ctaBanner.videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
+        {ctaBanner.imageUrl && (
+          <Image
+            src={ctaBanner.imageUrl}
+            alt=""
+            fill
+            sizes="100vw"
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
           />

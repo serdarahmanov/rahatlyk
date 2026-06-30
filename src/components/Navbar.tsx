@@ -133,9 +133,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* ── Logo ── */}
-          <Link href={withLocale(locale)} className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <Link href={withLocale(locale)} prefetch={false} className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <span
-              className={`text-xl lg:text-2xl font-semibold tracking-[0.2em] transition-colors duration-300 ${
+              className={`text-xl lg:text-2xl font-medium tracking-[0.2em] transition-colors duration-300 ${
                 isHomeHero ? 'text-white' : 'text-black'
               }`}
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
@@ -156,6 +156,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={false}
                 className={`relative text-sm font-normal tracking-wide py-1 group ${
                   isHomeHero ? 'text-white' : 'text-black'
                 }`}
@@ -250,8 +251,9 @@ export default function Navbar() {
         {/* Logo — absolutely positioned to match header exactly */}
         <Link
           href={withLocale(locale)}
+          prefetch={false}
           onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-          className="absolute top-0 left-6 sm:left-10 h-16 flex items-center text-xl font-semibold tracking-[0.2em] text-black"
+          className="absolute top-0 left-6 sm:left-10 h-16 flex items-center text-xl font-medium tracking-[0.2em] text-black"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >
           RAHATLYK
@@ -282,6 +284,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={false}
                 onClick={() => setMenuOpen(false)}
                 className={`text-[2.2rem] font-light leading-snug tracking-tight transition-colors ${
                   isActive(link.href) ? 'text-black' : 'text-black/40 hover:text-black'

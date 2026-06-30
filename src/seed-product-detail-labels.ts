@@ -1,51 +1,60 @@
+import { createRequire } from 'node:module'
 import { getPayload } from 'payload'
-import config from '../payload.config'
+
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
 
 const LABELS = {
-  sizeLabel: {
-    en: 'Size',
-    tm: 'Göwrüm',
-    ru: 'Объём',
+  en: {
+    listingTitle: 'Premium Beverages',
+    filterAllLabel: 'All',
+    noProductsMessage: 'No products in this category.',
+    paginationItemLabel: 'products',
+    sizeLabel: 'Size',
+    nutritionLabel: 'Nutrition',
+    aboutLabel: 'About',
+    relatedHeading: 'More in {category}',
+    mineralLabel: 'Mineral',
+    perLitreLabel: 'Per Litre',
   },
-  nutritionLabel: {
-    en: 'Nutrition',
-    tm: 'Iýmit gymmaty',
-    ru: 'Питательная ценность',
+  tm: {
+    listingTitle: 'Premium Içgiler',
+    filterAllLabel: 'Hemmesi',
+    noProductsMessage: 'Bu kategoriýada önüm ýok.',
+    paginationItemLabel: 'önüm',
+    sizeLabel: 'Göwrüm',
+    nutritionLabel: 'Iýmit gymmaty',
+    aboutLabel: 'Barada',
+    relatedHeading: '{category} boýunça has köp',
+    mineralLabel: 'Mineral',
+    perLitreLabel: 'Litrde',
   },
-  aboutLabel: {
-    en: 'About',
-    tm: 'Barada',
-    ru: 'О продукте',
+  ru: {
+    listingTitle: 'Премиальные Напитки',
+    filterAllLabel: 'Все',
+    noProductsMessage: 'В этой категории пока нет продуктов.',
+    paginationItemLabel: 'продуктов',
+    sizeLabel: 'Объём',
+    nutritionLabel: 'Питательная ценность',
+    aboutLabel: 'О продукте',
+    relatedHeading: 'Ещё в категории {category}',
+    mineralLabel: 'Минерал',
+    perLitreLabel: 'На литр',
   },
-  mineralLabel: {
-    en: 'Mineral',
-    tm: 'Mineral',
-    ru: 'Минерал',
-  },
-  perLitreLabel: {
-    en: 'Per Litre',
-    tm: 'Litrde',
-    ru: 'На литр',
-  },
-}
+} as const
 
 async function seedProductDetailLabels() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
-  console.log('Seeding Product Detail Labels...')
+  console.log('Seeding Product Labels...')
 
   for (const locale of ['en', 'tm', 'ru'] as const) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (payload.updateGlobal as any)({
+    await payload.updateGlobal({
       slug: 'product-detail-labels',
       locale,
-      data: {
-        sizeLabel:      LABELS.sizeLabel[locale],
-        nutritionLabel: LABELS.nutritionLabel[locale],
-        aboutLabel:     LABELS.aboutLabel[locale],
-        mineralLabel:   LABELS.mineralLabel[locale],
-        perLitreLabel:  LABELS.perLitreLabel[locale],
-      },
+      data: LABELS[locale],
     })
     console.log(`  [global] product-detail-labels updated for locale: ${locale}`)
   }

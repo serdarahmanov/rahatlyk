@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import { formatDate } from '@/lib/formatDate'
-import type { PayloadVacancy } from '@/types/payload'
+import type { PayloadVacancy, VacancyLabelsData } from '@/types/payload'
 
 export interface VacancyFormStrings {
   commonFields: {
@@ -70,9 +71,10 @@ interface Props {
   vacancy: PayloadVacancy
   others: PayloadVacancy[]
   forms: VacancyFormStrings
+  labels: VacancyLabelsData
 }
 
-export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
+export default function VacancyDetailClient({ vacancy, others, forms, labels }: Props) {
   const cl = forms.commonFields.labels
   const cp = forms.commonFields.placeholders
   const vl = forms.vacancyForm.labels
@@ -207,8 +209,8 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
         <p className="text-slate-600 text-base leading-relaxed mb-6">{vacancy.overview}</p>
         {vacancy.benefits && vacancy.benefits.length > 0 && (
           <>
-            <h3 className="text-lg font-semibold text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-              {t.vacancies.benefitsPerks}
+            <h3 className="text-lg font-medium text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+              {labels.benefitsPerks}
             </h3>
             <ul className="grid sm:grid-cols-2 gap-3">
               {vacancy.benefits.map((b) => (
@@ -237,8 +239,8 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
     requirements: (
       <div className="space-y-8">
         <div>
-          <h3 className="text-base font-semibold text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-            {t.vacancies.required}
+          <h3 className="text-base font-medium text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+            {labels.required}
           </h3>
           <ul className="space-y-3">
             {vacancy.requirements.map((r) => (
@@ -251,8 +253,8 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
         </div>
         {vacancy.niceToHave && vacancy.niceToHave.length > 0 && (
           <div>
-            <h3 className="text-base font-semibold text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
-              {t.vacancies.niceToHave}
+            <h3 className="text-base font-medium text-brand-950 mb-4" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+              {labels.niceToHave}
             </h3>
             <ul className="space-y-3">
               {vacancy.niceToHave.map((n) => (
@@ -310,7 +312,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                     <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
                     <path d="M7 4v3l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                   </svg>
-                  {t.vacancies.posted} {formatDate(vacancy.postedDate, locale)}
+                  {labels.postedLabel} {formatDate(vacancy.postedDate, locale)}
                 </span>
               </>
             )}
@@ -350,7 +352,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                   tab === key ? 'bg-white text-brand-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
-                {{ overview: t.vacancies.tabOverview, responsibilities: t.vacancies.tabResponsibilities, requirements: t.vacancies.tabRequirements }[key]}
+                {{ overview: labels.tabOverview, responsibilities: labels.tabResponsibilities, requirements: labels.tabRequirements }[key]}
               </button>
             ))}
           </div>
@@ -377,7 +379,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+                  <h3 className="text-2xl font-medium text-gray-900" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
                     {vm.successHeading}
                   </h3>
                   <p className="text-gray-500 text-sm mt-0.5">
@@ -523,7 +525,7 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
               className="text-xl sm:text-2xl font-medium text-brand-950 mb-8"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {t.vacancies.otherOpenings}
+              {labels.otherOpenings}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {others.map((v) => {
@@ -539,10 +541,12 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                       style={v.imageUrl ? undefined : { background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
                       {v.imageUrl ? (
-                        <img
+                        <Image
                           src={v.imageUrl}
                           alt={v.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="flex items-center justify-center w-full h-full">
@@ -555,11 +559,11 @@ export default function VacancyDetailClient({ vacancy, others, forms }: Props) {
                     <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
                       <div className="flex items-center gap-2 mb-2.5">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
-                        <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>{v.department.label}</span>
+                        <span className="text-[11px] font-medium tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>{v.department.label}</span>
                       </div>
-                      <h3 className="text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] mb-2" style={{ color: '#1d1d1f' }}>{v.title}</h3>
+                      <h3 className="text-[17px] font-medium leading-[1.25] tracking-[-0.015em] mb-2" style={{ color: '#1d1d1f' }}>{v.title}</h3>
                       <p className="text-[13.5px] leading-[1.5] line-clamp-2 flex-1 mb-4" style={{ color: '#6e6e73' }}>{v.overview}</p>
-                      <div className="flex items-center gap-[7px] text-sm font-semibold mb-2.5" style={{ color: '#1d1d1f' }}>
+                      <div className="flex items-center gap-[7px] text-sm font-medium mb-2.5" style={{ color: '#1d1d1f' }}>
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-shrink-0" style={{ color: '#6e6e73' }}>
                           <rect x="1.5" y="3.5" width="13" height="9" rx="2" stroke="currentColor" strokeWidth="1.3"/>
                           <circle cx="8" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.3"/>

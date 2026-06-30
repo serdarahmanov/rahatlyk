@@ -8,20 +8,21 @@ import EmptyState from '@/components/EmptyState'
 import ProductVisual from '@/components/ProductVisual'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
-import type { PayloadCategory, PayloadProduct, PayloadResult } from '@/types/payload'
+import type { PayloadCategory, PayloadProduct, PayloadResult, ProductLabelsData } from '@/types/payload'
 
 interface Props {
   categories: PayloadCategory[]
   result: PayloadResult<PayloadProduct>
   category: string
+  labels: ProductLabelsData
 }
 
-export default function ProductsClient({ categories, result, category }: Props) {
-  const { locale, t } = useLanguage()
+export default function ProductsClient({ categories, result, category, labels }: Props) {
+  const { locale } = useLanguage()
   const router = useRouter()
 
   const filters = [
-    { key: 'all', label: t.products.filterAll },
+    { key: 'all', label: labels.filterAllLabel },
     ...categories.map(c => ({ key: c.slug, label: c.label })),
   ]
 
@@ -48,7 +49,7 @@ export default function ProductsClient({ categories, result, category }: Props) 
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {t.products.title.split(/\s+/).map((word, index, words) => (
+              {labels.listingTitle.split(/\s+/).map((word, index, words) => (
                 <span key={`${word}-${index}`} style={{ display: 'inline' }}>
                   <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
                     <span
@@ -67,7 +68,7 @@ export default function ProductsClient({ categories, result, category }: Props) 
           <FilterBar filters={filters} active={category} onChange={handleFilterChange} />
 
           {result.totalDocs === 0 && (
-            <EmptyState message={t.vacancies.noCurrent} />
+            <EmptyState message={labels.noProductsMessage} />
           )}
 
           <div
@@ -108,7 +109,7 @@ export default function ProductsClient({ categories, result, category }: Props) 
             totalDocs={result.totalDocs}
             limit={result.limit}
             onChange={handlePageChange}
-            label="products"
+            label={labels.paginationItemLabel}
           />
         </div>
       </section>

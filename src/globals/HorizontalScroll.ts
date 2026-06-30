@@ -54,7 +54,7 @@ export const HorizontalScroll: GlobalConfig = {
       name: 'box5',
       label: 'Box 5 — Wide Video with Overlay',
       admin: {
-        description: 'Upload a video for the main content. Upload a cover image to show while the video is loading or lagging.',
+        description: 'Upload a cover image and video. The site loads the cover first and delays this video until the home hero video is fully buffered.',
       },
       fields: [
         { name: 'video',      type: 'relationship', relationTo: 'media' as const },

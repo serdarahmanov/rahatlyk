@@ -99,7 +99,7 @@ export type HomeStoryData = {
 }
 
 export type HomeCtaBannerData = {
-  videoUrl: string | null
+  imageUrl: string | null
   title:    string | null
   subtitle: string | null
   ctaLabel: string | null
@@ -114,10 +114,56 @@ export type HomeHeroData = {
   subtitle:    string | null
 }
 
-export type ProductDetailLabelsData = {
-  sizeLabel:      string | null
-  nutritionLabel: string | null
-  aboutLabel:     string | null
-  mineralLabel:   string | null
-  perLitreLabel:  string | null
+export type ArticleLabelsData = {
+  homeSectionTag:      string
+  pageTitle:           string
+  filterAllLabel:      string
+  featuredLabel:       string
+  readArticleLabel:    string
+  backToNewsLabel:     string
+  moreArticlesHeading: string
+  noArticlesMessage:   string
+}
+
+export type ProductLabelsData = {
+  listingTitle:        string
+  filterAllLabel:      string
+  noProductsMessage:   string
+  paginationItemLabel: string
+  sizeLabel:           string
+  nutritionLabel:      string
+  aboutLabel:          string
+  relatedHeading:      string
+  mineralLabel:        string
+  perLitreLabel:       string
+}
+
+export type ProductDetailLabelsData = ProductLabelsData
+
+export type VacancyLabelsData = {
+  pageTitle:           string
+  filterAllLabel:      string
+  openPosition:        string
+  openPositions:       string
+  noOpeningsMessage:   string
+  paginationItemLabel: string
+  perks: {
+    title:        string
+    growthTitle:  string
+    growthDesc:   string
+    healthTitle:  string
+    healthDesc:   string
+    cultureTitle: string
+    cultureDesc:  string
+    impactTitle:  string
+    impactDesc:   string
+  }
+  postedLabel:         string
+  tabOverview:         string
+  tabResponsibilities: string
+  tabRequirements:     string
+  benefitsPerks:       string
+  required:            string
+  niceToHave:          string
+  otherOpenings:       string
 }

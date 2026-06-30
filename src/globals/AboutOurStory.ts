@@ -30,6 +30,20 @@ export const AboutOurStory: GlobalConfig = {
       label: 'Subtitle',
     },
     {
+      name: 'leftImage',
+      type: 'upload',
+      relationTo: 'media',
+      required: true,
+      label: 'Left Mosaic Image',
+    },
+    {
+      name: 'rightImage',
+      type: 'upload',
+      relationTo: 'media',
+      required: true,
+      label: 'Right Mosaic Image',
+    },
+    {
       name: 'milestones',
       type: 'array',
       label: 'History Cards',

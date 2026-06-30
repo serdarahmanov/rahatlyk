@@ -2,15 +2,13 @@ import fs from 'fs'
 import { createRequire } from 'node:module'
 import path from 'path'
 import { getPayload } from 'payload'
-import { ABOUT_MOSAIC_CONTENT } from './lib/data/about-mosaic-content'
+import { ABOUT_FINAL_SECTION_CONTENT } from './lib/data/about-final-section-content'
 
 const require = createRequire(import.meta.url)
 const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
 
-async function uploadImage(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-  image: { filename: string; path: string; alt: string },
-) {
+async function uploadImage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const image = ABOUT_FINAL_SECTION_CONTENT.image
   const existing = await payload.find({
     collection: 'media',
     limit: 1,
@@ -24,7 +22,7 @@ async function uploadImage(
 
   const imagePath = path.resolve(image.path)
   if (!fs.existsSync(imagePath)) {
-    throw new Error(`Mosaic image not found: ${imagePath}`)
+    throw new Error(`Final section image not found: ${imagePath}`)
   }
 
   const buffer = fs.readFileSync(imagePath)
@@ -33,7 +31,7 @@ async function uploadImage(
     data: { alt: image.alt },
     file: {
       data: buffer,
-      mimetype: 'image/png',
+      mimetype: image.mimetype,
       name: image.filename,
       size: buffer.length,
     },
@@ -43,29 +41,33 @@ async function uploadImage(
   return uploaded.id as number
 }
 
-async function seedAboutMosaic() {
+async function seedAboutFinalSection() {
   loadEnvConfig(process.cwd())
   const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
-  console.log('Seeding About Mosaic...')
+  console.log('Seeding About Final Section...')
 
-  const [leftImage, rightImage] = await Promise.all([
-    uploadImage(payload, ABOUT_MOSAIC_CONTENT.leftImage),
-    uploadImage(payload, ABOUT_MOSAIC_CONTENT.rightImage),
-  ])
+  const image = await uploadImage(payload)
 
-  await payload.updateGlobal({
-    slug: 'about-mosaic',
-    data: { leftImage, rightImage },
-  })
+  for (const locale of ['en', 'tm', 'ru'] as const) {
+    await payload.updateGlobal({
+      slug: 'about-final-section',
+      locale,
+      data: {
+        image,
+        heading: ABOUT_FINAL_SECTION_CONTENT.heading[locale],
+        body: ABOUT_FINAL_SECTION_CONTENT.body[locale],
+      },
+    })
+    console.log(`  [global] updated locale: ${locale}`)
+  }
 
-  console.log('  [global] updated: about-mosaic')
   console.log('Done.')
   process.exit(0)
 }
 
-seedAboutMosaic().catch((error) => {
+seedAboutFinalSection().catch((error) => {
   console.error(error)
   process.exit(1)
 })

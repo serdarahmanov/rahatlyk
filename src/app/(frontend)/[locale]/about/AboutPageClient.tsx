@@ -20,6 +20,7 @@ export type AboutPageData = {
     sectionTitle: string;
     paragraphs: string[];
     fullViewportImage: string;
+    backgroundVideo: string | null;
   };
   story: {
     sectionLabel: string;
@@ -62,50 +63,15 @@ export type AboutPageData = {
       photo: string | null;
     }>;
   };
+  finalSection: {
+    image: string;
+    heading: string;
+    body: string;
+  };
 };
 
 const headingStyle = { fontFamily: 'var(--font-heading), sans-serif' };
 const accentStyle = { fontFamily: 'var(--font-accent), Georgia, "Times New Roman", serif' };
-
-const MOSAIC_LINES = [
-  {
-    index: 'Collection 01',
-    title: 'The',
-    accent: 'Waters',
-    desc: 'Drinking water and naturally balanced mineral water - purified, tested batch by batch, and bottled at our own facility. The foundation of everything we make.',
-    direction: 1,
-    cells: [
-      { type: 'image', width: 'lg', src: '/story/photo-2.jpg', alt: 'Clear water surface' },
-      { type: 'image', width: 'lg', src: '/news/1.5liter-bottles.jpg', alt: 'Bottled drinking water' },
-      { type: 'image', width: 'md', src: '/story/photo-9.jpg', alt: 'Natural water landscape' },
-    ],
-  },
-  {
-    index: 'Collection 02',
-    title: 'Juices',
-    accent: '& Soft Drinks',
-    desc: 'Sun-ripened fruit pressed to taste like the season, plus sparkling soft drinks made for good company. Recipes developed entirely in-house.',
-    direction: -1,
-    cells: [
-      { type: 'image', width: 'lg', src: '/reference/New-250ml-Juice-Banner-Website.jpg', alt: 'Fresh juice bottles' },
-      { type: 'image', width: 'lg', src: '/reference/KarunaJuice_Photo_RainbowlFoods.jpg', alt: 'Fresh fruit drink' },
-      { type: 'image', width: 'md', src: '/reference/Smoothie-Drink-Product-Photography-Studio-in-London-Innocent-Smoothies-Neve-Studios-1.webp', alt: 'Smoothie drink' },
-    ],
-  },
-  {
-    index: 'Collection 03',
-    title: 'Energy',
-    accent: '& Calm',
-    desc: 'A clean charge for people who keep moving, and herbal teas that slow the evening down. Two ends of the day, one collection.',
-    direction: 1,
-    cells: [
-      { type: 'image', width: 'lg', src: '/story/photo-5.jpg', alt: 'Calm herbal tea mood' },
-      { type: 'image', width: 'lg', src: '/story/photo-3.jpg', alt: 'Morning energy' },
-      { type: 'image', width: 'md', src: '/story/photo-6.jpg', alt: 'Active day drink' },
-    ],
-  },
-] as const;
-
 
 export default function AboutPageClient({ data }: { data: AboutPageData }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -199,8 +165,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
       cancelled = true;
       wordCtx?.revert();
     };
-    // Key on the statement text: changes every time a locale's data arrives.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.whoWeAre.statement.text]);
 
   useEffect(() => {
@@ -664,9 +628,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
   // Derive statement words with accent position
   const statementWords = data.whoWeAre.statement.text.split(' ');
 
-  // Derive "Who we are" label words
-  const wwaTitleWords = data.whoWeAre.sectionTitle.split(' ');
-
   const activeCert = activeCertificate !== null ? data.certs.certificates[activeCertificate] : null;
 
   return (
@@ -679,7 +640,8 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             alt="About page hero"
             fill
             priority
-            sizes="100vw"
+            sizes="(min-width: 1600px) 1600px, 100vw"
+            unoptimized
             className="object-cover object-center will-change-transform"
           />
         </div>
@@ -713,7 +675,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
       <main ref={pageRef} className="relative z-[2] bg-[#FAFAF8] shadow-[0_-30px_80px_rgba(10,12,13,0.18)]">
         <section className="about-statement px-[clamp(18px,3.6vw,52px)] pb-[clamp(80px,14vh,160px)] pt-[clamp(140px,22vh,260px)]">
           <p
-            className={`mx-auto max-w-[24ch] text-right text-[clamp(24px,3.3vw,44px)] leading-[1.18] tracking-[-0.01em] ${locale === 'ru' ? 'font-normal' : 'font-[550]'}`}
+            className={`mx-auto max-w-[24ch] text-right text-[clamp(24px,3.3vw,44px)] leading-[1.18] tracking-[-0.01em] ${locale === 'ru' ? 'font-normal' : 'font-medium'}`}
             style={headingStyle}
           >
             {statementWords.map((word, index) => {
@@ -722,7 +684,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
               return (
                 <Fragment key={`s-${index}`}>
                   {isAccent ? (
-                    <em className="statement-word inline-block opacity-[0.12] italic font-semibold text-[#0891b2]" style={accentStyle}>
+                    <em className="statement-word inline-block opacity-[0.12] italic font-medium text-[#0891b2]" style={accentStyle}>
                       {word}
                     </em>
                   ) : (
@@ -738,7 +700,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
         <section ref={videoScrubSectionRef} className="relative h-screen overflow-hidden bg-[#0c3a52]">
           <video
             ref={videoScrubRef}
-            src="/videos/hero-optimized.mp4"
+            src={data.whoWeAre.backgroundVideo ?? undefined}
             muted
             playsInline
             loop
@@ -957,7 +919,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             className="absolute inset-x-0 top-0 h-[128%] will-change-transform"
           >
             <Image
-              src="/about/last section image/about last section image.png"
+              src={data.finalSection.image}
               alt=""
               fill
               sizes="100vw"
@@ -970,10 +932,10 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
               className="max-w-[20ch] text-[clamp(32px,5vw,72px)] font-light leading-[1.06] tracking-[-0.01em]"
               style={headingStyle}
             >
-              Every drop, a promise kept.
+              {data.finalSection.heading}
             </h2>
-            <p className="mt-[clamp(14px,2vw,24px)] max-w-[44ch] text-[clamp(14px,1.4vw,18px)] leading-[1.5] text-[#141618]/75">
-              From the first filtration to the final cap, Rahatlyk keeps quality in its own hands — every bottle, every time.
+            <p className="mt-[clamp(14px,2vw,24px)] max-w-[44ch] text-[clamp(14px,1.4vw,18px)] font-medium leading-[1.5] text-[#141618]/85">
+              {data.finalSection.body}
             </p>
           </div>
         </section>

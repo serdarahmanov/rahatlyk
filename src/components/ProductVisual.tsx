@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 type ProductVisualPhoto = string | { url: string };
@@ -20,13 +23,29 @@ const FALLBACK = '/products/FeatureProductImg_RTD_LT.png';
 const photoUrl = (p: ProductVisualPhoto | undefined): string =>
   typeof p === 'string' ? p : p?.url ?? FALLBACK;
 
+function useCanLoadHoverMedia() {
+  const [canLoad, setCanLoad] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)');
+    const update = () => setCanLoad(query.matches);
+
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  return canLoad;
+}
+
 export default function ProductVisual({ product, size = 'sm', className = '' }: Props) {
+  const canLoadHoverMedia = useCanLoadHoverMedia();
   const src  = photoUrl(product.photos?.[0]);
   const src2 = photoUrl(product.photos?.[1]);
 
   if (size === 'sm') {
-    const hoverVideo = product.videoUrl ?? null;
-    const hoverPhoto = !hoverVideo && src2 !== src ? src2 : null;
+    const hoverVideo = canLoadHoverMedia ? product.videoUrl ?? null : null;
+    const hoverPhoto = canLoadHoverMedia && !hoverVideo && src2 !== src ? src2 : null;
     const hasHover   = !!(hoverVideo || hoverPhoto);
 
     return (

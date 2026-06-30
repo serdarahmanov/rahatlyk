@@ -1,13 +1,61 @@
+import fs from 'fs'
+import { createRequire } from 'node:module'
+import path from 'path'
 import { getPayload } from 'payload'
-import config from '../payload.config'
+import { ABOUT_MOSAIC_CONTENT } from './lib/data/about-mosaic-content'
 import { ABOUT_OUR_STORY_CONTENT } from './lib/data/about-our-story-content'
 
+const require = createRequire(import.meta.url)
+const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
+
+async function uploadImage(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  image: { filename: string; path: string; alt: string },
+) {
+  const existing = await payload.find({
+    collection: 'media',
+    limit: 1,
+    where: { filename: { equals: image.filename } },
+  })
+
+  if (existing.docs[0]) {
+    console.log(`  [media] already exists: ${image.filename}`)
+    return existing.docs[0].id as number
+  }
+
+  const imagePath = path.resolve(image.path)
+  if (!fs.existsSync(imagePath)) {
+    throw new Error(`Mosaic image not found: ${imagePath}`)
+  }
+
+  const buffer = fs.readFileSync(imagePath)
+  const uploaded = await payload.create({
+    collection: 'media',
+    data: { alt: image.alt },
+    file: {
+      data: buffer,
+      mimetype: 'image/png',
+      name: image.filename,
+      size: buffer.length,
+    },
+  })
+
+  console.log(`  [media] uploaded: ${image.filename}`)
+  return uploaded.id as number
+}
+
 async function seedAboutOurStory() {
+  loadEnvConfig(process.cwd())
+  const { default: config } = await import('../payload.config')
   const payload = await getPayload({ config })
 
   console.log('Seeding About Our Story...')
 
   const data = ABOUT_OUR_STORY_CONTENT
+  const [leftImage, rightImage] = await Promise.all([
+    uploadImage(payload, ABOUT_MOSAIC_CONTENT.leftImage),
+    uploadImage(payload, ABOUT_MOSAIC_CONTENT.rightImage),
+  ])
 
   // Seed the default locale first — this creates the array items and their IDs
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +66,8 @@ async function seedAboutOurStory() {
       sectionLabel: data.sectionLabel.en,
       title: data.title.en,
       subtitle: data.subtitle.en,
+      leftImage,
+      rightImage,
       milestones: data.milestones.map((m) => ({
         year: m.year,
         title: m.title.en,
@@ -45,6 +95,8 @@ async function seedAboutOurStory() {
         sectionLabel: data.sectionLabel[locale],
         title: data.title[locale],
         subtitle: data.subtitle[locale],
+        leftImage,
+        rightImage,
         milestones: data.milestones.map((m, i) => ({
           ...(itemIds[i] !== undefined ? { id: itemIds[i] } : {}),
           year: m.year,

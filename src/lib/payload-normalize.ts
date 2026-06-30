@@ -1,4 +1,4 @@
-import type { Article, Media, Product, ProductLine, Vacancy } from '../../payload-types'
+import type { Article, Media, Product, Vacancy } from '../../payload-types'
 import type {
   HorizontalScrollData,
   HomeCtaBannerData,
@@ -47,8 +47,18 @@ const urlRows = (items: { media?: number | Media | null; url?: string | null; id
     return url ? [{ id: itemID(item.id, index), url }] : []
   })
 
-export const normalizeProductLine = (raw: ProductLine): PayloadProductLine => ({
-  id: String(raw.id),
+type RawProductLine = {
+  id?: string | null
+  key: string
+  name: string
+  description: string
+  body?: string | null
+  image?: number | Media | null
+  order?: number | null
+}
+
+export const normalizeProductLine = (raw: RawProductLine, index = 0): PayloadProductLine => ({
+  id: itemID(raw.id, index),
   key: raw.key,
   name: raw.name,
   description: raw.description,
@@ -162,7 +172,7 @@ export const normalizeHomeHero = (raw: any): HomeHeroData => ({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeHomeCtaBanner = (raw: any): HomeCtaBannerData => ({
-  videoUrl: rawMediaUrl(raw?.video),
+  imageUrl: rawMediaUrl(raw?.image),
   title:    rawStr(raw?.title),
   subtitle: rawStr(raw?.subtitle),
   ctaLabel: rawStr(raw?.ctaLabel),

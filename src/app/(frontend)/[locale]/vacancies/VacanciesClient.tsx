@@ -1,13 +1,14 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
 import Pagination from '@/components/Pagination'
-import type { PayloadCategory, PayloadVacancy, PayloadResult } from '@/types/payload'
+import type { PayloadCategory, PayloadVacancy, PayloadResult, VacancyLabelsData } from '@/types/payload'
 
 const DEPT_ICONS: Record<string, React.ReactNode> = {
   Production: (
@@ -70,6 +71,7 @@ const DEPT_ACCENT: Record<string, { dot: string; bg1: string; bg2: string }> = {
 
 const PERKS = [
   {
+    key: 'growth',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -77,19 +79,21 @@ const PERKS = [
         <path d="M2 12l10 5 10-5" />
       </svg>
     ),
-    titleKey: 'growth',
-    descKey:  'growthDesc',
+    titleKey: 'growthTitle'  as const,
+    descKey:  'growthDesc'   as const,
   },
   {
+    key: 'health',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
       </svg>
     ),
-    titleKey: 'health',
-    descKey:  'healthDesc',
+    titleKey: 'healthTitle'  as const,
+    descKey:  'healthDesc'   as const,
   },
   {
+    key: 'culture',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -98,10 +102,11 @@ const PERKS = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
       </svg>
     ),
-    titleKey: 'culture',
-    descKey:  'cultureDesc',
+    titleKey: 'cultureTitle' as const,
+    descKey:  'cultureDesc'  as const,
   },
   {
+    key: 'impact',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -109,8 +114,8 @@ const PERKS = [
         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
       </svg>
     ),
-    titleKey: 'impact',
-    descKey:  'impactDesc',
+    titleKey: 'impactTitle'  as const,
+    descKey:  'impactDesc'   as const,
   },
 ] as const
 
@@ -118,14 +123,15 @@ interface Props {
   departments: PayloadCategory[]
   result: PayloadResult<PayloadVacancy>
   department: string
+  labels: VacancyLabelsData
 }
 
-export default function VacanciesClient({ departments, result, department }: Props) {
-  const { locale, t } = useLanguage()
+export default function VacanciesClient({ departments, result, department, labels }: Props) {
+  const { locale } = useLanguage()
   const router = useRouter()
 
   const filters = [
-    { key: 'all', label: t.vacancies.filterAll },
+    { key: 'all', label: labels.filterAllLabel },
     ...departments.map(d => ({ key: d.slug, label: d.label })),
   ]
 
@@ -143,8 +149,6 @@ export default function VacanciesClient({ departments, result, department }: Pro
     router.push(qs ? `${vacanciesPath}?${qs}` : vacanciesPath)
   }
 
-  const perks = t.vacancies.perks
-
   return (
     <div className="min-h-screen">
       <section className="pt-32 pb-12 bg-white">
@@ -154,7 +158,7 @@ export default function VacanciesClient({ departments, result, department }: Pro
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {t.vacancies.title.split(/\s+/).map((word, index, words) => (
+              {labels.pageTitle.split(/\s+/).map((word, index, words) => (
                 <span key={`${word}-${index}`} style={{ display: 'inline' }}>
                   <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
                     <span
@@ -177,12 +181,12 @@ export default function VacanciesClient({ departments, result, department }: Pro
               className="text-xl sm:text-2xl font-light text-brand-950"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {result.totalDocs} {result.totalDocs === 1 ? t.vacancies.openPosition : t.vacancies.openPositions}
+              {result.totalDocs} {result.totalDocs === 1 ? labels.openPosition : labels.openPositions}
             </h2>
           </div>
 
           {result.totalDocs === 0 ? (
-            <EmptyState message={t.vacancies.noCurrent} />
+            <EmptyState message={labels.noOpeningsMessage} />
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {result.docs.map((job, index) => {
@@ -199,10 +203,12 @@ export default function VacanciesClient({ departments, result, department }: Pro
                       style={job.imageUrl ? undefined : { background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
                       {job.imageUrl ? (
-                        <img
+                        <Image
                           src={job.imageUrl}
                           alt={job.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="flex items-center justify-center w-full h-full">
@@ -216,13 +222,13 @@ export default function VacanciesClient({ departments, result, department }: Pro
                     <div className="px-5 pt-[18px] pb-5 flex flex-col flex-1" style={{ fontFamily: 'var(--font-heading), var(--font-inter), system-ui, sans-serif' }}>
                       <div className="flex items-center gap-2 mb-2.5">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: acc.dot }} />
-                        <span className="text-[11px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>
+                        <span className="text-[11px] font-medium tracking-[0.05em] uppercase" style={{ color: '#6e6e73' }}>
                           {job.department.label}
                         </span>
                       </div>
 
                       <h3
-                        className="text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] mb-2"
+                        className="text-[17px] font-medium leading-[1.25] tracking-[-0.015em] mb-2"
                         style={{ color: '#1d1d1f' }}
                       >
                         {job.title}
@@ -232,7 +238,7 @@ export default function VacanciesClient({ departments, result, department }: Pro
                         {job.overview}
                       </p>
 
-                      <div className="flex items-center gap-[7px] text-sm font-semibold mb-2.5" style={{ color: '#1d1d1f' }}>
+                      <div className="flex items-center gap-[7px] text-sm font-medium mb-2.5" style={{ color: '#1d1d1f' }}>
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-shrink-0" style={{ color: '#6e6e73' }}>
                           <rect x="1.5" y="3.5" width="13" height="9" rx="2" stroke="currentColor" strokeWidth="1.3"/>
                           <circle cx="8" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.3"/>
@@ -259,7 +265,7 @@ export default function VacanciesClient({ departments, result, department }: Pro
             totalDocs={result.totalDocs}
             limit={result.limit}
             onChange={handlePageChange}
-            label="positions"
+            label={labels.paginationItemLabel}
           />
         </div>
       </section>
@@ -270,12 +276,12 @@ export default function VacanciesClient({ departments, result, department }: Pro
             className="text-xl sm:text-2xl font-medium text-gray-900 text-center mb-10"
             style={{ fontFamily: 'var(--font-heading), sans-serif' }}
           >
-            {perks.title}
+            {labels.perks.title}
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {PERKS.map((perk, index) => (
               <div
-                key={perk.titleKey}
+                key={perk.key}
                 className="vacancy-perk-enter bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow duration-300"
                 style={{ '--listing-entry-index': index } as React.CSSProperties}
               >
@@ -283,10 +289,10 @@ export default function VacanciesClient({ departments, result, department }: Pro
                   {perk.icon}
                 </div>
                 <h3 className="font-light text-gray-900 text-sm mb-1">
-                  {perks[perk.titleKey as keyof typeof perks]}
+                  {labels.perks[perk.titleKey]}
                 </h3>
                 <p className="text-slate-500 text-xs leading-relaxed">
-                  {perks[perk.descKey as keyof typeof perks]}
+                  {labels.perks[perk.descKey]}
                 </p>
               </div>
             ))}

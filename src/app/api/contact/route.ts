@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { contactConfirmation, contactNotification } from '@/lib/email/templates';
+import { contactConfirmation, contactNotification, extractEmailContact } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
+import { getCachedContactInfo } from '@/lib/payload/cachedQueries';
 import { isSpam, sanitizeCsv } from '@/lib/spam-check';
 
 const VALID_LOCALES: EmailLocale[] = ['en', 'ru', 'tm'];
@@ -59,8 +60,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'messageTooLong' }, { status: 400 });
     }
 
-    const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale });
-    const notification    = contactNotification({ firstName, lastName, email, phone, subject, message, locale: 'ru' });
+    const rawContact      = await getCachedContactInfo().catch(() => null)
+    const contact         = extractEmailContact(rawContact, locale)
+    const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale, contact });
+    const notification    = contactNotification({ firstName, lastName, email, phone, subject, message, locale: 'ru', contact });
     const fromNoreply     = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite     = `"Website" <${process.env.WEBSITE_EMAIL}>`;
 

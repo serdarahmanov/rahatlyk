@@ -1,7 +1,10 @@
 export const ABOUT_WHO_WE_ARE_CONTENT = {
   // Full viewport image shown after the Who We Are text
-  fullViewportImageFile: 'photo-2.jpg',
-  fullViewportImageDir: 'public/story',
+  fullViewportImageFile: 'photo-2.webp',
+  fullViewportImageDir: 'public/story/webp',
+  fullViewportImageMimeType: 'image/webp',
+  backgroundVideoFile: 'hero-optimized.mp4',
+  backgroundVideoPath: 'public/videos/hero-optimized.mp4',
 
   statement: {
     text: {

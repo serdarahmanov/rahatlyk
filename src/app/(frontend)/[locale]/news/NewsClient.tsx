@@ -10,13 +10,14 @@ import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
 import { lexicalToPlainText } from '@/lib/lexical-serialize'
 import Pagination from '@/components/Pagination'
-import type { PayloadArticle, PayloadCategory, PayloadResult } from '@/types/payload'
+import type { ArticleLabelsData, PayloadArticle, PayloadCategory, PayloadResult } from '@/types/payload'
 
 interface Props {
   categories: PayloadCategory[]
   featured: PayloadArticle[]
   result: PayloadResult<PayloadArticle>
   category: string
+  labels: ArticleLabelsData
 }
 
 function NewsCard({
@@ -24,14 +25,16 @@ function NewsCard({
   featured = false,
   priority = false,
   entryIndex = 0,
+  labels,
 }: {
   article: PayloadArticle
   featured?: boolean
   priority?: boolean
   entryIndex?: number
+  labels: ArticleLabelsData
 }) {
   const router = useRouter()
-  const { t, locale } = useLanguage()
+  const { locale } = useLanguage()
   const imgs = article.images.map((i) => i.url)
   const [current, setCurrent] = useState(0)
   const [incoming, setIncoming] = useState<number | null>(null)
@@ -132,7 +135,7 @@ function NewsCard({
         {featured && (
           <div className="absolute top-3 left-3 z-10">
             <span className="bg-sky-500 text-white text-[10px] font-medium px-2.5 py-1 rounded-md uppercase tracking-wider">
-              {t.news.featured}
+              {labels.featuredLabel}
             </span>
           </div>
         )}
@@ -191,7 +194,7 @@ function NewsCard({
           </p>
         )}
         <span className="inline-flex h-9 items-center gap-1.5 rounded-md bg-gray-100 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 transition-all duration-200 group-hover:bg-gray-200">
-          {t.news.readArticle}
+          {labels.readArticleLabel}
           <svg className="transition-transform duration-200 group-hover:translate-x-1" width="13" height="13" viewBox="0 0 14 14" fill="none">
             <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -201,12 +204,12 @@ function NewsCard({
   )
 }
 
-export default function NewsClient({ categories, featured, result, category }: Props) {
-  const { t, locale } = useLanguage()
+export default function NewsClient({ categories, featured, result, category, labels }: Props) {
+  const { locale } = useLanguage()
   const router = useRouter()
 
   const filters = [
-    { key: 'all', label: t.news.filterAll },
+    { key: 'all', label: labels.filterAllLabel },
     ...categories.map(c => ({ key: c.slug, label: c.label })),
   ]
 
@@ -233,7 +236,7 @@ export default function NewsClient({ categories, featured, result, category }: P
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-black leading-tight"
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
-              {t.news.title.split(/\s+/).map((word, index, words) => (
+              {labels.pageTitle.split(/\s+/).map((word, index, words) => (
                 <span key={`${word}-${index}`} style={{ display: 'inline' }}>
                   <span className="inline-block overflow-hidden align-bottom pb-[0.18em] mb-[-0.18em]">
                     <span
@@ -261,6 +264,7 @@ export default function NewsClient({ categories, featured, result, category }: P
                     featured
                     priority={index === 0}
                     entryIndex={index}
+                    labels={labels}
                   />
                 ))}
               </div>
@@ -277,12 +281,13 @@ export default function NewsClient({ categories, featured, result, category }: P
                   article={article}
                   priority={featured.length === 0 && index === 0}
                   entryIndex={featured.length + index}
+                  labels={labels}
                 />
               ))}
             </div>
 
             {result.totalDocs === 0 && featured.length === 0 && (
-              <EmptyState message={t.vacancies.noCurrent} />
+              <EmptyState message={labels.noArticlesMessage} />
             )}
 
             <Pagination
