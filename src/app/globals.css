@@ -20,11 +20,12 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
   --font-heading: var(--font-inter);
+  --font-accent: Georgia, "Times New Roman", serif;
   background-color: #ffffff;
   color: #0f0b07;
   overflow-x: hidden;

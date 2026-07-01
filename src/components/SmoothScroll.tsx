@@ -12,9 +12,19 @@ export default function SmoothScroll() {
     let frame = 0;
     let lenisInstance: LenisType | null = null;
     let scrollTriggerUpdate: (() => void) | null = null;
+    let refreshScrollTrigger: (() => void) | null = null;
 
-    const onScrollTop = () => lenisInstance?.scrollTo(0, { immediate: true });
+    const onScrollTop = () => {
+      if (lenisInstance) {
+        lenisInstance.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+      requestAnimationFrame(() => refreshScrollTrigger?.());
+    };
+    const onRefresh = () => requestAnimationFrame(() => refreshScrollTrigger?.());
     window.addEventListener('scroll-to-top', onScrollTop);
+    window.addEventListener('refresh-scroll-triggers', onRefresh);
 
     const run = async () => {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -34,7 +44,14 @@ export default function SmoothScroll() {
       lenisInstance = lenis;
 
       import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        ScrollTrigger.config({ ignoreMobileResize: true });
         scrollTriggerUpdate = () => ScrollTrigger.update();
+        refreshScrollTrigger = () => ScrollTrigger.refresh();
+        requestAnimationFrame(() => {
+          if (cancelled) return;
+          ScrollTrigger.refresh();
+          window.dispatchEvent(new CustomEvent('smooth-scroll-ready'));
+        });
       });
 
       lenis.on('scroll', () => {
@@ -54,6 +71,7 @@ export default function SmoothScroll() {
     return () => {
       cancelled = true;
       window.removeEventListener('scroll-to-top', onScrollTop);
+      window.removeEventListener('refresh-scroll-triggers', onRefresh);
       cancelAnimationFrame(frame);
       lenisInstance?.destroy();
     };

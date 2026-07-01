@@ -195,6 +195,7 @@ export default function VacanciesClient({ departments, result, department, label
                   <Link
                     key={`${department}-${result.page}-${job.id}`}
                     href={withLocale(locale, `/vacancies/${job.id}`)}
+                    prefetch={false}
                     className="listing-card-enter group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
                     style={{ '--listing-entry-index': index } as React.CSSProperties}
                   >

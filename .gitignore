@@ -46,3 +46,7 @@ public/news/photos/
 
 # database dumps
 *.dump
+
+
+.next-dev*.log
+.next-dev*.pid

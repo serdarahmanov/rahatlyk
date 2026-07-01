@@ -6,7 +6,19 @@
 
 import { emailI18n, type EmailLocale } from './i18n';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com';
+const PRODUCTION_SITE = 'https://rahatlyk.com';
+
+function resolveSiteUrl(): string {
+  const configuredSite = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+
+  if (!configuredSite || configuredSite.includes('localhost') || configuredSite.includes('127.0.0.1')) {
+    return PRODUCTION_SITE;
+  }
+
+  return configuredSite.replace(/\/$/, '');
+}
+
+export const SITE = resolveSiteUrl();
 
 export interface EmailContactInfo {
   address: string

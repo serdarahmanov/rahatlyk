@@ -275,11 +275,11 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
       <section className="bg-white pt-32 pb-12 border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10" ref={heroRef}>
           <nav className="flex items-center gap-2 text-slate-400 text-xs mb-8">
-            <Link href={withLocale(locale)} className="hover:text-brand-700 transition-colors">{t.nav.home}</Link>
+            <Link href={withLocale(locale)} prefetch={false} className="hover:text-brand-700 transition-colors">{t.nav.home}</Link>
             <span>/</span>
-            <Link href={withLocale(locale, '/vacancies')} className="hover:text-brand-700 transition-colors">{t.nav.vacancies}</Link>
+            <Link href={withLocale(locale, '/vacancies')} prefetch={false} className="hover:text-brand-700 transition-colors">{t.nav.vacancies}</Link>
             <span>/</span>
-            <Link href={`${withLocale(locale, '/vacancies')}?department=${encodeURIComponent(vacancy.department.slug)}`} className="hover:text-brand-700 transition-colors">{vacancy.department.label}</Link>
+            <Link href={`${withLocale(locale, '/vacancies')}?department=${encodeURIComponent(vacancy.department.slug)}`} prefetch={false} className="hover:text-brand-700 transition-colors">{vacancy.department.label}</Link>
             <span>/</span>
             <span className="text-slate-600">{vacancy.title}</span>
           </nav>
@@ -534,6 +534,7 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
                   <Link
                     key={v.id}
                     href={withLocale(locale, `/vacancies/${v.id}`)}
+                    prefetch={false}
                     className="group bg-white rounded-[14px] border border-[#e8e8ed] overflow-hidden flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_18px_40px_rgba(0,0,0,0.10)] hover:-translate-y-[5px] hover:border-transparent transition-[transform,box-shadow,border-color] duration-300"
                   >
                     <div

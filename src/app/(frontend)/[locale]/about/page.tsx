@@ -9,6 +9,7 @@ import AboutPageClient, { type AboutPageData } from './AboutPageClient'
 const FALLBACK: AboutPageData = {
   hero: {
     coverImage: '/story/webp/photo-8.webp',
+    mobileCoverImage: null,
     title: 'The taste of comfort, made in Turkmenistan.',
     accentWordIndex: 4,
   },
@@ -119,6 +120,7 @@ const FALLBACK: AboutPageData = {
   },
   finalSection: {
     image: '/story/photo-1.jpg',
+    mobileImage: null,
     heading: 'Every drop, a promise kept.',
     body: 'From the first filtration to the final cap, Rahatlyk keeps quality in its own hands - every bottle, every time.',
   },
@@ -185,6 +187,7 @@ export default async function AboutPage({ params }: Props) {
     data = {
       hero: {
         coverImage:      resolveAboutHeroImage(heroRaw?.coverImage),
+        mobileCoverImage: heroRaw?.mobileCoverImage?.url || null,
         title:           heroRaw?.title                 || FALLBACK.hero.title,
         accentWordIndex: heroRaw?.accentWordIndex       ?? FALLBACK.hero.accentWordIndex,
       },
@@ -256,9 +259,10 @@ export default async function AboutPage({ params }: Props) {
           : FALLBACK.certs.certificates,
       },
       finalSection: {
-        image:   finalSectionRaw?.image?.url || FALLBACK.finalSection.image,
-        heading: finalSectionRaw?.heading    || FALLBACK.finalSection.heading,
-        body:    finalSectionRaw?.body       || FALLBACK.finalSection.body,
+        image:       finalSectionRaw?.image?.url       || FALLBACK.finalSection.image,
+        mobileImage: finalSectionRaw?.mobileImage?.url || null,
+        heading:     finalSectionRaw?.heading          || FALLBACK.finalSection.heading,
+        body:        finalSectionRaw?.body             || FALLBACK.finalSection.body,
       },
     }
 

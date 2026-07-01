@@ -14,7 +14,14 @@ export const AboutHero: GlobalConfig = {
       name: 'coverImage',
       type: 'relationship',
       relationTo: 'media' as const,
-      label: 'Cover Image',
+      label: 'Desktop Cover Image',
+    },
+    {
+      name: 'mobileCoverImage',
+      type: 'relationship',
+      relationTo: 'media' as const,
+      label: 'Mobile Cover Image',
+      admin: { description: 'Optional mobile hero image. Falls back to desktop cover image when empty.' },
     },
     {
       name: 'title',

@@ -99,19 +99,21 @@ export type HomeStoryData = {
 }
 
 export type HomeCtaBannerData = {
-  imageUrl: string | null
-  title:    string | null
-  subtitle: string | null
-  ctaLabel: string | null
-  ctaHref:  string | null
+  imageUrl:       string | null
+  mobileImageUrl: string | null
+  title:          string | null
+  subtitle:       string | null
+  ctaLabel:       string | null
+  ctaHref:        string | null
 }
 
 export type HomeHeroData = {
-  videoUrl:    string | null
-  posterUrl:   string | null
-  title:       string | null
-  titleAccent: string | null
-  subtitle:    string | null
+  videoUrl:        string | null
+  posterUrl:       string | null
+  mobilePosterUrl: string | null
+  title:           string | null
+  titleAccent:     string | null
+  subtitle:        string | null
 }
 
 export type ArticleLabelsData = {

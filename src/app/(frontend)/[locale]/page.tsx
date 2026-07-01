@@ -23,9 +23,9 @@ const EMPTY_H_SCROLL: HorizontalScrollData = {
 
 const EMPTY_STORY: HomeStoryData = { imageUrl: null, tag: null, title: null, text: null }
 
-const EMPTY_CTA: HomeCtaBannerData = { imageUrl: null, title: null, subtitle: null, ctaLabel: null, ctaHref: null }
+const EMPTY_CTA: HomeCtaBannerData = { imageUrl: null, mobileImageUrl: null, title: null, subtitle: null, ctaLabel: null, ctaHref: null }
 
-const EMPTY_HERO: HomeHeroData = { videoUrl: null, posterUrl: null, title: null, titleAccent: null, subtitle: null }
+const EMPTY_HERO: HomeHeroData = { videoUrl: null, posterUrl: null, mobilePosterUrl: null, title: null, titleAccent: null, subtitle: null }
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -47,14 +47,34 @@ export default async function HomePage({ params }: Props) {
   const articleLabels = resolveArticleLabels(locale, data.articleLabels)
 
   return (
-    <HomeClient
-      lines={lines}
-      horizontalScroll={horizontalScroll}
-      story={story}
-      newsArticles={newsArticles}
-      ctaBanner={ctaBanner}
-      hero={hero}
-      articleLabels={articleLabels}
-    />
+    <>
+      {hero.mobilePosterUrl && (
+        <link
+          rel="preload"
+          as="image"
+          href={hero.mobilePosterUrl}
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
+      )}
+      {hero.posterUrl && (
+        <link
+          rel="preload"
+          as="image"
+          href={hero.posterUrl}
+          media={hero.mobilePosterUrl ? '(min-width: 768px)' : undefined}
+          fetchPriority="high"
+        />
+      )}
+      <HomeClient
+        lines={lines}
+        horizontalScroll={horizontalScroll}
+        story={story}
+        newsArticles={newsArticles}
+        ctaBanner={ctaBanner}
+        hero={hero}
+        articleLabels={articleLabels}
+      />
+    </>
   )
 }

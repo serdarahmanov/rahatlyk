@@ -9,6 +9,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 export type AboutPageData = {
   hero: {
     coverImage: string;
+    mobileCoverImage: string | null;
     title: string;
     accentWordIndex: number;
   };
@@ -65,6 +66,7 @@ export type AboutPageData = {
   };
   finalSection: {
     image: string;
+    mobileImage: string | null;
     heading: string;
     body: string;
   };
@@ -634,16 +636,18 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
     <div ref={rootRef} className="min-h-screen overflow-x-clip bg-[#FAFAF8] text-[#141618]">
       <header className="sticky top-0 z-0 h-[100svh] min-h-[520px] overflow-hidden bg-[#0E1112]">
         <div className="absolute inset-0">
-          <Image
-            ref={heroImageRef}
-            src={data.hero.coverImage}
-            alt="About page hero"
-            fill
-            priority
-            sizes="(min-width: 1600px) 1600px, 100vw"
-            unoptimized
-            className="object-cover object-center will-change-transform"
-          />
+          <picture className="absolute inset-0 block">
+            {data.hero.mobileCoverImage && (
+              <source media="(max-width: 767px)" srcSet={data.hero.mobileCoverImage} />
+            )}
+            <img
+              ref={heroImageRef}
+              src={data.hero.coverImage}
+              alt="About page hero"
+              fetchPriority="high"
+              className="h-full w-full object-cover object-center will-change-transform"
+            />
+          </picture>
         </div>
         <div className="absolute inset-0 z-[2] bg-black/35" />
         <div className="absolute inset-0 z-[3] flex items-end justify-start px-[clamp(18px,3.6vw,52px)] pb-[clamp(64px,10vh,120px)] text-left">
@@ -918,13 +922,17 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             data-last-plx-media
             className="absolute inset-x-0 top-0 h-[128%] will-change-transform"
           >
-            <Image
-              src={data.finalSection.image}
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover object-center"
-            />
+            <picture className="absolute inset-0 block">
+              {data.finalSection.mobileImage && (
+                <source media="(max-width: 767px)" srcSet={data.finalSection.mobileImage} />
+              )}
+              <img
+                src={data.finalSection.image}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover object-center"
+              />
+            </picture>
           </div>
           <div className="absolute inset-0 bg-white/50" />
           <div className="absolute inset-0 flex flex-col items-center justify-center px-[clamp(18px,3.6vw,52px)] text-center text-[#141618]">

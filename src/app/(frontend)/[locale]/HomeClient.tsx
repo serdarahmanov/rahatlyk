@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -20,6 +20,7 @@ declare global {
   interface Window {
     __pageIntroDone?: boolean;
     __homeHeroCoverReady?: boolean;
+    __pageIntroWillPlay?: boolean;
   }
 }
 
@@ -35,7 +36,29 @@ if (typeof window !== 'undefined' && !introHasCompleted) {
   );
 }
 
-/* ── Word-level mask-reveal helper ───────────────────────────────── */
+/* ── Module-level cache: hero video URLs that have fully loaded ───── */
+const loadedHeroVideoUrls = new Set<string>();
+/* Tracks whether window.load has fired in this browser session */
+let _pageContentLoaded = false;
+
+function homeViewportHeight() {
+  if (typeof window === 'undefined') return 0;
+  const value = window.getComputedStyle(document.documentElement).getPropertyValue('--home-vh');
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : window.innerHeight;
+}
+
+function requestScrollTriggerRefresh() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
+  requestAnimationFrame(() => {
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+  });
+}
+
+/* ── Helpers ──────────────────────────────────────────────────────── */
 function pauseVideo(video: HTMLVideoElement | null) {
   if (!video) return;
   video.pause();
@@ -82,49 +105,54 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
 }
 
 /* ── Pinned horizontal-scroll section ────────────────────────────── */
-function HorizontalScrollSection({
+const HorizontalScrollSection = memo(function HorizontalScrollSection({
   data,
-  box5VideoEnabled,
+  pageLoaded,
 }: {
   data: HorizontalScrollData;
-  box5VideoEnabled: boolean;
+  pageLoaded: boolean;
 }) {
   const { locale } = useLanguage();
-  const containerRef    = useRef<HTMLDivElement>(null);
-  const trackRef        = useRef<HTMLDivElement>(null);
-  const isFirstDataRef  = useRef(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [loadedBox5CoverUrl, setLoadedBox5CoverUrl] = useState<string | null>(null);
+  const containerRef   = useRef<HTMLDivElement>(null);
+  const trackRef       = useRef<HTMLDivElement>(null);
+  const box5CoverImgRef = useRef<HTMLImageElement>(null);
+  const isFirstDataRef = useRef(true);
+  const [box5CoverReadyUrl, setBox5CoverReadyUrl] = useState<string | null>(null);
+  const [stableBox5VideoUrl, setStableBox5VideoUrl] = useState<string | null>(() => data.box5VideoUrl ?? null);
 
-  const shouldLoadBox5Video = box5VideoEnabled && (!data.box5CoverImageUrl || loadedBox5CoverUrl === data.box5CoverImageUrl);
+  const shouldLoadBox5Video = pageLoaded && (!data.box5CoverImageUrl || box5CoverReadyUrl === data.box5CoverImageUrl);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+    if (!stableBox5VideoUrl && data.box5VideoUrl) {
+      const id = requestAnimationFrame(() => setStableBox5VideoUrl(data.box5VideoUrl));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [data.box5VideoUrl, stableBox5VideoUrl]);
 
   useEffect(() => {
     return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-box5-video]'));
   }, []);
 
   useEffect(() => {
-    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-      ScrollTrigger.refresh();
-    });
-  }, [isMobile]);
+    if (box5CoverReadyUrl && box5CoverReadyUrl !== data.box5CoverImageUrl) {
+      const id = requestAnimationFrame(() => setBox5CoverReadyUrl(null));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [box5CoverReadyUrl, data.box5CoverImageUrl]);
 
-  // After a language switch, router.refresh() updates content in sections above this
-  // one (hero text, brand text, etc.), which shifts cumulative scroll offsets and
-  // invalidates ScrollTrigger's cached start position. Refreshing recalculates it.
+  useEffect(() => {
+    const image = box5CoverImgRef.current;
+    if (!image || !data.box5CoverImageUrl || box5CoverReadyUrl === data.box5CoverImageUrl) return;
+    if (image.complete && image.naturalWidth > 0) {
+      const id = requestAnimationFrame(() => setBox5CoverReadyUrl(data.box5CoverImageUrl));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [data.box5CoverImageUrl, box5CoverReadyUrl]);
+
+  // Refresh ScrollTrigger on language switch (content above shifts layout)
   useEffect(() => {
     if (isFirstDataRef.current) { isFirstDataRef.current = false; return; }
-    let raf: number;
-    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-      raf = requestAnimationFrame(() => ScrollTrigger.refresh());
-    });
-    return () => cancelAnimationFrame(raf);
+    requestScrollTriggerRefresh();
   }, [data]);
 
   useEffect(() => {
@@ -133,6 +161,8 @@ function HorizontalScrollSection({
     let ctx: any;
     let header: HTMLElement | null = null;
     let resetHeader: (() => void) | null = null;
+    let removeResize: (() => void) | null = null;
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
 
     const init = async () => {
       const { gsap }          = await import('gsap');
@@ -141,7 +171,7 @@ function HorizontalScrollSection({
 
       if (!mounted || !containerRef.current || !trackRef.current) return;
 
-      const track  = trackRef.current;
+      const track = trackRef.current;
       header = document.querySelector<HTMLElement>('header');
       resetHeader = () => {
         if (!header) return;
@@ -175,21 +205,37 @@ function HorizontalScrollSection({
         });
       });
 
+      const handleResize = () => {
+        if (!mounted) return;
+        const width = window.innerWidth;
+        const widthChanged = Math.abs(width - lastWidth) > 1;
+        if (width >= 768 || widthChanged) {
+          lastWidth = width;
+          ScrollTrigger.refresh();
+        }
+      };
+      window.addEventListener('resize', handleResize);
+      removeResize = () => window.removeEventListener('resize', handleResize);
+
       requestAnimationFrame(() => {
-        if (mounted) ScrollTrigger.refresh();
+        if (!mounted) return;
+        requestAnimationFrame(() => {
+          if (mounted) ScrollTrigger.refresh();
+        });
       });
     };
 
     init();
     return () => {
       mounted = false;
+      removeResize?.();
       resetHeader?.();
       ctx?.revert();
     };
   }, []);
 
   return (
-    <div ref={containerRef} className="h-screen overflow-hidden bg-white py-7">
+    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: 'var(--home-vh, 100svh)' }}>
       <div
         ref={trackRef}
         className="flex h-full gap-4 px-4"
@@ -197,25 +243,23 @@ function HorizontalScrollSection({
       >
 
         {/* ── BOX 1 · Full-height portrait photo ────────────────── */}
-        <div
-          className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100"
-          style={{ width: isMobile ? '88vw' : '42vw' }}
-        >
+        <div className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[88vw] md:w-[42vw]">
           {data.box1ImageUrl && (
             <Image
               src={data.box1ImageUrl}
               alt="Pure water — Rahatlyk quality"
               fill
               className="object-cover object-center"
-              sizes="42vw"
+              sizes="(max-width: 767px) 88vw, 42vw"
+              loading="eager"
             />
           )}
         </div>
 
-        {/* ── BOX 2 · Dark text panel (optional background photo) ── */}
+        {/* ── BOX 2 · Dark text panel ───────────────────────────── */}
         <div
-          className="relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl"
-          style={{ width: isMobile ? '80vw' : '28vw', padding: '0 4vw' }}
+          className="relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl w-[80vw] md:w-[28vw]"
+          style={{ padding: '0 4vw' }}
         >
           {data.box2ImageUrl && (
             <Image
@@ -223,10 +267,10 @@ function HorizontalScrollSection({
               alt=""
               fill
               className="object-cover object-center"
-              sizes="28vw"
+              sizes="(max-width: 767px) 80vw, 28vw"
+              loading="eager"
             />
           )}
-          {/* Dark overlay so text stays readable over any background */}
           <div className="absolute inset-0 bg-brand-950/75" />
           <div className="relative z-10">
             {data.box2Tag && (
@@ -237,10 +281,7 @@ function HorizontalScrollSection({
             {data.box2Headline && (
               <h2
                 className="text-white font-light leading-[1.1]"
-                style={{
-                  fontFamily: 'var(--font-heading), sans-serif',
-                  fontSize:   'clamp(1.6rem, 2.6vw, 3rem)',
-                }}
+                style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.6rem, 2.6vw, 3rem)' }}
               >
                 {data.box2Headline}
               </h2>
@@ -248,12 +289,8 @@ function HorizontalScrollSection({
           </div>
         </div>
 
-        {/* ── BOX 3 + BOX 4 · Split: product photo + CTA ────────── */}
-        <div
-          className="relative h-full flex-shrink-0 flex flex-col gap-4"
-          style={{ width: isMobile ? '85vw' : '32vw' }}
-        >
-          {/* BOX 3 · Product photo */}
+        {/* ── BOX 3 + BOX 4 · Product photo + CTA ──────────────── */}
+        <div className="relative h-full flex-shrink-0 flex flex-col gap-4 w-[85vw] md:w-[32vw]">
           <div className="relative overflow-hidden rounded-2xl bg-brand-100" style={{ flex: '1 1 60%' }}>
             {data.box3ImageUrl && (
               <Image
@@ -261,17 +298,15 @@ function HorizontalScrollSection({
                 alt="Sarwan water poured fresh"
                 fill
                 className="object-cover object-center"
-                sizes="32vw"
+                sizes="(max-width: 767px) 85vw, 32vw"
+                loading="eager"
               />
             )}
           </div>
-
-          {/* BOX 4 · CTA — live gradient background (static) */}
           <div
             className="relative flex-shrink-0 flex flex-col justify-center items-start overflow-hidden rounded-2xl"
             style={{ flex: '0 0 40%', padding: '0 3.5vw', background: '#0b2e4a' }}
           >
-            {/* Live water blobs — static */}
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
               <div className="water-blob-1 absolute -top-[30%] -left-[20%] w-[70%] h-[100%] rounded-full bg-[#38c8f5] blur-[60px]" />
@@ -281,16 +316,14 @@ function HorizontalScrollSection({
             </div>
             <div className="relative z-10 w-full">
               {data.box4Text && (
-                <p
-                  className="text-white font-light leading-snug mb-5"
-                  style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}
-                >
+                <p className="text-white font-light leading-snug mb-5" style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.25rem)' }}>
                   {data.box4Text}
                 </p>
               )}
               {data.box4ButtonLabel && (
                 <Link
                   href={localizePublicHref(locale, data.box4ButtonHref || '#')}
+                  prefetch={false}
                   className="rounded-[3px] border border-white bg-white px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#141618] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff]"
                 >
                   {data.box4ButtonLabel}
@@ -300,37 +333,32 @@ function HorizontalScrollSection({
           </div>
         </div>
 
-        {/* ── BOX 5 · Full-bleed video with cover image fallback ── */}
-        <div
-          className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100"
-          style={{ width: isMobile ? '90vw' : '52vw' }}
-        >
+        {/* ── BOX 5 · Video with cover image ────────────────────── */}
+        <div className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[90vw] md:w-[52vw]">
           {data.box5CoverImageUrl && (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              ref={box5CoverImgRef}
               src={data.box5CoverImageUrl}
               alt=""
-              fill
               aria-hidden="true"
-              sizes="(max-width: 767px) 90vw, 52vw"
-              onLoad={() => setLoadedBox5CoverUrl(data.box5CoverImageUrl)}
-              onError={() => setLoadedBox5CoverUrl(data.box5CoverImageUrl)}
+              loading="eager"
+              decoding="async"
+              onLoad={() => setBox5CoverReadyUrl(data.box5CoverImageUrl)}
+              onError={() => setBox5CoverReadyUrl(data.box5CoverImageUrl)}
               className="absolute inset-0 h-full w-full object-cover"
             />
           )}
-          {data.box5VideoUrl && shouldLoadBox5Video && (
+          {stableBox5VideoUrl && shouldLoadBox5Video && (
             <video
-              src={data.box5VideoUrl}
+              src={stableBox5VideoUrl}
               data-box5-video
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
-              onCanPlay={(event) => {
-                const video = event.currentTarget;
-                video.muted = true;
-                void video.play().catch(() => undefined);
-              }}
+              onCanPlay={(e) => { e.currentTarget.muted = true; void e.currentTarget.play().catch(() => undefined); }}
               className="absolute inset-0 w-full h-full object-cover"
             />
           )}
@@ -345,10 +373,7 @@ function HorizontalScrollSection({
               {data.box5Headline && (
                 <h2
                   className="text-white font-light leading-[1.1]"
-                  style={{
-                    fontFamily: 'var(--font-heading), sans-serif',
-                    fontSize:   'clamp(1.8rem, 3.2vw, 3.8rem)',
-                  }}
+                  style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.8rem, 3.2vw, 3.8rem)' }}
                 >
                   {data.box5Headline}
                 </h2>
@@ -357,10 +382,10 @@ function HorizontalScrollSection({
           )}
         </div>
 
-        {/* ── BOX 6 · Closing panel (optional background photo) ─── */}
+        {/* ── BOX 6 · Closing panel ─────────────────────────────── */}
         <div
-          className="relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl"
-          style={{ width: isMobile ? '80vw' : '25vw', padding: '0 3.5vw' }}
+          className="relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl w-[80vw] md:w-[25vw]"
+          style={{ padding: '0 3.5vw' }}
         >
           {data.box6ImageUrl && (
             <Image
@@ -368,13 +393,11 @@ function HorizontalScrollSection({
               alt=""
               fill
               className="object-cover object-center"
-              sizes="25vw"
+              sizes="(max-width: 767px) 80vw, 25vw"
+              loading="eager"
             />
           )}
-          {/* Light overlay so text stays readable over any background */}
-          {data.box6ImageUrl && (
-            <div className="absolute inset-0 bg-brand-50/70" />
-          )}
+          {data.box6ImageUrl && <div className="absolute inset-0 bg-brand-50/70" />}
           <div className="relative z-10">
             {data.box6Tag && (
               <span className="block text-brand-600 text-[10px] font-medium tracking-[0.35em] uppercase mb-5">
@@ -384,10 +407,7 @@ function HorizontalScrollSection({
             {data.box6Headline && (
               <h3
                 className="text-brand-950 font-light leading-snug mb-8"
-                style={{
-                  fontFamily: 'var(--font-heading), sans-serif',
-                  fontSize:   'clamp(1.3rem, 1.9vw, 2.1rem)',
-                }}
+                style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.3rem, 1.9vw, 2.1rem)' }}
               >
                 {data.box6Headline}
               </h3>
@@ -395,6 +415,7 @@ function HorizontalScrollSection({
             {data.box6ButtonLabel && (
               <Link
                 href={localizePublicHref(locale, data.box6ButtonHref || '#')}
+                prefetch={false}
                 className="w-fit rounded-[3px] border border-[#141618] bg-[#141618] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
               >
                 {data.box6ButtonLabel}
@@ -403,16 +424,14 @@ function HorizontalScrollSection({
           </div>
         </div>
 
-        {/* Spacer */}
         <div className="flex-shrink-0 w-4" aria-hidden="true" />
-
       </div>
     </div>
   );
-}
+});
 
 /* ── Button-driven category carousel ─────────────────────────────── */
-function CollectionsSection({
+const CollectionsSection = memo(function CollectionsSection({
   lines,
   sectionTag,
   exploreLabel,
@@ -437,10 +456,11 @@ function CollectionsSection({
     if (!sectionRef.current) return;
     const header = document.querySelector('header');
     const headerH = header ? header.offsetHeight : 0;
-    const h = window.innerHeight - headerH;
+    const viewportH = homeViewportHeight();
+    const h = viewportH - headerH;
     const isMobile = window.innerWidth < 768;
     const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
-    const sectionH = isMobile ? window.innerHeight : h;
+    const sectionH = isMobile ? viewportH : h;
     sectionRef.current.style.height = `${sectionH}px`;
     sectionRef.current.style.setProperty('--col-h', `${h}px`);
     sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
@@ -464,8 +484,17 @@ function CollectionsSection({
 
   useEffect(() => {
     recalculateLayout();
-    window.addEventListener('resize', recalculateLayout);
-    return () => window.removeEventListener('resize', recalculateLayout);
+    let lastWidth = window.innerWidth;
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const widthChanged = Math.abs(width - lastWidth) > 1;
+      if (width < 768 && !widthChanged) return;
+      lastWidth = width;
+      recalculateLayout();
+      requestScrollTriggerRefresh();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [recalculateLayout]);
 
   useLayoutEffect(() => {
@@ -554,48 +583,37 @@ function CollectionsSection({
         },
       });
 
-      const headerEl = document.querySelector('header');
-      const headerH  = headerEl ? headerEl.offsetHeight : 0;
       const setPinProgress = gsap.quickTo(pinProgressRef.current, 'scaleY', {
         duration: 0.2,
         ease: 'power2.out',
       });
       const showPinProgress = (origin: 'top' | 'bottom') => {
         gsap.set(pinProgressTrackRef.current, { transformOrigin: origin });
-        gsap.to(pinProgressTrackRef.current, {
-          scaleY: 1,
-          duration: 0.4,
-          ease: 'power2.out',
-          overwrite: true,
-        });
+        gsap.to(pinProgressTrackRef.current, { scaleY: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
       };
       const hidePinProgress = (origin: 'top' | 'bottom') => {
         gsap.set(pinProgressTrackRef.current, { transformOrigin: origin });
-        gsap.to(pinProgressTrackRef.current, {
-          scaleY: 0,
-          duration: 0.3,
-          ease: 'power2.in',
-          overwrite: true,
-        });
+        gsap.to(pinProgressTrackRef.current, { scaleY: 0, duration: 0.3, ease: 'power2.in', overwrite: true });
       };
 
       const pin = ScrollTrigger.create({
         trigger:          sectionRef.current!,
         pin:              true,
-        start:            `top top+=${headerH}`,
-        end:              `+=${Math.round(window.innerHeight * 0.35)}`,
+        start:            () => {
+          const headerEl = document.querySelector('header');
+          const headerH  = headerEl ? headerEl.offsetHeight : 0;
+          return `top top+=${headerH}`;
+        },
+        end:              () => `+=${Math.round(homeViewportHeight() * 0.35)}`,
         pinSpacing:       true,
         invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          setPinProgress(self.progress);
-        },
-        onRefresh: (self) => {
-          gsap.set(pinProgressRef.current, { scaleY: self.progress });
-        },
-        onEnter: () => showPinProgress('top'),
-        onEnterBack: () => showPinProgress('bottom'),
-        onLeave: () => hidePinProgress('bottom'),
-        onLeaveBack: () => hidePinProgress('top'),
+        onRefreshInit:    recalculateLayout,
+        onUpdate: (self) => { setPinProgress(self.progress); },
+        onRefresh: (self) => { gsap.set(pinProgressRef.current, { scaleY: self.progress }); },
+        onEnter:      () => showPinProgress('top'),
+        onEnterBack:  () => showPinProgress('bottom'),
+        onLeave:      () => hidePinProgress('bottom'),
+        onLeaveBack:  () => hidePinProgress('top'),
       });
 
       cleanup = () => { pin.kill(); st.kill(); };
@@ -605,7 +623,7 @@ function CollectionsSection({
       cancelled = true;
       cleanup?.();
     };
-  }, []);
+  }, [recalculateLayout]);
 
   useEffect(() => {
     if (isFirstRun.current) { isFirstRun.current = false; return; }
@@ -712,6 +730,7 @@ function CollectionsSection({
       <div ref={navRef} className="absolute bottom-[6%] md:bottom-[5%] left-0 right-0 z-30 flex items-center justify-between px-6 md:px-[5%] lg:px-[7%] xl:px-[8%] pb-7 md:pb-0">
         <Link
           href={`${withLocale(locale, '/products')}?category=${activeLine?.key ?? ''}`}
+          prefetch={false}
           className="group inline-flex items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] h-9 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
         >
           <span>{exploreLabel}</span>
@@ -735,10 +754,16 @@ function CollectionsSection({
       </div>
     </div>
   );
-}
+});
 
 /* ── News Carousel (auto-play + infinite loop) ────────────────────── */
-function NewsCarousel({ tag, articles }: { tag: string; articles: PayloadArticle[] }) {
+function NewsCarousel({
+  tag,
+  articles,
+}: {
+  tag: string;
+  articles: PayloadArticle[];
+}) {
   const { locale } = useLanguage();
   const [visCount, setVisCount] = useState(3);
   const trackRef   = useRef<HTMLDivElement>(null);
@@ -749,9 +774,9 @@ function NewsCarousel({ tag, articles }: { tag: string; articles: PayloadArticle
   const items = useMemo(() => articles.slice(0, 5), [articles]);
 
   const extItems = useMemo(() => [
-    ...items.slice(-visCount),
-    ...items,
-    ...items.slice(0, visCount),
+    ...items.slice(-visCount).map((article) => ({ article, isClone: true })),
+    ...items.map((article) => ({ article, isClone: false })),
+    ...items.slice(0, visCount).map((article) => ({ article, isClone: true })),
   ], [visCount, items]);
 
   useLayoutEffect(() => {
@@ -848,21 +873,23 @@ function NewsCarousel({ tag, articles }: { tag: string; articles: PayloadArticle
           className="flex items-start gap-30 h-full"
           style={{ paddingLeft: 'clamp(1.25rem, 4vw, 2.5rem)', willChange: 'transform' }}
         >
-          {extItems.map((article, i) => (
+          {extItems.map(({ article, isClone }, i) => (
             <Link
               key={`${article.id}-${i}`}
               href={withLocale(locale, `/news/${article.id}`)}
+              prefetch={false}
               className="flex-shrink-0 group cursor-pointer w-[60vw] sm:w-[31vw] lg:w-[20vw]"
               style={{ height: '60vh' }}
             >
               <div className="relative overflow-hidden rounded-lg h-full">
+                <div className="absolute inset-0 bg-gray-200" />
                 {article.images[0]?.url && (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={article.images[0].url}
                     alt={article.title}
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 33vw"
+                    loading={isClone ? 'lazy' : 'eager'}
+                    className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
@@ -902,13 +929,20 @@ export default function HomeClient({
   articleLabels: ArticleLabelsData
 }) {
   const { t, locale } = useLanguage();
-  const [readyHeroVideoUrl, setReadyHeroVideoUrl] = useState<string | null>(null);
-  const [fullyLoadedHeroVideoUrl, setFullyLoadedHeroVideoUrl] = useState<string | null>(null);
-  const [loadedHeroCoverUrl, setLoadedHeroCoverUrl] = useState<string | null>(null);
-  const [homePageAssetsReady, setHomePageAssetsReady] = useState(false);
-  const isHeroCoverReady = !hero.posterUrl || loadedHeroCoverUrl === hero.posterUrl;
-  const shouldLoadHeroVideo = !!hero.videoUrl && isHeroCoverReady && homePageAssetsReady;
-  const isHeroVideoFullyLoaded = !hero.videoUrl || fullyLoadedHeroVideoUrl === hero.videoUrl;
+  const heroCoverKey      = `${hero.posterUrl ?? ''}|${hero.mobilePosterUrl ?? ''}`;
+  const [stableHeroVideoUrl, setStableHeroVideoUrl] = useState<string | null>(() => hero.videoUrl ?? null);
+  const heroAlreadyLoaded = !!stableHeroVideoUrl && loadedHeroVideoUrls.has(stableHeroVideoUrl);
+
+  const [pageLoaded, setPageLoaded] = useState(false);
+  const [readyHeroVideoUrl,  setReadyHeroVideoUrl]  = useState<string | null>(() =>
+    heroAlreadyLoaded ? stableHeroVideoUrl : null
+  );
+  const [loadedHeroCoverKey, setLoadedHeroCoverKey] = useState<string | null>(() =>
+    heroAlreadyLoaded ? heroCoverKey : null
+  );
+
+  const isHeroCoverReady  = !hero.posterUrl || loadedHeroCoverKey === heroCoverKey;
+  const shouldLoadHeroVideo = !!stableHeroVideoUrl && pageLoaded && isHeroCoverReady;
 
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
@@ -919,76 +953,101 @@ export default function HomeClient({
   const storyRef        = useRef<HTMLDivElement>(null);
   const storyImgRef     = useRef<HTMLDivElement>(null);
   const heroVideoRef    = useRef<HTMLVideoElement>(null);
+  const heroCoverImgRef = useRef<HTMLImageElement>(null);
   const prevLocaleRef   = useRef<string | undefined>(undefined);
 
-  const markHeroCoverReady = useCallback(() => {
-    setLoadedHeroCoverUrl(hero.posterUrl);
-    if (typeof window !== 'undefined') {
-      window.__homeHeroCoverReady = true;
-      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
-    }
-  }, [hero.posterUrl]);
-
-  useEffect(() => {
-    if (!hero.posterUrl && typeof window !== 'undefined') {
-      window.__homeHeroCoverReady = true;
-      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
-    }
-  }, [hero.posterUrl]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const markReady = () => {
-      void document.fonts.ready.then(() => {
-        if (!cancelled) setHomePageAssetsReady(true);
-      });
-    };
-
-    if (document.readyState === 'complete') {
-      markReady();
-    } else {
-      window.addEventListener('load', markReady, { once: true });
-    }
-
-    return () => {
-      cancelled = true;
-      window.removeEventListener('load', markReady);
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-hero-video]'));
-  }, []);
-
   const handleHeroCanPlay = useCallback(() => {
+    if (stableHeroVideoUrl) loadedHeroVideoUrls.add(stableHeroVideoUrl);
     const video = heroVideoRef.current;
     if (video) {
       video.muted = true;
       void video.play().catch(() => undefined);
     }
-    setReadyHeroVideoUrl(hero.videoUrl);
-  }, [hero.videoUrl]);
+    setReadyHeroVideoUrl(stableHeroVideoUrl);
+  }, [stableHeroVideoUrl]);
 
-  const checkHeroVideoFullyLoaded = useCallback(() => {
-    const video = heroVideoRef.current;
-    if (!hero.videoUrl || !video) {
-      setFullyLoadedHeroVideoUrl(hero.videoUrl);
-      return;
+  useEffect(() => {
+    if (!stableHeroVideoUrl && hero.videoUrl) {
+      const id = requestAnimationFrame(() => setStableHeroVideoUrl(hero.videoUrl));
+      return () => cancelAnimationFrame(id);
     }
+  }, [hero.videoUrl, stableHeroVideoUrl]);
 
-    const duration = video.duration;
-    if (!Number.isFinite(duration) || duration <= 0 || video.buffered.length === 0) return;
+  useEffect(() => {
+    let lastWidth = window.innerWidth;
 
-    for (let index = 0; index < video.buffered.length; index += 1) {
-      if (video.buffered.start(index) <= 0.25 && video.buffered.end(index) >= duration - 0.25) {
-        setFullyLoadedHeroVideoUrl(hero.videoUrl);
-        return;
-      }
+    const setViewportHeight = (force = false) => {
+      const width = window.innerWidth;
+      const widthChanged = Math.abs(width - lastWidth) > 1;
+      if (!force && width < 768 && !widthChanged) return;
+      lastWidth = width;
+      document.documentElement.style.setProperty('--home-vh', `${window.innerHeight}px`);
+      requestScrollTriggerRefresh();
+    };
+
+    const handleResize = () => setViewportHeight(false);
+    const handleOrientationChange = () => setViewportHeight(true);
+    const refresh = () => requestScrollTriggerRefresh();
+
+    setViewportHeight(true);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('smooth-scroll-ready', refresh);
+    window.addEventListener('page-intro-complete', refresh);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('smooth-scroll-ready', refresh);
+      window.removeEventListener('page-intro-complete', refresh);
+    };
+  }, [locale]);
+
+  const markHeroCoverReady = useCallback(() => {
+    setLoadedHeroCoverKey(heroCoverKey);
+    if (typeof window !== 'undefined') {
+      window.__homeHeroCoverReady = true;
+      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
     }
-  }, [hero.videoUrl]);
+  }, [heroCoverKey]);
 
-  // ── Hero animation ──────────────────────────────────────────────
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (heroAlreadyLoaded || !hero.posterUrl) {
+      window.__homeHeroCoverReady = true;
+      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
+    } else {
+      window.__homeHeroCoverReady = false;
+    }
+  // heroAlreadyLoaded is derived from the module-level set and won't change during this mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hero.posterUrl, hero.mobilePosterUrl]);
+
+  useEffect(() => {
+    const image = heroCoverImgRef.current;
+    if (!image || !hero.posterUrl || loadedHeroCoverKey === heroCoverKey) return;
+    if (image.complete && image.naturalWidth > 0) {
+      const id = requestAnimationFrame(markHeroCoverReady);
+      return () => cancelAnimationFrame(id);
+    }
+  }, [hero.posterUrl, heroCoverKey, loadedHeroCoverKey, markHeroCoverReady]);
+
+  useEffect(() => {
+    return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-hero-video]'));
+  }, []);
+
+  useEffect(() => {
+    if (_pageContentLoaded || document.readyState === 'complete') {
+      _pageContentLoaded = true;
+      const id = requestAnimationFrame(() => setPageLoaded(true));
+      return () => cancelAnimationFrame(id);
+    }
+    const handler = () => { _pageContentLoaded = true; setPageLoaded(true); };
+    window.addEventListener('load', handler, { once: true });
+    return () => window.removeEventListener('load', handler);
+  }, []);
+
+  // ── Hero text animation ─────────────────────────────────────────
   useEffect(() => {
     const line1 = titleLine1Ref.current;
     const line2 = titleLine2Ref.current;
@@ -1001,7 +1060,6 @@ export default function HomeClient({
     const isLocaleChange = locale !== prevLocaleRef.current;
     prevLocaleRef.current = locale;
 
-    // hero prop re-fired by router.refresh() but locale didn't change — just swap text silently
     if (!isLocaleChange) {
       if (line1) line1.textContent = heroTitle;
       if (line2) line2.textContent = heroTitleAccent;
@@ -1034,33 +1092,16 @@ export default function HomeClient({
       }
 
       tl = gsap.timeline({ delay: 0.2 });
-
       tl.fromTo(
         [...spans1, ...spans2],
         { yPercent: 115 },
-        {
-          yPercent: 0,
-          duration: 0.75,
-          stagger: 0.06,
-          ease: 'power4.out',
-          onComplete: () => { restore1(); restore2(); },
-        }
+        { yPercent: 0, duration: 0.75, stagger: 0.06, ease: 'power4.out', onComplete: () => { restore1(); restore2(); } }
       );
-
       if (subSpans.length) {
         tl.fromTo(
           subSpans,
           { yPercent: 115 },
-          {
-            yPercent: 0,
-            duration: 0.65,
-            stagger: 0.04,
-            ease: 'power3.out',
-            onComplete: () => {
-              restore3?.();
-              restores.length = 0;
-            },
-          },
+          { yPercent: 0, duration: 0.65, stagger: 0.04, ease: 'power3.out', onComplete: () => { restore3?.(); restores.length = 0; } },
           '<0.4'
         );
       }
@@ -1069,7 +1110,12 @@ export default function HomeClient({
       if (heroContent) heroContent.style.opacity = '1';
     };
 
-    if (introHasCompleted) {
+    const shouldWaitForIntro =
+      !introHasCompleted &&
+      typeof window !== 'undefined' &&
+      window.__pageIntroWillPlay === true;
+
+    if (!shouldWaitForIntro) {
       run();
     } else {
       introListener = () => run();
@@ -1121,10 +1167,7 @@ export default function HomeClient({
         const st2 = gsap.fromTo(
           storyRef.current.querySelectorAll('.story-animate'),
           { y: 40, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 0.9, stagger: 0.15, ease: 'power3.out',
-            scrollTrigger: { trigger: storyRef.current, start: 'top 78%' },
-          }
+          { y: 0, opacity: 1, duration: 0.9, stagger: 0.15, ease: 'power3.out', scrollTrigger: { trigger: storyRef.current, start: 'top 78%' } }
         );
         cleanupFns.push(() => st2.scrollTrigger?.kill());
       }
@@ -1133,16 +1176,7 @@ export default function HomeClient({
         const st3 = gsap.fromTo(
           storyImgRef.current,
           { yPercent: 10 },
-          {
-            yPercent: -10,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: storyRef.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          }
+          { yPercent: -10, ease: 'none', scrollTrigger: { trigger: storyRef.current, start: 'top bottom', end: 'bottom top', scrub: true } }
         );
         cleanupFns.push(() => st3.scrollTrigger?.kill());
       }
@@ -1160,41 +1194,41 @@ export default function HomeClient({
       <section className="relative min-h-screen flex items-end overflow-hidden">
         <div className="absolute inset-0 bg-brand-900" />
         {hero.posterUrl && (
-          <Image
-            src={hero.posterUrl}
-            alt=""
-            fill
-            priority
-            aria-hidden="true"
-            onLoad={markHeroCoverReady}
-            onError={markHeroCoverReady}
-            className="object-cover object-center"
-            sizes="100vw"
-          />
+          <picture className="absolute inset-0 block">
+            {hero.mobilePosterUrl && (
+              <source media="(max-width: 767px)" srcSet={hero.mobilePosterUrl} />
+            )}
+            <img
+              ref={heroCoverImgRef}
+              src={hero.posterUrl}
+              alt=""
+              aria-hidden="true"
+              fetchPriority="high"
+              onLoad={markHeroCoverReady}
+              onError={markHeroCoverReady}
+              className="h-full w-full object-cover object-center"
+            />
+          </picture>
         )}
-        {shouldLoadHeroVideo ? (
+        {shouldLoadHeroVideo && (
           <video
             ref={heroVideoRef}
             data-hero-video
-            src={hero.videoUrl ?? undefined}
+            src={stableHeroVideoUrl ?? undefined}
             autoPlay
             muted
             loop
             playsInline
             preload="auto"
             onCanPlay={handleHeroCanPlay}
-            onCanPlayThrough={checkHeroVideoFullyLoaded}
-            onLoadedMetadata={checkHeroVideoFullyLoaded}
-            onProgress={checkHeroVideoFullyLoaded}
             onError={() => {
               setReadyHeroVideoUrl(null);
-              setFullyLoadedHeroVideoUrl(hero.videoUrl);
             }}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
-              readyHeroVideoUrl === hero.videoUrl ? 'opacity-100' : 'opacity-0'
+              readyHeroVideoUrl === stableHeroVideoUrl ? 'opacity-100' : 'opacity-0'
             }`}
           />
-        ) : null}
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 lg:pb-28">
           <div id="hero-content" className="max-w-2xl">
@@ -1261,7 +1295,10 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HORIZONTAL SCROLL — pinned panels
       ══════════════════════════════════════════ */}
-      <HorizontalScrollSection data={horizontalScroll} box5VideoEnabled={isHeroVideoFullyLoaded} />
+      <HorizontalScrollSection
+        data={horizontalScroll}
+        pageLoaded={pageLoaded}
+      />
 
       {/* ══════════════════════════════════════════
           COLLECTIONS — bottle carousel
@@ -1275,14 +1312,8 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           OUR STORY — full-bleed photo background
       ══════════════════════════════════════════ */}
-      <section
-        ref={storyRef}
-        className="relative overflow-hidden h-[100svh] flex items-center"
-      >
-        <div
-          ref={storyImgRef}
-          className="absolute inset-x-0 -top-[15%] -bottom-[15%]"
-        >
+      <section ref={storyRef} className="relative overflow-hidden h-[100svh] flex items-center">
+        <div ref={storyImgRef} className="absolute inset-x-0 -top-[15%] -bottom-[15%]">
           {story.imageUrl ? (
             <Image
               src={story.imageUrl}
@@ -1290,6 +1321,7 @@ export default function HomeClient({
               fill
               className="object-cover object-center"
               sizes="100vw"
+              loading="lazy"
             />
           ) : (
             <div className="absolute inset-0 bg-brand-900" />
@@ -1315,7 +1347,6 @@ export default function HomeClient({
           </div>
         </div>
 
-        {/* Award badge — bottom-right corner */}
         <div className="absolute bottom-7 right-7 z-10 flex max-w-[210px] items-center gap-3 rounded-md bg-white/70 p-3.5 backdrop-blur-sm">
           <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-gray-700">
@@ -1338,7 +1369,10 @@ export default function HomeClient({
           LATEST NEWS CAROUSEL
       ══════════════════════════════════════════ */}
       <section className="bg-white overflow-hidden" style={{ height: '100svh' }}>
-        <NewsCarousel tag={articleLabels.homeSectionTag} articles={newsArticles} />
+        <NewsCarousel
+          tag={articleLabels.homeSectionTag}
+          articles={newsArticles}
+        />
       </section>
 
       {/* ══════════════════════════════════════════
@@ -1349,14 +1383,18 @@ export default function HomeClient({
         style={{ background: '#0b2e4a', height: '90svh' }}
       >
         {ctaBanner.imageUrl && (
-          <Image
-            src={ctaBanner.imageUrl}
-            alt=""
-            fill
-            sizes="100vw"
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
-          />
+          <picture className="pointer-events-none absolute inset-0 block">
+            {ctaBanner.mobileImageUrl && (
+              <source media="(max-width: 767px)" srcSet={ctaBanner.mobileImageUrl} />
+            )}
+            <img
+              src={ctaBanner.imageUrl}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              className="h-full w-full object-cover object-center"
+            />
+          </picture>
         )}
         <div className="pointer-events-none absolute inset-0 bg-[#04192e]/35" />
         <div className="relative z-10 max-w-3xl mx-auto px-5 sm:px-8 text-center">
@@ -1381,6 +1419,7 @@ export default function HomeClient({
           )}
           <Link
             href={localizePublicHref(locale, ctaBanner.ctaHref || '/products')}
+            prefetch={false}
             className="group inline-flex h-9 items-center gap-1.5 rounded-md bg-white/70 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
           >
             <span>{ctaBanner.ctaLabel || t.home.ctaBanner.cta}</span>

@@ -7,6 +7,7 @@ declare global {
   interface Window {
     __pageIntroDone?: boolean;
     __homeHeroCoverReady?: boolean;
+    __pageIntroWillPlay?: boolean;
   }
 }
 
@@ -16,11 +17,49 @@ export default function PageIntro() {
 
   // Frozen at mount — SPA navigation never changes this, so the intro
   // cannot re-trigger when the user navigates back to the home page.
-  const [shouldPlay] = useState(() => relativePath === '/');
+  const [shouldPlay] = useState(() => {
+    const play = relativePath === '/' && !(typeof window !== 'undefined' && window.__pageIntroDone);
+    if (typeof window !== 'undefined') window.__pageIntroWillPlay = play;
+    return play;
+  });
 
   const curtainRef   = useRef<HTMLDivElement>(null);
   const logoRef      = useRef<HTMLSpanElement>(null);
   const progressRef  = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!shouldPlay) return;
+
+    const html = document.documentElement;
+    const body = document.body;
+    const previous = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      bodyTouchAction: body.style.touchAction,
+      bodyOverscrollBehavior: body.style.overscrollBehavior,
+    };
+
+    const unlock = () => {
+      html.style.overflow = previous.htmlOverflow;
+      body.style.overflow = previous.bodyOverflow;
+      body.style.touchAction = previous.bodyTouchAction;
+      body.style.overscrollBehavior = previous.bodyOverscrollBehavior;
+      window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
+    };
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    window.dispatchEvent(new CustomEvent('scroll-to-top'));
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.touchAction = 'none';
+    body.style.overscrollBehavior = 'none';
+    window.addEventListener('page-intro-complete', unlock, { once: true });
+
+    return () => {
+      window.removeEventListener('page-intro-complete', unlock);
+      unlock();
+    };
+  }, [shouldPlay]);
 
   // ── Text + progress bar kick-off ─────────────────────────────────
   useEffect(() => {
@@ -103,6 +142,7 @@ export default function PageIntro() {
           window.dispatchEvent(new CustomEvent('page-intro-done'));
         },
         onComplete: () => {
+          window.__pageIntroWillPlay = false;
           curtain.style.display = 'none';
           window.dispatchEvent(new CustomEvent('page-intro-complete'));
         },

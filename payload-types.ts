@@ -1215,6 +1215,10 @@ export interface Form {
 export interface AboutHero {
   id: number;
   coverImage?: (number | null) | Media;
+  /**
+   * Optional mobile hero image. Falls back to desktop cover image when empty.
+   */
+  mobileCoverImage?: (number | null) | Media;
   title?: string | null;
   accentWordIndex?: number | null;
   updatedAt?: string | null;
@@ -1354,6 +1358,10 @@ export interface AboutCertificate {
 export interface AboutFinalSection {
   id: number;
   image: number | Media;
+  /**
+   * Optional mobile background image. Falls back to desktop image when empty.
+   */
+  mobileImage?: (number | null) | Media;
   heading: string;
   body: string;
   updatedAt?: string | null;
@@ -1367,9 +1375,13 @@ export interface HomeHero {
   id: number;
   video?: (number | null) | Media;
   /**
-   * Loaded first for the home hero. The intro exits when this image is ready; the video loads afterward.
+   * Loaded first for desktop/tablet home hero. The intro exits when this image is ready; the video loads afterward.
    */
   poster?: (number | null) | Media;
+  /**
+   * Used on mobile phones. If empty, the desktop cover image is used.
+   */
+  mobilePoster?: (number | null) | Media;
   title?: string | null;
   titleAccent?: string | null;
   subtitle?: string | null;
@@ -1464,9 +1476,13 @@ export interface HomeStory {
 export interface HomeCtaBanner {
   id: number;
   /**
-   * Background image for the final CTA section.
+   * Desktop background image for the final CTA section.
    */
   image?: (number | null) | Media;
+  /**
+   * Optional mobile background image. Falls back to desktop image when empty.
+   */
+  mobileImage?: (number | null) | Media;
   title?: string | null;
   subtitle?: string | null;
   ctaLabel?: string | null;
@@ -1729,6 +1745,7 @@ export interface FormsSelect<T extends boolean = true> {
  */
 export interface AboutHeroSelect<T extends boolean = true> {
   coverImage?: T;
+  mobileCoverImage?: T;
   title?: T;
   accentWordIndex?: T;
   updatedAt?: T;
@@ -1843,6 +1860,7 @@ export interface AboutCertificatesSelect<T extends boolean = true> {
  */
 export interface AboutFinalSectionSelect<T extends boolean = true> {
   image?: T;
+  mobileImage?: T;
   heading?: T;
   body?: T;
   updatedAt?: T;
@@ -1856,6 +1874,7 @@ export interface AboutFinalSectionSelect<T extends boolean = true> {
 export interface HomeHeroSelect<T extends boolean = true> {
   video?: T;
   poster?: T;
+  mobilePoster?: T;
   title?: T;
   titleAccent?: T;
   subtitle?: T;
@@ -1952,6 +1971,7 @@ export interface HomeStorySelect<T extends boolean = true> {
  */
 export interface HomeCtaBannerSelect<T extends boolean = true> {
   image?: T;
+  mobileImage?: T;
   title?: T;
   subtitle?: T;
   ctaLabel?: T;

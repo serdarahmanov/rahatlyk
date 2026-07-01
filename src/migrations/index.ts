@@ -28,6 +28,9 @@ import * as migration_20260629_162500_remove_unused_article_label_fields from '.
 import * as migration_20260629_163000_product_listing_labels from './20260629_163000_product_listing_labels';
 import * as migration_20260630_000000_about_who_we_are_background_video from './20260630_000000_about_who_we_are_background_video';
 import * as migration_20260630_001000_home_cta_banner_image from './20260630_001000_home_cta_banner_image';
+import * as migration_20260701_130000_home_hero_mobile_poster from './20260701_130000_home_hero_mobile_poster';
+import * as migration_20260701_140000_home_cta_mobile_image from './20260701_140000_home_cta_mobile_image';
+import * as migration_20260701_150000_about_mobile_images from './20260701_150000_about_mobile_images';
 
 export const migrations = [
   {
@@ -179,5 +182,20 @@ export const migrations = [
     up: migration_20260630_001000_home_cta_banner_image.up,
     down: migration_20260630_001000_home_cta_banner_image.down,
     name: '20260630_001000_home_cta_banner_image'
+  },
+  {
+    up: migration_20260701_130000_home_hero_mobile_poster.up,
+    down: migration_20260701_130000_home_hero_mobile_poster.down,
+    name: '20260701_130000_home_hero_mobile_poster'
+  },
+  {
+    up: migration_20260701_140000_home_cta_mobile_image.up,
+    down: migration_20260701_140000_home_cta_mobile_image.down,
+    name: '20260701_140000_home_cta_mobile_image'
+  },
+  {
+    up: migration_20260701_150000_about_mobile_images.up,
+    down: migration_20260701_150000_about_mobile_images.down,
+    name: '20260701_150000_about_mobile_images'
   },
 ];

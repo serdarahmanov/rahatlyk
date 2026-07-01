@@ -16,7 +16,14 @@ export const AboutFinalSection: GlobalConfig = {
       type: 'upload',
       relationTo: 'media',
       required: true,
-      label: 'Background Image',
+      label: 'Desktop Background Image',
+    },
+    {
+      name: 'mobileImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Mobile Background Image',
+      admin: { description: 'Optional mobile background image. Falls back to desktop image when empty.' },
     },
     {
       name: 'heading',

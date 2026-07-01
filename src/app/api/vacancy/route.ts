@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { fileTypeFromBuffer } from 'file-type';
-import { vacancyConfirmation, vacancyNotification, extractEmailContact } from '@/lib/email/templates';
+import { SITE, vacancyConfirmation, vacancyNotification, extractEmailContact } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
 import { getCachedContactInfo } from '@/lib/payload/cachedQueries';
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cvAttachment = { filename: cvFile.name, content: cvBuffer };
-    const vacancyUrl   = `${process.env.NEXT_PUBLIC_SITE_URL}/vacancies/${vacancyIdNum}`;
+    const vacancyUrl   = `${SITE}/vacancies/${vacancyIdNum}`;
     const fromNoreply  = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite  = `"Website" <${process.env.WEBSITE_EMAIL}>`;
 

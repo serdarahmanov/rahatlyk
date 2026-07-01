@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import '../../globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
@@ -16,17 +16,9 @@ import SmoothScroll from '@/components/SmoothScroll';
 
 const inter = Inter({
   variable: '--font-inter',
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext', 'cyrillic'],
   weight: ['400', '500'],
-  display: 'swap',
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: '--font-accent',
-  subsets: ['latin'],
-  weight: ['400'],
-  style: ['italic'],
-  display: 'swap',
+  display: 'block',
 });
 
 const SITE_TITLES: Record<string, string> = {
@@ -43,6 +35,18 @@ const SITE_DESCRIPTIONS: Record<string, string> = {
 
 const OG_LOCALES: Record<string, string> = { tm: 'tk_TM', ru: 'ru_RU', en: 'en_US' }
 
+function mediaUrl(value: unknown): string | null {
+  return value && typeof value === 'object' && 'url' in value && typeof (value as Record<string, unknown>).url === 'string'
+    ? (value as { url: string }).url
+    : null
+}
+
+function siteIconUrl(value: unknown): string | null {
+  return value && typeof value === 'object' && 'siteIcon' in value
+    ? mediaUrl((value as { siteIcon?: unknown }).siteIcon)
+    : null
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -57,11 +61,7 @@ export async function generateMetadata({
   let iconUrl: string | null = null
   try {
     const contactInfo = await getCachedContactInfo()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const icon = (contactInfo as any).siteIcon
-    if (icon && typeof icon === 'object' && typeof icon.url === 'string') {
-      iconUrl = icon.url
-    }
+    iconUrl = siteIconUrl(contactInfo)
   } catch {
     // fall back to static favicon.ico
   }
@@ -81,8 +81,8 @@ export async function generateMetadata({
     },
     ...(iconUrl ? {
       icons: {
-        icon: iconUrl,
-        shortcut: iconUrl,
+        icon: [{ url: '/api/site-icon', sizes: 'any' }],
+        shortcut: '/favicon.ico',
         apple: iconUrl,
       },
     } : {}),
@@ -124,9 +124,18 @@ export default async function RootLayout({
   } catch {
     contactInfo = null
   }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com'
+  const logoUrl = siteIconUrl(contactInfo)
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'RAHATLYK',
+    url: siteUrl,
+    ...(logoUrl ? { logo: new URL('/api/site-icon', siteUrl).toString() } : {}),
+  }
 
   return (
-    <html lang={locale} className={`${inter.variable} ${cormorant.variable}`} data-scroll-behavior="smooth">
+    <html lang={locale} className={inter.variable} data-scroll-behavior="smooth">
       {/* Hide only the hero text before JS runs — the background image is
           visible immediately (good LCP). The animation reveals hero text once
           the correct locale + word-masks are in place. */}
@@ -140,6 +149,10 @@ export default async function RootLayout({
         className="min-h-screen bg-white overflow-x-hidden"
         style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <LanguageProvider initialLocale={locale}>
           <ContactInfoProvider initialContactInfo={contactInfo}>
           <SocialLinksProvider>

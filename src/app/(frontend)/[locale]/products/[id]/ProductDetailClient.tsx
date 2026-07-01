@@ -29,6 +29,7 @@ function RelatedProducts({ related, headingTemplate }: { related: PayloadProduct
             <Link
               key={p.id}
               href={withLocale(locale, `/products/${p.id}`)}
+              prefetch={false}
               className="group flex flex-col hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300 rounded-2xl overflow-hidden"
             >
               <div className="relative overflow-hidden h-[320px] bg-white rounded-2xl">
@@ -227,11 +228,11 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
       <section className="pt-28 pb-16 relative overflow-hidden bg-white border-b border-gray-200">
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
           <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
-            <Link href={withLocale(locale)} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+            <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
             <span>/</span>
-            <Link href={withLocale(locale, '/products')} className="hover:text-gray-700 transition-colors">{t.nav.products}</Link>
+            <Link href={withLocale(locale, '/products')} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.products}</Link>
             <span>/</span>
-            <Link href={`${withLocale(locale, '/products')}?category=${product.category.slug}`} className="hover:text-gray-700 transition-colors">{product.category.label}</Link>
+            <Link href={`${withLocale(locale, '/products')}?category=${product.category.slug}`} prefetch={false} className="hover:text-gray-700 transition-colors">{product.category.label}</Link>
             <span>/</span>
             <span className="text-black truncate max-w-[180px]">{product.name}</span>
           </nav>
@@ -432,6 +433,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                 {prevProduct ? (
                   <Link
                     href={withLocale(locale, `/products/${prevProduct.id}`)}
+                    prefetch={false}
                     title={prevProduct.name}
                     aria-label={`Previous product: ${prevProduct.name}`}
                     className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11]"
@@ -451,6 +453,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                 {nextProduct ? (
                   <Link
                     href={withLocale(locale, `/products/${nextProduct.id}`)}
+                    prefetch={false}
                     title={nextProduct.name}
                     aria-label={`Next product: ${nextProduct.name}`}
                     className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11]"

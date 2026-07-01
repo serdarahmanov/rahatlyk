@@ -222,12 +222,13 @@ export default function ArticleDetailClient({ article, more, labels }: Props) {
       <div className="sm:hidden pt-24 pb-16 px-5">
 
         <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-6">
-          <Link href={withLocale(locale)} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+          <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
           <span>/</span>
-          <Link href={withLocale(locale, '/news')} className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
+          <Link href={withLocale(locale, '/news')} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
           <span>/</span>
           <Link
             href={`${withLocale(locale, '/news')}?category=${encodeURIComponent(article.category.slug)}`}
+            prefetch={false}
             className="hover:text-gray-700 transition-colors"
           >
             {article.category.label}
@@ -331,6 +332,7 @@ export default function ArticleDetailClient({ article, more, labels }: Props) {
           <div className="mt-8">
             <Link
               href={withLocale(locale, '/news')}
+              prefetch={false}
               className="inline-block rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
             >
               {labels.backToNewsLabel}
@@ -350,12 +352,13 @@ export default function ArticleDetailClient({ article, more, labels }: Props) {
           <div className="flex-none flex flex-col" ref={infoRef}>
 
             <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
-              <Link href={withLocale(locale)} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+              <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
               <span>/</span>
-              <Link href={withLocale(locale, '/news')} className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
+              <Link href={withLocale(locale, '/news')} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
               <span>/</span>
               <Link
                 href={`${withLocale(locale, '/news')}?category=${encodeURIComponent(article.category.slug)}`}
+                prefetch={false}
                 className="hover:text-gray-700 transition-colors"
               >
                 {article.category.label}
@@ -473,6 +476,7 @@ export default function ArticleDetailClient({ article, more, labels }: Props) {
             <div className="mt-10">
               <Link
                 href={withLocale(locale, '/news')}
+                prefetch={false}
                 className="inline-block rounded-[3px] border border-[#141618] bg-[#141618] px-8 py-3.5 text-sm font-medium tracking-[0.06em] text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
               >
                 {labels.backToNewsLabel}

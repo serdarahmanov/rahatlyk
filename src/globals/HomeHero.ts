@@ -20,9 +20,18 @@ export const HomeHero: GlobalConfig = {
       name: 'poster',
       type: 'upload',
       relationTo: 'media',
-      label: 'Cover Image',
+      label: 'Desktop Cover Image',
       admin: {
-        description: 'Loaded first for the home hero. The intro exits when this image is ready; the video loads afterward.',
+        description: 'Loaded first for desktop/tablet home hero. The intro exits when this image is ready; the video loads afterward.',
+      },
+    },
+    {
+      name: 'mobilePoster',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Mobile Cover Image',
+      admin: {
+        description: 'Used on mobile phones. If empty, the desktop cover image is used.',
       },
     },
     {

@@ -16,6 +16,7 @@ The public site is localized in Turkmen, Russian, and English. Most page content
 | Email | Nodemailer and Payload email adapter |
 | Media | Payload media uploads |
 | Localization | Custom locale routing for `tm`, `ru`, `en` |
+| Browser checks | Playwright |
 
 ## Routes
 
@@ -35,7 +36,9 @@ The public site is localized in Turkmen, Russian, and English. Most page content
 | `/api/contact` | Contact form handler |
 | `/api/vacancy` | Vacancy application handler |
 | `/api/revalidate` | Cache revalidation endpoint |
+| `/api/site-icon` | Redirects to the CMS-managed site icon |
 | `/api/cv/:filename` | Authenticated CV download |
+| `/favicon.ico` | Rewritten to `/api/site-icon` |
 
 ## Payload Structure
 
@@ -70,6 +73,8 @@ Notes:
 - The old `site-settings` global was merged into `contact-info`.
 - The old About Mosaic global was removed; its images now live inside `about-our-story`.
 - Product, article, and vacancy listing/detail labels are CMS-managed.
+- Home hero, home CTA, about hero, and about final section support mobile-specific media with desktop fallbacks.
+- The site icon is managed in `contact-info` and served through `/api/site-icon`.
 
 ## Environment Variables
 
@@ -105,6 +110,12 @@ Open:
 
 - Site: `http://localhost:3000/tm`
 - Admin: `http://localhost:3000/admin`
+
+For browser-level checks, install the Chromium browser used by Playwright:
+
+```bash
+npx playwright install chromium
+```
 
 ## Build
 
@@ -190,10 +201,11 @@ npm run seed:vacancy-labels
 
 Important media behavior:
 
-- Home hero cover and video are managed by `home-hero`.
-- Home hero cover loads before video.
-- Home videos are delayed until the page has loaded; the hero video loads before the box 5 video.
-- The home CTA uses an image, not a video.
+- Home hero cover, mobile poster, and video are managed by `home-hero`.
+- Home hero desktop and mobile posters are preloaded with media hints.
+- Home hero and horizontal-scroll videos wait for page load and their cover image before starting video loads.
+- The home CTA uses responsive desktop/mobile images, not a video.
+- About hero and about final section use responsive desktop/mobile images.
 - Product listing hover media loads only on desktop hover-capable devices.
 - Product detail galleries can include product videos.
 - News and vacancy image seeds prefer optimized WebP files when available.
@@ -212,6 +224,7 @@ Important media behavior:
 ```bash
 npx tsc --noEmit
 npm run build
+npx playwright install chromium
 ```
 
 Known lint/build warnings should be resolved before deployment. If `.next` cache produces stale generated pages, delete `.next` and rebuild.

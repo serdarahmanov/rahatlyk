@@ -10,6 +10,13 @@ import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 import { Locale } from '@/lib/i18n/translations';
 import { withLocale } from '@/lib/i18n/locale';
 
+declare global {
+  interface Window {
+    __pageIntroDone?: boolean;
+    __pageIntroWillPlay?: boolean;
+  }
+}
+
 // Module-level flag — persists across route changes, resets on full page reload
 let pageIntroComplete = false;
 if (typeof window !== 'undefined') {
@@ -27,7 +34,11 @@ export default function Navbar() {
   // introComplete drives header opacity — owned entirely by React so
   // no external imperative writes can desync virtual DOM vs real DOM
   const [introComplete,  setIntroComplete]  = useState(
-    () => (typeof window !== 'undefined' ? pageIntroComplete : false)
+    () => (
+      typeof window !== 'undefined'
+        ? pageIntroComplete || !!window.__pageIntroDone || window.__pageIntroWillPlay === false
+        : false
+    )
   );
   const prevScrollY = useRef(0);
   const langRef = useRef<HTMLDivElement>(null);
@@ -56,11 +67,15 @@ export default function Navbar() {
 
   // Reveal header when PageIntro finishes (first page load only)
   useEffect(() => {
-    if (!hasPageIntro || pageIntroComplete) return; // already done — no listener needed
+    if (!hasPageIntro) return;
+    if (pageIntroComplete || window.__pageIntroDone || window.__pageIntroWillPlay === false) {
+      const id = requestAnimationFrame(() => setIntroComplete(true));
+      return () => cancelAnimationFrame(id);
+    }
     const onDone = () => setIntroComplete(true);
     window.addEventListener('page-intro-complete', onDone, { once: true });
     return () => window.removeEventListener('page-intro-complete', onDone);
-  }, [hasPageIntro]);
+  }, [hasPageIntro, pathname]);
 
   // Reset nav state on every route change
   useEffect(() => {
@@ -133,7 +148,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* ── Logo ── */}
-          <Link href={withLocale(locale)} prefetch={false} className="flex items-center flex-shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <Link href={withLocale(locale)} prefetch={false} className="flex items-center flex-shrink-0" onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-top'))}>
             <span
               className={`text-xl lg:text-2xl font-medium tracking-[0.2em] transition-colors duration-300 ${
                 isHomeHero ? 'text-white' : 'text-black'
@@ -252,7 +267,7 @@ export default function Navbar() {
         <Link
           href={withLocale(locale)}
           prefetch={false}
-          onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          onClick={() => { setMenuOpen(false); window.dispatchEvent(new CustomEvent('scroll-to-top')); }}
           className="absolute top-0 left-6 sm:left-10 h-16 flex items-center text-xl font-medium tracking-[0.2em] text-black"
           style={{ fontFamily: 'var(--font-heading), sans-serif' }}
         >

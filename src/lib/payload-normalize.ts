@@ -163,20 +163,22 @@ export const normalizeHomeStory = (raw: any): HomeStoryData => ({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeHomeHero = (raw: any): HomeHeroData => ({
-  videoUrl:    rawMediaUrl(raw?.video),
-  posterUrl:   rawMediaUrl(raw?.poster),
-  title:       rawStr(raw?.title),
-  titleAccent: rawStr(raw?.titleAccent),
-  subtitle:    rawStr(raw?.subtitle),
+  videoUrl:        rawMediaUrl(raw?.video),
+  posterUrl:       rawMediaUrl(raw?.poster),
+  mobilePosterUrl: rawMediaUrl(raw?.mobilePoster),
+  title:           rawStr(raw?.title),
+  titleAccent:     rawStr(raw?.titleAccent),
+  subtitle:        rawStr(raw?.subtitle),
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeHomeCtaBanner = (raw: any): HomeCtaBannerData => ({
-  imageUrl: rawMediaUrl(raw?.image),
-  title:    rawStr(raw?.title),
-  subtitle: rawStr(raw?.subtitle),
-  ctaLabel: rawStr(raw?.ctaLabel),
-  ctaHref:  rawStr(raw?.ctaHref),
+  imageUrl:       rawMediaUrl(raw?.image),
+  mobileImageUrl: rawMediaUrl(raw?.mobileImage),
+  title:          rawStr(raw?.title),
+  subtitle:       rawStr(raw?.subtitle),
+  ctaLabel:       rawStr(raw?.ctaLabel),
+  ctaHref:        rawStr(raw?.ctaHref),
 })
 
 export function normalizeResult<TInput, TOutput>(
