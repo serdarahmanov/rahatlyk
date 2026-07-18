@@ -9,6 +9,7 @@ import {
   getCachedArticleCategories,
   getCachedFeaturedArticles,
   getCachedNewsPage,
+  getCachedSiteMetadata,
 } from '@/lib/payload/cachedQueries'
 import { resolveArticleLabels } from '@/lib/article-labels'
 
@@ -26,15 +27,30 @@ const DESCRIPTIONS: Record<string, string> = {
   en: 'Latest news and updates from RAHATLYK — product launches, company news and more.',
 }
 
+function resolveOgImage(value: unknown): string | null {
+  return value && typeof value === 'object' && 'url' in value
+    ? (value as { url: string }).url || null
+    : null
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const locale = getValidLocale((await params).locale) ?? defaultLocale
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let siteMeta: any = null
+  try { siteMeta = await getCachedSiteMetadata(locale) } catch { /* fallback */ }
+
+  const title = siteMeta?.news?.title ?? TITLES[locale] ?? TITLES[defaultLocale]
+  const description = siteMeta?.news?.description ?? DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale]
+  const ogImageUrl = resolveOgImage(siteMeta?.news?.ogImage)
+
   return {
-    title: TITLES[locale] ?? TITLES[defaultLocale],
-    description: DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale],
+    title,
+    description,
     alternates: {
       canonical: `/${locale}/news`,
       languages: buildLanguageAlternates('/news'),
     },
+    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
   }
 }
 

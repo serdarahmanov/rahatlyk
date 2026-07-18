@@ -15,6 +15,7 @@ import { AboutNumbers } from './src/globals/AboutNumbers'
 import { AboutOurStory } from './src/globals/AboutOurStory'
 import { AboutWhoWeAre } from './src/globals/AboutWhoWeAre'
 import { ContactInfo } from './src/globals/ContactInfo'
+import { SiteMetadata } from './src/globals/SiteMetadata'
 import { Forms } from './src/globals/Forms'
 import { HomeCtaBanner } from './src/globals/HomeCtaBanner'
 import { HomeHero } from './src/globals/HomeHero'
@@ -39,6 +40,7 @@ import { Vacancies } from './src/collections/Vacancies'
 setDefaultResultOrder('ipv4first')
 
 export default buildConfig({
+  serverURL: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com',
   admin: {
     user: Users.slug,
   },
@@ -56,7 +58,7 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [ContactInfo, AboutPage, Forms, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, AboutFinalSection, HomeHero, HorizontalScroll, OurCollection, HomeStory, HomeCtaBanner, ArticleLabels, ProductDetailLabels, VacancyLabels],
+  globals: [SiteMetadata, ContactInfo, AboutPage, Forms, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutCertificates, AboutFinalSection, HomeHero, HorizontalScroll, OurCollection, HomeStory, HomeCtaBanner, ArticleLabels, ProductDetailLabels, VacancyLabels],
   collections: [Users, Media, ProductCategories, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [
@@ -64,7 +66,7 @@ export default buildConfig({
       { label: 'Türkmen', code: 'tm' },
       { label: 'Русский', code: 'ru' },
     ],
-    defaultLocale: 'en',
+    defaultLocale: 'tm',
     fallback: true,
   },
   db: postgresAdapter({

@@ -20,3 +20,4 @@ export const contactInfoTag = () => 'contact-info'
 export const productLabelsTag = (locale: Locale) => localeTag('product-labels', locale)
 export const articleLabelsTag = (locale: Locale) => localeTag('article-labels', locale)
 export const vacancyLabelsTag = (locale: Locale) => localeTag('vacancy-labels', locale)
+export const siteMetadataTag = (locale: Locale) => localeTag('site-metadata', locale)

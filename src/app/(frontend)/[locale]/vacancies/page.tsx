@@ -4,7 +4,7 @@ import VacanciesClient from './VacanciesClient'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
 import { buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeCategory, normalizeResult, normalizeVacancy } from '@/lib/payload-normalize'
-import { getCachedVacanciesPage, getCachedVacancyDepartments, getCachedVacancyLabels } from '@/lib/payload/cachedQueries'
+import { getCachedVacanciesPage, getCachedVacancyDepartments, getCachedVacancyLabels, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import { resolveVacancyLabels } from '@/lib/vacancy-labels'
 
 const PAGE_SIZE = 9
@@ -21,15 +21,30 @@ const DESCRIPTIONS: Record<string, string> = {
   en: 'Build your career at RAHATLYK. Browse open positions in production, sales, marketing, logistics and more.',
 }
 
+function resolveOgImage(value: unknown): string | null {
+  return value && typeof value === 'object' && 'url' in value
+    ? (value as { url: string }).url || null
+    : null
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const locale = getValidLocale((await params).locale) ?? defaultLocale
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let siteMeta: any = null
+  try { siteMeta = await getCachedSiteMetadata(locale) } catch { /* fallback */ }
+
+  const title = siteMeta?.vacancies?.title ?? TITLES[locale] ?? TITLES[defaultLocale]
+  const description = siteMeta?.vacancies?.description ?? DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale]
+  const ogImageUrl = resolveOgImage(siteMeta?.vacancies?.ogImage)
+
   return {
-    title: TITLES[locale] ?? TITLES[defaultLocale],
-    description: DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale],
+    title,
+    description,
     alternates: {
       canonical: `/${locale}/vacancies`,
       languages: buildLanguageAlternates('/vacancies'),
     },
+    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
   }
 }
 

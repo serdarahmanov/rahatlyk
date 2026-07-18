@@ -4,7 +4,7 @@ import { FORMS_CONTENT } from '@/lib/data/forms-content'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
 import { buildLanguageAlternates } from '@/lib/i18n/metadata'
 import type { Locale } from '@/lib/i18n/translations'
-import { getCachedContactData } from '@/lib/payload/cachedQueries'
+import { getCachedContactData, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import ContactPageClient from './ContactPageClient'
 
 const LOCALE_FALLBACK = 'en' as const
@@ -93,15 +93,30 @@ const DESCRIPTIONS: Record<string, string> = {
   en: 'Get in touch with RAHATLYK. Send us a message and our team will respond as soon as possible.',
 }
 
+function resolveOgImage(value: unknown): string | null {
+  return value && typeof value === 'object' && 'url' in value
+    ? (value as { url: string }).url || null
+    : null
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = getValidLocale((await params).locale) ?? defaultLocale
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let siteMeta: any = null
+  try { siteMeta = await getCachedSiteMetadata(locale) } catch { /* fallback */ }
+
+  const title = siteMeta?.contact?.title ?? TITLES[locale] ?? TITLES[defaultLocale]
+  const description = siteMeta?.contact?.description ?? DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale]
+  const ogImageUrl = resolveOgImage(siteMeta?.contact?.ogImage)
+
   return {
-    title: TITLES[locale] ?? TITLES[defaultLocale],
-    description: DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale],
+    title,
+    description,
     alternates: {
       canonical: `/${locale}/contact`,
       languages: buildLanguageAlternates('/contact'),
     },
+    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
   }
 }
 

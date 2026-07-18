@@ -112,6 +112,7 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'tm' | 'ru') | ('en' | 'tm' | 'ru')[];
   globals: {
+    'site-metadata': SiteMetadatum;
     'contact-info': ContactInfo;
     'about-page': AboutPage;
     forms: Form;
@@ -131,6 +132,7 @@ export interface Config {
     'vacancy-labels': VacancyLabel;
   };
   globalsSelect: {
+    'site-metadata': SiteMetadataSelect<false> | SiteMetadataSelect<true>;
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -1068,6 +1070,83 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Page titles, descriptions and OG images for all static pages, plus JSON-LD structured data.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-metadata".
+ */
+export interface SiteMetadatum {
+  id: number;
+  home?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Recommended: 1200×630 px. Used for link previews on social media.
+     */
+    ogImage?: (number | null) | Media;
+  };
+  about?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Recommended: 1200×630 px. Used for link previews on social media.
+     */
+    ogImage?: (number | null) | Media;
+  };
+  products?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Recommended: 1200×630 px. Used for link previews on social media.
+     */
+    ogImage?: (number | null) | Media;
+  };
+  news?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Recommended: 1200×630 px. Used for link previews on social media.
+     */
+    ogImage?: (number | null) | Media;
+  };
+  vacancies?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Recommended: 1200×630 px. Used for link previews on social media.
+     */
+    ogImage?: (number | null) | Media;
+  };
+  contact?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Recommended: 1200×630 px. Used for link previews on social media.
+     */
+    ogImage?: (number | null) | Media;
+  };
+  /**
+   * schema.org/Organization — used by Google for Knowledge Panels and brand recognition.
+   */
+  organizationJsonLd?: {
+    /**
+     * Defaults to RAHATLYK if empty.
+     */
+    name?: string | null;
+  };
+  /**
+   * schema.org/WebSite — used by Google to display your site name in search results instead of the URL.
+   */
+  websiteJsonLd?: {
+    /**
+     * Defaults to RAHATLYK if empty.
+     */
+    name?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact-info".
  */
@@ -1568,6 +1647,67 @@ export interface VacancyLabel {
   otherOpenings?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-metadata_select".
+ */
+export interface SiteMetadataSelect<T extends boolean = true> {
+  home?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ogImage?: T;
+      };
+  about?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ogImage?: T;
+      };
+  products?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ogImage?: T;
+      };
+  news?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ogImage?: T;
+      };
+  vacancies?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ogImage?: T;
+      };
+  contact?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ogImage?: T;
+      };
+  organizationJsonLd?:
+    | T
+    | {
+        name?: T;
+      };
+  websiteJsonLd?:
+    | T
+    | {
+        name?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

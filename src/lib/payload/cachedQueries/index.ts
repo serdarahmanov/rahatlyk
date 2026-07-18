@@ -13,6 +13,7 @@ import {
   productLabelsTag,
   productTag,
   productsTag,
+  siteMetadataTag,
   vacanciesTag,
   vacancyLabelsTag,
   vacancyTag,
@@ -435,6 +436,17 @@ export function getCachedVacancyDetail(locale: Locale, id: number) {
         forms,
         vacancyLabels,
       }
+    },
+  )
+}
+
+export function getCachedSiteMetadata(locale: Locale) {
+  return cachedQuery(
+    ['payload', 'site-metadata', locale],
+    [siteMetadataTag(locale)],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({ slug: 'site-metadata', locale, depth: 1 })
     },
   )
 }

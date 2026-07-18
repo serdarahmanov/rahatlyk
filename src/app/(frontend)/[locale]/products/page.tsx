@@ -4,7 +4,7 @@ import ProductsClient from './ProductsClient'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
 import { buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeCategory, normalizeProduct, normalizeResult } from '@/lib/payload-normalize'
-import { getCachedProductCategories, getCachedProductLabels, getCachedProductsPage } from '@/lib/payload/cachedQueries'
+import { getCachedProductCategories, getCachedProductLabels, getCachedProductsPage, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import { resolveProductLabels } from '@/lib/product-labels'
 
 const PAGE_SIZE = 12
@@ -29,15 +29,30 @@ type Props = {
   }>
 }
 
+function resolveOgImage(value: unknown): string | null {
+  return value && typeof value === 'object' && 'url' in value
+    ? (value as { url: string }).url || null
+    : null
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const locale = getValidLocale((await params).locale) ?? defaultLocale
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let siteMeta: any = null
+  try { siteMeta = await getCachedSiteMetadata(locale) } catch { /* fallback */ }
+
+  const title = siteMeta?.products?.title ?? TITLES[locale] ?? TITLES[defaultLocale]
+  const description = siteMeta?.products?.description ?? DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale]
+  const ogImageUrl = resolveOgImage(siteMeta?.products?.ogImage)
+
   return {
-    title: TITLES[locale] ?? TITLES[defaultLocale],
-    description: DESCRIPTIONS[locale] ?? DESCRIPTIONS[defaultLocale],
+    title,
+    description,
     alternates: {
       canonical: `/${locale}/products`,
       languages: buildLanguageAlternates('/products'),
     },
+    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
   }
 }
 

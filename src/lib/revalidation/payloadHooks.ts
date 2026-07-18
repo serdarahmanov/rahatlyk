@@ -15,6 +15,7 @@ import {
   productLabelsTag,
   productTag,
   productsTag,
+  siteMetadataTag,
   vacanciesTag,
   vacancyLabelsTag,
   vacancyTag,
@@ -99,6 +100,18 @@ export const revalidateArticleLabelsGlobal = globalHook((locale) => ({
 export const revalidateVacancyLabelsGlobal = globalHook((locale) => ({
   paths: [`/${locale}/vacancies`, `/${locale}/vacancies/[id]`],
   tags: [vacancyLabelsTag(locale), vacanciesTag(locale)],
+}))
+
+export const revalidateSiteMetadataGlobal = globalHook((locale) => ({
+  paths: [
+    `/${locale}`,
+    `/${locale}/about`,
+    `/${locale}/products`,
+    `/${locale}/news`,
+    `/${locale}/vacancies`,
+    `/${locale}/contact`,
+  ],
+  tags: [siteMetadataTag(locale)],
 }))
 
 export const revalidateContactInfoGlobal = globalHook((locale) => ({
