@@ -21,13 +21,14 @@
     "seed:about-who-we-are": "npx tsx src/seed-about-who-we-are.ts",
     "seed:about-our-story": "npx tsx src/seed-about-our-story.ts",
     "seed:about-numbers": "npx tsx src/seed-about-numbers.ts",
-    "seed:about-certificates": "npx tsx src/seed-about-certificates.ts",
     "seed:about-final-section": "npx tsx src/seed-about-final-section.ts",
     "seed:article-labels": "npx tsx src/seed-article-labels.ts",
     "seed:vacancy-labels": "npx tsx src/seed-vacancy-labels.ts",
     "seed:product-labels": "npx tsx src/seed-product-detail-labels.ts",
+    "seed:email-templates": "npx tsx src/seed-email-templates.ts",
+    "seed:navigation-labels": "npx tsx src/seed-navigation-labels.ts",
     "seed-product-detail-labels": "npx tsx src/seed-product-detail-labels.ts",
-    "seed:about-all": "npx tsx src/seed-about-hero.ts && npx tsx src/seed-about-who-we-are.ts && npx tsx src/seed-about-our-story.ts && npx tsx src/seed-about-numbers.ts && npx tsx src/seed-about-certificates.ts && npx tsx src/seed-about-final-section.ts"
+    "seed:about-all": "npx tsx src/seed-about-hero.ts && npx tsx src/seed-about-who-we-are.ts && npx tsx src/seed-about-our-story.ts && npx tsx src/seed-about-numbers.ts && npx tsx src/seed-about-final-section.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.1",

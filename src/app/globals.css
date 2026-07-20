@@ -21,6 +21,7 @@
 
 html {
   scroll-behavior: auto;
+  scrollbar-gutter: stable;
 }
 
 body {

@@ -13,6 +13,7 @@ export type ArticleImage = {
 
 export type ArticleSeed = {
   titleEn: string
+  slug: LocalizedText
   title: LocalizedText
   categorySlug: string
   date: string
@@ -56,6 +57,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 1 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Rahatlyk Wins Best Beverage Brand 2025',
+    slug: {
+      en: 'rahatlyk-wins-best-beverage-brand-2025',
+      tm: 'rahatlyk-2025-in-onat-icgi-markasy',
+      ru: 'rahatlyk-luchshiy-brend-napitkov-2025',
+    },
     title: {
       en: 'Rahatlyk Wins Best Beverage Brand 2025',
       tm: 'Rahatlyk 2025-nji ýylyň Iň Oňat Içgi Markasy',
@@ -86,6 +92,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 2 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Introducing Our New Sparkling Water Range',
+    slug: {
+      en: 'new-sparkling-water-range',
+      tm: 'taze-gazly-suw-gornusleri',
+      ru: 'novaya-lineyka-gazirovannoy-vody',
+    },
     title: {
       en: 'Introducing Our New Sparkling Water Range',
       tm: 'Täze Gazly Suw Görnüşlerimiz',
@@ -114,6 +125,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 3 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Our Mountain Spring Source: Certified Pure',
+    slug: {
+      en: 'mountain-spring-source-certified-pure',
+      tm: 'dag-cesmesi-arassalyk-sahadatnamasy',
+      ru: 'gornyy-rodnik-sertifitsirovannaya-chistota',
+    },
     title: {
       en: 'Our Mountain Spring Source: Certified Pure',
       tm: 'Dag Çeşmämiz: Arasyýalyk Şahadatnamasy Aldy',
@@ -142,6 +158,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 4 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Zero-Waste Packaging by 2026',
+    slug: {
+      en: 'zero-waste-packaging-by-2026',
+      tm: '2026-galyndysyz-gaplama',
+      ru: 'bezothodnaya-upakovka-k-2026',
+    },
     title: {
       en: 'Zero-Waste Packaging by 2026',
       tm: '2026-njy ýyla çenli Galyndysyz Gaplama',
@@ -170,6 +191,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 5 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'New 19-Litre Home & Office Delivery Service',
+    slug: {
+      en: 'new-19-litre-home-office-delivery-service',
+      tm: '19-litr-oy-ofis-eltip-beris-hyzmaty',
+      ru: 'dostavka-19-litrovoy-vody-dom-ofis',
+    },
     title: {
       en: 'New 19-Litre Home & Office Delivery Service',
       tm: 'Täze 19 Litrlik Öý we Ofis Eltip Beriş Hyzmaty',
@@ -198,6 +224,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 6 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Expanding Distribution Across Turkmenistan',
+    slug: {
+      en: 'expanding-distribution-across-turkmenistan',
+      tm: 'turkmenistan-boyunca-paylaysy-gineltmek',
+      ru: 'rasshirenie-distributsii-po-turkmenistanu',
+    },
     title: {
       en: 'Expanding Distribution Across Turkmenistan',
       tm: 'Türkmenistan Boýunça Paýlaýyş Ulgamyny Giňeltmek',
@@ -226,6 +257,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 7 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Official Hydration Partner of the National Sports Federation',
+    slug: {
+      en: 'official-hydration-partner-national-sports-federation',
+      tm: 'milli-sport-federasiyasynyn-gidratasiya-hyzmatdasy',
+      ru: 'partner-po-gidratatsii-natsionalnoy-sportivnoy-federatsii',
+    },
     title: {
       en: 'Official Hydration Partner of the National Sports Federation',
       tm: 'Milli Sport Federasiýasynyň Resmi Gidratasiýa Hyzmatdaşy',
@@ -254,6 +290,11 @@ export const ARTICLES_SEED: ArticleSeed[] = [
   // ── 8 ──────────────────────────────────────────────────────────────────────
   {
     titleEn: 'Our Annual Water Stewardship Report',
+    slug: {
+      en: 'annual-water-stewardship-report',
+      tm: 'yylyk-suw-gorayjylyk-hasabaty',
+      ru: 'ezhegodnyy-otchet-po-upravleniyu-vodnymi-resursami',
+    },
     title: {
       en: 'Our Annual Water Stewardship Report',
       tm: 'Ýyllyk Suw Goraýjylyk Hasabatymyz',

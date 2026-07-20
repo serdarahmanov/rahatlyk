@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { getEmailTemplateConfig } from '@/lib/email/payloadTemplates';
 import { contactConfirmation, contactNotification, extractEmailContact } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
@@ -23,7 +24,6 @@ interface ContactPayload {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-  tls: { rejectUnauthorized: false },
 });
 
 export async function POST(req: NextRequest) {
@@ -60,10 +60,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'messageTooLong' }, { status: 400 });
     }
 
-    const rawContact      = await getCachedContactInfo().catch(() => null)
+    const [rawContact, emailTemplates, notificationTemplates] = await Promise.all([
+      getCachedContactInfo().catch(() => null),
+      getEmailTemplateConfig(locale),
+      getEmailTemplateConfig('ru'),
+    ])
     const contact         = extractEmailContact(rawContact, locale)
-    const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale, contact });
-    const notification    = contactNotification({ firstName, lastName, email, phone, subject, message, locale: 'ru', contact });
+    const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale, contact, templates: emailTemplates });
+    const notification    = contactNotification({ firstName, lastName, email, phone, subject, message, locale: 'ru', contact, templates: notificationTemplates });
     const fromNoreply     = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite     = `"Website" <${process.env.WEBSITE_EMAIL}>`;
 

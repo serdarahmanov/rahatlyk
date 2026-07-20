@@ -19,13 +19,60 @@ export default function PageIntro() {
   // cannot re-trigger when the user navigates back to the home page.
   const [shouldPlay] = useState(() => {
     const play = relativePath === '/' && !(typeof window !== 'undefined' && window.__pageIntroDone);
-    if (typeof window !== 'undefined') window.__pageIntroWillPlay = play;
+    if (typeof window !== 'undefined') {
+      window.__pageIntroWillPlay = play;
+      if (play) window.__homeHeroCoverReady = false;
+    }
     return play;
   });
 
   const curtainRef   = useRef<HTMLDivElement>(null);
   const logoRef      = useRef<HTMLSpanElement>(null);
   const progressRef  = useRef<HTMLDivElement>(null);
+
+  const waitForHeroImages = () =>
+    new Promise<void>((resolve) => {
+      const LOAD_CAP_MS = 15000;
+      const POLL_MS = 80;
+      const startedAt = performance.now();
+
+      const areImagesReady = () => {
+        const images = Array.from(document.querySelectorAll<HTMLImageElement>('[data-hero-image-file]'));
+        return images.length > 0 && images.every((image) => image.complete && image.naturalWidth > 0);
+      };
+
+      let pollTimer = 0;
+      let capTimer = 0;
+
+      const cleanup = () => {
+        window.clearTimeout(pollTimer);
+        window.clearTimeout(capTimer);
+        window.removeEventListener('home-hero-cover-ready', done);
+      };
+
+      const done = () => {
+        if (!areImagesReady() && performance.now() - startedAt < LOAD_CAP_MS) {
+          pollTimer = window.setTimeout(done, POLL_MS);
+          return;
+        }
+
+        cleanup();
+        resolve();
+      };
+
+      capTimer = window.setTimeout(() => {
+        cleanup();
+        resolve();
+      }, LOAD_CAP_MS);
+
+      if (areImagesReady()) {
+        done();
+        return;
+      }
+
+      window.addEventListener('home-hero-cover-ready', done, { once: true });
+      pollTimer = window.setTimeout(done, POLL_MS);
+    });
 
   useEffect(() => {
     if (!shouldPlay) return;
@@ -44,7 +91,11 @@ export default function PageIntro() {
       body.style.overflow = previous.bodyOverflow;
       body.style.touchAction = previous.bodyTouchAction;
       body.style.overscrollBehavior = previous.bodyOverscrollBehavior;
-      window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
+        });
+      });
     };
 
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -99,11 +150,14 @@ export default function PageIntro() {
       //   2. minimum hold — intro always shows for at least MIN_TOTAL_MS from
       //      navigation start, with a floor of MIN_AFTER_READY_MS after the
       //      locale became ready (in case resources load unusually fast)
+      await waitForHeroImages();
+      window.__homeHeroCoverReady = true;
+
       await new Promise<void>((resolve) => {
-        // Fonts + hero video metadata — query the DOM directly; the hero element
+        // Fonts + hero cover image — query the DOM directly; the hero element
         // is already committed before any useEffect runs. Hard cap so a stalled
         // asset never blocks the curtain indefinitely.
-        const LOAD_CAP_MS = 4000;
+        const LOAD_CAP_MS = 15000;
         const capTimer = setTimeout(resolve, LOAD_CAP_MS);
         const done = () => {
           clearTimeout(capTimer);

@@ -10,36 +10,30 @@ import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 import { Locale } from '@/lib/i18n/translations';
 import { withLocale } from '@/lib/i18n/locale';
 
-declare global {
-  interface Window {
-    __pageIntroDone?: boolean;
-    __pageIntroWillPlay?: boolean;
-  }
+export interface NavigationLabels {
+  home?: string | null;
+  products?: string | null;
+  news?: string | null;
+  vacancies?: string | null;
+  about?: string | null;
+  contact?: string | null;
+}
+
+function navLabel(labels: NavigationLabels | null | undefined, key: keyof NavigationLabels, fallback: string) {
+  const value = labels?.[key];
+  return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
 // Module-level flag — persists across route changes, resets on full page reload
-let pageIntroComplete = false;
-if (typeof window !== 'undefined') {
-  window.addEventListener('page-intro-complete', () => { pageIntroComplete = true; }, { once: true });
-}
-
-export default function Navbar() {
+export default function Navbar({ labels }: { labels?: NavigationLabels | null }) {
   const pathname = usePathname();
   const relativePath = pathname.replace(/^\/(en|ru|tm)(?=\/|$)/, '') || '/';
-  const hasPageIntro = relativePath === '/';
   const [scrolled,       setScrolled]       = useState(false);
   const [scrolledUp,     setScrolledUp]     = useState(true);
   const [menuOpen,       setMenuOpen]       = useState(false);
   const [langOpen,       setLangOpen]       = useState(false);
   // introComplete drives header opacity — owned entirely by React so
   // no external imperative writes can desync virtual DOM vs real DOM
-  const [introComplete,  setIntroComplete]  = useState(
-    () => (
-      typeof window !== 'undefined'
-        ? pageIntroComplete || !!window.__pageIntroDone || window.__pageIntroWillPlay === false
-        : false
-    )
-  );
   const prevScrollY = useRef(0);
   const langRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t } = useLanguage();
@@ -66,17 +60,6 @@ export default function Navbar() {
   }, []);
 
   // Reveal header when PageIntro finishes (first page load only)
-  useEffect(() => {
-    if (!hasPageIntro) return;
-    if (pageIntroComplete || window.__pageIntroDone || window.__pageIntroWillPlay === false) {
-      const id = requestAnimationFrame(() => setIntroComplete(true));
-      return () => cancelAnimationFrame(id);
-    }
-    const onDone = () => setIntroComplete(true);
-    window.addEventListener('page-intro-complete', onDone, { once: true });
-    return () => window.removeEventListener('page-intro-complete', onDone);
-  }, [hasPageIntro, pathname]);
-
   // Reset nav state on every route change
   useEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -99,20 +82,18 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler);
   }, [langOpen]);
 
-  // Home / About page not-scrolled → transparent + white text (both have dark hero images)
+  // About keeps white header text over its dark hero; home now has a white hero.
   const isHeroPage = relativePath === '/' || relativePath === '/about';
-  const isAboutPage = relativePath === '/about';
-  const isHomeHero = isHeroPage && !scrolled;
+  const isDarkHero = relativePath === '/about' && !scrolled;
   const showHeaderPanel = scrolled;
-  const showNavbar = !hasPageIntro || introComplete;
   // Any page not-scrolled → transparent bg (image shows through)
 
   const navLinks = [
-    { href: withLocale(locale, '/products'),  label: t.nav.products },
-    { href: withLocale(locale, '/vacancies'), label: t.nav.vacancies },
-    { href: withLocale(locale, '/news'),      label: t.nav.news },
-    { href: withLocale(locale, '/about'),     label: t.nav.about },
-    { href: withLocale(locale, '/contact'),   label: t.nav.contact },
+    { href: withLocale(locale, '/products'),  label: navLabel(labels, 'products', t.nav.products) },
+    { href: withLocale(locale, '/about'),     label: navLabel(labels, 'about', t.nav.about) },
+    { href: withLocale(locale, '/news'),      label: navLabel(labels, 'news', t.nav.news) },
+    { href: withLocale(locale, '/vacancies'), label: navLabel(labels, 'vacancies', t.nav.vacancies) },
+    { href: withLocale(locale, '/contact'),   label: navLabel(labels, 'contact', t.nav.contact) },
   ];
 
   const isActive = (href: string) =>
@@ -122,14 +103,14 @@ export default function Navbar() {
     <>
     <header
       className="fixed top-0 left-0 right-0 z-50"
-      style={isAboutPage ? {
-        opacity:    showNavbar ? 1 : 0,
+      style={isHeroPage ? {
+        opacity:    1,
         transform:  !scrolledUp ? 'translateY(-100%)' : 'translateY(0)',
         // transition must already be in the DOM before transform changes — React owns
         // it so there's no external write that can desync the virtual DOM
-        transition: showNavbar ? 'transform 0.3s ease-in-out' : 'none',
+        transition: 'transform 0.3s ease-in-out',
       } : {
-        opacity: showNavbar ? 1 : 0,
+        opacity: 1,
       }}
     >
 
@@ -151,7 +132,7 @@ export default function Navbar() {
           <Link href={withLocale(locale)} prefetch={false} className="flex items-center flex-shrink-0" onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-top'))}>
             <span
               className={`text-xl lg:text-2xl font-medium tracking-[0.2em] transition-colors duration-300 ${
-                isHomeHero ? 'text-white' : 'text-black'
+                isDarkHero ? 'text-white' : 'text-black'
               }`}
               style={{ fontFamily: 'var(--font-heading), sans-serif' }}
             >
@@ -173,13 +154,13 @@ export default function Navbar() {
                 href={link.href}
                 prefetch={false}
                 className={`relative text-sm font-normal tracking-wide py-1 group ${
-                  isHomeHero ? 'text-white' : 'text-black'
+                  isDarkHero ? 'text-white' : 'text-black'
                 }`}
               >
                 {link.label}
                 <span
                   className={`absolute bottom-0 left-0 h-px rounded-full transition-all duration-300 ${
-                    isHomeHero ? 'bg-white' : 'bg-black'
+                    isDarkHero ? 'bg-white' : 'bg-black'
                   } ${
                     isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'
                   }`}
@@ -196,7 +177,7 @@ export default function Navbar() {
               <button
                 onClick={() => setLangOpen((o) => !o)}
                 className={`flex items-center gap-1 text-sm tracking-wide font-normal transition-colors duration-300 ${
-                  isHomeHero ? 'text-white' : 'text-black'
+                  isDarkHero ? 'text-white' : 'text-black'
                 }`}
               >
                 {locale.charAt(0).toUpperCase() + locale.slice(1)}
@@ -214,7 +195,7 @@ export default function Navbar() {
                       key={lang}
                       onClick={() => { setLocale(lang); setLangOpen(false); }}
                       className={`text-base tracking-wide font-normal transition-opacity duration-150 text-left ${
-                        isHomeHero ? 'text-white/70 hover:text-white' : 'text-black/50 hover:text-black'
+                        isDarkHero ? 'text-white/70 hover:text-white' : 'text-black/50 hover:text-black'
                       }`}
                     >
                       {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -227,7 +208,7 @@ export default function Navbar() {
             {/* Hamburger */}
             <button
               className={`lg:hidden flex flex-col items-center justify-center w-9 h-9 gap-1.5 rounded transition-colors ${
-                isHomeHero ? 'hover:bg-white/10' : 'hover:bg-black/10'
+                isDarkHero ? 'hover:bg-white/10' : 'hover:bg-black/10'
               }`}
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle menu"
@@ -235,17 +216,17 @@ export default function Navbar() {
             >
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : 'bg-black'
+                  isDarkHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
               />
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : 'bg-black'
+                  isDarkHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? 'opacity-0 scale-0' : ''}`}
               />
               <span
                 className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${
-                  isHomeHero ? 'bg-white' : 'bg-black'
+                  isDarkHero ? 'bg-white' : 'bg-black'
                 } ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}
               />
             </button>
@@ -289,13 +270,7 @@ export default function Navbar() {
         <div className="flex-1 flex flex-col justify-center px-8 pb-10">
           {/* All nav links — same size */}
           <div className="flex flex-col gap-1">
-            {[
-              { href: withLocale(locale, '/products'),  label: t.nav.products },
-              { href: withLocale(locale, '/news'),      label: t.nav.news },
-              { href: withLocale(locale, '/vacancies'), label: t.nav.vacancies },
-              { href: withLocale(locale, '/about'),     label: t.nav.about },
-              { href: withLocale(locale, '/contact'),   label: t.nav.contact },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

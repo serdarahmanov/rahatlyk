@@ -170,6 +170,9 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (submitInFlightRef.current) return
+    const submitForm = e.currentTarget as HTMLFormElement
+    const submitFormData = new FormData(submitForm)
+    const website = String(submitFormData.get('website') ?? '')
     const errors = validateApplyForm()
     if (Object.keys(errors).length > 0) { setFormErrors(errors); return }
     submitInFlightRef.current = true
@@ -187,6 +190,7 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
       data.append('vacancyTitle', vacancy.title)
       data.append('vacancyId',    String(vacancy.id))
       data.append('locale',       locale)
+      data.append('website',      website)
       data.append('loadedAt',     String(loadedAtRef.current))
       if (cvFile) data.append('cv', cvFile)
 
@@ -459,12 +463,12 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
 
               <div>
                 <label className="block text-sm text-gray-900 mb-1.5 px-1">{vl.cv} <span className="text-red-400">*</span></label>
-                <div
-                  className={`rounded-md px-4 py-6 text-center cursor-pointer transition-all duration-200 ${formErrors.cv ? 'ring-2 ring-red-400 bg-red-50' : dragOver ? 'bg-gray-200' : 'bg-[#f3f4f6] hover:bg-gray-200'}`}
+                <label
+                  htmlFor="cv-input"
+                  className={`block rounded-md px-4 py-6 text-center cursor-pointer transition-all duration-200 ${formErrors.cv ? 'ring-2 ring-red-400 bg-red-50' : dragOver ? 'bg-gray-200' : 'bg-[#f3f4f6] hover:bg-gray-200'}`}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={(e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file) setCvFile(file) }}
-                  onClick={() => document.getElementById('cv-input')?.click()}
                 >
                   {cvFile ? (
                     <div className="flex items-center justify-center gap-3 text-gray-700">
@@ -472,7 +476,7 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                       </svg>
                       <span className="text-sm font-normal">{cvFile.name}</span>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setCvFile(null) }} className="text-gray-400 hover:text-red-400 transition-colors">&#215;</button>
+                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCvFile(null) }} className="text-gray-400 hover:text-red-400 transition-colors">&#215;</button>
                     </div>
                   ) : (
                     <>
@@ -483,10 +487,10 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
                       <p className="text-xs text-gray-400 mt-1">{vu.hint}</p>
                     </>
                   )}
-                  <input id="cv-input" type="file" accept=".pdf,.doc,.docx" className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) { setCvFile(f); setFormErrors((prev) => { const n = { ...prev }; delete n.cv; return n }) } }}
-                  />
-                </div>
+                </label>
+                <input id="cv-input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="sr-only"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) { setCvFile(f); setFormErrors((prev) => { const n = { ...prev }; delete n.cv; return n }) } }}
+                />
                 {formErrors.cv && <p className="text-red-500 text-xs mt-1 px-1">{formErrors.cv}</p>}
               </div>
 

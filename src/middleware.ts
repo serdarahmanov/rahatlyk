@@ -10,6 +10,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(destination)
   }
 
+  if (pathname === `/${defaultLocale}` || pathname.startsWith(`/${defaultLocale}/`)) {
+    return new NextResponse('Not Found', { status: 404 })
+  }
+
   const legacyPublicPrefixes = ['/about', '/contact', '/products', '/news', '/vacancies']
   const isLegacyPublicPath = legacyPublicPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
@@ -19,13 +23,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (pathname === '/') {
+    const destination = request.nextUrl.clone()
+    destination.pathname = `/${defaultLocale}`
+    return NextResponse.rewrite(destination)
+  }
+
   const destination = request.nextUrl.clone()
-
-  destination.pathname = pathname === '/'
-    ? `/${defaultLocale}`
-    : `/${defaultLocale}${pathname}`
-
-  return NextResponse.redirect(destination)
+  destination.pathname = `/${defaultLocale}${pathname}`
+  return NextResponse.rewrite(destination)
 }
 
 export const config = {

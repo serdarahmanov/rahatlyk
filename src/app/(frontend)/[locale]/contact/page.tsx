@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { FORMS_CONTENT } from '@/lib/data/forms-content'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
-import { buildLanguageAlternates } from '@/lib/i18n/metadata'
+import { buildCanonicalPath, buildLanguageAlternates } from '@/lib/i18n/metadata'
 import type { Locale } from '@/lib/i18n/translations'
 import { getCachedContactData, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import ContactPageClient from './ContactPageClient'
@@ -113,10 +113,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `/${locale}/contact`,
+      canonical: buildCanonicalPath(locale, '/contact'),
       languages: buildLanguageAlternates('/contact'),
     },
-    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: buildCanonicalPath(locale, '/contact'),
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl }] } : {}),
+    },
   }
 }
 

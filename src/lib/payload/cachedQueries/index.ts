@@ -8,10 +8,9 @@ import {
   contactInfoTag,
   contactTag,
   homeTag,
-  newsItemTag,
   newsListTag,
+  navigationLabelsTag,
   productLabelsTag,
-  productTag,
   productsTag,
   siteMetadataTag,
   vacanciesTag,
@@ -69,16 +68,15 @@ export function getCachedAboutData(locale: Locale) {
     [aboutTag(locale)],
     async () => {
       const payload = await getPayloadClient()
-      const [hero, whoWeAre, story, numbers, certificates, finalSection] = await Promise.all([
+      const [hero, whoWeAre, story, numbers, finalSection] = await Promise.all([
         payload.findGlobal({ slug: 'about-hero', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-who-we-are', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-our-story', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-numbers', locale, depth: 1 }),
-        payload.findGlobal({ slug: 'about-certificates', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-final-section', locale, depth: 1 }),
       ])
 
-      return { hero, whoWeAre, story, numbers, certificates, finalSection }
+      return { hero, whoWeAre, story, numbers, finalSection }
     },
   )
 }
@@ -151,10 +149,10 @@ export function getCachedProductsPage(
   )
 }
 
-export function getCachedProductDetail(locale: Locale, id: number) {
+export function getCachedProductDetail(locale: Locale, slug: string) {
   return cachedQuery(
-    ['payload', 'product-detail-v2', locale, String(id)],
-    [productsTag(locale), productTag(locale, id)],
+    ['payload', 'product-detail-by-slug', locale, slug],
+    [productsTag(locale)],
     async () => {
       const payload = await getPayloadClient()
 
@@ -163,7 +161,7 @@ export function getCachedProductDetail(locale: Locale, id: number) {
         depth: 2,
         locale,
         limit: 1,
-        where: { id: { equals: id } },
+        where: { slug: { equals: slug } },
       })
       const product = productResult.docs[0] ?? null
 
@@ -185,8 +183,8 @@ export function getCachedProductDetail(locale: Locale, id: number) {
           locale,
           limit: 4,
           sort: 'date',
-          where: { and: [{ id: { not_equals: id } }, { category: { equals: categoryID } }] },
-          select: { id: true, name: true, category: true, volumes: true, photos: true, video: true },
+          where: { and: [{ id: { not_equals: product.id } }, { category: { equals: categoryID } }] },
+          select: { id: true, slug: true, name: true, category: true, volumes: true, photos: true, video: true },
         }),
 
         // Use the same ordering as the products page. Deriving neighbors from
@@ -197,11 +195,11 @@ export function getCachedProductDetail(locale: Locale, id: number) {
           locale,
           limit: 100,
           sort: 'date',
-          select: { id: true, name: true },
+          select: { id: true, slug: true, name: true },
         }),
       ])
 
-      const currentIndex = navigationResult.docs.findIndex((item) => item.id === id)
+      const currentIndex = navigationResult.docs.findIndex((item) => item.id === product.id)
       const prevProduct = currentIndex > 0
         ? navigationResult.docs[currentIndex - 1]
         : null
@@ -293,10 +291,10 @@ export function getCachedNewsPage(
   )
 }
 
-export function getCachedNewsDetail(locale: Locale, id: number) {
+export function getCachedNewsDetail(locale: Locale, slug: string) {
   return cachedQuery(
-    ['payload', 'news-detail', locale, String(id)],
-    [newsListTag(locale), newsItemTag(locale, id)],
+    ['payload', 'news-detail-by-slug', locale, slug],
+    [newsListTag(locale)],
     async () => {
       const payload = await getPayloadClient()
       const articleResult = await payload.find({
@@ -304,7 +302,7 @@ export function getCachedNewsDetail(locale: Locale, id: number) {
         depth: 2,
         locale,
         limit: 1,
-        where: { id: { equals: id } },
+        where: { slug: { equals: slug } },
       })
       const article = articleResult.docs[0] ?? null
       if (!article) return { article: null, related: [] }
@@ -321,7 +319,7 @@ export function getCachedNewsDetail(locale: Locale, id: number) {
         sort: '-date',
         where: {
           and: [
-            { id: { not_equals: id } },
+            { id: { not_equals: article.id } },
             { category: { equals: categoryID } },
           ],
         },
@@ -339,7 +337,7 @@ export function getCachedNewsDetail(locale: Locale, id: number) {
           sort: '-date',
           where: {
             and: [
-              { id: { not_equals: id } },
+              { id: { not_equals: article.id } },
               { category: { not_equals: categoryID } },
             ],
           },
@@ -451,6 +449,17 @@ export function getCachedSiteMetadata(locale: Locale) {
   )
 }
 
+export function getCachedNavigationLabels(locale: Locale) {
+  return cachedQuery(
+    ['payload', 'navigation-labels', locale],
+    [navigationLabelsTag(locale)],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({ slug: 'navigation-labels' as never, locale, depth: 0 })
+    },
+  )
+}
+
 export function getCachedContactInfo() {
   return cachedQuery(
     ['payload', 'contact-info', 'all-locales'],
@@ -467,7 +476,7 @@ export function getCachedContactInfo() {
 }
 
 async function getStaticIDs(
-  collection: 'products' | 'articles' | 'vacancies',
+  collection: 'vacancies',
   locale: Locale,
 ) {
   const payload = await getPayloadClient()
@@ -481,18 +490,100 @@ async function getStaticIDs(
   return result.docs.map((doc) => String(doc.id))
 }
 
-export const getCachedProductStaticIDs = (locale: Locale) =>
-  cachedQuery(
-    ['payload', 'product-static-ids', locale],
-    [productsTag(locale)],
-    () => getStaticIDs('products', locale),
+async function getStaticSlugs(
+  collection: 'products' | 'articles',
+  locale: Locale,
+) {
+  const payload = await getPayloadClient()
+  const result = await payload.find({
+    collection,
+    locale,
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+    select: { slug: true },
+  })
+  return result.docs.flatMap((doc) => doc.slug ? [doc.slug] : [])
+}
+
+async function getLocalizedSlugMap(collection: 'products' | 'articles', id: number) {
+  const payload = await getPayloadClient()
+  const entries = await Promise.all(
+    (['en', 'ru', 'tm'] as const).map(async (locale) => {
+      const doc = await payload.findByID({
+        collection,
+        id,
+        locale,
+        depth: 0,
+        select: { slug: true },
+      })
+      return [locale, doc.slug || null] as const
+    }),
   )
 
-export const getCachedNewsStaticIDs = (locale: Locale) =>
+  return Object.fromEntries(
+    entries.flatMap(([locale, slug]) => slug ? [[locale, slug]] : []),
+  ) as Partial<Record<Locale, string>>
+}
+
+async function getStaticLocalizedSlugMaps(collection: 'products' | 'articles') {
+  const payload = await getPayloadClient()
+  const result = await payload.find({
+    collection,
+    locale: 'en',
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+  })
+
+  return Promise.all(
+    result.docs.map(async (doc) => ({
+      id: Number(doc.id),
+      slugs: await getLocalizedSlugMap(collection, Number(doc.id)),
+    })),
+  )
+}
+
+export const getCachedProductStaticSlugs = (locale: Locale) =>
   cachedQuery(
-    ['payload', 'news-static-ids', locale],
+    ['payload', 'product-static-slugs', locale],
+    [productsTag(locale)],
+    () => getStaticSlugs('products', locale),
+  )
+
+export const getCachedProductLocalizedSlugs = (id: number) =>
+  cachedQuery(
+    ['payload', 'product-localized-slugs', String(id)],
+    (['en', 'ru', 'tm'] as const).map(productsTag),
+    () => getLocalizedSlugMap('products', id),
+  )
+
+export const getCachedProductStaticLocalizedSlugMaps = () =>
+  cachedQuery(
+    ['payload', 'product-static-localized-slug-maps'],
+    (['en', 'ru', 'tm'] as const).map(productsTag),
+    () => getStaticLocalizedSlugMaps('products'),
+  )
+
+export const getCachedNewsStaticSlugs = (locale: Locale) =>
+  cachedQuery(
+    ['payload', 'news-static-slugs', locale],
     [newsListTag(locale)],
-    () => getStaticIDs('articles', locale),
+    () => getStaticSlugs('articles', locale),
+  )
+
+export const getCachedNewsLocalizedSlugs = (id: number) =>
+  cachedQuery(
+    ['payload', 'news-localized-slugs', String(id)],
+    (['en', 'ru', 'tm'] as const).map(newsListTag),
+    () => getLocalizedSlugMap('articles', id),
+  )
+
+export const getCachedNewsStaticLocalizedSlugMaps = () =>
+  cachedQuery(
+    ['payload', 'news-static-localized-slug-maps'],
+    (['en', 'ru', 'tm'] as const).map(newsListTag),
+    () => getStaticLocalizedSlugMaps('articles'),
   )
 
 export const getCachedVacancyStaticIDs = (locale: Locale) =>

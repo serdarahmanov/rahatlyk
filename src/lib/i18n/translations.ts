@@ -15,7 +15,7 @@ export const translations = {
         title: 'Pure Nature,',
         titleAccent: 'Pure Life',
         subtitle: 'Premium beverages crafted from the finest natural sources of Turkmenistan',
-        cta: 'Explore Products',
+        cta: 'Our Story',
         ctaSecondary: 'Our Story',
       },
       categories: {
@@ -221,7 +221,7 @@ export const translations = {
         title: 'Чистая природа,',
         titleAccent: 'Чистая жизнь',
         subtitle: 'Премиальные напитки из лучших природных источников Туркменистана',
-        cta: 'Наши продукты',
+        cta: 'Наша история',
         ctaSecondary: 'Наша история',
       },
       categories: {
@@ -427,7 +427,7 @@ export const translations = {
         title: 'Arassa tebigat,',
         titleAccent: 'Arassa ýaşaýyş',
         subtitle: 'Türkmenistanyň iň arassa tebigy çeşmelerinden öndürilen premium içgiler',
-        cta: 'Önümleri görüň',
+        cta: 'Taryhymyz',
         ctaSecondary: 'Biziň taryhymyz',
       },
       categories: {

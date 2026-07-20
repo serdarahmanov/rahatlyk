@@ -13,12 +13,21 @@ export function getValidLocale(value: string | null | undefined): Locale | null 
 
 export function withLocale(locale: Locale, path = '/'): string {
   const normalizedPath = path === '/' ? '' : `/${path.replace(/^\/+/, '')}`
+  if (locale === defaultLocale) {
+    return normalizedPath || '/'
+  }
+
   return `/${locale}${normalizedPath}`
 }
 
 export function replacePathLocale(pathname: string, locale: Locale): string {
   const segments = pathname.split('/')
   if (validateLocale(segments[1])) {
+    if (locale === defaultLocale) {
+      const withoutLocale = `/${segments.slice(2).join('/')}`.replace(/\/+$/, '')
+      return withoutLocale || '/'
+    }
+
     segments[1] = locale
     return segments.join('/') || `/${locale}`
   }

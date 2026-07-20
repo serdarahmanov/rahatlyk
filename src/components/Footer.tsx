@@ -6,8 +6,14 @@ import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 import { withLocale } from '@/lib/i18n/locale';
+import type { NavigationLabels } from './Navbar';
 
-export default function Footer() {
+function navLabel(labels: NavigationLabels | null | undefined, key: keyof NavigationLabels, fallback: string) {
+  const value = labels?.[key];
+  return typeof value === 'string' && value.trim() ? value : fallback;
+}
+
+export default function Footer({ labels }: { labels?: NavigationLabels | null }) {
   const { locale, t } = useLanguage();
   const contactInfo = useContactInfo();
   const social = useSocialLinks();
@@ -19,15 +25,15 @@ export default function Footer() {
   ].filter(s => s.href);
 
   const quickLinks = [
-    { href: withLocale(locale),               label: t.nav.home      },
-    { href: withLocale(locale, '/products'),  label: t.nav.products  },
-    { href: withLocale(locale, '/news'),      label: t.nav.news       },
-    { href: withLocale(locale, '/vacancies'), label: t.nav.vacancies  },
+    { href: withLocale(locale),               label: navLabel(labels, 'home', t.nav.home) },
+    { href: withLocale(locale, '/products'),  label: navLabel(labels, 'products', t.nav.products) },
+    { href: withLocale(locale, '/news'),      label: navLabel(labels, 'news', t.nav.news) },
+    { href: withLocale(locale, '/vacancies'), label: navLabel(labels, 'vacancies', t.nav.vacancies) },
   ];
 
   const companyLinks = [
-    { href: withLocale(locale, '/about'),   label: t.nav.about   },
-    { href: withLocale(locale, '/contact'), label: t.nav.contact },
+    { href: withLocale(locale, '/about'),   label: navLabel(labels, 'about', t.nav.about) },
+    { href: withLocale(locale, '/contact'), label: navLabel(labels, 'contact', t.nav.contact) },
   ];
 
   return (

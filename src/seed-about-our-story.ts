@@ -52,8 +52,9 @@ async function seedAboutOurStory() {
   console.log('Seeding About Our Story...')
 
   const data = ABOUT_OUR_STORY_CONTENT
-  const [leftImage, rightImage] = await Promise.all([
+  const [leftImage, centerImage, rightImage] = await Promise.all([
     uploadImage(payload, ABOUT_MOSAIC_CONTENT.leftImage),
+    uploadImage(payload, ABOUT_MOSAIC_CONTENT.centerImage),
     uploadImage(payload, ABOUT_MOSAIC_CONTENT.rightImage),
   ])
 
@@ -67,6 +68,7 @@ async function seedAboutOurStory() {
       title: data.title.en,
       subtitle: data.subtitle.en,
       leftImage,
+      centerImage,
       rightImage,
       milestones: data.milestones.map((m) => ({
         year: m.year,
@@ -96,6 +98,7 @@ async function seedAboutOurStory() {
         title: data.title[locale],
         subtitle: data.subtitle[locale],
         leftImage,
+        centerImage,
         rightImage,
         milestones: data.milestones.map((m, i) => ({
           ...(itemIds[i] !== undefined ? { id: itemIds[i] } : {}),

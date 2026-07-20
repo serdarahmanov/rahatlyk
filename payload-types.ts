@@ -114,13 +114,14 @@ export interface Config {
   globals: {
     'site-metadata': SiteMetadatum;
     'contact-info': ContactInfo;
+    'email-templates': EmailTemplate;
+    'navigation-labels': NavigationLabel;
     'about-page': AboutPage;
     forms: Form;
     'about-hero': AboutHero;
     'about-who-we-are': AboutWhoWeAre;
     'about-our-story': AboutOurStory;
     'about-numbers': AboutNumber;
-    'about-certificates': AboutCertificate;
     'about-final-section': AboutFinalSection;
     'home-hero': HomeHero;
     'horizontal-scroll': HorizontalScroll;
@@ -134,13 +135,14 @@ export interface Config {
   globalsSelect: {
     'site-metadata': SiteMetadataSelect<false> | SiteMetadataSelect<true>;
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
+    'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
+    'navigation-labels': NavigationLabelsSelect<false> | NavigationLabelsSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'about-hero': AboutHeroSelect<false> | AboutHeroSelect<true>;
     'about-who-we-are': AboutWhoWeAreSelect<false> | AboutWhoWeAreSelect<true>;
     'about-our-story': AboutOurStorySelect<false> | AboutOurStorySelect<true>;
     'about-numbers': AboutNumbersSelect<false> | AboutNumbersSelect<true>;
-    'about-certificates': AboutCertificatesSelect<false> | AboutCertificatesSelect<true>;
     'about-final-section': AboutFinalSectionSelect<false> | AboutFinalSectionSelect<true>;
     'home-hero': HomeHeroSelect<false> | HomeHeroSelect<true>;
     'horizontal-scroll': HorizontalScrollSelect<false> | HorizontalScrollSelect<true>;
@@ -248,6 +250,10 @@ export interface ProductCategory {
 export interface Product {
   id: number;
   name: string;
+  /**
+   * Localized URL slug, for example still-water-19l.
+   */
+  slug: string;
   tagline?: string | null;
   date?: string | null;
   category: number | ProductCategory;
@@ -301,6 +307,10 @@ export interface ArticleCategory {
 export interface Article {
   id: number;
   title: string;
+  /**
+   * Localized URL slug, for example new-sparkling-water-range.
+   */
+  slug: string;
   category: number | ArticleCategory;
   date: string;
   featured?: boolean | null;
@@ -775,6 +785,7 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
  */
 export interface ProductsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   tagline?: T;
   date?: T;
   category?: T;
@@ -820,6 +831,7 @@ export interface ArticleCategoriesSelect<T extends boolean = true> {
  */
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
   category?: T;
   date?: T;
   featured?: T;
@@ -1176,6 +1188,100 @@ export interface ContactInfo {
   createdAt?: string | null;
 }
 /**
+ * Localized copy for contact and vacancy confirmation/notification emails.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-templates".
+ */
+export interface EmailTemplate {
+  id: number;
+  contactEmail?: {
+    confirmation?: {
+      subject?: string | null;
+      preheader?: string | null;
+      title?: string | null;
+      subtitle?: string | null;
+      greeting?: string | null;
+      intro?: string | null;
+      summaryHeading?: string | null;
+      subjectLabel?: string | null;
+      messageLabel?: string | null;
+      whatNextHeading?: string | null;
+      step1?: string | null;
+      step2?: string | null;
+      step3?: string | null;
+      ctaBtn?: string | null;
+    };
+    notification?: {
+      subject?: string | null;
+      title?: string | null;
+      subtitle?: string | null;
+      firstNameLabel?: string | null;
+      lastNameLabel?: string | null;
+      emailLabel?: string | null;
+      phoneLabel?: string | null;
+      subjectLabel?: string | null;
+      messageHeading?: string | null;
+      replyBtn?: string | null;
+    };
+  };
+  vacancyEmail?: {
+    confirmation?: {
+      subject?: string | null;
+      preheader?: string | null;
+      title?: string | null;
+      subtitle?: string | null;
+      greeting?: string | null;
+      intro?: string | null;
+      appliedPositionHeading?: string | null;
+      positionLabel?: string | null;
+      companyLabel?: string | null;
+      locationLabel?: string | null;
+      companyValue?: string | null;
+      locationValue?: string | null;
+      whatNextHeading?: string | null;
+      step1?: string | null;
+      step2?: string | null;
+      step3?: string | null;
+      ctaBtn?: string | null;
+    };
+    notification?: {
+      subject?: string | null;
+      title?: string | null;
+      subtitle?: string | null;
+      firstNameLabel?: string | null;
+      lastNameLabel?: string | null;
+      dobLabel?: string | null;
+      emailLabel?: string | null;
+      phoneLabel?: string | null;
+      positionLabel?: string | null;
+      cvLabel?: string | null;
+      cvNote?: string | null;
+      coverHeading?: string | null;
+      replyBtn?: string | null;
+    };
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Localized page names used by the header and footer navigation.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation-labels".
+ */
+export interface NavigationLabel {
+  id: number;
+  home?: string | null;
+  products?: string | null;
+  about?: string | null;
+  news?: string | null;
+  vacancies?: string | null;
+  contact?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-page".
  */
@@ -1298,6 +1404,14 @@ export interface AboutHero {
    * Optional mobile hero image. Falls back to desktop cover image when empty.
    */
   mobileCoverImage?: (number | null) | Media;
+  /**
+   * Horizontal hero video for desktop and tablet screens. The page shows the cover image first, delays video loading until existing About media is ready, then swaps to video.
+   */
+  heroVideo?: (number | null) | Media;
+  /**
+   * Vertical hero video for mobile screens. Falls back to the desktop/tablet hero video when empty.
+   */
+  mobileHeroVideo?: (number | null) | Media;
   title?: string | null;
   accentWordIndex?: number | null;
   updatedAt?: string | null;
@@ -1341,6 +1455,10 @@ export interface AboutOurStory {
   subtitle?: string | null;
   leftImage: number | Media;
   rightImage: number | Media;
+  /**
+   * Optional third image for the About mosaic row.
+   */
+  centerImage?: (number | null) | Media;
   milestones?:
     | {
         /**
@@ -1387,48 +1505,6 @@ export interface AboutNumber {
   createdAt?: string | null;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-certificates".
- */
-export interface AboutCertificate {
-  id: number;
-  intro?: {
-    /**
-     * e.g. "Our standards,"
-     */
-    headingText?: string | null;
-    /**
-     * e.g. "on the record."
-     */
-    headingAccent?: string | null;
-    subtitle?: string | null;
-  };
-  seal?: {
-    text?: string | null;
-  };
-  certificates?:
-    | {
-        /**
-         * e.g. "ISO 9001"
-         */
-        name?: string | null;
-        /**
-         * e.g. "Quality management"
-         */
-        tag?: string | null;
-        description?: string | null;
-        /**
-         * e.g. "Issued 2019 · Valid"
-         */
-        expiryDate?: string | null;
-        photo?: (number | null) | Media;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
  * The final full-screen image and message shown at the bottom of the About page.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1452,15 +1528,26 @@ export interface AboutFinalSection {
  */
 export interface HomeHero {
   id: number;
-  video?: (number | null) | Media;
   /**
-   * Loaded first for desktop/tablet home hero. The intro exits when this image is ready; the video loads afterward.
+   * Loaded first for desktop/tablet home hero. The intro exits when this image is ready.
    */
   poster?: (number | null) | Media;
   /**
    * Used on mobile phones. If empty, the desktop cover image is used.
    */
   mobilePoster?: (number | null) | Media;
+  /**
+   * Layered hero images. The first few are used on mobile; all are used on desktop/tablet.
+   */
+  parallaxImages?:
+    | {
+        fileName: string;
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  bottleImage?: (number | null) | Media;
+  mobileBottleImage?: (number | null) | Media;
   title?: string | null;
   titleAccent?: string | null;
   subtitle?: string | null;
@@ -1493,7 +1580,7 @@ export interface HorizontalScroll {
     buttonHref?: string | null;
   };
   /**
-   * Upload a cover image and video. The site loads the cover first and delays this video until the home hero video is fully buffered.
+   * Upload a cover image and video. The site loads the cover first and delays this video until the page is ready.
    */
   box5?: {
     video?: (number | null) | Media;
@@ -1739,6 +1826,108 @@ export interface ContactInfoSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-templates_select".
+ */
+export interface EmailTemplatesSelect<T extends boolean = true> {
+  contactEmail?:
+    | T
+    | {
+        confirmation?:
+          | T
+          | {
+              subject?: T;
+              preheader?: T;
+              title?: T;
+              subtitle?: T;
+              greeting?: T;
+              intro?: T;
+              summaryHeading?: T;
+              subjectLabel?: T;
+              messageLabel?: T;
+              whatNextHeading?: T;
+              step1?: T;
+              step2?: T;
+              step3?: T;
+              ctaBtn?: T;
+            };
+        notification?:
+          | T
+          | {
+              subject?: T;
+              title?: T;
+              subtitle?: T;
+              firstNameLabel?: T;
+              lastNameLabel?: T;
+              emailLabel?: T;
+              phoneLabel?: T;
+              subjectLabel?: T;
+              messageHeading?: T;
+              replyBtn?: T;
+            };
+      };
+  vacancyEmail?:
+    | T
+    | {
+        confirmation?:
+          | T
+          | {
+              subject?: T;
+              preheader?: T;
+              title?: T;
+              subtitle?: T;
+              greeting?: T;
+              intro?: T;
+              appliedPositionHeading?: T;
+              positionLabel?: T;
+              companyLabel?: T;
+              locationLabel?: T;
+              companyValue?: T;
+              locationValue?: T;
+              whatNextHeading?: T;
+              step1?: T;
+              step2?: T;
+              step3?: T;
+              ctaBtn?: T;
+            };
+        notification?:
+          | T
+          | {
+              subject?: T;
+              title?: T;
+              subtitle?: T;
+              firstNameLabel?: T;
+              lastNameLabel?: T;
+              dobLabel?: T;
+              emailLabel?: T;
+              phoneLabel?: T;
+              positionLabel?: T;
+              cvLabel?: T;
+              cvNote?: T;
+              coverHeading?: T;
+              replyBtn?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation-labels_select".
+ */
+export interface NavigationLabelsSelect<T extends boolean = true> {
+  home?: T;
+  products?: T;
+  about?: T;
+  news?: T;
+  vacancies?: T;
+  contact?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-page_select".
  */
 export interface AboutPageSelect<T extends boolean = true> {
@@ -1886,6 +2075,8 @@ export interface FormsSelect<T extends boolean = true> {
 export interface AboutHeroSelect<T extends boolean = true> {
   coverImage?: T;
   mobileCoverImage?: T;
+  heroVideo?: T;
+  mobileHeroVideo?: T;
   title?: T;
   accentWordIndex?: T;
   updatedAt?: T;
@@ -1927,6 +2118,7 @@ export interface AboutOurStorySelect<T extends boolean = true> {
   subtitle?: T;
   leftImage?: T;
   rightImage?: T;
+  centerImage?: T;
   milestones?:
     | T
     | {
@@ -1965,37 +2157,6 @@ export interface AboutNumbersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-certificates_select".
- */
-export interface AboutCertificatesSelect<T extends boolean = true> {
-  intro?:
-    | T
-    | {
-        headingText?: T;
-        headingAccent?: T;
-        subtitle?: T;
-      };
-  seal?:
-    | T
-    | {
-        text?: T;
-      };
-  certificates?:
-    | T
-    | {
-        name?: T;
-        tag?: T;
-        description?: T;
-        expiryDate?: T;
-        photo?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-final-section_select".
  */
 export interface AboutFinalSectionSelect<T extends boolean = true> {
@@ -2012,9 +2173,17 @@ export interface AboutFinalSectionSelect<T extends boolean = true> {
  * via the `definition` "home-hero_select".
  */
 export interface HomeHeroSelect<T extends boolean = true> {
-  video?: T;
   poster?: T;
   mobilePoster?: T;
+  parallaxImages?:
+    | T
+    | {
+        fileName?: T;
+        image?: T;
+        id?: T;
+      };
+  bottleImage?: T;
+  mobileBottleImage?: T;
   title?: T;
   titleAccent?: T;
   subtitle?: T;

@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation';
 import '../../globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 import { getValidLocale, supportedLocales, defaultLocale } from '@/lib/i18n/locale';
-import { getCachedContactInfo, getCachedSiteMetadata } from '@/lib/payload/cachedQueries';
+import { getCachedContactInfo, getCachedNavigationLabels, getCachedSiteMetadata } from '@/lib/payload/cachedQueries';
 import { ContactInfoProvider, type RawContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { SocialLinksProvider } from '@/lib/social-links/SocialLinksContext';
+import { buildLanguageAlternates, buildCanonicalPath } from '@/lib/i18n/metadata';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import NavigationProgress from '@/components/NavigationProgress'
@@ -22,9 +23,9 @@ const inter = Inter({
 });
 
 const SITE_TITLES: Record<string, string> = {
-  tm: 'RAHATLYK — Premium Içgiler',
-  ru: 'RAHATLYK — Премиальные Напитки',
-  en: 'RAHATLYK — Premium Beverages',
+  tm: 'Rahatlyk — Premium Içgiler',
+  ru: 'Rahatlyk — Премиальные Напитки',
+  en: 'Rahatlyk — Premium Beverages',
 }
 
 const SITE_DESCRIPTIONS: Record<string, string> = {
@@ -34,6 +35,7 @@ const SITE_DESCRIPTIONS: Record<string, string> = {
 }
 
 const OG_LOCALES: Record<string, string> = { tm: 'tk_TM', ru: 'ru_RU', en: 'en_US' }
+const HTML_LANG: Record<string, string> = { tm: 'tk', ru: 'ru', en: 'en' }
 
 function mediaUrl(value: unknown): string | null {
   return value && typeof value === 'object' && 'url' in value && typeof (value as Record<string, unknown>).url === 'string'
@@ -84,13 +86,8 @@ export async function generateMetadata({
     title: { default: title, template: `%s — RAHATLYK` },
     description,
     alternates: {
-      canonical: `/${locale}`,
-      languages: {
-        en: '/en',
-        ru: '/ru',
-        tk: '/tm',
-        'x-default': `/${defaultLocale}`,
-      },
+      canonical: buildCanonicalPath(locale),
+      languages: buildLanguageAlternates('/'),
     },
     ...(iconUrl ? {
       icons: {
@@ -100,7 +97,10 @@ export async function generateMetadata({
       },
     } : {}),
     openGraph: {
-      siteName: 'RAHATLYK',
+      title,
+      description,
+      url: buildCanonicalPath(locale),
+      siteName: 'Rahatlyk',
       locale: OG_LOCALES[locale] ?? OG_LOCALES[defaultLocale],
       type: 'website',
       ...(homeOgImageUrl ? { images: [{ url: homeOgImageUrl }] } : {}),
@@ -134,26 +134,31 @@ export default async function RootLayout({
 
   let contactInfo: RawContactInfo | null = null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let layoutSiteMeta: any = null
+  let navigationLabels: any = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let siteMeta: any = null
   try {
-    const [contactInfoRaw, siteMetaRaw] = await Promise.all([
+    const [contactInfoRaw, navigationLabelsRaw, siteMetaRaw] = await Promise.all([
       getCachedContactInfo(),
+      getCachedNavigationLabels(locale),
       getCachedSiteMetadata(locale),
     ])
     contactInfo = JSON.parse(JSON.stringify(contactInfoRaw)) as RawContactInfo
-    layoutSiteMeta = siteMetaRaw
+    navigationLabels = JSON.parse(JSON.stringify(navigationLabelsRaw))
+    siteMeta = JSON.parse(JSON.stringify(siteMetaRaw))
   } catch {
     contactInfo = null
   }
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com'
+  const homeUrl = new URL('/', siteUrl).toString()
   const logoUrl = siteIconUrl(contactInfo)
-  const orgName: string = layoutSiteMeta?.organizationJsonLd?.name || 'RAHATLYK'
-  const siteName: string = layoutSiteMeta?.websiteJsonLd?.name || 'RAHATLYK'
+  const orgName = siteMeta?.organizationJsonLd?.name || 'Rahatlyk'
+  const siteName = siteMeta?.websiteJsonLd?.name || 'Rahatlyk'
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: orgName,
-    url: siteUrl,
+    url: homeUrl,
     ...(logoUrl ? { logo: new URL('/api/site-icon', siteUrl).toString() } : {}),
   }
 
@@ -161,11 +166,12 @@ export default async function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: siteName,
-    url: siteUrl,
+    alternateName: ['RAHATLYK', 'Rahatlyk Suw'],
+    url: homeUrl,
   }
 
   return (
-    <html lang={locale} className={inter.variable} data-scroll-behavior="smooth">
+    <html lang={HTML_LANG[locale] ?? locale} className={inter.variable} data-scroll-behavior="smooth">
       {/* Hide only the hero text before JS runs — the background image is
           visible immediately (good LCP). The animation reveals hero text once
           the correct locale + word-masks are in place. */}
@@ -194,9 +200,9 @@ export default async function RootLayout({
             <SmoothScroll />
             <NavigationProgress />
             <PageIntro />
-            <Navbar />
+            <Navbar labels={navigationLabels} />
             <main>{children}</main>
-            <Footer />
+            <Footer labels={navigationLabels} />
           </SocialLinksProvider>
           </ContactInfoProvider>
         </LanguageProvider>

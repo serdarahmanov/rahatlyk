@@ -107,6 +107,8 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitInFlightRef.current) return;
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const website = String(formData.get('website') ?? '');
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -120,7 +122,7 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, locale, loadedAt: loadedAtRef.current }),
+        body: JSON.stringify({ ...form, locale, website, loadedAt: loadedAtRef.current }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'serverError')

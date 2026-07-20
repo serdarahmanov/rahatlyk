@@ -19,9 +19,9 @@ export const HOME_CTA_CONTENT = {
     ru: 'Откройте весь ассортимент напитков RAHATLYK, созданных для каждого момента.',
   },
   ctaLabel: {
-    en: 'Explore Products',
-    tm: 'Önümleri görüň',
-    ru: 'Наши продукты',
+    en: 'Our Story',
+    tm: 'Taryhymyz',
+    ru: 'Наша история',
   },
-  ctaHref: '/products',
+  ctaHref: '/about',
 }

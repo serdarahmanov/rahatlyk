@@ -1,8 +1,12 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { TouchEvent as ReactTouchEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import WaveDivider from '@/components/WaveDivider';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { formatDate } from '@/lib/formatDate';
 import { localizePublicHref, withLocale } from '@/lib/i18n/locale';
@@ -10,8 +14,6 @@ import type {
   HorizontalScrollData,
   HomeCtaBannerData,
   HomeHeroData,
-  HomeStoryData,
-  ArticleLabelsData,
   PayloadArticle,
   PayloadProductLine,
 } from '@/types/payload';
@@ -36,10 +38,85 @@ if (typeof window !== 'undefined' && !introHasCompleted) {
   );
 }
 
-/* ── Module-level cache: hero video URLs that have fully loaded ───── */
-const loadedHeroVideoUrls = new Set<string>();
 /* Tracks whether window.load has fired in this browser session */
 let _pageContentLoaded = false;
+
+const HERO_PARALLAX_PATH = '/home%20page/hero%20section/hero%20parallax';
+
+const HERO_PARALLAX_IMAGES = [
+  '1.webp',
+  '2.webp',
+  '3.webp',
+  '4.webp',
+  '5.webp',
+  '6.webp',
+  '7.webp',
+  '8.webp',
+  '9.webp',
+  '10.webp',
+  '11.webp',
+  '12.webp',
+  '13.webp',
+  '14.webp',
+  '15.webp',
+  'bottle.webp',
+].map((fileName) => ({
+  fileName,
+  src: `${HERO_PARALLAX_PATH}/${fileName}`,
+}));
+
+const HERO_BOTTLE_MOBILE_SRC = `${HERO_PARALLAX_PATH}/bottle-mobile.webp`;
+const MOBILE_HERO_BUBBLE_COUNT = 5;
+
+function getHeroAssetSet(hero: HomeHeroData) {
+  const bubbleImages = hero.parallaxImages.length > 0
+    ? hero.parallaxImages
+    : HERO_PARALLAX_IMAGES.filter((image) => image.fileName !== 'bottle.webp');
+  const bottleImage = {
+    fileName: 'bottle.webp',
+    src: hero.bottleImageUrl || `${HERO_PARALLAX_PATH}/bottle.webp`,
+  };
+  const mobileBottleSrc = hero.mobileBottleImageUrl || HERO_BOTTLE_MOBILE_SRC;
+
+  return { bubbleImages, bottleImage, mobileBottleSrc };
+}
+
+function getHeroImagesForViewport(isMobile: boolean, hero: HomeHeroData) {
+  const { bubbleImages, bottleImage } = getHeroAssetSet(hero);
+  if (!isMobile) return [...bubbleImages, bottleImage];
+
+  return [
+    ...bubbleImages.slice(0, MOBILE_HERO_BUBBLE_COUNT),
+    bottleImage,
+  ];
+}
+
+function getHeroRequiredImagesForViewport(isMobile: boolean, hero: HomeHeroData) {
+  const { bubbleImages } = getHeroAssetSet(hero);
+  return new Set([
+    ...(isMobile ? bubbleImages.slice(0, MOBILE_HERO_BUBBLE_COUNT) : bubbleImages)
+      .map((image) => image.fileName),
+    isMobile ? 'bottle-mobile.webp' : 'bottle.webp',
+  ]);
+}
+
+const HERO_SPLASH_PARALLAX = [
+  { x: -10, y: -18, rotate: -5, scale: 1.08 },
+  { x: -6, y: -26, rotate: 4, scale: 1.12 },
+  { x: -14, y: -14, rotate: -7, scale: 1.06 },
+  { x: 8, y: -22, rotate: 5, scale: 1.1 },
+  { x: 13, y: -16, rotate: -4, scale: 1.08 },
+  { x: -4, y: -34, rotate: 8, scale: 1.16 },
+  { x: 16, y: -28, rotate: -6, scale: 1.12 },
+  { x: -18, y: -21, rotate: 6, scale: 1.1 },
+  { x: 7, y: -36, rotate: -8, scale: 1.15 },
+  { x: 20, y: -17, rotate: 5, scale: 1.09 },
+  { x: -12, y: -31, rotate: -6, scale: 1.14 },
+  { x: 12, y: -25, rotate: 7, scale: 1.11 },
+  { x: -22, y: -12, rotate: 4, scale: 1.07 },
+  { x: 18, y: -33, rotate: -7, scale: 1.15 },
+  { x: -8, y: -40, rotate: 9, scale: 1.18 },
+];
 
 function homeViewportHeight() {
   if (typeof window === 'undefined') return 0;
@@ -51,11 +128,6 @@ function homeViewportHeight() {
 function requestScrollTriggerRefresh() {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
-  requestAnimationFrame(() => {
-    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-    });
-  });
 }
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -159,8 +231,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
     let mounted = true;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ctx: any;
-    let header: HTMLElement | null = null;
-    let resetHeader: (() => void) | null = null;
     let removeResize: (() => void) | null = null;
     let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
 
@@ -172,19 +242,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       if (!mounted || !containerRef.current || !trackRef.current) return;
 
       const track = trackRef.current;
-      header = document.querySelector<HTMLElement>('header');
-      resetHeader = () => {
-        if (!header) return;
-        gsap.killTweensOf(header);
-        gsap.set(header, { clearProps: 'transform' });
-      };
-
       gsap.set(track, { x: 0 });
-
-      const hideHeader = () =>
-        gsap.to(header, { yPercent: -105, duration: 0.55, ease: 'power2.inOut', overwrite: true });
-      const showHeader = () =>
-        gsap.to(header, { yPercent: 0,    duration: 0.55, ease: 'power2.inOut', overwrite: true });
 
       ctx = gsap.context(() => {
         gsap.to(track, {
@@ -197,10 +255,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             pin:                 true,
             scrub:               1,
             invalidateOnRefresh: true,
-            onEnter:     hideHeader,
-            onLeave:     showHeader,
-            onEnterBack: hideHeader,
-            onLeaveBack: showHeader,
           },
         });
       });
@@ -229,7 +283,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
     return () => {
       mounted = false;
       removeResize?.();
-      resetHeader?.();
       ctx?.revert();
     };
   }, []);
@@ -336,7 +389,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
         {/* ── BOX 5 · Video with cover image ────────────────────── */}
         <div className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[90vw] md:w-[52vw]">
           {data.box5CoverImageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               ref={box5CoverImgRef}
               src={data.box5CoverImageUrl}
@@ -450,6 +502,7 @@ const CollectionsSection = memo(function CollectionsSection({
   const pinProgressRef = useRef<HTMLDivElement>(null);
   const isFirstRun   = useRef(true);
   const entranceMult = useRef(0);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [snapIndex, setSnapIndex] = useState(0);
 
   const recalculateLayout = useCallback(() => {
@@ -583,17 +636,23 @@ const CollectionsSection = memo(function CollectionsSection({
         },
       });
 
-      const setPinProgress = gsap.quickTo(pinProgressRef.current, 'scaleY', {
-        duration: 0.2,
-        ease: 'power2.out',
-      });
+      const progressEl = pinProgressRef.current;
+      const progressTrackEl = pinProgressTrackRef.current;
+      const setPinProgress = progressEl
+        ? gsap.quickTo(progressEl, 'scaleY', {
+            duration: 0.2,
+            ease: 'power2.out',
+          })
+        : null;
       const showPinProgress = (origin: 'top' | 'bottom') => {
-        gsap.set(pinProgressTrackRef.current, { transformOrigin: origin });
-        gsap.to(pinProgressTrackRef.current, { scaleY: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
+        if (!progressTrackEl?.isConnected) return;
+        gsap.set(progressTrackEl, { transformOrigin: origin });
+        gsap.to(progressTrackEl, { scaleY: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
       };
       const hidePinProgress = (origin: 'top' | 'bottom') => {
-        gsap.set(pinProgressTrackRef.current, { transformOrigin: origin });
-        gsap.to(pinProgressTrackRef.current, { scaleY: 0, duration: 0.3, ease: 'power2.in', overwrite: true });
+        if (!progressTrackEl?.isConnected) return;
+        gsap.set(progressTrackEl, { transformOrigin: origin });
+        gsap.to(progressTrackEl, { scaleY: 0, duration: 0.3, ease: 'power2.in', overwrite: true });
       };
 
       const pin = ScrollTrigger.create({
@@ -608,8 +667,11 @@ const CollectionsSection = memo(function CollectionsSection({
         pinSpacing:       true,
         invalidateOnRefresh: true,
         onRefreshInit:    recalculateLayout,
-        onUpdate: (self) => { setPinProgress(self.progress); },
-        onRefresh: (self) => { gsap.set(pinProgressRef.current, { scaleY: self.progress }); },
+        onUpdate: (self) => { setPinProgress?.(self.progress); },
+        onRefresh: (self) => {
+          if (!progressEl?.isConnected) return;
+          gsap.set(progressEl, { scaleY: self.progress });
+        },
         onEnter:      () => showPinProgress('top'),
         onEnterBack:  () => showPinProgress('bottom'),
         onLeave:      () => hidePinProgress('bottom'),
@@ -637,7 +699,7 @@ const CollectionsSection = memo(function CollectionsSection({
     });
   }, [snapIndex]);
 
-  const goTo = async (idx: number) => {
+  const goTo = useCallback(async (idx: number) => {
     if (idx < 0 || idx >= lines.length) return;
     setSnapIndex(idx);
     const { gsap } = await import('gsap');
@@ -648,12 +710,50 @@ const CollectionsSection = memo(function CollectionsSection({
       ease:     'power3.inOut',
       onUpdate: () => applyProgress(animObj.current.pos),
     });
-  };
+  }, [lines.length]);
+
+  const handleTouchStart = useCallback((event: ReactTouchEvent<HTMLDivElement>) => {
+    if (window.innerWidth >= 768 || event.touches.length !== 1) {
+      touchStartRef.current = null;
+      return;
+    }
+
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }, []);
+
+  const handleTouchEnd = useCallback((event: ReactTouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || window.innerWidth >= 768) return;
+
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    if (absX < 42 || absX < absY * 1.25) return;
+
+    if (deltaX < 0) {
+      void goTo(snapIndex + 1);
+    } else {
+      void goTo(snapIndex - 1);
+    }
+  }, [goTo, snapIndex]);
 
   const activeLine = lines[snapIndex];
 
   return (
-    <div ref={sectionRef} className="relative overflow-hidden bg-white">
+    <div
+      ref={sectionRef}
+      className="relative overflow-hidden bg-white"
+      style={{ touchAction: 'pan-y' }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div
         ref={pinProgressTrackRef}
         aria-hidden="true"
@@ -682,7 +782,6 @@ const CollectionsSection = memo(function CollectionsSection({
             willChange:      'transform, opacity, filter',
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={line.imageUrl ?? '/products/FeatureProductImg_RTD_LT.png'}
             alt={line.name}
@@ -739,7 +838,7 @@ const CollectionsSection = memo(function CollectionsSection({
           </svg>
         </Link>
         <div className="flex items-center gap-5">
-          <button onClick={() => goTo(snapIndex - 1)} disabled={snapIndex === 0} aria-label="Previous" className="flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
+          <button onClick={() => goTo(snapIndex - 1)} disabled={snapIndex === 0} aria-label="Previous" className="hidden md:flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
             <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <div className="flex items-center gap-2">
@@ -747,7 +846,7 @@ const CollectionsSection = memo(function CollectionsSection({
               <button key={i} onClick={() => goTo(i)} aria-label={`Category ${i + 1}`} className={`rounded-full transition-all duration-300 ${i === snapIndex ? 'w-6 h-[4px] bg-black' : 'w-[4px] h-[4px] bg-black/25 hover:bg-black/50'}`} />
             ))}
           </div>
-          <button onClick={() => goTo(snapIndex + 1)} disabled={snapIndex === lines.length - 1} aria-label="Next" className="flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
+          <button onClick={() => goTo(snapIndex + 1)} disabled={snapIndex === lines.length - 1} aria-label="Next" className="hidden md:flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
             <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
         </div>
@@ -757,6 +856,7 @@ const CollectionsSection = memo(function CollectionsSection({
 });
 
 /* ── News Carousel (auto-play + infinite loop) ────────────────────── */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function NewsCarousel({
   tag,
   articles,
@@ -876,7 +976,7 @@ function NewsCarousel({
           {extItems.map(({ article, isClone }, i) => (
             <Link
               key={`${article.id}-${i}`}
-              href={withLocale(locale, `/news/${article.id}`)}
+              href={withLocale(locale, `/news/${article.slug}`)}
               prefetch={false}
               className="flex-shrink-0 group cursor-pointer w-[60vw] sm:w-[31vw] lg:w-[20vw]"
               style={{ height: '60vh' }}
@@ -884,7 +984,6 @@ function NewsCarousel({
               <div className="relative overflow-hidden rounded-lg h-full">
                 <div className="absolute inset-0 bg-gray-200" />
                 {article.images[0]?.url && (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={article.images[0].url}
                     alt={article.title}
@@ -914,64 +1013,63 @@ function NewsCarousel({
 export default function HomeClient({
   lines,
   horizontalScroll,
-  story,
-  newsArticles,
   ctaBanner,
   hero,
-  articleLabels,
 }: {
   lines: PayloadProductLine[]
   horizontalScroll: HorizontalScrollData
-  story: HomeStoryData
-  newsArticles: PayloadArticle[]
   ctaBanner: HomeCtaBannerData
   hero: HomeHeroData
-  articleLabels: ArticleLabelsData
 }) {
   const { t, locale } = useLanguage();
-  const heroCoverKey      = `${hero.posterUrl ?? ''}|${hero.mobilePosterUrl ?? ''}`;
-  const [stableHeroVideoUrl, setStableHeroVideoUrl] = useState<string | null>(() => hero.videoUrl ?? null);
-  const heroAlreadyLoaded = !!stableHeroVideoUrl && loadedHeroVideoUrls.has(stableHeroVideoUrl);
 
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [readyHeroVideoUrl,  setReadyHeroVideoUrl]  = useState<string | null>(() =>
-    heroAlreadyLoaded ? stableHeroVideoUrl : null
-  );
-  const [loadedHeroCoverKey, setLoadedHeroCoverKey] = useState<string | null>(() =>
-    heroAlreadyLoaded ? heroCoverKey : null
-  );
-
-  const isHeroCoverReady  = !hero.posterUrl || loadedHeroCoverKey === heroCoverKey;
-  const shouldLoadHeroVideo = !!stableHeroVideoUrl && pageLoaded && isHeroCoverReady;
-
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
   const heroSubRef      = useRef<HTMLParagraphElement>(null);
   const brandRef        = useRef<HTMLElement>(null);
   const brandLabelRef   = useRef<HTMLSpanElement>(null);
   const brandTextRef    = useRef<HTMLParagraphElement>(null);
-  const storyRef        = useRef<HTMLDivElement>(null);
-  const storyImgRef     = useRef<HTMLDivElement>(null);
-  const heroVideoRef    = useRef<HTMLVideoElement>(null);
-  const heroCoverImgRef = useRef<HTMLImageElement>(null);
+  const heroSectionRef  = useRef<HTMLElement>(null);
+  const heroReadyImagesRef = useRef<Set<string>>(new Set());
+  const heroImagesReadyRef = useRef(false);
+  const heroParallaxReadyRef = useRef(false);
+  const heroReadyDispatchedRef = useRef(false);
   const prevLocaleRef   = useRef<string | undefined>(undefined);
-
-  const handleHeroCanPlay = useCallback(() => {
-    if (stableHeroVideoUrl) loadedHeroVideoUrls.add(stableHeroVideoUrl);
-    const video = heroVideoRef.current;
-    if (video) {
-      video.muted = true;
-      void video.play().catch(() => undefined);
-    }
-    setReadyHeroVideoUrl(stableHeroVideoUrl);
-  }, [stableHeroVideoUrl]);
+  const heroTitle       = hero.title       || t.home.hero.title;
+  const heroTitleAccent = hero.titleAccent || t.home.hero.titleAccent;
+  const heroSubtitle    = hero.subtitle    || t.home.hero.subtitle;
+  const heroMobileBottleSrc = getHeroAssetSet(hero).mobileBottleSrc;
+  const [heroImages, setHeroImages] = useState<typeof HERO_PARALLAX_IMAGES>([]);
+  const [heroRequiredImages, setHeroRequiredImages] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
-    if (!stableHeroVideoUrl && hero.videoUrl) {
-      const id = requestAnimationFrame(() => setStableHeroVideoUrl(hero.videoUrl));
-      return () => cancelAnimationFrame(id);
-    }
-  }, [hero.videoUrl, stableHeroVideoUrl]);
+    let lastIsMobile: boolean | null = null;
+
+    const syncHeroImagesForViewport = () => {
+      const isMobile = window.innerWidth < 640;
+      if (isMobile === lastIsMobile) return;
+      lastIsMobile = isMobile;
+
+      heroReadyImagesRef.current.clear();
+      heroImagesReadyRef.current = false;
+      heroParallaxReadyRef.current = false;
+      heroReadyDispatchedRef.current = false;
+      window.__homeHeroCoverReady = false;
+
+      setHeroRequiredImages(getHeroRequiredImagesForViewport(isMobile, hero));
+      setHeroImages(getHeroImagesForViewport(isMobile, hero));
+    };
+
+    syncHeroImagesForViewport();
+    window.addEventListener('resize', syncHeroImagesForViewport);
+    window.addEventListener('orientationchange', syncHeroImagesForViewport);
+
+    return () => {
+      window.removeEventListener('resize', syncHeroImagesForViewport);
+      window.removeEventListener('orientationchange', syncHeroImagesForViewport);
+    };
+  }, [hero]);
 
   useEffect(() => {
     let lastWidth = window.innerWidth;
@@ -993,48 +1091,66 @@ export default function HomeClient({
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleOrientationChange);
     window.addEventListener('smooth-scroll-ready', refresh);
-    window.addEventListener('page-intro-complete', refresh);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleOrientationChange);
       window.removeEventListener('smooth-scroll-ready', refresh);
-      window.removeEventListener('page-intro-complete', refresh);
     };
   }, [locale]);
 
-  const markHeroCoverReady = useCallback(() => {
-    setLoadedHeroCoverKey(heroCoverKey);
-    if (typeof window !== 'undefined') {
-      window.__homeHeroCoverReady = true;
-      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
-    }
-  }, [heroCoverKey]);
+  const markHomeHeroReady = useCallback(() => {
+    if (
+      !heroImagesReadyRef.current ||
+      !heroParallaxReadyRef.current ||
+      heroReadyDispatchedRef.current
+    ) return;
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (heroAlreadyLoaded || !hero.posterUrl) {
-      window.__homeHeroCoverReady = true;
-      window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
-    } else {
-      window.__homeHeroCoverReady = false;
-    }
-  // heroAlreadyLoaded is derived from the module-level set and won't change during this mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hero.posterUrl, hero.mobilePosterUrl]);
+    heroReadyDispatchedRef.current = true;
 
-  useEffect(() => {
-    const image = heroCoverImgRef.current;
-    if (!image || !hero.posterUrl || loadedHeroCoverKey === heroCoverKey) return;
-    if (image.complete && image.naturalWidth > 0) {
-      const id = requestAnimationFrame(markHeroCoverReady);
-      return () => cancelAnimationFrame(id);
-    }
-  }, [hero.posterUrl, heroCoverKey, loadedHeroCoverKey, markHeroCoverReady]);
-
-  useEffect(() => {
-    return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-hero-video]'));
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.__homeHeroCoverReady = true;
+        window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
+      });
+    });
   }, []);
+
+  const markHeroImageReady = useCallback((fileName: string) => {
+    if (!heroRequiredImages.has(fileName)) return;
+
+    heroReadyImagesRef.current.add(fileName);
+    heroImagesReadyRef.current = [...heroRequiredImages].every((requiredFileName) =>
+      heroReadyImagesRef.current.has(requiredFileName)
+    );
+
+    markHomeHeroReady();
+  }, [heroRequiredImages, markHomeHeroReady]);
+
+  const markHeroImageErrored = useCallback((fileName: string) => {
+    console.warn(`Home hero image failed to load: ${fileName}`);
+  }, []);
+
+  useEffect(() => {
+    let frame = 0;
+
+    const checkLoadedHeroImages = () => {
+      heroSectionRef.current
+        ?.querySelectorAll<HTMLImageElement>('[data-hero-image-file]')
+        .forEach((image) => {
+          if (image.complete) {
+            const fileName =
+              image.dataset.heroImageFile === 'bottle.webp' && image.currentSrc.includes('bottle-mobile.webp')
+                ? 'bottle-mobile.webp'
+                : image.dataset.heroImageFile ?? '';
+            markHeroImageReady(fileName);
+          }
+        });
+    };
+
+    frame = requestAnimationFrame(checkLoadedHeroImages);
+    return () => cancelAnimationFrame(frame);
+  }, [markHeroImageReady]);
 
   useEffect(() => {
     if (_pageContentLoaded || document.readyState === 'complete') {
@@ -1053,10 +1169,6 @@ export default function HomeClient({
     const line2 = titleLine2Ref.current;
     const sub   = heroSubRef.current;
 
-    const heroTitle       = hero.title       || t.home.hero.title;
-    const heroTitleAccent = hero.titleAccent || t.home.hero.titleAccent;
-    const heroSubtitle    = hero.subtitle    || t.home.hero.subtitle;
-
     const isLocaleChange = locale !== prevLocaleRef.current;
     prevLocaleRef.current = locale;
 
@@ -1069,7 +1181,6 @@ export default function HomeClient({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let tl: any = null;
-    const restores: Array<() => void> = [];
     let introListener: (() => void) | null = null;
 
     const run = async () => {
@@ -1077,34 +1188,19 @@ export default function HomeClient({
       if (!line1 || !line2) return;
 
       gsap.killTweensOf([line1, line2, ...(sub ? [sub] : [])]);
-
-      const { spans: spans1, restore: restore1 } = splitWordsIntoSpans(line1, heroTitle);
-      const { spans: spans2, restore: restore2 } = splitWordsIntoSpans(line2, heroTitleAccent);
-      restores.push(restore1, restore2);
-
-      const subSpans: HTMLElement[] = [];
-      let restore3: (() => void) | null = null;
+      line1.textContent = heroTitle;
+      line2.textContent = heroTitleAccent;
       if (sub) {
-        const result = splitWordsIntoSpans(sub, heroSubtitle);
-        subSpans.push(...result.spans);
-        restore3 = result.restore;
-        restores.push(restore3);
+        sub.textContent = heroSubtitle;
       }
 
+      const targets = [line1, line2, ...(sub ? [sub] : [])];
       tl = gsap.timeline({ delay: 0.2 });
       tl.fromTo(
-        [...spans1, ...spans2],
-        { yPercent: 115 },
-        { yPercent: 0, duration: 0.75, stagger: 0.06, ease: 'power4.out', onComplete: () => { restore1(); restore2(); } }
+        targets,
+        { y: 34, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.75, stagger: 0.08, ease: 'power4.out', clearProps: 'transform,opacity' }
       );
-      if (subSpans.length) {
-        tl.fromTo(
-          subSpans,
-          { yPercent: 115 },
-          { yPercent: 0, duration: 0.65, stagger: 0.04, ease: 'power3.out', onComplete: () => { restore3?.(); restores.length = 0; } },
-          '<0.4'
-        );
-      }
 
       const heroContent = document.getElementById('hero-content');
       if (heroContent) heroContent.style.opacity = '1';
@@ -1124,14 +1220,12 @@ export default function HomeClient({
 
     return () => {
       tl?.kill();
-      restores.forEach((r) => r());
-      restores.length = 0;
       if (introListener) {
         window.removeEventListener('page-intro-done', introListener);
         introListener = null;
       }
     };
-  }, [locale, t.home.hero, hero]);
+  }, [locale, heroTitle, heroTitleAccent, heroSubtitle]);
 
   // ── Scroll-triggered animations ─────────────────────────────────
   useEffect(() => {
@@ -1141,6 +1235,78 @@ export default function HomeClient({
       const { gsap }          = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
       gsap.registerPlugin(ScrollTrigger);
+
+      const setupHeroFade = () => {
+        const heroContent = document.getElementById('hero-content');
+        const heroSection = heroContent?.closest('section');
+        if (!heroContent || !heroSection) return;
+
+        const tween = gsap.fromTo(
+          heroContent,
+          { opacity: 1 },
+          {
+            opacity: 0,
+            ease: 'none',
+            immediateRender: false,
+            scrollTrigger: {
+              trigger: heroSection,
+              start: 'top+=80 top',
+              end: 'top+=420 top',
+              scrub: true,
+            },
+          },
+        );
+        cleanupFns.push(() => tween.scrollTrigger?.kill());
+        cleanupFns.push(() => tween.kill());
+      };
+
+      if (
+        !introHasCompleted &&
+        typeof window !== 'undefined' &&
+        window.__pageIntroWillPlay === true
+      ) {
+        const onIntroDone = () => setupHeroFade();
+        window.addEventListener('page-intro-done', onIntroDone, { once: true });
+        cleanupFns.push(() => window.removeEventListener('page-intro-done', onIntroDone));
+      } else {
+        setupHeroFade();
+      }
+
+      if (heroSectionRef.current) {
+        const layers = heroSectionRef.current.querySelectorAll<HTMLElement>('[data-hero-parallax-layer]');
+        layers.forEach((layer, index) => {
+          const isBottle = layer.dataset.heroLayer === 'bottle';
+          const isMobileBottle = isBottle && window.innerWidth < 640;
+          const splash = HERO_SPLASH_PARALLAX[index % HERO_SPLASH_PARALLAX.length];
+          const tween = gsap.to(
+            layer,
+            {
+              xPercent: isBottle ? (isMobileBottle ? -8 : -2.5) : splash.x,
+              yPercent: isBottle ? (isMobileBottle ? -14 : -4) : splash.y,
+              rotate: isBottle ? (isMobileBottle ? -3 : -1.5) : splash.rotate,
+              scale: isBottle ? (isMobileBottle ? 1.06 : 1.025) : splash.scale,
+              ease: 'none',
+              immediateRender: false,
+              scrollTrigger: {
+                trigger: heroSectionRef.current,
+                start: 'top top',
+                end: () => `+=${Math.round(homeViewportHeight())}`,
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            },
+          );
+
+          cleanupFns.push(() => tween.scrollTrigger?.kill());
+          cleanupFns.push(() => tween.kill());
+        });
+
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          heroParallaxReadyRef.current = true;
+          markHomeHeroReady();
+        });
+      }
 
       if (brandRef.current && brandLabelRef.current && brandTextRef.current) {
         const labelEl = brandLabelRef.current;
@@ -1163,85 +1329,98 @@ export default function HomeClient({
         cleanupFns.push(() => st0.kill());
       }
 
-      if (storyRef.current) {
-        const st2 = gsap.fromTo(
-          storyRef.current.querySelectorAll('.story-animate'),
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.9, stagger: 0.15, ease: 'power3.out', scrollTrigger: { trigger: storyRef.current, start: 'top 78%' } }
-        );
-        cleanupFns.push(() => st2.scrollTrigger?.kill());
-      }
-
-      if (storyRef.current && storyImgRef.current) {
-        const st3 = gsap.fromTo(
-          storyImgRef.current,
-          { yPercent: 10 },
-          { yPercent: -10, ease: 'none', scrollTrigger: { trigger: storyRef.current, start: 'top bottom', end: 'bottom top', scrub: true } }
-        );
-        cleanupFns.push(() => st3.scrollTrigger?.kill());
-      }
     };
 
     init();
     return () => { cleanupFns.forEach((fn) => fn()); };
-  }, []);
+  }, [heroImages, markHomeHeroReady]);
 
   return (
     <div>
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex items-end overflow-hidden">
-        <div className="absolute inset-0 bg-brand-900" />
-        {hero.posterUrl && (
-          <picture className="absolute inset-0 block">
-            {hero.mobilePosterUrl && (
-              <source media="(max-width: 767px)" srcSet={hero.mobilePosterUrl} />
-            )}
-            <img
-              ref={heroCoverImgRef}
-              src={hero.posterUrl}
-              alt=""
-              aria-hidden="true"
-              fetchPriority="high"
-              onLoad={markHeroCoverReady}
-              onError={markHeroCoverReady}
-              className="h-full w-full object-cover object-center"
-            />
-          </picture>
-        )}
-        {shouldLoadHeroVideo && (
-          <video
-            ref={heroVideoRef}
-            data-hero-video
-            src={stableHeroVideoUrl ?? undefined}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            onCanPlay={handleHeroCanPlay}
-            onError={() => {
-              setReadyHeroVideoUrl(null);
-            }}
-            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
-              readyHeroVideoUrl === stableHeroVideoUrl ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 lg:pb-28">
+      <section ref={heroSectionRef} className="sticky top-0 min-h-screen flex items-start overflow-hidden pt-24 sm:items-end sm:pt-0 lg:items-center">
+        <div className="absolute inset-0 bg-white" />
+        {heroImages.map((image) => {
+          const isBottle = image.fileName === 'bottle.webp';
+          const parallaxIndex = HERO_PARALLAX_IMAGES.findIndex((item) => item.fileName === image.fileName);
+          const splash = HERO_SPLASH_PARALLAX[parallaxIndex % HERO_SPLASH_PARALLAX.length];
+          const markCurrentBottleReady = (event: { currentTarget: HTMLImageElement }) => {
+            markHeroImageReady(
+              event.currentTarget.currentSrc.includes('bottle-mobile.webp')
+                ? 'bottle-mobile.webp'
+                : 'bottle.webp',
+            );
+          };
+          return (
+            <div
+              key={image.fileName}
+              data-hero-parallax-layer
+              data-hero-layer={isBottle ? 'bottle' : 'bubble'}
+              className="pointer-events-none absolute inset-y-0 -left-[14vw] -right-[14vw] select-none will-change-transform sm:inset-0"
+              style={{
+                zIndex: isBottle ? 2 : 1,
+                transform: `translate(${isBottle ? 2 : splash.x * -0.18}%, ${isBottle ? 3 : 8}%) rotate(${isBottle ? 0 : splash.rotate * -0.35}deg) scale(${isBottle ? 1 : 0.96})`,
+                transformOrigin: '65% 72%',
+              }}
+            >
+              {isBottle ? (
+                <picture>
+                  <source media="(max-width: 639px)" srcSet={heroMobileBottleSrc} />
+                  <img
+                    src={image.src}
+                    alt=""
+                    aria-hidden="true"
+                    data-hero-image-file="bottle.webp"
+                    draggable={false}
+                    loading="eager"
+                    decoding="sync"
+                    onLoad={markCurrentBottleReady}
+                    onError={(event) => {
+                      markHeroImageErrored(
+                        event.currentTarget.currentSrc.includes('bottle-mobile.webp')
+                          ? 'bottle-mobile.webp'
+                          : 'bottle.webp',
+                      );
+                    }}
+                    className="absolute inset-0 h-full w-full select-none object-cover object-center opacity-100 sm:object-right"
+                  />
+                </picture>
+              ) : (
+                <img
+                  src={image.src}
+                  alt=""
+                  aria-hidden="true"
+                  data-hero-image-file={image.fileName}
+                  draggable={false}
+                  loading="eager"
+                  decoding="sync"
+                  onLoad={() => markHeroImageReady(image.fileName)}
+                  onError={() => markHeroImageErrored(image.fileName)}
+                  className="absolute inset-0 h-full w-full select-none object-cover object-center opacity-90 sm:object-contain"
+                />
+              )}
+            </div>
+          );
+        })}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-[3] w-full overflow-hidden">
+          <div className="absolute inset-y-[-10%] left-[-22%] w-[64%] bg-white/24 blur-[48px]" />
+          <div className="absolute inset-y-[-14%] left-[-28%] w-[48%] bg-white/36 blur-[84px]" />
+          <div className="absolute inset-y-[-18%] left-[-34%] w-[34%] bg-white/50 blur-[120px]" />
+        </div>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 sm:pb-20 lg:pb-0">
           <div id="hero-content" className="max-w-2xl">
-            <div className="text-5xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+            <div className="text-5xl sm:text-6xl lg:text-7xl font-light text-black leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
               <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
                 <div ref={titleLine1Ref}>{hero.title || t.home.hero.title}</div>
               </div>
               <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
-                <div ref={titleLine2Ref} className="text-white/75">{hero.titleAccent || t.home.hero.titleAccent}</div>
+                <div ref={titleLine2Ref} className="text-black/75">{hero.titleAccent || t.home.hero.titleAccent}</div>
               </div>
             </div>
             <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
-              <p ref={heroSubRef} className="text-base sm:text-lg text-white/65 max-w-md mb-10 leading-relaxed">
+              <p ref={heroSubRef} className="text-base sm:text-lg text-black/70 max-w-md mb-10 leading-relaxed">
                 {hero.subtitle || t.home.hero.subtitle}
               </p>
             </div>
@@ -1252,13 +1431,16 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           BRAND STATEMENT
       ══════════════════════════════════════════ */}
-      <section ref={brandRef} className="py-20 sm:py-28 lg:py-32 bg-white">
-        <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="relative z-20 -mt-[10svh]">
+        <WaveDivider />
+
+        <section ref={brandRef} className="relative z-30 overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
+          <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-start">
-            <div className="sm:pt-[0.2em] text-center">
+            <div className="sm:pt-[0.2em] text-center lg:text-left">
               <span
                 ref={brandLabelRef}
-                className="block text-[15px] font-medium tracking-[0.45em] text-black uppercase"
+                className="block text-4xl font-light tracking-normal text-white uppercase sm:text-5xl lg:text-6xl"
                 style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 500, overflow: 'hidden', paddingBottom: '0.1em' }}
               >
                 RAHATLYK
@@ -1267,7 +1449,7 @@ export default function HomeClient({
             <div className="min-w-0">
               <p
                 ref={brandTextRef}
-                className="text-base sm:text-[17px] text-black leading-[1.38] font-light"
+                className="text-lg font-light leading-[1.42] text-white/90 sm:text-xl lg:text-[1.45rem]"
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {(() => {
@@ -1277,8 +1459,7 @@ export default function HomeClient({
                     return (
                       <span key={`${part}-${index}`} className="inline-block overflow-hidden align-bottom pb-[0.12em] mb-[-0.12em]">
                         <span
-                          className={`brand-text-word inline-block ${part === 'RAHATLYK' ? 'italic text-[#0891b2]' : ''}`}
-                          style={part === 'RAHATLYK' ? { fontFamily: 'var(--font-accent), Georgia, "Times New Roman", serif' } : undefined}
+                          className="brand-text-word inline-block"
                         >
                           {part}
                         </span>
@@ -1289,12 +1470,15 @@ export default function HomeClient({
               </p>
             </div>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+        <WaveDivider className="bg-[#006bb6]" backFill="#ffffff" frontFill="#ffffff" />
+      </div>
 
       {/* ══════════════════════════════════════════
           HORIZONTAL SCROLL — pinned panels
       ══════════════════════════════════════════ */}
+      <div className="relative z-30 bg-white pt-10 sm:pt-14 lg:pt-16">
       <HorizontalScrollSection
         data={horizontalScroll}
         pageLoaded={pageLoaded}
@@ -1308,72 +1492,6 @@ export default function HomeClient({
         sectionTag={t.home.categories.sectionTag}
         exploreLabel={t.home.categories.explore}
       />
-
-      {/* ══════════════════════════════════════════
-          OUR STORY — full-bleed photo background
-      ══════════════════════════════════════════ */}
-      <section ref={storyRef} className="relative overflow-hidden h-[100svh] flex items-center">
-        <div ref={storyImgRef} className="absolute inset-x-0 -top-[15%] -bottom-[15%]">
-          {story.imageUrl ? (
-            <Image
-              src={story.imageUrl}
-              alt="The story behind RAHATLYK purity"
-              fill
-              className="object-cover object-center"
-              sizes="100vw"
-              loading="lazy"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-brand-900" />
-          )}
-        </div>
-        <div className="pointer-events-none absolute inset-0 bg-white/20" />
-
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-24">
-          <div className="max-w-xl mx-auto text-center">
-            {story.title && (
-              <h2
-                className="story-animate text-2xl sm:text-3xl lg:text-4xl font-medium text-black leading-tight mb-12"
-                style={{ fontFamily: 'var(--font-heading), sans-serif' }}
-              >
-                {story.title}
-              </h2>
-            )}
-            {story.text && (
-              <p className="story-animate text-black text-sm sm:text-base leading-relaxed font-medium">
-                {story.text}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="absolute bottom-7 right-7 z-10 flex max-w-[210px] items-center gap-3 rounded-md bg-white/70 p-3.5 backdrop-blur-sm">
-          <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-gray-700">
-              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-              <path d="M4 22h16" />
-              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
-              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-              <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
-            </svg>
-          </div>
-          <div>
-            <div className="font-medium text-gray-700 text-[11px] leading-tight">Best Beverage Brand</div>
-            <div className="text-gray-700/60 text-[10px] mt-0.5">Central Asia Award 2025</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          LATEST NEWS CAROUSEL
-      ══════════════════════════════════════════ */}
-      <section className="bg-white overflow-hidden" style={{ height: '100svh' }}>
-        <NewsCarousel
-          tag={articleLabels.homeSectionTag}
-          articles={newsArticles}
-        />
-      </section>
 
       {/* ══════════════════════════════════════════
           CTA BANNER — last section
@@ -1418,7 +1536,7 @@ export default function HomeClient({
             </p>
           )}
           <Link
-            href={localizePublicHref(locale, ctaBanner.ctaHref || '/products')}
+            href={localizePublicHref(locale, ctaBanner.ctaHref || '/about')}
             prefetch={false}
             className="group inline-flex h-9 items-center gap-1.5 rounded-md bg-white/70 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-gray-700 backdrop-blur-sm transition-all duration-200 hover:bg-white"
           >
@@ -1429,6 +1547,7 @@ export default function HomeClient({
           </Link>
         </div>
       </section>
+      </div>
     </div>
   );
 }

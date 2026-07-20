@@ -201,9 +201,9 @@ npm run seed:vacancy-labels
 
 Important media behavior:
 
-- Home hero cover, mobile poster, and video are managed by `home-hero`.
+- Home hero desktop and mobile cover images are managed by `home-hero`.
 - Home hero desktop and mobile posters are preloaded with media hints.
-- Home hero and horizontal-scroll videos wait for page load and their cover image before starting video loads.
+- Horizontal-scroll videos wait for page load and their cover image before starting video loads.
 - The home CTA uses responsive desktop/mobile images, not a video.
 - About hero and about final section use responsive desktop/mobile images.
 - Product listing hover media loads only on desktop hover-capable devices.

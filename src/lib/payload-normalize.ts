@@ -163,9 +163,18 @@ export const normalizeHomeStory = (raw: any): HomeStoryData => ({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeHomeHero = (raw: any): HomeHeroData => ({
-  videoUrl:        rawMediaUrl(raw?.video),
   posterUrl:       rawMediaUrl(raw?.poster),
   mobilePosterUrl: rawMediaUrl(raw?.mobilePoster),
+  parallaxImages:  Array.isArray(raw?.parallaxImages)
+    ? raw.parallaxImages
+        .map((item: { fileName?: unknown; image?: unknown }) => ({
+          fileName: rawStr(item?.fileName) ?? '',
+          src: rawMediaUrl(item?.image) ?? '',
+        }))
+        .filter((item: { fileName: string; src: string }) => item.fileName && item.src)
+    : [],
+  bottleImageUrl:  rawMediaUrl(raw?.bottleImage),
+  mobileBottleImageUrl: rawMediaUrl(raw?.mobileBottleImage),
   title:           rawStr(raw?.title),
   titleAccent:     rawStr(raw?.titleAccent),
   subtitle:        rawStr(raw?.subtitle),

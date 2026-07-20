@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import NewsClient from './NewsClient'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
-import { buildLanguageAlternates } from '@/lib/i18n/metadata'
+import { buildCanonicalPath, buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeArticle, normalizeCategory, normalizeResult } from '@/lib/payload-normalize'
 import {
   getCachedArticleLabels,
@@ -33,8 +33,16 @@ function resolveOgImage(value: unknown): string | null {
     : null
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ category?: string; page?: string }>
+}): Promise<Metadata> {
   const locale = getValidLocale((await params).locale) ?? defaultLocale
+  const query = await searchParams
+  const hasIndexableQuery = (query.category && query.category !== 'all') || (query.page && query.page !== '1')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let siteMeta: any = null
   try { siteMeta = await getCachedSiteMetadata(locale) } catch { /* fallback */ }
@@ -47,10 +55,23 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title,
     description,
     alternates: {
-      canonical: `/${locale}/news`,
+      canonical: buildCanonicalPath(locale, '/news'),
       languages: buildLanguageAlternates('/news'),
     },
-    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
+    ...(hasIndexableQuery ? {
+      robots: {
+        index: false,
+        follow: true,
+        googleBot: { index: false, follow: true },
+      },
+    } : {}),
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: buildCanonicalPath(locale, '/news'),
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl }] } : {}),
+    },
   }
 }
 

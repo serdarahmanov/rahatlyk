@@ -26,6 +26,19 @@ export interface EmailContactInfo {
   phone:   string
 }
 
+type EmailTextGroup = Record<string, string | null | undefined>
+
+export interface EmailTemplateConfig {
+  contactEmail?: {
+    confirmation?: EmailTextGroup | null
+    notification?: EmailTextGroup | null
+  } | null
+  vacancyEmail?: {
+    confirmation?: EmailTextGroup | null
+    notification?: EmailTextGroup | null
+  } | null
+}
+
 const FALLBACK_CONTACT: EmailContactInfo = {
   address: 'Bitarap Turkmenistan Ave 15, Ashgabat, Turkmenistan',
   email:   'info@rahatlyk.com',
@@ -52,6 +65,15 @@ function escapeHtml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
+}
+
+function resolveTokens(value: string, tokens: Record<string, string>): string {
+  return value.replace(/\{([a-zA-Z0-9_]+)\}/g, (match, key) => tokens[key] ?? match)
+}
+
+function textField(group: EmailTextGroup | null | undefined, key: string, fallback: string): string {
+  const value = group?.[key]
+  return typeof value === 'string' && value.trim() ? value : fallback
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -220,24 +242,43 @@ export interface ContactConfirmationData {
   message:   string;
   locale:    EmailLocale;
   contact?:  EmailContactInfo;
+  templates?: EmailTemplateConfig | null;
 }
 
-export function contactConfirmation({ firstName, lastName, subject, message, locale, contact }: ContactConfirmationData): { subject: string; html: string } {
-  const s = emailI18n[locale].contactConfirm;
+export function contactConfirmation({ firstName, lastName, email, subject, message, locale, contact, templates }: ContactConfirmationData): { subject: string; html: string } {
+  const fallback = emailI18n[locale].contactConfirm;
+  const payload = templates?.contactEmail?.confirmation;
   const safeFN      = escapeHtml(firstName);
   const safeLN      = escapeHtml(lastName);
   const safeSub     = escapeHtml(subject);
   const safeMsg     = escapeHtml(message);
+  const tokens      = { firstName: safeFN, lastName: safeLN, email: escapeHtml(email), subject: safeSub };
+  const s = {
+    subject:         resolveTokens(textField(payload, 'subject', fallback.subject(subject)), tokens),
+    preheader:       resolveTokens(textField(payload, 'preheader', fallback.preheader), tokens),
+    title:           resolveTokens(textField(payload, 'title', fallback.title), tokens),
+    subtitle:        resolveTokens(textField(payload, 'subtitle', fallback.subtitle), tokens),
+    greeting:        resolveTokens(textField(payload, 'greeting', fallback.greeting(safeFN, safeLN)), tokens),
+    intro:           resolveTokens(textField(payload, 'intro', fallback.intro), tokens),
+    summaryHeading:  resolveTokens(textField(payload, 'summaryHeading', fallback.summaryHeading), tokens),
+    subjectLabel:    resolveTokens(textField(payload, 'subjectLabel', fallback.subjectLabel), tokens),
+    messageLabel:    resolveTokens(textField(payload, 'messageLabel', fallback.messageLabel), tokens),
+    whatNextHeading: resolveTokens(textField(payload, 'whatNextHeading', fallback.whatNextHeading), tokens),
+    step1:           resolveTokens(textField(payload, 'step1', fallback.step1), tokens),
+    step2:           resolveTokens(textField(payload, 'step2', fallback.step2(email)), tokens),
+    step3:           resolveTokens(textField(payload, 'step3', fallback.step3), tokens),
+    ctaBtn:          resolveTokens(textField(payload, 'ctaBtn', fallback.ctaBtn), tokens),
+  };
   const preview     = safeMsg.length > 140 ? safeMsg.slice(0, 140) + '…' : safeMsg;
 
   return {
-    subject: s.subject(subject),
+    subject: s.subject,
     html: wrap(s.preheader, `
       ${hdr(s.title, s.subtitle)}
       <tr>
         <td style="padding:0 44px 40px">
 
-          <p style="margin:0 0 10px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting(safeFN, safeLN)}</p>
+          <p style="margin:0 0 10px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting}</p>
           <p style="margin:0 0 36px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;color:#2d7a91;line-height:1.8">${s.intro}</p>
 
           <!-- Section label -->
@@ -272,10 +313,12 @@ export interface ContactNotificationData {
   message:   string;
   locale:    EmailLocale;
   contact?:  EmailContactInfo;
+  templates?: EmailTemplateConfig | null;
 }
 
-export function contactNotification({ firstName, lastName, email, phone, subject, message, locale }: ContactNotificationData): { subject: string; html: string } {
-  const s = emailI18n[locale].contactNotify;
+export function contactNotification({ firstName, lastName, email, phone, subject, message, locale, templates }: ContactNotificationData): { subject: string; html: string } {
+  const fallback = emailI18n[locale].contactNotify;
+  const payload = templates?.contactEmail?.notification;
   const safeFN       = escapeHtml(firstName);
   const safeLN       = escapeHtml(lastName);
   const safeEmail    = escapeHtml(email);
@@ -283,11 +326,24 @@ export function contactNotification({ firstName, lastName, email, phone, subject
   const safeSub      = escapeHtml(subject);
   const safeMsg      = escapeHtml(message);
   const fullName     = `${safeFN} ${safeLN}`;
+  const tokens       = { firstName: safeFN, lastName: safeLN, fullName, email: safeEmail, subject: safeSub };
+  const s = {
+    subject:        resolveTokens(textField(payload, 'subject', fallback.subject(fullName, safeSub)), tokens),
+    title:          resolveTokens(textField(payload, 'title', fallback.title), tokens),
+    subtitle:       resolveTokens(textField(payload, 'subtitle', fallback.subtitle(fullName, safeEmail)), tokens),
+    firstNameLabel: resolveTokens(textField(payload, 'firstNameLabel', fallback.firstNameLabel), tokens),
+    lastNameLabel:  resolveTokens(textField(payload, 'lastNameLabel', fallback.lastNameLabel), tokens),
+    emailLabel:     resolveTokens(textField(payload, 'emailLabel', fallback.emailLabel), tokens),
+    phoneLabel:     resolveTokens(textField(payload, 'phoneLabel', fallback.phoneLabel), tokens),
+    subjectLabel:   resolveTokens(textField(payload, 'subjectLabel', fallback.subjectLabel), tokens),
+    messageHeading: resolveTokens(textField(payload, 'messageHeading', fallback.messageHeading), tokens),
+    replyBtn:       resolveTokens(textField(payload, 'replyBtn', fallback.replyBtn(safeFN)), tokens),
+  };
 
   return {
-    subject: s.subject(fullName, safeSub),
+    subject: s.subject,
     html: wrapNotify(`${fullName} — ${safeSub}`, `
-      ${hdrNotify(s.title, s.subtitle(fullName, safeEmail))}
+      ${hdrNotify(s.title, s.subtitle)}
       <tr>
         <td style="padding:28px 44px 0">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #f0e8d8">
@@ -320,23 +376,45 @@ export interface VacancyConfirmationData {
   vacancyUrl:   string;
   locale:       EmailLocale;
   contact?:     EmailContactInfo;
+  templates?:   EmailTemplateConfig | null;
 }
 
-export function vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact }: VacancyConfirmationData): { subject: string; html: string } {
-  const s = emailI18n[locale].vacancyConfirm;
+export function vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact, templates }: VacancyConfirmationData): { subject: string; html: string } {
+  const fallback = emailI18n[locale].vacancyConfirm;
+  const payload = templates?.vacancyEmail?.confirmation;
   const safeFN    = escapeHtml(firstName);
   const safeLN    = escapeHtml(lastName);
   const safeTitle = escapeHtml(vacancyTitle);
+  const tokens    = { firstName: safeFN, lastName: safeLN, vacancyTitle: safeTitle };
+  const s = {
+    subject:                resolveTokens(textField(payload, 'subject', fallback.subject(safeTitle)), tokens),
+    preheader:              resolveTokens(textField(payload, 'preheader', fallback.preheader(safeTitle)), tokens),
+    title:                  resolveTokens(textField(payload, 'title', fallback.title), tokens),
+    subtitle:               resolveTokens(textField(payload, 'subtitle', fallback.subtitle(safeTitle)), tokens),
+    greeting:               resolveTokens(textField(payload, 'greeting', fallback.greeting(safeFN, safeLN)), tokens),
+    intro:                  resolveTokens(textField(payload, 'intro', fallback.intro(safeTitle)), tokens),
+    appliedPositionHeading: resolveTokens(textField(payload, 'appliedPositionHeading', fallback.appliedPositionHeading), tokens),
+    positionLabel:          resolveTokens(textField(payload, 'positionLabel', fallback.positionLabel), tokens),
+    companyLabel:           resolveTokens(textField(payload, 'companyLabel', fallback.companyLabel), tokens),
+    locationLabel:          resolveTokens(textField(payload, 'locationLabel', fallback.locationLabel), tokens),
+    companyValue:           resolveTokens(textField(payload, 'companyValue', fallback.companyValue), tokens),
+    locationValue:          resolveTokens(textField(payload, 'locationValue', fallback.locationValue), tokens),
+    whatNextHeading:        resolveTokens(textField(payload, 'whatNextHeading', fallback.whatNextHeading), tokens),
+    step1:                  resolveTokens(textField(payload, 'step1', fallback.step1), tokens),
+    step2:                  resolveTokens(textField(payload, 'step2', fallback.step2), tokens),
+    step3:                  resolveTokens(textField(payload, 'step3', fallback.step3), tokens),
+    ctaBtn:                 resolveTokens(textField(payload, 'ctaBtn', fallback.ctaBtn), tokens),
+  };
 
   return {
-    subject: s.subject(safeTitle),
-    html: wrap(s.preheader(safeTitle), `
-      ${hdr(s.title, s.subtitle(safeTitle))}
+    subject: s.subject,
+    html: wrap(s.preheader, `
+      ${hdr(s.title, s.subtitle)}
       <tr>
         <td style="padding:0 44px 40px">
 
-          <p style="margin:0 0 10px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting(safeFN, safeLN)}</p>
-          <p style="margin:0 0 36px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;color:#2d7a91;line-height:1.8">${s.intro(safeTitle)}</p>
+          <p style="margin:0 0 10px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;color:#0f0b07;line-height:1.6">${s.greeting}</p>
+          <p style="margin:0 0 36px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;color:#2d7a91;line-height:1.8">${s.intro}</p>
 
           <!-- Position summary -->
           <p style="margin:0 0 12px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:9px;font-weight:700;color:#c8ad88;text-transform:uppercase;letter-spacing:2px">${s.appliedPositionHeading}</p>
@@ -373,10 +451,12 @@ export interface VacancyNotificationData {
   cover?:       string;
   locale:       EmailLocale;
   contact?:     EmailContactInfo;
+  templates?:   EmailTemplateConfig | null;
 }
 
-export function vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName, cover, locale }: VacancyNotificationData): { subject: string; html: string } {
-  const s = emailI18n[locale].vacancyNotify;
+export function vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName, cover, locale, templates }: VacancyNotificationData): { subject: string; html: string } {
+  const fallback = emailI18n[locale].vacancyNotify;
+  const payload = templates?.vacancyEmail?.notification;
   const safeFN         = escapeHtml(firstName);
   const safeLN         = escapeHtml(lastName);
   const safeEmail      = escapeHtml(email);
@@ -386,11 +466,27 @@ export function vacancyNotification({ firstName, lastName, email, phone, dateOfB
   const safeCvFileName = escapeHtml(cvFileName);
   const safeCover      = cover ? escapeHtml(cover) : undefined;
   const fullName       = `${safeFN} ${safeLN}`;
+  const tokens         = { firstName: safeFN, lastName: safeLN, fullName, email: safeEmail, vacancyTitle: safeTitle };
+  const s = {
+    subject:        resolveTokens(textField(payload, 'subject', fallback.subject(safeTitle, fullName)), tokens),
+    title:          resolveTokens(textField(payload, 'title', fallback.title), tokens),
+    subtitle:       resolveTokens(textField(payload, 'subtitle', fallback.subtitle(safeTitle)), tokens),
+    firstNameLabel: resolveTokens(textField(payload, 'firstNameLabel', fallback.firstNameLabel), tokens),
+    lastNameLabel:  resolveTokens(textField(payload, 'lastNameLabel', fallback.lastNameLabel), tokens),
+    dobLabel:       resolveTokens(textField(payload, 'dobLabel', fallback.dobLabel), tokens),
+    emailLabel:     resolveTokens(textField(payload, 'emailLabel', fallback.emailLabel), tokens),
+    phoneLabel:     resolveTokens(textField(payload, 'phoneLabel', fallback.phoneLabel), tokens),
+    positionLabel:  resolveTokens(textField(payload, 'positionLabel', fallback.positionLabel), tokens),
+    cvLabel:        resolveTokens(textField(payload, 'cvLabel', fallback.cvLabel), tokens),
+    cvNote:         resolveTokens(textField(payload, 'cvNote', fallback.cvNote), tokens),
+    coverHeading:   resolveTokens(textField(payload, 'coverHeading', fallback.coverHeading), tokens),
+    replyBtn:       resolveTokens(textField(payload, 'replyBtn', fallback.replyBtn), tokens),
+  };
 
   return {
-    subject: s.subject(safeTitle, fullName),
+    subject: s.subject,
     html: wrapNotify(`${fullName} — ${safeTitle}`, `
-      ${hdrNotify(s.title, s.subtitle(safeTitle))}
+      ${hdrNotify(s.title, s.subtitle)}
       <tr>
         <td style="padding:28px 44px 0">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-top:1px solid #f0e8d8">

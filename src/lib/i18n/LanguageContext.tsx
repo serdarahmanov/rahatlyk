@@ -23,8 +23,28 @@ export function LanguageProvider({
   const router = useRouter();
   const pathname = usePathname();
 
-  const setLocale = (newLocale: Locale) => {
+  const setLocale = async (newLocale: Locale) => {
     const search = typeof window === 'undefined' ? '' : window.location.search;
+    if (typeof window === 'undefined') {
+      router.push(`${replacePathLocale(pathname, newLocale)}${search}`);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/localized-path?locale=${encodeURIComponent(newLocale)}&pathname=${encodeURIComponent(window.location.pathname)}`,
+      );
+      if (response.ok) {
+        const data = await response.json() as { path?: string };
+        if (data.path) {
+          router.push(`${data.path}${search}`);
+          return;
+        }
+      }
+    } catch {
+      // Fall back to prefix-only locale replacement.
+    }
+
     router.push(`${replacePathLocale(pathname, newLocale)}${search}`);
   };
 

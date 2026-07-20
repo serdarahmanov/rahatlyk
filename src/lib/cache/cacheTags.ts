@@ -16,6 +16,7 @@ export const newsItemTag = (locale: Locale, id: string | number) => `news-item:$
 export const vacanciesTag = (locale: Locale) => localeTag('vacancies', locale)
 export const vacancyTag = (locale: Locale, id: string | number) => `vacancy:${locale}:${id}`
 export const contactInfoTag = () => 'contact-info'
+export const navigationLabelsTag = (locale: Locale) => localeTag('navigation-labels', locale)
 
 export const productLabelsTag = (locale: Locale) => localeTag('product-labels', locale)
 export const articleLabelsTag = (locale: Locale) => localeTag('article-labels', locale)

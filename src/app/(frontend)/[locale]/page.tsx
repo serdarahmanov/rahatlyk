@@ -3,15 +3,12 @@ import HomeClient from './HomeClient'
 import { getValidLocale } from '@/lib/i18n/locale'
 import { getCachedHomeData } from '@/lib/payload/cachedQueries'
 import {
-  normalizeArticle,
   normalizeHomeCtaBanner,
   normalizeHomeHero,
-  normalizeHomeStory,
   normalizeHorizontalScroll,
   normalizeProductLine,
 } from '@/lib/payload-normalize'
-import { resolveArticleLabels } from '@/lib/article-labels'
-import type { HorizontalScrollData, HomeStoryData, HomeCtaBannerData, HomeHeroData } from '@/types/payload'
+import type { HorizontalScrollData, HomeCtaBannerData, HomeHeroData } from '@/types/payload'
 
 const EMPTY_H_SCROLL: HorizontalScrollData = {
   box1ImageUrl: null,
@@ -21,11 +18,18 @@ const EMPTY_H_SCROLL: HorizontalScrollData = {
   box6ImageUrl: null, box6Tag: null, box6Headline: null, box6ButtonLabel: null, box6ButtonHref: null,
 }
 
-const EMPTY_STORY: HomeStoryData = { imageUrl: null, tag: null, title: null, text: null }
-
 const EMPTY_CTA: HomeCtaBannerData = { imageUrl: null, mobileImageUrl: null, title: null, subtitle: null, ctaLabel: null, ctaHref: null }
 
-const EMPTY_HERO: HomeHeroData = { videoUrl: null, posterUrl: null, mobilePosterUrl: null, title: null, titleAccent: null, subtitle: null }
+const EMPTY_HERO: HomeHeroData = {
+  posterUrl: null,
+  mobilePosterUrl: null,
+  parallaxImages: [],
+  bottleImageUrl: null,
+  mobileBottleImageUrl: null,
+  title: null,
+  titleAccent: null,
+  subtitle: null,
+}
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -37,44 +41,18 @@ export default async function HomePage({ params }: Props) {
 
   const data = await getCachedHomeData(locale)
   const lines = data.lines.map(normalizeProductLine)
-  const newsArticles = data.articles.map(normalizeArticle)
   const horizontalScroll = data.horizontalScroll
     ? normalizeHorizontalScroll(data.horizontalScroll)
     : EMPTY_H_SCROLL
-  const story = data.story ? normalizeHomeStory(data.story) : EMPTY_STORY
   const ctaBanner = data.ctaBanner ? normalizeHomeCtaBanner(data.ctaBanner) : EMPTY_CTA
   const hero = data.hero ? normalizeHomeHero(data.hero) : EMPTY_HERO
-  const articleLabels = resolveArticleLabels(locale, data.articleLabels)
 
   return (
-    <>
-      {hero.mobilePosterUrl && (
-        <link
-          rel="preload"
-          as="image"
-          href={hero.mobilePosterUrl}
-          media="(max-width: 767px)"
-          fetchPriority="high"
-        />
-      )}
-      {hero.posterUrl && (
-        <link
-          rel="preload"
-          as="image"
-          href={hero.posterUrl}
-          media={hero.mobilePosterUrl ? '(min-width: 768px)' : undefined}
-          fetchPriority="high"
-        />
-      )}
-      <HomeClient
-        lines={lines}
-        horizontalScroll={horizontalScroll}
-        story={story}
-        newsArticles={newsArticles}
-        ctaBanner={ctaBanner}
-        hero={hero}
-        articleLabels={articleLabels}
-      />
-    </>
+    <HomeClient
+      lines={lines}
+      horizontalScroll={horizontalScroll}
+      ctaBanner={ctaBanner}
+      hero={hero}
+    />
   )
 }

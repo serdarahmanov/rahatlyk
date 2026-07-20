@@ -6,6 +6,12 @@ import { ARTICLE_CATEGORIES, ARTICLES_SEED } from './lib/data/news-seed'
 
 const MEDIA_DIR       = path.join(process.cwd(), 'media')
 const NEWS_PHOTOS_DIR = path.join(process.cwd(), 'public', 'news', 'photos')
+const FALLBACK_IMAGE_CANDIDATES = [
+  path.join(MEDIA_DIR, '1 (5) copy-1.webp'),
+  path.join(MEDIA_DIR, '1.webp'),
+  path.join(process.cwd(), 'public', 'news', '5302e53eaeab4a3ca53e88bc3aceec7e.webp'),
+  path.join(process.cwd(), 'public', 'news', 'unnamed.jpg'),
+]
 const require = createRequire(import.meta.url)
 const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
 
@@ -26,19 +32,35 @@ function resolveArticleImage(file: string, dir: 'media' | 'news-photos', fallbac
   const candidates = dir === 'news-photos'
     ? [
         path.join(root, parent, 'web', `${base} copy.webp`),
+        path.join(root, parent, 'web', `${base} copy-1.webp`),
         path.join(root, parent, 'web', `${base}.webp`),
         path.join(root, parent, `${base} copy.webp`),
+        path.join(root, parent, `${base} copy-1.webp`),
         path.join(root, parent, `${base}.webp`),
         originalPath,
       ]
     : [
         path.join(root, `${base} copy.webp`),
+        path.join(root, `${base} copy-1.webp`),
         path.join(root, `${base}.webp`),
         path.join(root, `${base}.avif`),
         originalPath,
       ]
 
-  const filePath = candidates.find((candidate) => fs.existsSync(candidate)) ?? originalPath
+  const matchedPath = candidates.find((candidate) => fs.existsSync(candidate))
+  const fallbackPath = matchedPath
+    ? null
+    : FALLBACK_IMAGE_CANDIDATES.find((candidate) => fs.existsSync(candidate)) ?? null
+  const filePath = matchedPath ?? fallbackPath
+
+  if (!filePath) {
+    throw new Error(`No image file found for "${file}" and no fallback image is available.`)
+  }
+
+  if (!matchedPath) {
+    console.warn(`  [image] missing ${originalPath}; using fallback ${filePath}`)
+  }
+
   const filename = path.basename(filePath)
   const mimeType = MIME_BY_EXT[path.extname(filename).toLowerCase()] ?? fallbackMimeType
 
@@ -185,7 +207,12 @@ async function seedNews() {
       collection: 'articles',
       locale: 'en',
       limit: 1,
-      where: { title: { equals: a.titleEn } },
+      where: {
+        or: [
+          { slug: { equals: a.slug.en } },
+          { title: { equals: a.titleEn } },
+        ],
+      },
     })
 
     if (existing.docs[0]) {
@@ -199,6 +226,7 @@ async function seedNews() {
           locale,
           data: {
             title: a.title[locale],
+            slug: a.slug[locale],
             body: bodyForLocale(locale, fullDoc),
             category:  catId,
             date:      a.date,
@@ -214,6 +242,7 @@ async function seedNews() {
         locale: 'en',
         data: {
           title:    a.title.en,
+          slug:     a.slug.en,
           category: catId,
           date:     a.date,
           featured: a.featured,
@@ -230,6 +259,7 @@ async function seedNews() {
           locale,
           data: {
             title: a.title[locale],
+            slug:  a.slug[locale],
             body:  bodyForLocale(locale, created),
           },
         })

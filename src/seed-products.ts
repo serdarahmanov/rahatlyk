@@ -172,7 +172,12 @@ async function seedProducts() {
       collection: 'products',
       limit: 1,
       locale: 'en',
-      where: { name: { equals: product.nameEn } },
+      where: {
+        or: [
+          { slug: { equals: product.slug.en } },
+          { name: { equals: product.nameEn } },
+        ],
+      },
     })
 
     if (existing.docs[0]) {
@@ -185,6 +190,7 @@ async function seedProducts() {
         locale: 'en',
         data: {
           name:            product.name.en,
+          slug:            product.slug.en,
           tagline:         product.tagline.en,
           description:     product.description.en,
           longDescription: product.longDescription.en,
@@ -208,6 +214,7 @@ async function seedProducts() {
           locale,
           data: {
             name:            product.name[locale],
+            slug:            product.slug[locale],
             tagline:         product.tagline[locale],
             description:     product.description[locale],
             longDescription: product.longDescription[locale],
@@ -231,6 +238,7 @@ async function seedProducts() {
         locale: 'en',
         data: {
           name:            product.name.en,
+          slug:            product.slug.en,
           tagline:         product.tagline.en,
           date:            product.date,
           category:        categoryId,
@@ -254,6 +262,7 @@ async function seedProducts() {
           locale,
           data: {
             name:            product.name[locale],
+            slug:            product.slug[locale],
             tagline:         product.tagline[locale],
             description:     product.description[locale],
             longDescription: product.longDescription[locale],

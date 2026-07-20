@@ -21,6 +21,17 @@ export const Articles: CollectionConfig = {
   },
   fields: [
     { name: 'title',    type: 'text',     required: true, localized: true },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      localized: true,
+      unique: true,
+      index: true,
+      admin: {
+        description: 'Localized URL slug, for example new-sparkling-water-range.',
+      },
+    },
     { name: 'category', type: 'relationship', relationTo: 'article-categories' as const, required: true },
     { name: 'date',     type: 'date',     required: true,
       admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'yyyy-MM-dd' } } },

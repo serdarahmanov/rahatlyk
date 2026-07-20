@@ -77,7 +77,7 @@ export default function ProductsClient({ categories, result, category, labels }:
             {result.docs.map((product, index) => (
               <Link
                 key={`${category}-${result.page}-${product.id}`}
-                href={withLocale(locale, `/products/${product.id}`)}
+                href={withLocale(locale, `/products/${product.slug}`)}
                 prefetch={false}
                 className="listing-card-enter group flex flex-col hover:-translate-y-1.5 hover:shadow-xl transition-[box-shadow,transform] duration-300 rounded-2xl overflow-hidden"
                 style={{ '--listing-entry-index': index } as React.CSSProperties}

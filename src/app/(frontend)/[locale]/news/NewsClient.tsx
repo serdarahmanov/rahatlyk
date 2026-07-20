@@ -100,7 +100,7 @@ function NewsCard({
       ref={cardRef}
       className="news-card-enter group cursor-pointer"
       style={{ '--news-entry-index': entryIndex } as React.CSSProperties}
-      onClick={() => router.push(withLocale(locale, `/news/${article.id}`))}
+      onClick={() => router.push(withLocale(locale, `/news/${article.slug}`))}
     >
       <div className="relative overflow-hidden rounded-sm" style={{ paddingBottom: '62%' }}>
         <div className="absolute inset-0" style={{ zIndex: 1 }}>

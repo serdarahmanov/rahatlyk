@@ -20,6 +20,17 @@ export const Products: CollectionConfig = {
   },
   fields: [
     { name: 'name',            type: 'text',     required: true,  localized: true },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      localized: true,
+      unique: true,
+      index: true,
+      admin: {
+        description: 'Localized URL slug, for example still-water-19l.',
+      },
+    },
     { name: 'tagline',         type: 'text',                      localized: true },
     { name: 'date',            type: 'date',
       admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'yyyy-MM-dd' } } },

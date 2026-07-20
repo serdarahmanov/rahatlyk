@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
 import { getCachedAboutData, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
-import { buildLanguageAlternates } from '@/lib/i18n/metadata'
+import { buildCanonicalPath, buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { ABOUT_HERO_CONTENT } from '@/lib/data/about-hero-content'
 import AboutPageClient, { type AboutPageData } from './AboutPageClient'
 
@@ -10,6 +10,8 @@ const FALLBACK: AboutPageData = {
   hero: {
     coverImage: '/story/webp/photo-8.webp',
     mobileCoverImage: null,
+    videoUrl: null,
+    mobileVideoUrl: null,
     title: 'The taste of comfort, made in Turkmenistan.',
     accentWordIndex: 4,
   },
@@ -78,45 +80,8 @@ const FALLBACK: AboutPageData = {
   },
   mosaic: {
     leftImage: '/about/about-mosaic-left.png',
+    centerImage: '/story/webp/photo-3.webp',
     rightImage: '/about/about-mosaic-right.png',
-  },
-  certs: {
-    heading: {
-      text: 'Our standards,',
-      accentText: 'on the record.',
-    },
-    subtitle: 'Independently audited standards — issued, renewed and verified behind every bottle.',
-    sealText: 'RAHATLYK  ·  CERTIFIED QUALITY  ·  EST. 2003  ·',
-    certificates: [
-      {
-        name: 'ISO 9001',
-        tag: 'Quality management',
-        description: 'Quality management systems — audited across every production line, from filtration to the final cap.',
-        expiryDate: 'Issued 2019 · Valid',
-        photo: null,
-      },
-      {
-        name: 'ISO 22000',
-        tag: 'Food safety',
-        description: 'Food safety management — covering sourcing, preparation, bottling and storage of all six collections.',
-        expiryDate: 'Issued 2020 · Valid',
-        photo: null,
-      },
-      {
-        name: 'HACCP',
-        tag: 'Hazard control',
-        description: 'Hazard analysis & critical control points — applied at five quality stages from source to bottle.',
-        expiryDate: 'Issued 2021 · Valid',
-        photo: null,
-      },
-      {
-        name: 'State Standard',
-        tag: 'Turkmenistan',
-        description: 'National conformity certification for beverages produced and distributed within Turkmenistan.',
-        expiryDate: 'Issued 2022 · Valid',
-        photo: null,
-      },
-    ],
   },
   finalSection: {
     image: '/story/photo-1.jpg',
@@ -127,8 +92,8 @@ const FALLBACK: AboutPageData = {
 }
 
 function resolveAboutHeroImage(coverImage: { filename?: string | null; url?: string | null } | null | undefined) {
-  if (coverImage?.filename === ABOUT_HERO_CONTENT.imageFile) {
-    return ABOUT_HERO_CONTENT.publicPath
+  if (coverImage?.filename === ABOUT_HERO_CONTENT.desktopCover.filename) {
+    return ABOUT_HERO_CONTENT.desktopCover.publicPath
   }
 
   return coverImage?.url || FALLBACK.hero.coverImage
@@ -145,9 +110,9 @@ const TITLES: Record<string, string> = {
 }
 
 const DESCRIPTIONS: Record<string, string> = {
-  tm: 'RAHATLYK hakda — taryhymyz, gymmatlyklarymyz, şahadatnamalarymyz we Türkmenistanyň premium içgi brendiniň topary.',
-  ru: 'О компании RAHATLYK — наша история, ценности, сертификаты и команда за брендом премиальных напитков.',
-  en: 'About RAHATLYK — our story, values, certifications and the team behind Turkmenistan\'s premium beverage brand.',
+  tm: 'RAHATLYK hakda — taryhymyz, gymmatlyklarymyz we Türkmenistanyň premium içgi brendiniň topary.',
+  ru: 'О компании RAHATLYK — наша история, ценности и команда за брендом премиальных напитков.',
+  en: 'About RAHATLYK — our story, values and the team behind Turkmenistan\'s premium beverage brand.',
 }
 
 function resolveOgImage(value: unknown): string | null {
@@ -170,10 +135,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `/${locale}/about`,
+      canonical: buildCanonicalPath(locale, '/about'),
       languages: buildLanguageAlternates('/about'),
     },
-    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: buildCanonicalPath(locale, '/about'),
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl }] } : {}),
+    },
   }
 }
 
@@ -195,14 +166,14 @@ export default async function AboutPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const numbersRaw: any = cached.numbers
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const certsRaw: any = cached.certificates
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const finalSectionRaw: any = cached.finalSection
 
     data = {
       hero: {
         coverImage:      resolveAboutHeroImage(heroRaw?.coverImage),
         mobileCoverImage: heroRaw?.mobileCoverImage?.url || null,
+        videoUrl:        heroRaw?.heroVideo?.url         || null,
+        mobileVideoUrl:  heroRaw?.mobileHeroVideo?.url   || null,
         title:           heroRaw?.title                 || FALLBACK.hero.title,
         accentWordIndex: heroRaw?.accentWordIndex       ?? FALLBACK.hero.accentWordIndex,
       },
@@ -247,31 +218,9 @@ export default async function AboutPage({ params }: Props) {
         },
       },
       mosaic: {
-        leftImage:  storyRaw?.leftImage?.url  || FALLBACK.mosaic.leftImage,
-        rightImage: storyRaw?.rightImage?.url || FALLBACK.mosaic.rightImage,
-      },
-      certs: {
-        heading: {
-          text:       certsRaw?.intro?.headingText   || FALLBACK.certs.heading.text,
-          accentText: certsRaw?.intro?.headingAccent || FALLBACK.certs.heading.accentText,
-        },
-        subtitle: certsRaw?.intro?.subtitle || FALLBACK.certs.subtitle,
-        sealText: certsRaw?.seal?.text      || FALLBACK.certs.sealText,
-        certificates: Array.isArray(certsRaw?.certificates) && certsRaw.certificates.length
-          ? certsRaw.certificates.map((c: {
-              name: string;
-              tag: string;
-              description: string;
-              expiryDate: string;
-              photo?: { url?: string } | null;
-            }) => ({
-              name:        c.name,
-              tag:         c.tag,
-              description: c.description,
-              expiryDate:  c.expiryDate,
-              photo:       c.photo?.url || null,
-            }))
-          : FALLBACK.certs.certificates,
+        leftImage:   storyRaw?.leftImage?.url   || FALLBACK.mosaic.leftImage,
+        centerImage: storyRaw?.centerImage?.url || FALLBACK.mosaic.centerImage,
+        rightImage:  storyRaw?.rightImage?.url  || FALLBACK.mosaic.rightImage,
       },
       finalSection: {
         image:       finalSectionRaw?.image?.url       || FALLBACK.finalSection.image,

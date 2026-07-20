@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import VacancyDetailClient from './VacancyDetailClient'
 import { getValidLocale, supportedLocales, defaultLocale } from '@/lib/i18n/locale'
-import { buildLanguageAlternates } from '@/lib/i18n/metadata'
+import { buildCanonicalPath, buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeVacancy } from '@/lib/payload-normalize'
 import { FORMS_CONTENT } from '@/lib/data/forms-content'
 import { resolveVacancyLabels } from '@/lib/vacancy-labels'
@@ -43,8 +43,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title,
       description,
       alternates: {
-        canonical: `/${locale}/vacancies/${id}`,
+        canonical: buildCanonicalPath(locale, `/vacancies/${id}`),
         languages: buildLanguageAlternates(`/vacancies/${id}`),
+      },
+      robots: {
+        index: false,
+        follow: true,
+        googleBot: { index: false, follow: true },
       },
       openGraph: { title, description },
     }

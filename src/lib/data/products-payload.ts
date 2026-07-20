@@ -21,6 +21,7 @@ type LocaleMap = { en: string; tm: string; ru: string }
 
 export type ProductSeedEntry = {
   nameEn:    string
+  slug:      LocaleMap
   category:  string
   date:      string
   photos:    { folder: string; filename: string; mimetype: string }[]
@@ -37,6 +38,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 1 · Still Water ───────────────────────────────────────────────
   {
     nameEn:   'Still Water',
+    slug:     { en: 'still-water', tm: 'gazsyz-suw', ru: 'negazirovannaya-voda' },
     category: 'still-water',
     date:     '2026-06-17',
     photos: [
@@ -80,6 +82,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 2 · Mineral Water ─────────────────────────────────────────────
   {
     nameEn:   'Mineral Water',
+    slug:     { en: 'mineral-water', tm: 'mineral-suw', ru: 'mineralnaya-voda' },
     category: 'mineral-water',
     date:     '2026-06-17',
     photos: [
@@ -123,6 +126,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 3 · Orange Juice ──────────────────────────────────────────────
   {
     nameEn:   'Orange Juice',
+    slug:     { en: 'orange-juice', tm: 'apelsin-siresi', ru: 'apelsinovyy-sok' },
     category: 'juice',
     date:     '2026-06-17',
     photos: [
@@ -166,6 +170,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 4 · Apple Juice ───────────────────────────────────────────────
   {
     nameEn:   'Apple Juice',
+    slug:     { en: 'apple-juice', tm: 'alma-siresi', ru: 'yablochnyy-sok' },
     category: 'juice',
     date:     '2026-06-17',
     photos: [
@@ -209,6 +214,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 5 · Stress Less Tincture ──────────────────────────────────────
   {
     nameEn:   'Stress Less Tincture',
+    slug:     { en: 'stress-less-tincture', tm: 'stressiz-tinktura', ru: 'nastoyka-ot-stressa' },
     category: 'functional',
     date:     '2026-06-17',
     photos: [
@@ -253,6 +259,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 6 · Mineral Restore ───────────────────────────────────────────
   {
     nameEn:   'Mineral Restore',
+    slug:     { en: 'mineral-restore', tm: 'mineral-dikeldiji', ru: 'mineralnoe-vosstanovlenie' },
     category: 'functional',
     date:     '2026-06-17',
     video: { folder: '6', filename: 'a5fc7af2b12a441587012a84a050fb64.HD-1080p-4.8Mbps-81416877.mp4' },
@@ -298,6 +305,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 7 · Blueberry Brain ───────────────────────────────────────────
   {
     nameEn:   'Blueberry Brain',
+    slug:     { en: 'blueberry-brain', tm: 'blueberry-brain', ru: 'chernichnyy-energetik' },
     category: 'functional',
     date:     '2026-06-17',
     video: { folder: '7', filename: '9979d507be774f99aa86b44e7d7d4f1e.HD-1080p-4.8Mbps-81414463.mp4' },
@@ -343,6 +351,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 8 · Mellow Mango ─────────────────────────────────────────────
   {
     nameEn:   'Mellow Mango',
+    slug:     { en: 'mellow-mango', tm: 'mellow-mango', ru: 'mango-relaks' },
     category: 'functional',
     date:     '2026-06-17',
     photos: [
@@ -387,6 +396,7 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
   // ── 9 · Still Water 19 L ──────────────────────────────────────────
   {
     nameEn:   'Still Water 19L',
+    slug:     { en: 'still-water-19l', tm: 'gazsyz-suw-19l', ru: 'negazirovannaya-voda-19l' },
     category: 'still-water',
     date:     '2026-06-17',
     photos: [

@@ -44,6 +44,13 @@ export const AboutOurStory: GlobalConfig = {
       label: 'Right Mosaic Image',
     },
     {
+      name: 'centerImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Center Mosaic Image',
+      admin: { description: 'Optional third image for the About mosaic row.' },
+    },
+    {
       name: 'milestones',
       type: 'array',
       label: 'History Cards',

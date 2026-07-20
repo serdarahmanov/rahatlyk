@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ProductsClient from './ProductsClient'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
-import { buildLanguageAlternates } from '@/lib/i18n/metadata'
+import { buildCanonicalPath, buildLanguageAlternates } from '@/lib/i18n/metadata'
 import { normalizeCategory, normalizeProduct, normalizeResult } from '@/lib/payload-normalize'
 import { getCachedProductCategories, getCachedProductLabels, getCachedProductsPage, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import { resolveProductLabels } from '@/lib/product-labels'
@@ -35,8 +35,16 @@ function resolveOgImage(value: unknown): string | null {
     : null
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ category?: string; page?: string }>
+}): Promise<Metadata> {
   const locale = getValidLocale((await params).locale) ?? defaultLocale
+  const query = await searchParams
+  const hasIndexableQuery = (query.category && query.category !== 'all') || (query.page && query.page !== '1')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let siteMeta: any = null
   try { siteMeta = await getCachedSiteMetadata(locale) } catch { /* fallback */ }
@@ -49,10 +57,23 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title,
     description,
     alternates: {
-      canonical: `/${locale}/products`,
+      canonical: buildCanonicalPath(locale, '/products'),
       languages: buildLanguageAlternates('/products'),
     },
-    ...(ogImageUrl ? { openGraph: { images: [{ url: ogImageUrl }] } } : {}),
+    ...(hasIndexableQuery ? {
+      robots: {
+        index: false,
+        follow: true,
+        googleBot: { index: false, follow: true },
+      },
+    } : {}),
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: buildCanonicalPath(locale, '/products'),
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl }] } : {}),
+    },
   }
 }
 

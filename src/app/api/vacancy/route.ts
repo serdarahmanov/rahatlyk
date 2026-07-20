@@ -2,8 +2,10 @@ import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { fileTypeFromBuffer } from 'file-type';
+import { getEmailTemplateConfig } from '@/lib/email/payloadTemplates';
 import { SITE, vacancyConfirmation, vacancyNotification, extractEmailContact } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
+import { withLocale } from '@/lib/i18n/locale';
 import { getPayloadClient } from '@/lib/payload';
 import { getCachedContactInfo } from '@/lib/payload/cachedQueries';
 import { isSpam, sanitizeCsv } from '@/lib/spam-check';
@@ -20,7 +22,6 @@ const VALID_LOCALES: EmailLocale[] = ['en', 'ru', 'tm'];
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-  tls: { rejectUnauthorized: false },
 });
 
 export async function POST(req: NextRequest) {
@@ -95,14 +96,18 @@ export async function POST(req: NextRequest) {
     }
 
     const cvAttachment = { filename: cvFile.name, content: cvBuffer };
-    const vacancyUrl   = `${SITE}/vacancies/${vacancyIdNum}`;
+    const vacancyUrl   = `${SITE}${withLocale(locale, `/vacancies/${vacancyIdNum}`)}`;
     const fromNoreply  = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite  = `"Website" <${process.env.WEBSITE_EMAIL}>`;
 
-    const rawContact   = await getCachedContactInfo().catch(() => null)
+    const [rawContact, emailTemplates, notificationTemplates] = await Promise.all([
+      getCachedContactInfo().catch(() => null),
+      getEmailTemplateConfig(locale),
+      getEmailTemplateConfig('ru'),
+    ])
     const contact      = extractEmailContact(rawContact, locale)
-    const confirmation = vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact });
-    const notification = vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName: cvFile.name, cover, locale: 'ru', contact });
+    const confirmation = vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact, templates: emailTemplates });
+    const notification = vacancyNotification({ firstName, lastName, email, phone, dateOfBirth, vacancyTitle, vacancyUrl, cvFileName: cvFile.name, cover, locale: 'ru', contact, templates: notificationTemplates });
 
     await Promise.all([
       // 1. Confirmation → applicant (in their language)

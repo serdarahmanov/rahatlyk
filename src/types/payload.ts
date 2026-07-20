@@ -108,9 +108,11 @@ export type HomeCtaBannerData = {
 }
 
 export type HomeHeroData = {
-  videoUrl:        string | null
   posterUrl:       string | null
   mobilePosterUrl: string | null
+  parallaxImages:  { fileName: string; src: string }[]
+  bottleImageUrl:  string | null
+  mobileBottleImageUrl: string | null
   title:           string | null
   titleAccent:     string | null
   subtitle:        string | null
