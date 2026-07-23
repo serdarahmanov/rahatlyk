@@ -17,6 +17,7 @@ export const translations = {
         subtitle: 'Premium beverages crafted from the finest natural sources of Turkmenistan',
         cta: 'Our Story',
         ctaSecondary: 'Our Story',
+        contactCta: 'Contact with Us',
       },
       categories: {
         sectionTag: 'Our Collection',
@@ -223,6 +224,7 @@ export const translations = {
         subtitle: 'Премиальные напитки из лучших природных источников Туркменистана',
         cta: 'Наша история',
         ctaSecondary: 'Наша история',
+        contactCta: 'Свяжитесь с нами',
       },
       categories: {
         sectionTag: 'Наша коллекция',
@@ -429,6 +431,7 @@ export const translations = {
         subtitle: 'Türkmenistanyň iň arassa tebigy çeşmelerinden öndürilen premium içgiler',
         cta: 'Taryhymyz',
         ctaSecondary: 'Biziň taryhymyz',
+        contactCta: 'Biz bilen habarlaşyň',
       },
       categories: {
         sectionTag: 'Biziň kolleksiýamyz',

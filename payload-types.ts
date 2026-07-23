@@ -1551,6 +1551,14 @@ export interface HomeHero {
   title?: string | null;
   titleAccent?: string | null;
   subtitle?: string | null;
+  /**
+   * Desktop/tablet hero button label (e.g. "Contact with Us"). Leave empty to hide the button.
+   */
+  ctaLabel?: string | null;
+  /**
+   * Link the CTA button points to, e.g. /contact
+   */
+  ctaHref?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2187,6 +2195,8 @@ export interface HomeHeroSelect<T extends boolean = true> {
   title?: T;
   titleAccent?: T;
   subtitle?: T;
+  ctaLabel?: T;
+  ctaHref?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

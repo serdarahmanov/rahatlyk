@@ -81,5 +81,22 @@ export const HomeHero: GlobalConfig = {
       localized: true,
       label: 'Subtitle',
     },
+    {
+      name: 'ctaLabel',
+      type: 'text',
+      localized: true,
+      label: 'CTA Button Text',
+      admin: {
+        description: 'Desktop/tablet hero button label (e.g. "Contact with Us"). Leave empty to hide the button.',
+      },
+    },
+    {
+      name: 'ctaHref',
+      type: 'text',
+      label: 'CTA Button Link',
+      admin: {
+        description: 'Link the CTA button points to, e.g. /contact',
+      },
+    },
   ],
 }

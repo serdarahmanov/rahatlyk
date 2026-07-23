@@ -3,12 +3,11 @@ import { notFound } from 'next/navigation'
 import { getValidLocale, defaultLocale } from '@/lib/i18n/locale'
 import { getCachedAboutData, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import { buildCanonicalPath, buildLanguageAlternates } from '@/lib/i18n/metadata'
-import { ABOUT_HERO_CONTENT } from '@/lib/data/about-hero-content'
 import AboutPageClient, { type AboutPageData } from './AboutPageClient'
 
 const FALLBACK: AboutPageData = {
   hero: {
-    coverImage: '/story/webp/photo-8.webp',
+    coverImage: null,
     mobileCoverImage: null,
     videoUrl: null,
     mobileVideoUrl: null,
@@ -26,7 +25,7 @@ const FALLBACK: AboutPageData = {
       'What began with drinking water has grown into six collections: still and mineral waters, juices, energy drinks, herbal teas and soft drinks — each developed in-house and distributed across the country.',
       'We are building a direct connection with the people who drink what we make. Because comfort, to us, includes being within reach.',
     ],
-    fullViewportImage: '/story/photo-2.jpg',
+    fullViewportImage: null,
     backgroundVideo: null,
   },
   story: {
@@ -79,12 +78,12 @@ const FALLBACK: AboutPageData = {
     },
   },
   mosaic: {
-    leftImage: '/about/about-mosaic-left.png',
-    centerImage: '/story/webp/photo-3.webp',
-    rightImage: '/about/about-mosaic-right.png',
+    leftImage: null,
+    centerImage: null,
+    rightImage: null,
   },
   finalSection: {
-    image: '/story/photo-1.jpg',
+    image: null,
     mobileImage: null,
     heading: 'Every drop, a promise kept.',
     body: 'From the first filtration to the final cap, Rahatlyk keeps quality in its own hands - every bottle, every time.',
@@ -92,11 +91,7 @@ const FALLBACK: AboutPageData = {
 }
 
 function resolveAboutHeroImage(coverImage: { filename?: string | null; url?: string | null } | null | undefined) {
-  if (coverImage?.filename === ABOUT_HERO_CONTENT.desktopCover.filename) {
-    return ABOUT_HERO_CONTENT.desktopCover.publicPath
-  }
-
-  return coverImage?.url || FALLBACK.hero.coverImage
+  return coverImage?.url || null
 }
 
 type Props = {

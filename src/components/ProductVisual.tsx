@@ -18,10 +18,8 @@ interface Props {
   className?: string;
 }
 
-const FALLBACK = '/products/FeatureProductImg_RTD_LT.png';
-
-const photoUrl = (p: ProductVisualPhoto | undefined): string =>
-  typeof p === 'string' ? p : p?.url ?? FALLBACK;
+const photoUrl = (p: ProductVisualPhoto | undefined): string | null =>
+  typeof p === 'string' ? p : p?.url ?? null;
 
 function useCanLoadHoverMedia() {
   const [canLoad, setCanLoad] = useState(false);
@@ -45,18 +43,20 @@ export default function ProductVisual({ product, size = 'sm', className = '' }: 
 
   if (size === 'sm') {
     const hoverVideo = canLoadHoverMedia ? product.videoUrl ?? null : null;
-    const hoverPhoto = canLoadHoverMedia && !hoverVideo && src2 !== src ? src2 : null;
+    const hoverPhoto = canLoadHoverMedia && !hoverVideo && src2 && src2 !== src ? src2 : null;
     const hasHover   = !!(hoverVideo || hoverPhoto);
 
     return (
       <div className="relative w-full h-full group/photo">
-        <Image
-          src={src}
-          alt={product.name}
-          fill
-          className={`object-cover object-center transition-opacity duration-500 ${hasHover ? 'group-hover/photo:opacity-0' : ''}`}
-          sizes="(max-width: 640px) 200px, 320px"
-        />
+        {src && (
+          <Image
+            src={src}
+            alt={product.name}
+            fill
+            className={`object-cover object-center transition-opacity duration-500 ${hasHover ? 'group-hover/photo:opacity-0' : ''}`}
+            sizes="(max-width: 640px) 200px, 320px"
+          />
+        )}
         {hoverVideo && (
           <video
             src={hoverVideo}
@@ -83,14 +83,16 @@ export default function ProductVisual({ product, size = 'sm', className = '' }: 
   // lg — detail hero
   return (
     <div className={`relative ${className || 'w-56 h-[26rem]'} mx-auto`}>
-      <Image
-        src={src}
-        alt={product.name}
-        fill
-        className="object-contain drop-shadow-2xl"
-        sizes="(max-width: 1024px) 50vw, 400px"
-        priority
-      />
+      {src && (
+        <Image
+          src={src}
+          alt={product.name}
+          fill
+          className="object-contain drop-shadow-2xl"
+          sizes="(max-width: 1024px) 50vw, 400px"
+          priority
+        />
+      )}
     </div>
   );
 }

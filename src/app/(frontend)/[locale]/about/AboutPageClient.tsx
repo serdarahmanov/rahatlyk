@@ -7,7 +7,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export type AboutPageData = {
   hero: {
-    coverImage: string;
+    coverImage: string | null;
     mobileCoverImage: string | null;
     videoUrl: string | null;
     mobileVideoUrl: string | null;
@@ -21,7 +21,7 @@ export type AboutPageData = {
     };
     sectionTitle: string;
     paragraphs: string[];
-    fullViewportImage: string;
+    fullViewportImage: string | null;
     backgroundVideo: string | null;
   };
   story: {
@@ -47,12 +47,12 @@ export type AboutPageData = {
     };
   };
   mosaic: {
-    leftImage: string;
-    centerImage: string;
-    rightImage: string;
+    leftImage: string | null;
+    centerImage: string | null;
+    rightImage: string | null;
   };
   finalSection: {
-    image: string;
+    image: string | null;
     mobileImage: string | null;
     heading: string;
     body: string;
@@ -62,7 +62,13 @@ export type AboutPageData = {
 const headingStyle = { fontFamily: 'var(--font-heading), sans-serif' };
 const accentStyle = { fontFamily: 'var(--font-accent), Georgia, "Times New Roman", serif' };
 
-function waitForAboutMediaBeforeHeroVideo(root: HTMLElement, heroVideo: HTMLVideoElement | null) {
+// Videos are deferred until the page's eagerly-loading images have loaded,
+// so a video download never competes with the content that renders first.
+// Natively lazy-loaded images (loading="lazy", e.g. the mosaic and bubble
+// parallax images) are excluded — they're meant to stay deferred until the
+// user scrolls near them, and waiting on them would block the videos for
+// no reason (up to the full timeout cap) if the user never scrolls there.
+function waitForAboutImages(root: HTMLElement) {
   const WAIT_CAP_MS = 12000;
 
   const waitForImage = (image: HTMLImageElement) =>
@@ -82,34 +88,9 @@ function waitForAboutMediaBeforeHeroVideo(root: HTMLElement, heroVideo: HTMLVide
       image.addEventListener('error', done, { once: true });
     });
 
-  const waitForVideo = (video: HTMLVideoElement) =>
-    new Promise<void>((resolve) => {
-      if (!video.currentSrc && !video.src) {
-        resolve();
-        return;
-      }
-
-      if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
-        resolve();
-        return;
-      }
-
-      const done = () => {
-        video.removeEventListener('canplaythrough', done);
-        video.removeEventListener('loadeddata', done);
-        video.removeEventListener('error', done);
-        resolve();
-      };
-
-      video.addEventListener('canplaythrough', done, { once: true });
-      video.addEventListener('loadeddata', done, { once: true });
-      video.addEventListener('error', done, { once: true });
-      video.load();
-    });
-
-  const images = Array.from(root.querySelectorAll<HTMLImageElement>('img'));
-  const videos = Array.from(root.querySelectorAll<HTMLVideoElement>('video')).filter((video) => video !== heroVideo);
-  const mediaWait = Promise.all([...images.map(waitForImage), ...videos.map(waitForVideo)]);
+  const images = Array.from(root.querySelectorAll<HTMLImageElement>('img'))
+    .filter((image) => image.loading !== 'lazy');
+  const mediaWait = Promise.all(images.map(waitForImage));
   const cap = new Promise<void>((resolve) => window.setTimeout(resolve, WAIT_CAP_MS));
 
   return Promise.race([mediaWait.then(() => undefined), cap]);
@@ -130,6 +111,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
   const [openMilestone, setOpenMilestone] = useState<number>(0);
   const [shouldLoadHeroVideo, setShouldLoadHeroVideo] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const [contentMediaReady, setContentMediaReady] = useState(false);
   const [activeHeroVideoUrl, setActiveHeroVideoUrl] = useState<string | null>(null);
   const [mosaicIndex, setMosaicIndex] = useState(0);
 
@@ -174,6 +156,26 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
     };
   }, [data.hero.mobileVideoUrl, data.hero.videoUrl]);
 
+  // Both about-page videos wait for the page's images to finish loading first,
+  // so a large video download never competes with (and delays) the rest of
+  // the page's content.
+  useEffect(() => {
+    let cancelled = false;
+    let waitFrame = 0;
+
+    waitFrame = requestAnimationFrame(() => {
+      if (cancelled || !rootRef.current) return;
+      waitForAboutImages(rootRef.current).then(() => {
+        if (!cancelled) setContentMediaReady(true);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(waitFrame);
+    };
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     let resetFrame = 0;
@@ -183,18 +185,15 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
       setShouldLoadHeroVideo(false);
       setHeroVideoReady(false);
 
-      if (!activeHeroVideoUrl || !rootRef.current) return;
-
-      waitForAboutMediaBeforeHeroVideo(rootRef.current, heroVideoRef.current).then(() => {
-        if (!cancelled) setShouldLoadHeroVideo(true);
-      });
+      if (!activeHeroVideoUrl || !contentMediaReady) return;
+      setShouldLoadHeroVideo(true);
     });
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(resetFrame);
     };
-  }, [activeHeroVideoUrl]);
+  }, [activeHeroVideoUrl, contentMediaReady]);
 
   // Re-initialize word-opacity animations whenever text content changes.
   // The initial mount AND every locale switch (which loads new text via
@@ -559,7 +558,8 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
 
   // Derive statement words with accent position
   const statementWords = data.whoWeAre.statement.text.split(' ');
-  const mosaicImages = [data.mosaic.leftImage, data.mosaic.centerImage, data.mosaic.rightImage];
+  const mosaicImages = [data.mosaic.leftImage, data.mosaic.centerImage, data.mosaic.rightImage]
+    .filter((src): src is string => Boolean(src));
 
   const handleMosaicScroll = () => {
     const scroller = mosaicScrollerRef.current;
@@ -572,18 +572,20 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
     <div ref={rootRef} className="min-h-screen overflow-x-clip bg-[#FAFAF8] text-[#141618]">
       <header className="sticky top-0 z-0 h-[100svh] min-h-[520px] overflow-hidden bg-[#0E1112]">
         <div className="absolute inset-0">
-          <picture className="absolute inset-0 block">
-            {data.hero.mobileCoverImage && (
-              <source media="(max-width: 767px)" srcSet={data.hero.mobileCoverImage} />
-            )}
-            <img
-              ref={heroImageRef}
-              src={data.hero.coverImage}
-              alt="About page hero"
-              fetchPriority="high"
-              className="h-full w-full object-cover object-center will-change-transform"
-            />
-          </picture>
+          {data.hero.coverImage && (
+            <picture className="absolute inset-0 block">
+              {data.hero.mobileCoverImage && (
+                <source media="(max-width: 767px)" srcSet={data.hero.mobileCoverImage} />
+              )}
+              <img
+                ref={heroImageRef}
+                src={data.hero.coverImage}
+                alt="About page hero"
+                fetchPriority="high"
+                className="h-full w-full object-cover object-center will-change-transform"
+              />
+            </picture>
+          )}
           {activeHeroVideoUrl && (
             <video
               ref={heroVideoRef}
@@ -661,15 +663,17 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
         </section>
 
         <section ref={videoScrubSectionRef} className="relative h-screen overflow-hidden bg-[#0c3a52]">
-          <video
-            ref={videoScrubRef}
-            src={data.whoWeAre.backgroundVideo ?? undefined}
-            muted
-            playsInline
-            loop
-            preload="auto"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {data.whoWeAre.backgroundVideo && (
+            <video
+              ref={videoScrubRef}
+              src={contentMediaReady ? data.whoWeAre.backgroundVideo : undefined}
+              muted
+              playsInline
+              loop
+              preload={contentMediaReady ? 'auto' : 'none'}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
           <div className="absolute inset-0 flex items-center justify-center px-[clamp(24px,8vw,120px)]">
             {data.whoWeAre.paragraphs.map((text, i) => {
               const firstSpace = i === 0 ? text.indexOf(' ') : -1;
@@ -752,43 +756,45 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           </div>
         </section>
 
-        <section className="px-[clamp(18px,3.6vw,52px)] pt-0 pb-[clamp(16px,2vw,30px)]">
-          <div
-            ref={mosaicScrollerRef}
-            onScroll={handleMosaicScroll}
-            className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:gap-[clamp(14px,2vw,32px)] sm:overflow-visible"
-          >
-            {mosaicImages.map((src, index) => (
-              <div key={`${src}-${index}`} className="relative min-w-full snap-center overflow-hidden rounded-[4px] sm:min-w-0" style={{ aspectRatio: '4/5' }}>
-                <Image
-                  src={src}
-                  alt=""
-                  fill
-                  sizes="(max-width: 639px) calc(100vw - 36px), 33vw"
-                  className="object-cover object-center"
+        {mosaicImages.length > 0 && (
+          <section className="px-[clamp(18px,3.6vw,52px)] pt-0 pb-[clamp(16px,2vw,30px)]">
+            <div
+              ref={mosaicScrollerRef}
+              onScroll={handleMosaicScroll}
+              className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:gap-[clamp(14px,2vw,32px)] sm:overflow-visible"
+            >
+              {mosaicImages.map((src, index) => (
+                <div key={`${src}-${index}`} className="relative min-w-full snap-center overflow-hidden rounded-[4px] sm:min-w-0" style={{ aspectRatio: '4/5' }}>
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    sizes="(max-width: 639px) calc(100vw - 36px), 33vw"
+                    className="object-cover object-center"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center justify-center gap-2 sm:hidden" aria-label="Mosaic image position">
+              {mosaicImages.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  aria-label={`Mosaic image ${index + 1}`}
+                  onClick={() => {
+                    const scroller = mosaicScrollerRef.current;
+                    if (!scroller) return;
+                    scroller.scrollTo({ left: index * scroller.clientWidth, behavior: 'smooth' });
+                    setMosaicIndex(index);
+                  }}
+                  className={`rounded-full transition-all duration-300 ${
+                    index === mosaicIndex ? 'h-[4px] w-6 bg-black' : 'h-[4px] w-[4px] bg-black/25'
+                  }`}
                 />
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex items-center justify-center gap-2 sm:hidden" aria-label="Mosaic image position">
-            {mosaicImages.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                aria-label={`Mosaic image ${index + 1}`}
-                onClick={() => {
-                  const scroller = mosaicScrollerRef.current;
-                  if (!scroller) return;
-                  scroller.scrollTo({ left: index * scroller.clientWidth, behavior: 'smooth' });
-                  setMosaicIndex(index);
-                }}
-                className={`rounded-full transition-all duration-300 ${
-                  index === mosaicIndex ? 'h-[4px] w-6 bg-black' : 'h-[4px] w-[4px] bg-black/25'
-                }`}
-              />
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="about-mosaic-field overflow-hidden rounded-t-[clamp(10px,1.6vw,20px)]">
           <div className="about-mosaic-bg" aria-hidden="true">
@@ -823,23 +829,25 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
 
 
         <section ref={lastPlxSectionRef} className="relative h-screen overflow-hidden">
-          <div
-            ref={lastPlxMediaRef}
-            data-last-plx-media
-            className="absolute inset-x-0 top-0 h-[128%] will-change-transform"
-          >
-            <picture className="absolute inset-0 block">
-              {data.finalSection.mobileImage && (
-                <source media="(max-width: 767px)" srcSet={data.finalSection.mobileImage} />
-              )}
-              <img
-                src={data.finalSection.image}
-                alt=""
-                aria-hidden="true"
-                className="h-full w-full object-cover object-center"
-              />
-            </picture>
-          </div>
+          {data.finalSection.image && (
+            <div
+              ref={lastPlxMediaRef}
+              data-last-plx-media
+              className="absolute inset-x-0 top-0 h-[128%] will-change-transform"
+            >
+              <picture className="absolute inset-0 block">
+                {data.finalSection.mobileImage && (
+                  <source media="(max-width: 767px)" srcSet={data.finalSection.mobileImage} />
+                )}
+                <img
+                  src={data.finalSection.image}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-full w-full object-cover object-center"
+                />
+              </picture>
+            </div>
+          )}
           <div className="absolute inset-0 bg-white/50" />
           <div className="absolute inset-0 flex flex-col items-center justify-center px-[clamp(18px,3.6vw,52px)] text-center text-[#141618]">
             <h2

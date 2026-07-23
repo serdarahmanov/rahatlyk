@@ -78,9 +78,10 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
 
           {/* ── Quick links ── */}
           <div>
-            <h4 className="font-medium text-[10px] tracking-[0.2em] uppercase text-black mb-5">
+            <h4 className="font-bold text-[10px] tracking-[0.2em] uppercase text-black mb-2">
               {t.footer.quickLinks}
             </h4>
+            <span className="mb-5 block h-[2px] w-6 bg-black" />
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
@@ -98,9 +99,10 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
 
           {/* ── Company + contact ── */}
           <div>
-            <h4 className="font-medium text-[10px] tracking-[0.2em] uppercase text-black mb-5">
+            <h4 className="font-bold text-[10px] tracking-[0.2em] uppercase text-black mb-2">
               {t.footer.company}
             </h4>
+            <span className="mb-5 block h-[2px] w-6 bg-black" />
             <ul className="space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.href}>

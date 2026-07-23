@@ -41,62 +41,31 @@ if (typeof window !== 'undefined' && !introHasCompleted) {
 /* Tracks whether window.load has fired in this browser session */
 let _pageContentLoaded = false;
 
-const HERO_PARALLAX_PATH = '/home%20page/hero%20section/hero%20parallax';
-
-const HERO_PARALLAX_IMAGES = [
-  '1.webp',
-  '2.webp',
-  '3.webp',
-  '4.webp',
-  '5.webp',
-  '6.webp',
-  '7.webp',
-  '8.webp',
-  '9.webp',
-  '10.webp',
-  '11.webp',
-  '12.webp',
-  '13.webp',
-  '14.webp',
-  '15.webp',
-  'bottle.webp',
-].map((fileName) => ({
-  fileName,
-  src: `${HERO_PARALLAX_PATH}/${fileName}`,
-}));
-
-const HERO_BOTTLE_MOBILE_SRC = `${HERO_PARALLAX_PATH}/bottle-mobile.webp`;
-const MOBILE_HERO_BUBBLE_COUNT = 5;
+type HeroImageAsset = HomeHeroData['parallaxImages'][number];
 
 function getHeroAssetSet(hero: HomeHeroData) {
-  const bubbleImages = hero.parallaxImages.length > 0
-    ? hero.parallaxImages
-    : HERO_PARALLAX_IMAGES.filter((image) => image.fileName !== 'bottle.webp');
-  const bottleImage = {
+  const bubbleImages = hero.parallaxImages;
+  const bottleImage = hero.bottleImageUrl ? {
     fileName: 'bottle.webp',
-    src: hero.bottleImageUrl || `${HERO_PARALLAX_PATH}/bottle.webp`,
-  };
-  const mobileBottleSrc = hero.mobileBottleImageUrl || HERO_BOTTLE_MOBILE_SRC;
+    src: hero.bottleImageUrl,
+  } : null;
+  const mobileBottleSrc = hero.mobileBottleImageUrl || hero.bottleImageUrl || null;
 
   return { bubbleImages, bottleImage, mobileBottleSrc };
 }
 
 function getHeroImagesForViewport(isMobile: boolean, hero: HomeHeroData) {
   const { bubbleImages, bottleImage } = getHeroAssetSet(hero);
-  if (!isMobile) return [...bubbleImages, bottleImage];
+  if (isMobile) return bottleImage ? [bottleImage] : [];
 
-  return [
-    ...bubbleImages.slice(0, MOBILE_HERO_BUBBLE_COUNT),
-    bottleImage,
-  ];
+  return bottleImage ? [...bubbleImages, bottleImage] : bubbleImages;
 }
 
 function getHeroRequiredImagesForViewport(isMobile: boolean, hero: HomeHeroData) {
-  const { bubbleImages } = getHeroAssetSet(hero);
+  const { bubbleImages, bottleImage } = getHeroAssetSet(hero);
   return new Set([
-    ...(isMobile ? bubbleImages.slice(0, MOBILE_HERO_BUBBLE_COUNT) : bubbleImages)
-      .map((image) => image.fileName),
-    isMobile ? 'bottle-mobile.webp' : 'bottle.webp',
+    ...(isMobile ? [] : bubbleImages).map((image) => image.fileName),
+    ...(bottleImage ? [isMobile && hero.mobileBottleImageUrl ? 'bottle-mobile.webp' : 'bottle.webp'] : []),
   ]);
 }
 
@@ -782,12 +751,14 @@ const CollectionsSection = memo(function CollectionsSection({
             willChange:      'transform, opacity, filter',
           }}
         >
-          <img
-            src={line.imageUrl ?? '/products/FeatureProductImg_RTD_LT.png'}
-            alt={line.name}
-            loading="lazy"
-            style={{ width: 'auto', height: '100%', display: 'block' }}
-          />
+          {line.imageUrl && (
+            <img
+              src={line.imageUrl}
+              alt={line.name}
+              loading="lazy"
+              style={{ width: 'auto', height: '100%', display: 'block' }}
+            />
+          )}
         </div>
       ))}
 
@@ -1040,7 +1011,7 @@ export default function HomeClient({
   const heroTitleAccent = hero.titleAccent || t.home.hero.titleAccent;
   const heroSubtitle    = hero.subtitle    || t.home.hero.subtitle;
   const heroMobileBottleSrc = getHeroAssetSet(hero).mobileBottleSrc;
-  const [heroImages, setHeroImages] = useState<typeof HERO_PARALLAX_IMAGES>([]);
+  const [heroImages, setHeroImages] = useState<HeroImageAsset[]>([]);
   const [heroRequiredImages, setHeroRequiredImages] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
@@ -1052,13 +1023,16 @@ export default function HomeClient({
       lastIsMobile = isMobile;
 
       heroReadyImagesRef.current.clear();
-      heroImagesReadyRef.current = false;
+      const nextRequiredImages = getHeroRequiredImagesForViewport(isMobile, hero);
+      const nextHeroImages = getHeroImagesForViewport(isMobile, hero);
+
+      heroImagesReadyRef.current = nextRequiredImages.size === 0;
       heroParallaxReadyRef.current = false;
       heroReadyDispatchedRef.current = false;
       window.__homeHeroCoverReady = false;
 
-      setHeroRequiredImages(getHeroRequiredImagesForViewport(isMobile, hero));
-      setHeroImages(getHeroImagesForViewport(isMobile, hero));
+      setHeroRequiredImages(nextRequiredImages);
+      setHeroImages(nextHeroImages);
     };
 
     syncHeroImagesForViewport();
@@ -1340,12 +1314,11 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <section ref={heroSectionRef} className="sticky top-0 min-h-screen flex items-start overflow-hidden pt-24 sm:items-end sm:pt-0 lg:items-center">
+      <section ref={heroSectionRef} className="sticky top-0 min-h-screen flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-white" />
-        {heroImages.map((image) => {
+        {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
-          const parallaxIndex = HERO_PARALLAX_IMAGES.findIndex((item) => item.fileName === image.fileName);
-          const splash = HERO_SPLASH_PARALLAX[parallaxIndex % HERO_SPLASH_PARALLAX.length];
+          const splash = HERO_SPLASH_PARALLAX[index % HERO_SPLASH_PARALLAX.length];
           const markCurrentBottleReady = (event: { currentTarget: HTMLImageElement }) => {
             markHeroImageReady(
               event.currentTarget.currentSrc.includes('bottle-mobile.webp')
@@ -1367,7 +1340,9 @@ export default function HomeClient({
             >
               {isBottle ? (
                 <picture>
-                  <source media="(max-width: 639px)" srcSet={heroMobileBottleSrc} />
+                  {heroMobileBottleSrc && heroMobileBottleSrc !== image.src && (
+                    <source media="(max-width: 639px)" srcSet={heroMobileBottleSrc} />
+                  )}
                   <img
                     src={image.src}
                     alt=""
@@ -1426,6 +1401,13 @@ export default function HomeClient({
             </div>
           </div>
         </div>
+        <Link
+          href={localizePublicHref(locale, hero.ctaHref || '/contact')}
+          prefetch={false}
+          className="hidden sm:inline-flex absolute z-20 bottom-8 right-5 sm:right-8 lg:right-10 items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
+        >
+          <span>{hero.ctaLabel || t.home.hero.contactCta}</span>
+        </Link>
       </section>
 
       {/* ══════════════════════════════════════════

@@ -116,6 +116,8 @@ export type HomeHeroData = {
   title:           string | null
   titleAccent:     string | null
   subtitle:        string | null
+  ctaLabel:        string | null
+  ctaHref:         string | null
 }
 
 export type ArticleLabelsData = {

@@ -33,6 +33,7 @@ import * as migration_20260701_140000_home_cta_mobile_image from './20260701_140
 import * as migration_20260701_150000_about_mobile_images from './20260701_150000_about_mobile_images';
 import * as migration_20260711_131518 from './20260711_131518';
 import * as migration_20260719_170000_product_article_slugs from './20260719_170000_product_article_slugs';
+import * as migration_20260723_000000_home_hero_cta from './20260723_000000_home_hero_cta';
 
 export const migrations = [
   {
@@ -209,5 +210,10 @@ export const migrations = [
     up: migration_20260719_170000_product_article_slugs.up,
     down: migration_20260719_170000_product_article_slugs.down,
     name: '20260719_170000_product_article_slugs'
+  },
+  {
+    up: migration_20260723_000000_home_hero_cta.up,
+    down: migration_20260723_000000_home_hero_cta.down,
+    name: '20260723_000000_home_hero_cta',
   },
 ];

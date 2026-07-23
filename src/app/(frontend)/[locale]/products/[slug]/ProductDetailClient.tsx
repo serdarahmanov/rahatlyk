@@ -289,16 +289,7 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     priority
                   />
-                ) : (
-                  <Image
-                    src="/products/FeatureProductImg_RTD_LT.png"
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    priority
-                  />
-                )}
+                ) : null}
 
                 {galleryItems.length > 1 && (
                   <>

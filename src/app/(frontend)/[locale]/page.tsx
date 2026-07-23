@@ -29,6 +29,8 @@ const EMPTY_HERO: HomeHeroData = {
   title: null,
   titleAccent: null,
   subtitle: null,
+  ctaLabel: null,
+  ctaHref: null,
 }
 
 type Props = {

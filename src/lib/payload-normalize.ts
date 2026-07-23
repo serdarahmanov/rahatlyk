@@ -178,6 +178,8 @@ export const normalizeHomeHero = (raw: any): HomeHeroData => ({
   title:           rawStr(raw?.title),
   titleAccent:     rawStr(raw?.titleAccent),
   subtitle:        rawStr(raw?.subtitle),
+  ctaLabel:        rawStr(raw?.ctaLabel),
+  ctaHref:         rawStr(raw?.ctaHref),
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

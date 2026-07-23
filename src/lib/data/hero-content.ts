@@ -54,4 +54,10 @@ export const HERO_CONTENT = {
     ru: 'Премиальные напитки из лучших природных источников Туркменистана',
     tm: 'Türkmenistanyň iň arassa tebigy çeşmelerinden öndürilen premium içgiler',
   },
+  ctaLabel: {
+    en: 'Contact with Us',
+    ru: 'Свяжитесь с нами',
+    tm: 'Biz bilen habarlaşyň',
+  },
+  ctaHref: '/contact',
 }

@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { notFound } from 'next/navigation';
 import '../../globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
@@ -15,10 +15,20 @@ import PageIntro from '@/components/PageIntro';
 import ScrollReset from '@/components/ScrollReset';
 import SmoothScroll from '@/components/SmoothScroll';
 
-const inter = Inter({
+const nexaText = localFont({
   variable: '--font-inter',
-  subsets: ['latin', 'latin-ext', 'cyrillic'],
-  weight: ['400', '500'],
+  src: [
+    {
+      path: '../../../../public/fonts/nexa-text/NexaTextRegular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../../../public/fonts/nexa-text/NexaTextBold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
   display: 'block',
 });
 
@@ -171,7 +181,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={HTML_LANG[locale] ?? locale} className={inter.variable} data-scroll-behavior="smooth">
+    <html lang={HTML_LANG[locale] ?? locale} className={nexaText.variable} data-scroll-behavior="smooth">
       {/* Hide only the hero text before JS runs — the background image is
           visible immediately (good LCP). The animation reveals hero text once
           the correct locale + word-masks are in place. */}

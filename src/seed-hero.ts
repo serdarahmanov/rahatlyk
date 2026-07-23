@@ -72,6 +72,8 @@ async function seedHero() {
         title:       HERO_CONTENT.title[locale],
         titleAccent: HERO_CONTENT.titleAccent[locale],
         subtitle:    HERO_CONTENT.subtitle[locale],
+        ctaLabel:    HERO_CONTENT.ctaLabel[locale],
+        ctaHref:     HERO_CONTENT.ctaHref,
         poster:      desktopPosterId,
         mobilePoster: mobilePosterId,
         parallaxImages: parallaxImages.filter((image) => image.image),

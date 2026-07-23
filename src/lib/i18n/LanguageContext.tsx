@@ -4,6 +4,7 @@ import { createContext, useContext, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { translations, Locale } from './translations';
 import { replacePathLocale } from './locale';
+import { startNavigationProgress } from '@/lib/navigationProgress';
 
 interface LanguageContextType {
   locale: Locale;
@@ -24,6 +25,9 @@ export function LanguageProvider({
   const pathname = usePathname();
 
   const setLocale = async (newLocale: Locale) => {
+    if (newLocale === initialLocale) return;
+    startNavigationProgress();
+
     const search = typeof window === 'undefined' ? '' : window.location.search;
     if (typeof window === 'undefined') {
       router.push(`${replacePathLocale(pathname, newLocale)}${search}`);

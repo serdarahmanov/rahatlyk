@@ -38,7 +38,7 @@ export default function PageIntro() {
 
       const areImagesReady = () => {
         const images = Array.from(document.querySelectorAll<HTMLImageElement>('[data-hero-image-file]'));
-        return images.length > 0 && images.every((image) => image.complete && image.naturalWidth > 0);
+        return images.length === 0 || images.every((image) => image.complete && image.naturalWidth > 0);
       };
 
       let pollTimer = 0;

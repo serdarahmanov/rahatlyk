@@ -2,12 +2,25 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { NAVIGATION_PROGRESS_START_EVENT } from '@/lib/navigationProgress';
 
 export default function NavigationProgress() {
   const pathname = usePathname();
   const barRef   = useRef<HTMLDivElement>(null);
   const prevPath = useRef(pathname);
   const active   = useRef(false);
+
+  const startBar = () => {
+    active.current = true;
+
+    import('gsap').then(({ gsap }) => {
+      const bar = barRef.current;
+      if (!bar) return;
+      gsap.killTweensOf(bar);
+      gsap.set(bar, { scaleX: 0, opacity: 1, transformOrigin: 'left center' });
+      gsap.to(bar, { scaleX: 0.85, duration: 3, ease: 'power1.out', transformOrigin: 'left center' });
+    });
+  };
 
   // ── Start bar on internal link click ──────────────────────────────
   useEffect(() => {
@@ -19,20 +32,19 @@ export default function NavigationProgress() {
           href.startsWith('mailto') || href.startsWith('tel')) return;
       if (href === pathname) return;
 
-      active.current = true;
-
-      import('gsap').then(({ gsap }) => {
-        const bar = barRef.current;
-        if (!bar) return;
-        gsap.killTweensOf(bar);
-        gsap.set(bar, { scaleX: 0, opacity: 1, transformOrigin: 'left center' });
-        gsap.to(bar, { scaleX: 0.85, duration: 3, ease: 'power1.out', transformOrigin: 'left center' });
-      });
+      startBar();
     };
 
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
   }, [pathname]);
+
+  // ── Start bar on explicit programmatic navigation (e.g. language switch) ──
+  useEffect(() => {
+    const onStart = () => startBar();
+    window.addEventListener(NAVIGATION_PROGRESS_START_EVENT, onStart);
+    return () => window.removeEventListener(NAVIGATION_PROGRESS_START_EVENT, onStart);
+  }, []);
 
   // ── Complete bar when route finishes changing ─────────────────────
   useEffect(() => {
