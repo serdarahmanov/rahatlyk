@@ -41,7 +41,10 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
   const social = useSocialLinks();
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const syncScrollState = () => {
+      ticking = false;
       const y = window.scrollY;
       setScrolled(y > 1);
       // Direction: treat near-top as "up" so header never hides at page top
@@ -54,8 +57,18 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
       }
       prevScrollY.current = y;
     };
+
+    // Coalesce to one state check per animation frame — native scroll events
+    // can fire far more often than the screen repaints, and every call here
+    // touches a `position: fixed` header with a backdrop blur.
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(syncScrollState);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    syncScrollState();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

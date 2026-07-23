@@ -554,8 +554,27 @@ const CollectionsSection = memo(function CollectionsSection({
       if (!el) return;
       const offset = i - pos;
       const abs    = Math.abs(offset);
+      // Only the active bottle and its immediate neighbors need a promoted
+      // GPU layer — every other bottle sits far outside the viewport, so
+      // keeping `will-change` on all of them just wastes compositor memory
+      // (a real cost on lower-memory phones), especially since mobile has
+      // no early-return below to drop them out entirely.
+      el.style.willChange = abs < 1.5 ? 'transform, opacity, filter' : 'auto';
 
       if (isMd && offset < -0.15) {
+        el.style.opacity       = '0';
+        el.style.filter        = 'none';
+        el.style.pointerEvents = 'none';
+        el.style.transform     = `translateX(calc(-50% + ${offset * s}vw)) scale(0.6)`;
+        return;
+      }
+
+      // Mobile swipes only ever move one slot at a time, so anything two or
+      // more slots away is guaranteed fully off-screen for the entire
+      // transition (at this step size it's translated a full viewport width
+      // or more away) — skip the blur/opacity work instead of painting a
+      // heavily-blurred layer that's never actually visible.
+      if (!isMd && abs >= 1.85) {
         el.style.opacity       = '0';
         el.style.filter        = 'none';
         el.style.pointerEvents = 'none';
@@ -748,7 +767,6 @@ const CollectionsSection = memo(function CollectionsSection({
             display:         'flex',
             justifyContent:  'center',
             transformOrigin: 'bottom center',
-            willChange:      'transform, opacity, filter',
           }}
         >
           {line.imageUrl && (
