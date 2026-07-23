@@ -127,6 +127,18 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
       }}
     >
 
+      {/* Safe-area top strip — dedicated layer so the notch/Dynamic Island region
+          always gets the same background, independent of the main panel below.
+          Must mirror its visibility state exactly, or the two get out of sync. */}
+      <div
+        className="absolute inset-x-0 top-0 z-0 h-[env(safe-area-inset-top)] bg-[#fafaf8]/85 backdrop-blur-[12px]"
+        style={{
+          opacity: showHeaderPanel ? 1 : 0,
+          transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
+          transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1)',
+        }}
+      />
+
       {/* Background panel — slides down from above instead of fading in */}
       <div
         className="absolute inset-0 z-0 border-b bg-[#fafaf8]/85 backdrop-blur-[12px]"

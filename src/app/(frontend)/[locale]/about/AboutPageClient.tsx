@@ -570,7 +570,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
 
   return (
     <div ref={rootRef} className="min-h-screen overflow-x-clip bg-[#FAFAF8] text-[#141618]">
-      <header className="sticky top-0 z-0 h-[100svh] min-h-[520px] overflow-hidden bg-[#0E1112]">
+      <header className="sticky top-0 z-0 h-[100lvh] min-h-[520px] overflow-hidden bg-[#0E1112]">
         <div className="absolute inset-0">
           {data.hero.coverImage && (
             <picture className="absolute inset-0 block">
@@ -662,7 +662,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           </p>
         </section>
 
-        <section ref={videoScrubSectionRef} className="relative h-screen overflow-hidden bg-[#0c3a52]">
+        <section ref={videoScrubSectionRef} className="relative h-[100lvh] overflow-hidden bg-[#0c3a52]">
           {data.whoWeAre.backgroundVideo && (
             <video
               ref={videoScrubRef}
@@ -828,7 +828,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
         </div>
 
 
-        <section ref={lastPlxSectionRef} className="relative h-screen overflow-hidden">
+        <section ref={lastPlxSectionRef} className="relative h-[100lvh] overflow-hidden">
           {data.finalSection.image && (
             <div
               ref={lastPlxMediaRef}

@@ -257,7 +257,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   }, []);
 
   return (
-    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: 'var(--home-vh, 100svh)' }}>
+    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: 'var(--home-vh, 100lvh)' }}>
       <div
         ref={trackRef}
         className="flex h-full gap-4 px-4"
@@ -1332,7 +1332,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <section ref={heroSectionRef} className="sticky top-0 min-h-[100svh] flex items-end overflow-hidden lg:items-center">
+      <section ref={heroSectionRef} className="sticky top-0 min-h-[100lvh] flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-white" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
@@ -1434,7 +1434,7 @@ export default function HomeClient({
       <div className="relative z-20 -mt-[10svh]">
         <WaveDivider />
 
-        <section ref={brandRef} className="relative z-30 overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
+        <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
           <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-start">
             <div className="sm:pt-[0.2em] text-center lg:text-left">
@@ -1472,13 +1472,13 @@ export default function HomeClient({
           </div>
           </div>
         </section>
-        <WaveDivider className="bg-[#006bb6]" backFill="#ffffff" frontFill="#ffffff" />
+        <WaveDivider className="-mt-px bg-[#006bb6]" backFill="#ffffff" frontFill="#ffffff" />
       </div>
 
       {/* ══════════════════════════════════════════
           HORIZONTAL SCROLL — pinned panels
       ══════════════════════════════════════════ */}
-      <div className="relative z-30 bg-white pt-10 sm:pt-14 lg:pt-16">
+      <div className="relative z-30 -mt-px bg-white pt-10 sm:pt-14 lg:pt-16">
       <HorizontalScrollSection
         data={horizontalScroll}
         pageLoaded={pageLoaded}
