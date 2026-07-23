@@ -138,7 +138,7 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
         }}
       />
 
-      <div className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-6 pt-[env(safe-area-inset-top)] sm:px-10 lg:px-16">
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* ── Logo ── */}

@@ -1332,7 +1332,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <section ref={heroSectionRef} className="sticky top-0 min-h-screen flex items-end overflow-hidden lg:items-center">
+      <section ref={heroSectionRef} className="sticky top-0 min-h-[100svh] flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-white" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';

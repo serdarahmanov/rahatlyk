@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { notFound } from 'next/navigation';
 import '../../globals.css';
@@ -64,6 +64,12 @@ function resolveOgImage(value: unknown): string | null {
     ? (value as { url: string }).url || null
     : null
 }
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 export async function generateMetadata({
   params,
