@@ -68,7 +68,6 @@ function resolveOgImage(value: unknown): string | null {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  viewportFit: 'cover',
   themeColor: '#ffffff',
 };
 
