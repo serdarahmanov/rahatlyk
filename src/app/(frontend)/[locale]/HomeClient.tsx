@@ -92,27 +92,6 @@ function requestScrollTriggerRefresh() {
   window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
 }
 
-/* ── Stable viewport height ──────────────────────────────────────────
-   Some mobile browsers (Chrome specifically, unlike Safari) don't hold
-   `svh`/`lvh` still while the toolbar animates — they visibly resize the
-   box mid-scroll, defeating the point of using those units for pinned
-   sections. window.innerHeight is read once (at the earliest, most
-   toolbar-expanded moment) and frozen here; it's only re-read on a real
-   resize (width change / orientation change), never on a height-only
-   change caused by the toolbar collapsing. */
-let stableViewportHeightPx = 0;
-
-function stableViewportHeight() {
-  if (typeof window === 'undefined') return 0;
-  if (!stableViewportHeightPx) stableViewportHeightPx = window.innerHeight;
-  return stableViewportHeightPx;
-}
-
-function refreshStableViewportHeight() {
-  if (typeof window === 'undefined') return;
-  stableViewportHeightPx = window.innerHeight;
-}
-
 /* ── Helpers ──────────────────────────────────────────────────────── */
 function pauseVideo(video: HTMLVideoElement | null) {
   if (!video) return;
@@ -163,9 +142,11 @@ function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
 const HorizontalScrollSection = memo(function HorizontalScrollSection({
   data,
   pageLoaded,
+  viewportHeight,
 }: {
   data: HorizontalScrollData;
   pageLoaded: boolean;
+  viewportHeight: number;
 }) {
   const { locale } = useLanguage();
   const containerRef   = useRef<HTMLDivElement>(null);
@@ -224,8 +205,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
 
       if (!mounted || !containerRef.current || !trackRef.current) return;
 
-      containerRef.current.style.height = `${stableViewportHeight()}px`;
-
       const track = trackRef.current;
       gsap.set(track, { x: 0 });
 
@@ -251,8 +230,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
         const widthChanged = Math.abs(width - lastWidth) > 1;
         if (width >= 768 || widthChanged) {
           lastWidth = width;
-          refreshStableViewportHeight();
-          if (containerRef.current) containerRef.current.style.height = `${stableViewportHeight()}px`;
           ScrollTrigger.refresh();
         }
       };
@@ -274,6 +251,15 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       ctx?.revert();
     };
   }, []);
+
+  // viewportHeight is measured once per HomeClient mount (not module-level,
+  // so a fresh SPA visit to Home re-measures instead of reusing a value from
+  // a previous, possibly stale, visit) and re-applied whenever it changes.
+  useEffect(() => {
+    if (containerRef.current && viewportHeight) {
+      containerRef.current.style.height = `${viewportHeight}px`;
+    }
+  }, [viewportHeight]);
 
   return (
     <div ref={containerRef} className="overflow-hidden bg-amber-300 py-7" style={{ height: '100svh' }}>
@@ -475,10 +461,12 @@ const CollectionsSection = memo(function CollectionsSection({
   lines,
   sectionTag,
   exploreLabel,
+  viewportHeight,
 }: {
   lines: PayloadProductLine[];
   sectionTag: string;
   exploreLabel: string;
+  viewportHeight: number;
 }) {
   const { locale } = useLanguage();
   const sectionRef   = useRef<HTMLDivElement>(null);
@@ -499,13 +487,16 @@ const CollectionsSection = memo(function CollectionsSection({
     const headerH = header ? header.offsetHeight : 0;
     const isMobile = window.innerWidth < 768;
 
-    // stableViewportHeight() is frozen on first read rather than resolved live
-    // via CSS svh/lvh, so this stays constant on mobile browsers (Chrome, unlike
+    if (!viewportHeight) return;
+
+    // viewportHeight is measured once per HomeClient mount (not module-level,
+    // so a fresh SPA visit to Home re-measures instead of reusing a value from
+    // a previous, possibly stale, visit) rather than resolved live via CSS
+    // svh/lvh, so this stays constant on mobile browsers (Chrome, unlike
     // Safari) that don't hold those units still while the toolbar animates.
-    const viewportH = stableViewportHeight();
-    const h = viewportH - headerH;
+    const h = viewportHeight - headerH;
     const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
-    const sectionH = isMobile ? viewportH : h;
+    const sectionH = isMobile ? viewportHeight : h;
 
     sectionRef.current.style.height = `${sectionH}px`;
     sectionRef.current.style.setProperty('--col-h', `${h}px`);
@@ -514,7 +505,7 @@ const CollectionsSection = memo(function CollectionsSection({
     if (textRef.current) {
       textRef.current.style.paddingTop = isMobile ? '' : `${Math.round(h * 0.12)}px`;
     }
-  }, []);
+  }, [viewportHeight]);
 
   useLayoutEffect(() => {
     if (textRef.current) textRef.current.style.opacity = '0';
@@ -532,7 +523,6 @@ const CollectionsSection = memo(function CollectionsSection({
       const widthChanged = Math.abs(width - lastWidth) > 1;
       if (width < 768 && !widthChanged) return;
       lastWidth = width;
-      refreshStableViewportHeight();
       recalculateLayout();
       requestScrollTriggerRefresh();
     };
@@ -1030,6 +1020,13 @@ export default function HomeClient({
   const { t, locale } = useLanguage();
 
   const [pageLoaded, setPageLoaded] = useState(false);
+  // Measured once per HomeClient mount (component state, not module-level)
+  // so a fresh SPA visit to Home re-measures instead of reusing a value
+  // from a previous, possibly stale, visit.
+  const [homeViewportHeight, setHomeViewportHeight] = useState(0);
+  useLayoutEffect(() => {
+    setHomeViewportHeight(window.innerHeight);
+  }, []);
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
   const heroSubRef      = useRef<HTMLParagraphElement>(null);
@@ -1088,9 +1085,10 @@ export default function HomeClient({
       const widthChanged = Math.abs(width - lastWidth) > 1;
       if (!force && width < 768 && !widthChanged) return;
       lastWidth = width;
-      refreshStableViewportHeight();
+      const nextHeight = window.innerHeight;
+      setHomeViewportHeight(nextHeight);
       if (heroSectionRef.current) {
-        heroSectionRef.current.style.minHeight = `${stableViewportHeight()}px`;
+        heroSectionRef.current.style.minHeight = `${nextHeight}px`;
       }
       requestScrollTriggerRefresh();
     };
@@ -1518,6 +1516,7 @@ export default function HomeClient({
       <HorizontalScrollSection
         data={horizontalScroll}
         pageLoaded={pageLoaded}
+        viewportHeight={homeViewportHeight}
       />
 
       {/* ══════════════════════════════════════════
@@ -1527,6 +1526,7 @@ export default function HomeClient({
         lines={lines}
         sectionTag={t.home.categories.sectionTag}
         exploreLabel={t.home.categories.explore}
+        viewportHeight={homeViewportHeight}
       />
 
       {/* ══════════════════════════════════════════
