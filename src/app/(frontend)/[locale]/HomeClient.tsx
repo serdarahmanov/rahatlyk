@@ -257,7 +257,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   }, []);
 
   return (
-    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: 'var(--home-vh, 100lvh)' }}>
+    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: '100lvh' }}>
       <div
         ref={trackRef}
         className="flex h-full gap-4 px-4"
@@ -646,11 +646,7 @@ const CollectionsSection = memo(function CollectionsSection({
       const pin = ScrollTrigger.create({
         trigger:          sectionRef.current!,
         pin:              true,
-        start:            () => {
-          const headerEl = document.querySelector('header');
-          const headerH  = headerEl ? headerEl.offsetHeight : 0;
-          return `top top+=${headerH}`;
-        },
+        start:            "top top",
         end:              () => `+=${Math.round(homeViewportHeight() * 0.35)}`,
         pinSpacing:       true,
         invalidateOnRefresh: true,

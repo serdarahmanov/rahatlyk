@@ -9,10 +9,10 @@ export default function SmoothScroll() {
 
   useEffect(() => {
     let cancelled = false;
-    let frame = 0;
     let lenisInstance: LenisType | null = null;
     let scrollTriggerUpdate: (() => void) | null = null;
     let refreshScrollTrigger: (() => void) | null = null;
+    let removeTicker: (() => void) | null = null;
 
     const onScrollTop = () => {
       if (lenisInstance) {
@@ -30,7 +30,10 @@ export default function SmoothScroll() {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduceMotion || cancelled) return;
 
-      const { default: Lenis } = await import('lenis');
+      const [{ default: Lenis }, { gsap }] = await Promise.all([
+        import('lenis'),
+        import('gsap'),
+      ]);
       if (cancelled) return;
 
       const lenis = new Lenis({
@@ -58,12 +61,12 @@ export default function SmoothScroll() {
         scrollTriggerUpdate?.();
       });
 
-      const raf = (time: number) => {
-        lenis.raf(time);
-        frame = requestAnimationFrame(raf);
+      const lenisTick = (time: number) => {
+        lenis.raf(time * 1000);
       };
-
-      frame = requestAnimationFrame(raf);
+      gsap.ticker.add(lenisTick);
+      gsap.ticker.lagSmoothing(0);
+      removeTicker = () => gsap.ticker.remove(lenisTick);
     };
 
     run();
@@ -72,7 +75,7 @@ export default function SmoothScroll() {
       cancelled = true;
       window.removeEventListener('scroll-to-top', onScrollTop);
       window.removeEventListener('refresh-scroll-triggers', onRefresh);
-      cancelAnimationFrame(frame);
+      removeTicker?.();
       lenisInstance?.destroy();
     };
   }, [pathname]);
