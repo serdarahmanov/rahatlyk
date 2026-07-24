@@ -107,11 +107,15 @@ export default function PageIntro() {
       body.style.touchAction        = previous.touchAction;
       body.style.overscrollBehavior = previous.overscrollBehavior;
       window.scrollTo({ top: scrollY, left: 0, behavior: 'auto' });
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
-        });
-      });
+      // No global `refresh-scroll-triggers` dispatch here: scroll was locked
+      // at position 0 the whole time (nothing below the fold could have
+      // shifted), and Hero/HorizontalScrollSection/Collections each already
+      // refresh their own ScrollTrigger on mount regardless of intro state.
+      // A global ScrollTrigger.refresh() re-measures every pin on the page
+      // (several here) synchronously on one thread — on Safari specifically
+      // that's expensive enough to visibly block scroll and even native SVG
+      // animation for several seconds, which is worse than the staleness
+      // it was guarding against.
     };
 
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
