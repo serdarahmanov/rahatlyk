@@ -74,23 +74,39 @@ export default function PageIntro() {
       pollTimer = window.setTimeout(done, POLL_MS);
     });
 
+  // Locks scroll via `position: fixed` on <body> rather than toggling
+  // `overflow: hidden`. iOS Safari tears down its native scroll view when
+  // overflow goes to hidden and has to asynchronously rebuild/re-arm it when
+  // it's released — that rebuild isn't reliably synced to the style change,
+  // which is what causes scroll to stay dead for a few seconds (or longer)
+  // after unlocking, or occasionally not re-arm for an in-flight gesture at
+  // all. Pinning via position:fixed never tears the scroll view down in the
+  // first place, so there's nothing to rebuild on unlock. Chrome doesn't
+  // need this — its compositor doesn't have the same teardown/rebuild cycle.
   useEffect(() => {
     if (!shouldPlay) return;
 
-    const html = document.documentElement;
     const body = document.body;
     const previous = {
-      htmlOverflow: html.style.overflow,
-      bodyOverflow: body.style.overflow,
-      bodyTouchAction: body.style.touchAction,
-      bodyOverscrollBehavior: body.style.overscrollBehavior,
+      position:           body.style.position,
+      top:                body.style.top,
+      left:               body.style.left,
+      right:              body.style.right,
+      width:              body.style.width,
+      touchAction:        body.style.touchAction,
+      overscrollBehavior: body.style.overscrollBehavior,
     };
 
     const unlock = () => {
-      html.style.overflow = previous.htmlOverflow;
-      body.style.overflow = previous.bodyOverflow;
-      body.style.touchAction = previous.bodyTouchAction;
-      body.style.overscrollBehavior = previous.bodyOverscrollBehavior;
+      const scrollY = -Number.parseInt(body.style.top || '0', 10);
+      body.style.position           = previous.position;
+      body.style.top                = previous.top;
+      body.style.left               = previous.left;
+      body.style.right              = previous.right;
+      body.style.width              = previous.width;
+      body.style.touchAction        = previous.touchAction;
+      body.style.overscrollBehavior = previous.overscrollBehavior;
+      window.scrollTo({ top: scrollY, left: 0, behavior: 'auto' });
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
@@ -100,9 +116,13 @@ export default function PageIntro() {
 
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     window.dispatchEvent(new CustomEvent('scroll-to-top'));
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
-    body.style.touchAction = 'none';
+    const scrollY = window.scrollY;
+    body.style.position           = 'fixed';
+    body.style.top                = `${-scrollY}px`;
+    body.style.left               = '0';
+    body.style.right              = '0';
+    body.style.width              = '100%';
+    body.style.touchAction        = 'none';
     body.style.overscrollBehavior = 'none';
     window.addEventListener('page-intro-complete', unlock, { once: true });
 
