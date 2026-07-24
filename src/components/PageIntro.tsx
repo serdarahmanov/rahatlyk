@@ -211,7 +211,7 @@ export default function PageIntro() {
   return (
     <div
       ref={curtainRef}
-      style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100lvh', zIndex: 9999, background: '#0c3a52', overflow: 'hidden' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0c3a52', overflow: 'hidden' }}
     >
       {/* ── Fresh water gradient ── */}
       <div className="pointer-events-none absolute inset-0">
