@@ -251,7 +251,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   }, []);
 
   return (
-    <div ref={containerRef} className="overflow-hidden bg-amber-300 py-7" style={{ height: '100lvh' }}>
+    <div ref={containerRef} className="overflow-hidden bg-amber-300 py-7" style={{ height: '100svh' }}>
       <div
         ref={trackRef}
         className="flex h-full gap-4 px-4"
@@ -474,13 +474,13 @@ const CollectionsSection = memo(function CollectionsSection({
     const headerH = header ? header.offsetHeight : 0;
     const isMobile = window.innerWidth < 768;
 
-    // 100lvh is resolved natively by the browser (same as Hero/HorizontalScrollSection)
+    // 100svh is resolved natively by the browser (same as Hero/HorizontalScrollSection)
     // instead of read from window.innerHeight, so it stays constant while the
     // mobile toolbar shows/hides mid-scroll.
     sectionRef.current.style.setProperty('--header-h', `${headerH}px`);
-    sectionRef.current.style.setProperty('--col-h', 'calc(100lvh - var(--header-h))');
+    sectionRef.current.style.setProperty('--col-h', 'calc(100svh - var(--header-h))');
     sectionRef.current.style.setProperty('--bottle-h', `calc(var(--col-h) * ${isMobile ? 0.5 : 0.8})`);
-    sectionRef.current.style.height = isMobile ? '100lvh' : 'var(--col-h)';
+    sectionRef.current.style.height = isMobile ? '100svh' : 'var(--col-h)';
 
     if (textRef.current) {
       textRef.current.style.paddingTop = isMobile ? '' : 'calc(var(--col-h) * 0.12)';
@@ -1334,7 +1334,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <section ref={heroSectionRef} className="relative min-h-[100lvh] flex items-end overflow-hidden lg:items-center">
+      <section ref={heroSectionRef} className="relative min-h-[100svh] flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-amber-300" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
