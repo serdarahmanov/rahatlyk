@@ -1020,13 +1020,12 @@ export default function HomeClient({
   const { t, locale } = useLanguage();
 
   const [pageLoaded, setPageLoaded] = useState(false);
-  // Measured once per HomeClient mount (component state, not module-level)
-  // so a fresh SPA visit to Home re-measures instead of reusing a value
-  // from a previous, possibly stale, visit.
-  const [homeViewportHeight, setHomeViewportHeight] = useState(0);
-  useLayoutEffect(() => {
-    setHomeViewportHeight(window.innerHeight);
-  }, []);
+  // Lazy initializer runs exactly once per mount (component state, not
+  // module-level), so a fresh SPA visit to Home re-measures instead of
+  // reusing a value from a previous, possibly stale, visit.
+  const [homeViewportHeight, setHomeViewportHeight] = useState(() =>
+    typeof window !== 'undefined' ? window.innerHeight : 0
+  );
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
   const heroSubRef      = useRef<HTMLParagraphElement>(null);
