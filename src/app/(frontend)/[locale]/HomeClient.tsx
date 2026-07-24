@@ -1014,6 +1014,7 @@ export default function HomeClient({
   const brandLabelRef   = useRef<HTMLSpanElement>(null);
   const brandTextRef    = useRef<HTMLParagraphElement>(null);
   const heroSectionRef  = useRef<HTMLElement>(null);
+  const heroWrapperRef  = useRef<HTMLDivElement>(null);
   const heroReadyImagesRef = useRef<Set<string>>(new Set());
   const heroImagesReadyRef = useRef(false);
   const heroParallaxReadyRef = useRef(false);
@@ -1223,8 +1224,8 @@ export default function HomeClient({
 
       const setupHeroFade = () => {
         const heroContent = document.getElementById('hero-content');
-        const heroSection = heroContent?.closest('section');
-        if (!heroContent || !heroSection) return;
+        const heroWrapper = heroWrapperRef.current;
+        if (!heroContent || !heroWrapper) return;
 
         const tween = gsap.fromTo(
           heroContent,
@@ -1234,7 +1235,7 @@ export default function HomeClient({
             ease: 'none',
             immediateRender: false,
             scrollTrigger: {
-              trigger: heroSection,
+              trigger: heroWrapper,
               start: 'top+=80 top',
               end: 'top+=420 top',
               scrub: true,
@@ -1273,7 +1274,7 @@ export default function HomeClient({
               ease: 'none',
               immediateRender: false,
               scrollTrigger: {
-                trigger: heroSectionRef.current,
+                trigger: heroWrapperRef.current,
                 start: 'top top',
                 end: 'bottom top',
                 scrub: true,
@@ -1325,6 +1326,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
+      <div ref={heroWrapperRef}>
       <section ref={heroSectionRef} className="sticky top-0 min-h-[100lvh] flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-amber-300" />
         {heroImages.map((image, index) => {
@@ -1420,6 +1422,7 @@ export default function HomeClient({
           <span>{hero.ctaLabel || t.home.hero.contactCta}</span>
         </Link>
       </section>
+      </div>
 
       {/* ══════════════════════════════════════════
           BRAND STATEMENT
