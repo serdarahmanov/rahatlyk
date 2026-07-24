@@ -1014,7 +1014,6 @@ export default function HomeClient({
   const brandLabelRef   = useRef<HTMLSpanElement>(null);
   const brandTextRef    = useRef<HTMLParagraphElement>(null);
   const heroSectionRef  = useRef<HTMLElement>(null);
-  const heroWrapperRef  = useRef<HTMLDivElement>(null);
   const heroReadyImagesRef = useRef<Set<string>>(new Set());
   const heroImagesReadyRef = useRef(false);
   const heroParallaxReadyRef = useRef(false);
@@ -1215,17 +1214,19 @@ export default function HomeClient({
 
   // ── Scroll-triggered animations ─────────────────────────────────
   useEffect(() => {
+    let cancelled = false;
     const cleanupFns: (() => void)[] = [];
 
     const init = async () => {
       const { gsap }          = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
 
       const setupHeroFade = () => {
         const heroContent = document.getElementById('hero-content');
-        const heroWrapper = heroWrapperRef.current;
-        if (!heroContent || !heroWrapper) return;
+        const heroSection = heroSectionRef.current;
+        if (!heroContent || !heroSection) return;
 
         const tween = gsap.fromTo(
           heroContent,
@@ -1235,7 +1236,7 @@ export default function HomeClient({
             ease: 'none',
             immediateRender: false,
             scrollTrigger: {
-              trigger: heroWrapper,
+              trigger: heroSection,
               start: 'top+=80 top',
               end: 'top+=420 top',
               scrub: true,
@@ -1259,6 +1260,15 @@ export default function HomeClient({
       }
 
       if (heroSectionRef.current) {
+        const heroPin = ScrollTrigger.create({
+          trigger: heroSectionRef.current,
+          pin: true,
+          start: 'top top',
+          end: 'bottom top',
+          pinSpacing: false,
+        });
+        cleanupFns.push(() => heroPin.kill());
+
         const layers = heroSectionRef.current.querySelectorAll<HTMLElement>('[data-hero-parallax-layer]');
         layers.forEach((layer, index) => {
           const isBottle = layer.dataset.heroLayer === 'bottle';
@@ -1274,7 +1284,7 @@ export default function HomeClient({
               ease: 'none',
               immediateRender: false,
               scrollTrigger: {
-                trigger: heroWrapperRef.current,
+                trigger: heroSectionRef.current,
                 start: 'top top',
                 end: 'bottom top',
                 scrub: true,
@@ -1318,7 +1328,10 @@ export default function HomeClient({
     };
 
     init();
-    return () => { cleanupFns.forEach((fn) => fn()); };
+    return () => {
+      cancelled = true;
+      cleanupFns.forEach((fn) => fn());
+    };
   }, [heroImages, markHomeHeroReady]);
 
   return (
@@ -1326,8 +1339,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <div ref={heroWrapperRef}>
-      <section ref={heroSectionRef} className="sticky top-0 min-h-[100lvh] flex items-end overflow-hidden lg:items-center">
+      <section ref={heroSectionRef} className="relative min-h-[100lvh] flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-amber-300" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
@@ -1422,7 +1434,6 @@ export default function HomeClient({
           <span>{hero.ctaLabel || t.home.hero.contactCta}</span>
         </Link>
       </section>
-      </div>
 
       {/* ══════════════════════════════════════════
           BRAND STATEMENT
