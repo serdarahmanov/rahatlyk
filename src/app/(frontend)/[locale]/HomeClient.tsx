@@ -87,11 +87,6 @@ const HERO_SPLASH_PARALLAX = [
   { x: -8, y: -40, rotate: 9, scale: 1.18 },
 ];
 
-function homeViewportHeight() {
-  if (typeof window === 'undefined') return 0;
-  return window.innerHeight;
-}
-
 function requestScrollTriggerRefresh() {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
@@ -477,21 +472,18 @@ const CollectionsSection = memo(function CollectionsSection({
     if (!sectionRef.current) return;
     const header = document.querySelector('header');
     const headerH = header ? header.offsetHeight : 0;
-    const viewportH = homeViewportHeight();
-    const h = viewportH - headerH;
     const isMobile = window.innerWidth < 768;
-    const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
-    const sectionH = isMobile ? viewportH : h;
-    sectionRef.current.style.height = `${sectionH}px`;
-    sectionRef.current.style.setProperty('--col-h', `${h}px`);
-    sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
+
+    // 100lvh is resolved natively by the browser (same as Hero/HorizontalScrollSection)
+    // instead of read from window.innerHeight, so it stays constant while the
+    // mobile toolbar shows/hides mid-scroll.
+    sectionRef.current.style.setProperty('--header-h', `${headerH}px`);
+    sectionRef.current.style.setProperty('--col-h', 'calc(100lvh - var(--header-h))');
+    sectionRef.current.style.setProperty('--bottle-h', `calc(var(--col-h) * ${isMobile ? 0.5 : 0.8})`);
+    sectionRef.current.style.height = isMobile ? '100lvh' : 'var(--col-h)';
+
     if (textRef.current) {
-      if (!isMobile) {
-        const bottleTopPx = sectionH - sectionH * 0.08 - bottleH;
-        textRef.current.style.paddingTop = `${bottleTopPx}px`;
-      } else {
-        textRef.current.style.paddingTop = '';
-      }
+      textRef.current.style.paddingTop = isMobile ? '' : 'calc(var(--col-h) * 0.12)';
     }
   }, []);
 
