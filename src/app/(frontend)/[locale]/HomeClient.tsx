@@ -1259,22 +1259,29 @@ export default function HomeClient({
         setupHeroFade();
       }
 
-      if (heroSectionRef.current) {
-        const heroPin = ScrollTrigger.create({
-          trigger: heroSectionRef.current,
-          pin: true,
-          start: 'top top',
-          end: 'bottom top',
-          pinSpacing: false,
-        });
-        cleanupFns.push(() => heroPin.kill());
+      const heroSection = heroSectionRef.current;
 
-        const layers = heroSectionRef.current.querySelectorAll<HTMLElement>('[data-hero-parallax-layer]');
+      if (heroSection) {
+        const layers = heroSection.querySelectorAll<HTMLElement>('[data-hero-parallax-layer]');
+
+        const heroTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: heroSection,
+            start: 'top top',
+            end: () => `+=${heroSection.offsetHeight}`,
+            pin: true,
+            pinSpacing: false,
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+
         layers.forEach((layer, index) => {
           const isBottle = layer.dataset.heroLayer === 'bottle';
           const isMobileBottle = isBottle && window.innerWidth < 640;
           const splash = HERO_SPLASH_PARALLAX[index % HERO_SPLASH_PARALLAX.length];
-          const tween = gsap.to(
+
+          heroTimeline.to(
             layer,
             {
               xPercent: isBottle ? (isMobileBottle ? -8 : -2.5) : splash.x,
@@ -1282,19 +1289,14 @@ export default function HomeClient({
               rotate: isBottle ? (isMobileBottle ? -3 : -1.5) : splash.rotate,
               scale: isBottle ? (isMobileBottle ? 1.06 : 1.025) : splash.scale,
               ease: 'none',
-              immediateRender: false,
-              scrollTrigger: {
-                trigger: heroSectionRef.current,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: true,
-                invalidateOnRefresh: true,
-              },
             },
+            0,
           );
+        });
 
-          cleanupFns.push(() => tween.scrollTrigger?.kill());
-          cleanupFns.push(() => tween.kill());
+        cleanupFns.push(() => {
+          heroTimeline.scrollTrigger?.kill();
+          heroTimeline.kill();
         });
 
         requestAnimationFrame(() => {
