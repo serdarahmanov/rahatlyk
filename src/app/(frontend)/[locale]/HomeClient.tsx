@@ -92,6 +92,27 @@ function requestScrollTriggerRefresh() {
   window.dispatchEvent(new CustomEvent('refresh-scroll-triggers'));
 }
 
+/* ── Stable viewport height ──────────────────────────────────────────
+   Some mobile browsers (Chrome specifically, unlike Safari) don't hold
+   `svh`/`lvh` still while the toolbar animates — they visibly resize the
+   box mid-scroll, defeating the point of using those units for pinned
+   sections. window.innerHeight is read once (at the earliest, most
+   toolbar-expanded moment) and frozen here; it's only re-read on a real
+   resize (width change / orientation change), never on a height-only
+   change caused by the toolbar collapsing. */
+let stableViewportHeightPx = 0;
+
+function stableViewportHeight() {
+  if (typeof window === 'undefined') return 0;
+  if (!stableViewportHeightPx) stableViewportHeightPx = window.innerHeight;
+  return stableViewportHeightPx;
+}
+
+function refreshStableViewportHeight() {
+  if (typeof window === 'undefined') return;
+  stableViewportHeightPx = window.innerHeight;
+}
+
 /* ── Helpers ──────────────────────────────────────────────────────── */
 function pauseVideo(video: HTMLVideoElement | null) {
   if (!video) return;
@@ -203,6 +224,8 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
 
       if (!mounted || !containerRef.current || !trackRef.current) return;
 
+      containerRef.current.style.height = `${stableViewportHeight()}px`;
+
       const track = trackRef.current;
       gsap.set(track, { x: 0 });
 
@@ -228,6 +251,8 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
         const widthChanged = Math.abs(width - lastWidth) > 1;
         if (width >= 768 || widthChanged) {
           lastWidth = width;
+          refreshStableViewportHeight();
+          if (containerRef.current) containerRef.current.style.height = `${stableViewportHeight()}px`;
           ScrollTrigger.refresh();
         }
       };
@@ -474,16 +499,20 @@ const CollectionsSection = memo(function CollectionsSection({
     const headerH = header ? header.offsetHeight : 0;
     const isMobile = window.innerWidth < 768;
 
-    // 100svh is resolved natively by the browser (same as Hero/HorizontalScrollSection)
-    // instead of read from window.innerHeight, so it stays constant while the
-    // mobile toolbar shows/hides mid-scroll.
-    sectionRef.current.style.setProperty('--header-h', `${headerH}px`);
-    sectionRef.current.style.setProperty('--col-h', 'calc(100svh - var(--header-h))');
-    sectionRef.current.style.setProperty('--bottle-h', `calc(var(--col-h) * ${isMobile ? 0.5 : 0.8})`);
-    sectionRef.current.style.height = isMobile ? '100svh' : 'var(--col-h)';
+    // stableViewportHeight() is frozen on first read rather than resolved live
+    // via CSS svh/lvh, so this stays constant on mobile browsers (Chrome, unlike
+    // Safari) that don't hold those units still while the toolbar animates.
+    const viewportH = stableViewportHeight();
+    const h = viewportH - headerH;
+    const bottleH = Math.round(h * (isMobile ? 0.5 : 0.8));
+    const sectionH = isMobile ? viewportH : h;
+
+    sectionRef.current.style.height = `${sectionH}px`;
+    sectionRef.current.style.setProperty('--col-h', `${h}px`);
+    sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
 
     if (textRef.current) {
-      textRef.current.style.paddingTop = isMobile ? '' : 'calc(var(--col-h) * 0.12)';
+      textRef.current.style.paddingTop = isMobile ? '' : `${Math.round(h * 0.12)}px`;
     }
   }, []);
 
@@ -503,6 +532,7 @@ const CollectionsSection = memo(function CollectionsSection({
       const widthChanged = Math.abs(width - lastWidth) > 1;
       if (width < 768 && !widthChanged) return;
       lastWidth = width;
+      refreshStableViewportHeight();
       recalculateLayout();
       requestScrollTriggerRefresh();
     };
@@ -1058,6 +1088,10 @@ export default function HomeClient({
       const widthChanged = Math.abs(width - lastWidth) > 1;
       if (!force && width < 768 && !widthChanged) return;
       lastWidth = width;
+      refreshStableViewportHeight();
+      if (heroSectionRef.current) {
+        heroSectionRef.current.style.minHeight = `${stableViewportHeight()}px`;
+      }
       requestScrollTriggerRefresh();
     };
 
