@@ -413,14 +413,14 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           ScrollTrigger.create({
             trigger: section,
             start: 'top top',
-            end: () => '+=' + window.innerHeight * 2.5,
+            end: () => '+=' + section.offsetHeight * 2.5,
             pin: true,
             invalidateOnRefresh: true,
           });
 
           const paras = Array.from(section.querySelectorAll<HTMLElement>('[data-video-para]'));
           if (paras.length === 3) {
-            const vh = window.innerHeight;
+            const vh = section.offsetHeight;
 
             // Para 0 centre sits at the viewport bottom edge when pin starts,
             // so its top edge is exactly at the fold — enters the instant user scrolls.
@@ -436,7 +436,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             ScrollTrigger.create({
               trigger: section,
               start: 'top top',
-              end: () => '+=' + window.innerHeight * 2.5,
+              end: () => '+=' + section.offsetHeight * 2.5,
               animation: tl,
               scrub: true,
               invalidateOnRefresh: true,

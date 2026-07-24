@@ -89,9 +89,7 @@ const HERO_SPLASH_PARALLAX = [
 
 function homeViewportHeight() {
   if (typeof window === 'undefined') return 0;
-  const value = window.getComputedStyle(document.documentElement).getPropertyValue('--home-vh');
-  const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : window.innerHeight;
+  return window.innerHeight;
 }
 
 function requestScrollTriggerRefresh() {
@@ -257,7 +255,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   }, []);
 
   return (
-    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: '100lvh' }}>
+    <div ref={containerRef} className="overflow-hidden bg-amber-300 py-7" style={{ height: '100lvh' }}>
       <div
         ref={trackRef}
         className="flex h-full gap-4 px-4"
@@ -647,7 +645,7 @@ const CollectionsSection = memo(function CollectionsSection({
         trigger:          sectionRef.current!,
         pin:              true,
         start:            "top top",
-        end:              () => `+=${Math.round(homeViewportHeight() * 0.35)}`,
+        end:              () => `+=${Math.round((sectionRef.current?.offsetHeight ?? 0) * 0.35)}`,
         pinSpacing:       true,
         invalidateOnRefresh: true,
         onRefreshInit:    recalculateLayout,
@@ -1062,20 +1060,19 @@ export default function HomeClient({
   useEffect(() => {
     let lastWidth = window.innerWidth;
 
-    const setViewportHeight = (force = false) => {
+    const refreshOnResize = (force = false) => {
       const width = window.innerWidth;
       const widthChanged = Math.abs(width - lastWidth) > 1;
       if (!force && width < 768 && !widthChanged) return;
       lastWidth = width;
-      document.documentElement.style.setProperty('--home-vh', `${window.innerHeight}px`);
       requestScrollTriggerRefresh();
     };
 
-    const handleResize = () => setViewportHeight(false);
-    const handleOrientationChange = () => setViewportHeight(true);
+    const handleResize = () => refreshOnResize(false);
+    const handleOrientationChange = () => refreshOnResize(true);
     const refresh = () => requestScrollTriggerRefresh();
 
-    setViewportHeight(true);
+    refreshOnResize(true);
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleOrientationChange);
     window.addEventListener('smooth-scroll-ready', refresh);
@@ -1278,7 +1275,7 @@ export default function HomeClient({
               scrollTrigger: {
                 trigger: heroSectionRef.current,
                 start: 'top top',
-                end: () => `+=${Math.round(homeViewportHeight())}`,
+                end: 'bottom top',
                 scrub: true,
                 invalidateOnRefresh: true,
               },
@@ -1329,7 +1326,7 @@ export default function HomeClient({
           HERO
       ══════════════════════════════════════════ */}
       <section ref={heroSectionRef} className="sticky top-0 min-h-[100lvh] flex items-end overflow-hidden lg:items-center">
-        <div className="absolute inset-0 bg-white" />
+        <div className="absolute inset-0 bg-amber-300" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
           const splash = HERO_SPLASH_PARALLAX[index % HERO_SPLASH_PARALLAX.length];
