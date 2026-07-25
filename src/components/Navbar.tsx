@@ -114,6 +114,22 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
 
   return (
     <>
+    {/* Safe-area top strip — its own fixed layer, deliberately NOT a child of
+        <header>. The header slides off-screen (translateY(-100%)) on downward
+        scroll on hero pages, which would carry this strip away with it and
+        leave the notch/Dynamic Island region uncovered right as pinned
+        sections scroll into place. Keying only off `showHeaderPanel` (scrolled)
+        instead of `scrolledUp` (direction) keeps it visible for as long as
+        you're scrolled past the top, independent of header visibility. */}
+    <div
+      className="fixed inset-x-0 top-0 z-50 h-[env(safe-area-inset-top)] bg-[#fafaf8]/85 backdrop-blur-[12px]"
+      style={{
+        opacity: showHeaderPanel ? 1 : 0,
+        transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1)',
+      }}
+    />
+
     <header
       className="fixed top-0 left-0 right-0 z-50"
       style={isHeroPage ? {
@@ -126,18 +142,6 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
         opacity: 1,
       }}
     >
-
-      {/* Safe-area top strip — dedicated layer so the notch/Dynamic Island region
-          always gets the same background, independent of the main panel below.
-          Must mirror its visibility state exactly, or the two get out of sync. */}
-      <div
-        className="absolute inset-x-0 top-0 z-0 h-[env(safe-area-inset-top)] bg-[#fafaf8]/85 backdrop-blur-[12px]"
-        style={{
-          opacity: showHeaderPanel ? 1 : 0,
-          transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
-          transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1)',
-        }}
-      />
 
       {/* Background panel — slides down from above instead of fading in */}
       <div
