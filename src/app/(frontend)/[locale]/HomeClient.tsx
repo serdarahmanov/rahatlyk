@@ -280,6 +280,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   return (
     <div
       ref={containerRef}
+      data-debug-pin="horizontal-scroll"
       className="overflow-hidden bg-white py-7"
       style={{ height: '100svh', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)' }}
     >
@@ -775,6 +776,7 @@ const CollectionsSection = memo(function CollectionsSection({
   return (
     <div
       ref={sectionRef}
+      data-debug-pin="collections"
       className="relative overflow-hidden bg-white"
       style={{ touchAction: 'pan-y', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)' }}
       onTouchStart={handleTouchStart}

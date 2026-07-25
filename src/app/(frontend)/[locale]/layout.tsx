@@ -14,6 +14,7 @@ import NavigationProgress from '@/components/NavigationProgress'
 import PageIntro from '@/components/PageIntro';
 import ScrollReset from '@/components/ScrollReset';
 import SmoothScroll from '@/components/SmoothScroll';
+import ViewportDebugOverlay from '@/components/ViewportDebugOverlay';
 
 const nexaText = localFont({
   variable: '--font-inter',
@@ -215,6 +216,7 @@ export default async function RootLayout({
           <SocialLinksProvider>
             <ScrollReset />
             <SmoothScroll />
+            <ViewportDebugOverlay />
             <NavigationProgress />
             <PageIntro />
             <Navbar labels={navigationLabels} />
