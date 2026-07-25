@@ -217,7 +217,6 @@ export default function PageIntro() {
         ease:      'power4.inOut',
         onStart: () => {
           window.__pageIntroDone = true;
-          window.dispatchEvent(new CustomEvent('page-intro-done'));
 
           // Unlock scroll as the slide starts rather than waiting for onComplete.
           // The slide itself can keep animating on the compositor thread even if
@@ -233,6 +232,7 @@ export default function PageIntro() {
         },
         onComplete: () => {
           curtain.style.display = 'none';
+          window.dispatchEvent(new CustomEvent('page-intro-done'));
         },
       }, '-=0.05');
     };
