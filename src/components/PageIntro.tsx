@@ -217,6 +217,7 @@ export default function PageIntro() {
         ease:      'power4.inOut',
         onStart: () => {
           window.__pageIntroDone = true;
+          window.dispatchEvent(new CustomEvent('page-intro-done'));
 
           // Unlock scroll as the slide starts rather than waiting for onComplete.
           // The slide itself can keep animating on the compositor thread even if
@@ -225,14 +226,15 @@ export default function PageIntro() {
           // thread that can delay unlocking well past when the curtain is
           // visually gone, which is exactly the "page revealed but scroll still
           // dead" symptom. Firing here removes that dependency.
+          
+
           requestAnimationFrame(() => {
+                window.setTimeout(() => {
+            curtain.style.display = 'none';
+              }, 950);
             window.__pageIntroWillPlay = false;
             window.dispatchEvent(new CustomEvent('page-intro-complete'));
           });
-        },
-        onComplete: () => {
-          curtain.style.display = 'none';
-          window.dispatchEvent(new CustomEvent('page-intro-done'));
         },
       }, '-=0.05');
     };
