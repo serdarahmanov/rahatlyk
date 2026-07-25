@@ -64,10 +64,13 @@ export default function SmoothScroll() {
         refreshScrollTrigger = () => ScrollTrigger.refresh();
 
         // Only on touch devices, where Lenis is skipped (see above) — normalizeScroll
-        // is GSAP's own fix for mobile-browser scroll/viewport quirks (including the
-        // toolbar-driven resize behavior behind the pin jump we fixed with
-        // pinType:'transform'), but it takes over scroll itself, so it must not run
-        // alongside Lenis, which is already doing that on desktop.
+        // is GSAP's own fix for mobile-browser scroll/viewport quirks, but it takes
+        // over scroll itself, so it must not run alongside Lenis, which is already
+        // doing that on desktop. Pins are measured once when they engage and then
+        // held fixed (ignoreMobileResize above stops ScrollTrigger from re-measuring
+        // every time the toolbar shows/hides), so the safe-area padding on the pinned
+        // sections is what keeps their content clear of the Dynamic Island — not a
+        // live re-measurement.
         if (isTouchDevice) {
           ScrollTrigger.normalizeScroll(true);
         }
