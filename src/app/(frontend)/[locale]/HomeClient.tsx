@@ -227,7 +227,13 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             // leaves exactly one smoothing layer instead of two competing ones.
             scrub:               true,
             invalidateOnRefresh: true,
-            anticipatePin:       1,
+            // anticipatePin estimates scroll velocity to pre-engage the pin
+            // just before its start point, avoiding a flash right at the
+            // transition — but that estimate assumes native/inertia scrolling.
+            // Lenis (desktop-only) drives ScrollTrigger.update() off its own
+            // already-eased scroll ticks instead, so the velocity GSAP sees
+            // here isn't the real input — which showed up as a one-time
+            // snap right at pin engagement. Dropping it removes that mismatch.
           },
         });
       });
