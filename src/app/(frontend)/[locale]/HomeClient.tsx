@@ -22,6 +22,7 @@ declare global {
   interface Window {
     __pageIntroDone?: boolean;
     __homeHeroCoverReady?: boolean;
+    __homeHeroReadyAndPainted?: boolean;
     __pageIntroWillPlay?: boolean;
   }
 }
@@ -1061,6 +1062,7 @@ export default function HomeClient({
       heroParallaxReadyRef.current = false;
       heroReadyDispatchedRef.current = false;
       window.__homeHeroCoverReady = false;
+      window.__homeHeroReadyAndPainted = false;
 
       setHeroRequiredImages(nextRequiredImages);
       setHeroImages(nextHeroImages);
@@ -1120,7 +1122,9 @@ export default function HomeClient({
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         window.__homeHeroCoverReady = true;
+        window.__homeHeroReadyAndPainted = true;
         window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
+        window.dispatchEvent(new CustomEvent('home-hero-ready-and-painted'));
       });
     });
   }, []);

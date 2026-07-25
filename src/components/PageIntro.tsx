@@ -7,6 +7,7 @@ declare global {
   interface Window {
     __pageIntroDone?: boolean;
     __homeHeroCoverReady?: boolean;
+    __homeHeroReadyAndPainted?: boolean;
     __pageIntroWillPlay?: boolean;
   }
 }
@@ -21,7 +22,10 @@ export default function PageIntro() {
     const play = relativePath === '/' && !(typeof window !== 'undefined' && window.__pageIntroDone);
     if (typeof window !== 'undefined') {
       window.__pageIntroWillPlay = play;
-      if (play) window.__homeHeroCoverReady = false;
+      if (play) {
+        window.__homeHeroCoverReady = false;
+        window.__homeHeroReadyAndPainted = false;
+      }
     }
     return play;
   });
@@ -30,32 +34,17 @@ export default function PageIntro() {
   const logoRef      = useRef<HTMLSpanElement>(null);
   const progressRef  = useRef<HTMLDivElement>(null);
 
-  const waitForHeroImages = () =>
+  const waitForHeroReadyAndPainted = () =>
     new Promise<void>((resolve) => {
       const LOAD_CAP_MS = 15000;
-      const POLL_MS = 80;
-      const startedAt = performance.now();
-
-      const areImagesReady = () => {
-        const images = Array.from(document.querySelectorAll<HTMLImageElement>('[data-hero-image-file]'));
-        return images.length === 0 || images.every((image) => image.complete && image.naturalWidth > 0);
-      };
-
-      let pollTimer = 0;
       let capTimer = 0;
 
       const cleanup = () => {
-        window.clearTimeout(pollTimer);
         window.clearTimeout(capTimer);
-        window.removeEventListener('home-hero-cover-ready', done);
+        window.removeEventListener('home-hero-ready-and-painted', done);
       };
 
       const done = () => {
-        if (!areImagesReady() && performance.now() - startedAt < LOAD_CAP_MS) {
-          pollTimer = window.setTimeout(done, POLL_MS);
-          return;
-        }
-
         cleanup();
         resolve();
       };
@@ -65,13 +54,12 @@ export default function PageIntro() {
         resolve();
       }, LOAD_CAP_MS);
 
-      if (areImagesReady()) {
+      if (window.__homeHeroReadyAndPainted) {
         done();
         return;
       }
 
-      window.addEventListener('home-hero-cover-ready', done, { once: true });
-      pollTimer = window.setTimeout(done, POLL_MS);
+      window.addEventListener('home-hero-ready-and-painted', done, { once: true });
     });
 
   // Locks scroll via `position: fixed` on <body> rather than toggling
@@ -174,7 +162,7 @@ export default function PageIntro() {
       //   2. minimum hold — intro always shows for at least MIN_TOTAL_MS from
       //      navigation start, with a floor of MIN_AFTER_READY_MS after the
       //      locale became ready (in case resources load unusually fast)
-      await waitForHeroImages();
+      await waitForHeroReadyAndPainted();
       window.__homeHeroCoverReady = true;
 
       await new Promise<void>((resolve) => {
@@ -229,12 +217,12 @@ export default function PageIntro() {
           
 
           requestAnimationFrame(() => {
-                window.setTimeout(() => {
-            curtain.style.display = 'none';
-              }, 950);
             window.__pageIntroWillPlay = false;
             window.dispatchEvent(new CustomEvent('page-intro-complete'));
           });
+        },
+        onComplete: () => {
+          curtain.style.display = 'none';
         },
       }, '-=0.05');
     };
