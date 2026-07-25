@@ -1058,14 +1058,21 @@ export default function HomeClient({
   const [heroRequiredImages, setHeroRequiredImages] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
+    let frame = 0;
+    const markReady = () => {
+      frame = requestAnimationFrame(() => setScrollReady(true));
+    };
+
     if (window.__smoothScrollReady) {
-      setScrollReady(true);
-      return;
+      markReady();
+      return () => cancelAnimationFrame(frame);
     }
 
-    const handleReady = () => setScrollReady(true);
-    window.addEventListener('smooth-scroll-ready', handleReady, { once: true });
-    return () => window.removeEventListener('smooth-scroll-ready', handleReady);
+    window.addEventListener('smooth-scroll-ready', markReady, { once: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('smooth-scroll-ready', markReady);
+    };
   }, []);
 
   useEffect(() => {
@@ -1145,7 +1152,7 @@ export default function HomeClient({
         window.dispatchEvent(new CustomEvent('home-hero-ready-and-painted'));
       });
     });
-  }, [scrollReady]);
+  }, []);
 
   const markHeroImageReady = useCallback((fileName: string) => {
     if (!heroRequiredImages.has(fileName)) return;
