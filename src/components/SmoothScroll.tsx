@@ -4,12 +4,6 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import type LenisType from 'lenis';
 
-declare global {
-  interface Window {
-    __smoothScrollReady?: boolean;
-  }
-}
-
 export default function SmoothScroll() {
   const pathname = usePathname();
 
@@ -19,7 +13,6 @@ export default function SmoothScroll() {
     let scrollTriggerUpdate: (() => void) | null = null;
     let refreshScrollTrigger: (() => void) | null = null;
     let removeTicker: (() => void) | null = null;
-    window.__smoothScrollReady = false;
 
     const onScrollTop = () => {
       if (lenisInstance) {
@@ -60,7 +53,6 @@ export default function SmoothScroll() {
         requestAnimationFrame(() => {
           if (cancelled) return;
           ScrollTrigger.refresh();
-          window.__smoothScrollReady = true;
           window.dispatchEvent(new CustomEvent('smooth-scroll-ready'));
         });
       });
@@ -81,7 +73,6 @@ export default function SmoothScroll() {
 
     return () => {
       cancelled = true;
-      window.__smoothScrollReady = false;
       window.removeEventListener('scroll-to-top', onScrollTop);
       window.removeEventListener('refresh-scroll-triggers', onRefresh);
       removeTicker?.();

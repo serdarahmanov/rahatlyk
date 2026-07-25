@@ -6,7 +6,6 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import type { TouchEvent as ReactTouchEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import WaveDivider from '@/components/WaveDivider';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { formatDate } from '@/lib/formatDate';
 import { localizePublicHref, withLocale } from '@/lib/i18n/locale';
@@ -24,7 +23,6 @@ declare global {
     __homeHeroCoverReady?: boolean;
     __homeHeroReadyAndPainted?: boolean;
     __pageIntroWillPlay?: boolean;
-    __smoothScrollReady?: boolean;
   }
 }
 
@@ -145,12 +143,10 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   data,
   pageLoaded,
   viewportHeight,
-  scrollReady,
 }: {
   data: HorizontalScrollData;
   pageLoaded: boolean;
   viewportHeight: number;
-  scrollReady: boolean;
 }) {
   const { locale } = useLanguage();
   const containerRef   = useRef<HTMLDivElement>(null);
@@ -196,7 +192,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   }, [data]);
 
   useEffect(() => {
-    if (!scrollReady) return;
     let mounted = true;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ctx: any;
@@ -467,13 +462,11 @@ const CollectionsSection = memo(function CollectionsSection({
   sectionTag,
   exploreLabel,
   viewportHeight,
-  scrollReady,
 }: {
   lines: PayloadProductLine[];
   sectionTag: string;
   exploreLabel: string;
   viewportHeight: number;
-  scrollReady: boolean;
 }) {
   const { locale } = useLanguage();
   const sectionRef   = useRef<HTMLDivElement>(null);
@@ -542,7 +535,6 @@ const CollectionsSection = memo(function CollectionsSection({
   }, [locale, lines, sectionTag, exploreLabel, recalculateLayout]);
 
   useEffect(() => {
-    if (!scrollReady) return;
     let firstRaf = 0;
     let secondRaf = 0;
     let cancelled = false;
@@ -560,7 +552,7 @@ const CollectionsSection = memo(function CollectionsSection({
       cancelAnimationFrame(firstRaf);
       cancelAnimationFrame(secondRaf);
     };
-  }, [locale, lines, sectionTag, exploreLabel, recalculateLayout, scrollReady]);
+  }, [locale, lines, sectionTag, exploreLabel, recalculateLayout]);
 
   const applyProgress = (pos: number) => {
     const w    = window.innerWidth;
@@ -614,7 +606,6 @@ const CollectionsSection = memo(function CollectionsSection({
   useEffect(() => { applyProgress(0); }, []);
 
   useEffect(() => {
-    if (!scrollReady) return;
     let cleanup: (() => void) | null = null;
     let cancelled = false;
     const init = async () => {
@@ -689,7 +680,7 @@ const CollectionsSection = memo(function CollectionsSection({
       cancelled = true;
       cleanup?.();
     };
-  }, [recalculateLayout, scrollReady]);
+  }, [recalculateLayout]);
 
   useEffect(() => {
     if (isFirstRun.current) { isFirstRun.current = false; return; }
@@ -1035,9 +1026,6 @@ export default function HomeClient({
   const [homeViewportHeight, setHomeViewportHeight] = useState(() =>
     typeof window !== 'undefined' ? window.innerHeight : 0
   );
-  const [scrollReady, setScrollReady] = useState(() =>
-    typeof window !== 'undefined' ? !!window.__smoothScrollReady : false
-  );
   const titleLine1Ref   = useRef<HTMLDivElement>(null);
   const titleLine2Ref   = useRef<HTMLDivElement>(null);
   const heroSubRef      = useRef<HTMLParagraphElement>(null);
@@ -1056,24 +1044,6 @@ export default function HomeClient({
   const heroMobileBottleSrc = getHeroAssetSet(hero).mobileBottleSrc;
   const [heroImages, setHeroImages] = useState<HeroImageAsset[]>([]);
   const [heroRequiredImages, setHeroRequiredImages] = useState<Set<string>>(() => new Set());
-
-  useEffect(() => {
-    let frame = 0;
-    const markReady = () => {
-      frame = requestAnimationFrame(() => setScrollReady(true));
-    };
-
-    if (window.__smoothScrollReady) {
-      markReady();
-      return () => cancelAnimationFrame(frame);
-    }
-
-    window.addEventListener('smooth-scroll-ready', markReady, { once: true });
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('smooth-scroll-ready', markReady);
-    };
-  }, []);
 
   useEffect(() => {
     let lastIsMobile: boolean | null = null;
@@ -1267,7 +1237,6 @@ export default function HomeClient({
 
   // ── Scroll-triggered animations ─────────────────────────────────
   useEffect(() => {
-    if (!scrollReady) return;
     let cancelled = false;
     const cleanupFns: (() => void)[] = [];
 
@@ -1388,7 +1357,7 @@ export default function HomeClient({
       cancelled = true;
       cleanupFns.forEach((fn) => fn());
     };
-  }, [heroImages, markHomeHeroReady, scrollReady]);
+  }, [heroImages, markHomeHeroReady]);
 
   return (
     <div>
@@ -1495,7 +1464,6 @@ export default function HomeClient({
           BRAND STATEMENT
       ══════════════════════════════════════════ */}
       <div className="relative z-20 -mt-[10svh]">
-        <WaveDivider />
 
         <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
           <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-10">
@@ -1535,7 +1503,6 @@ export default function HomeClient({
           </div>
           </div>
         </section>
-        <WaveDivider className="-mt-px bg-[#006bb6]" backFill="#ffffff" frontFill="#ffffff" />
       </div>
 
       {/* ══════════════════════════════════════════
@@ -1546,7 +1513,6 @@ export default function HomeClient({
         data={horizontalScroll}
         pageLoaded={pageLoaded}
         viewportHeight={homeViewportHeight}
-        scrollReady={scrollReady}
       />
 
       {/* ══════════════════════════════════════════
@@ -1557,7 +1523,6 @@ export default function HomeClient({
         sectionTag={t.home.categories.sectionTag}
         exploreLabel={t.home.categories.explore}
         viewportHeight={homeViewportHeight}
-        scrollReady={scrollReady}
       />
 
       {/* ══════════════════════════════════════════
