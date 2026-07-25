@@ -220,7 +220,12 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             start:               'top top',
             end:                 () => `+=${track.scrollWidth - window.innerWidth}`,
             pin:                 true,
-            scrub:               1,
+            // true (not a duration like 1) — Lenis already eases the scroll
+            // position itself on desktop; a second, independent catch-up delay
+            // here on top of that stacked visibly as the track lagging behind
+            // and snapping into place. Syncing directly to scroll progress
+            // leaves exactly one smoothing layer instead of two competing ones.
+            scrub:               true,
             invalidateOnRefresh: true,
             anticipatePin:       1,
           },
