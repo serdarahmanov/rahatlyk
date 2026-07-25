@@ -281,8 +281,8 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
     <div
       ref={containerRef}
       data-debug-pin="horizontal-scroll"
-      className="overflow-hidden bg-white py-7"
-      style={{ height: '100svh', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)' }}
+      className="overflow-hidden bg-white pb-7"
+      style={{ height: '100svh', boxSizing: 'border-box', paddingTop: 'calc(1.75rem + env(safe-area-inset-top))' }}
     >
       <div
         ref={trackRef}
