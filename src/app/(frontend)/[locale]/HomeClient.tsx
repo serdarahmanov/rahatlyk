@@ -6,6 +6,7 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import type { TouchEvent as ReactTouchEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import WaveDivider from '@/components/WaveDivider';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { formatDate } from '@/lib/formatDate';
 import { localizePublicHref, withLocale } from '@/lib/i18n/locale';
@@ -86,6 +87,8 @@ const HERO_SPLASH_PARALLAX = [
   { x: 18, y: -33, rotate: -7, scale: 1.15 },
   { x: -8, y: -40, rotate: 9, scale: 1.18 },
 ];
+
+const DISABLE_HOME_HERO_FOR_TEST = true;
 
 function requestScrollTriggerRefresh() {
   if (typeof window === 'undefined') return;
@@ -1049,6 +1052,24 @@ export default function HomeClient({
     let lastIsMobile: boolean | null = null;
 
     const syncHeroImagesForViewport = () => {
+      if (DISABLE_HOME_HERO_FOR_TEST) {
+        heroReadyImagesRef.current.clear();
+        heroImagesReadyRef.current = true;
+        heroParallaxReadyRef.current = true;
+        heroReadyDispatchedRef.current = true;
+        window.__homeHeroCoverReady = true;
+        window.__homeHeroReadyAndPainted = true;
+        setHeroRequiredImages(new Set());
+        setHeroImages([]);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.dispatchEvent(new CustomEvent('home-hero-cover-ready'));
+            window.dispatchEvent(new CustomEvent('home-hero-ready-and-painted'));
+          });
+        });
+        return;
+      }
+
       const isMobile = window.innerWidth < 640;
       if (isMobile === lastIsMobile) return;
       lastIsMobile = isMobile;
@@ -1364,6 +1385,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
+      {!DISABLE_HOME_HERO_FOR_TEST && (
       <section ref={heroSectionRef} className="relative min-h-[100svh] flex items-end overflow-hidden lg:items-center">
         <div className="absolute inset-0 bg-amber-300" />
         {heroImages.map((image, index) => {
@@ -1459,11 +1481,13 @@ export default function HomeClient({
           <span>{hero.ctaLabel || t.home.hero.contactCta}</span>
         </Link>
       </section>
+      )}
 
       {/* ══════════════════════════════════════════
           BRAND STATEMENT
       ══════════════════════════════════════════ */}
-      <div className="relative z-20 -mt-[10svh]">
+      <div className={`relative z-20 ${DISABLE_HOME_HERO_FOR_TEST ? '' : '-mt-[10svh]'}`}>
+        <WaveDivider />
 
         <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
           <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-10">
@@ -1503,6 +1527,7 @@ export default function HomeClient({
           </div>
           </div>
         </section>
+        <WaveDivider className="-mt-px bg-[#006bb6]" backFill="#ffffff" frontFill="#ffffff" />
       </div>
 
       {/* ══════════════════════════════════════════
