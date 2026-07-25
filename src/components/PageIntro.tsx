@@ -218,11 +218,21 @@ export default function PageIntro() {
         onStart: () => {
           window.__pageIntroDone = true;
           window.dispatchEvent(new CustomEvent('page-intro-done'));
+
+          // Unlock scroll as the slide starts rather than waiting for onComplete.
+          // The slide itself can keep animating on the compositor thread even if
+          // the main thread is busy, but onComplete is a JS callback that has to
+          // wait in line behind whatever's occupying it — on a congested main
+          // thread that can delay unlocking well past when the curtain is
+          // visually gone, which is exactly the "page revealed but scroll still
+          // dead" symptom. Firing here removes that dependency.
+          requestAnimationFrame(() => {
+            window.__pageIntroWillPlay = false;
+            window.dispatchEvent(new CustomEvent('page-intro-complete'));
+          });
         },
         onComplete: () => {
-          window.__pageIntroWillPlay = false;
           curtain.style.display = 'none';
-          window.dispatchEvent(new CustomEvent('page-intro-complete'));
         },
       }, '-=0.05');
     };
