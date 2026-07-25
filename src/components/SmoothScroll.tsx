@@ -13,6 +13,7 @@ export default function SmoothScroll() {
     let scrollTriggerUpdate: (() => void) | null = null;
     let refreshScrollTrigger: (() => void) | null = null;
     let removeTicker: (() => void) | null = null;
+    let removeVisualViewportListener: (() => void) | null = null;
 
     const onScrollTop = () => {
       if (lenisInstance) {
@@ -66,13 +67,36 @@ export default function SmoothScroll() {
         // Only on touch devices, where Lenis is skipped (see above) — normalizeScroll
         // is GSAP's own fix for mobile-browser scroll/viewport quirks, but it takes
         // over scroll itself, so it must not run alongside Lenis, which is already
-        // doing that on desktop. Pins are measured once when they engage and then
-        // held fixed (ignoreMobileResize above stops ScrollTrigger from re-measuring
-        // every time the toolbar shows/hides), so the safe-area padding on the pinned
-        // sections is what keeps their content clear of the Dynamic Island — not a
-        // live re-measurement.
+        // doing that on desktop.
         if (isTouchDevice) {
           ScrollTrigger.normalizeScroll(true);
+
+          // ignoreMobileResize (above) stops ScrollTrigger from refreshing on every
+          // toolbar show/hide, which is right for most resizes — a blanket refresh
+          // there would recalculate every ScrollTrigger on the page, not just the
+          // pins that need it, and doing that mid-scroll is its own source of jank.
+          // But it also means a pin's fixed `top` offset can go stale against the
+          // real viewport once the (Safari bottom-bar-driven) resize actually
+          // settles. Rather than a global refresh, tell just the affected pins to
+          // re-sync themselves: debounce past the resize burst (the toolbar
+          // animation fires many resize events in a row) and dispatch a scoped
+          // event once it's quiet, which HomeClient's own pins listen for and
+          // refresh individually.
+          if (window.visualViewport) {
+            const vv = window.visualViewport;
+            let debounceId: ReturnType<typeof setTimeout> | null = null;
+            const onVisualViewportResize = () => {
+              if (debounceId) clearTimeout(debounceId);
+              debounceId = setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('viewport-toolbar-settled'));
+              }, 150);
+            };
+            vv.addEventListener('resize', onVisualViewportResize);
+            removeVisualViewportListener = () => {
+              if (debounceId) clearTimeout(debounceId);
+              vv.removeEventListener('resize', onVisualViewportResize);
+            };
+          }
         }
 
         requestAnimationFrame(() => {
@@ -103,6 +127,7 @@ export default function SmoothScroll() {
       window.removeEventListener('scroll-to-top', onScrollTop);
       window.removeEventListener('refresh-scroll-triggers', onRefresh);
       removeTicker?.();
+      removeVisualViewportListener?.();
       lenisInstance?.destroy();
     };
   }, [pathname]);

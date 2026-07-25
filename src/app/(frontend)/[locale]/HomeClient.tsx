@@ -199,7 +199,10 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ctx: any;
     let removeResize: (() => void) | null = null;
+    let removeViewportSettled: (() => void) | null = null;
     let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let pinTrigger: any = null;
 
     const init = async () => {
       const { gsap }          = await import('gsap');
@@ -212,7 +215,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       gsap.set(track, { x: 0 });
 
       ctx = gsap.context(() => {
-        gsap.to(track, {
+        const tween = gsap.to(track, {
           x:    () => -(track.scrollWidth - window.innerWidth),
           ease: 'none',
           scrollTrigger: {
@@ -225,6 +228,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             anticipatePin:       1,
           },
         });
+        pinTrigger = tween.scrollTrigger;
       });
 
       const handleResize = () => {
@@ -239,6 +243,14 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       window.addEventListener('resize', handleResize);
       removeResize = () => window.removeEventListener('resize', handleResize);
 
+      // Fired by SmoothScroll once the mobile toolbar's show/hide resize burst
+      // settles (ignoreMobileResize otherwise leaves this pin's fixed offset
+      // stale against the new viewport). Refresh just this pin, not the whole
+      // page, to avoid the cost of a global ScrollTrigger.refresh() mid-scroll.
+      const onViewportSettled = () => { if (mounted) pinTrigger?.refresh(); };
+      window.addEventListener('viewport-toolbar-settled', onViewportSettled);
+      removeViewportSettled = () => window.removeEventListener('viewport-toolbar-settled', onViewportSettled);
+
       requestAnimationFrame(() => {
         if (!mounted) return;
         requestAnimationFrame(() => {
@@ -251,6 +263,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
     return () => {
       mounted = false;
       removeResize?.();
+      removeViewportSettled?.();
       ctx?.revert();
     };
   }, []);
@@ -680,7 +693,18 @@ const CollectionsSection = memo(function CollectionsSection({
         onLeaveBack:  () => hidePinProgress('top'),
       });
 
-      cleanup = () => { pin.kill(); st.kill(); };
+      // Fired by SmoothScroll once the mobile toolbar's show/hide resize burst
+      // settles (ignoreMobileResize otherwise leaves this pin's fixed offset
+      // stale against the new viewport). Refresh just this pin, not the whole
+      // page, to avoid the cost of a global ScrollTrigger.refresh() mid-scroll.
+      const onViewportSettled = () => { if (!cancelled) pin.refresh(); };
+      window.addEventListener('viewport-toolbar-settled', onViewportSettled);
+
+      cleanup = () => {
+        window.removeEventListener('viewport-toolbar-settled', onViewportSettled);
+        pin.kill();
+        st.kill();
+      };
     };
     init();
     return () => {
