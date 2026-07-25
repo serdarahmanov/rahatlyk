@@ -88,7 +88,7 @@ const HERO_SPLASH_PARALLAX = [
   { x: -8, y: -40, rotate: 9, scale: 1.18 },
 ];
 
-const DISABLE_HOME_HERO_FOR_TEST = true;
+const DISABLE_HOME_HERO_FOR_TEST = false;
 
 function requestScrollTriggerRefresh() {
   if (typeof window === 'undefined') return;
@@ -1451,11 +1451,6 @@ export default function HomeClient({
             </div>
           );
         })}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-[3] w-full overflow-hidden">
-          <div className="absolute inset-y-[-10%] left-[-22%] w-[64%] bg-white/24 blur-[48px]" />
-          <div className="absolute inset-y-[-14%] left-[-28%] w-[48%] bg-white/36 blur-[84px]" />
-          <div className="absolute inset-y-[-18%] left-[-34%] w-[34%] bg-white/50 blur-[120px]" />
-        </div>
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 sm:pb-20 lg:pb-0">
           <div id="hero-content" className="max-w-2xl">
             <div className="text-5xl sm:text-6xl lg:text-7xl font-light text-black leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
