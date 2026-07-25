@@ -220,7 +220,6 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             start:               'top top',
             end:                 () => `+=${track.scrollWidth - window.innerWidth}`,
             pin:                 true,
-            pinType:             'transform',
             scrub:               1,
             invalidateOnRefresh: true,
             anticipatePin:       1,
@@ -661,7 +660,6 @@ const CollectionsSection = memo(function CollectionsSection({
       const pin = ScrollTrigger.create({
         trigger:          sectionRef.current!,
         pin:              true,
-        pinType:          'transform',
         start:            "top top",
         end:              () => `+=${Math.round((sectionRef.current?.offsetHeight ?? 0) * 0.35)}`,
         pinSpacing:       true,
@@ -1316,7 +1314,6 @@ export default function HomeClient({
             start: 'top top',
             end: () => `+=${heroSection.offsetHeight}`,
             pin: true,
-            pinType: 'transform',
             pinSpacing: false,
             scrub: true,
             invalidateOnRefresh: true,
