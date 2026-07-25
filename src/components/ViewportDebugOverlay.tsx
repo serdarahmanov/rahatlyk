@@ -17,13 +17,13 @@ function readSafeAreaInsetTop(): number {
 }
 
 export default function ViewportDebugOverlay() {
-  const [enabled, setEnabled] = useState(false);
+  // Lazy initializer (not an effect) — only ever true when a developer opts
+  // in via the query param, so the mismatch between the (always-false) SSR
+  // pass and this client read is harmless for real users.
+  const [enabled] = useState(() =>
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug-viewport')
+  );
   const [lines, setLines] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    setEnabled(new URLSearchParams(window.location.search).has('debug-viewport'));
-  }, []);
 
   useEffect(() => {
     if (!enabled) return;
