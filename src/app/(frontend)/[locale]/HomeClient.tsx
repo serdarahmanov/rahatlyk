@@ -1464,7 +1464,7 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           BRAND STATEMENT
       ══════════════════════════════════════════ */}
-      <div className="relative z-20 -mt-[10svh]">
+      <div className="relative z-20">
         <WaveDivider />
 
         <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
