@@ -265,7 +265,11 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   }, [viewportHeight]);
 
   return (
-    <div ref={containerRef} className="overflow-hidden bg-white py-7" style={{ height: '100svh' }}>
+    <div
+      ref={containerRef}
+      className="overflow-hidden bg-white py-7"
+      style={{ height: '100svh', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)' }}
+    >
       <div
         ref={trackRef}
         className="flex h-full gap-4 px-4"
@@ -748,7 +752,7 @@ const CollectionsSection = memo(function CollectionsSection({
     <div
       ref={sectionRef}
       className="relative overflow-hidden bg-white"
-      style={{ touchAction: 'pan-y' }}
+      style={{ touchAction: 'pan-y', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -1386,7 +1390,11 @@ export default function HomeClient({
           HERO
       ══════════════════════════════════════════ */}
       {!DISABLE_HOME_HERO_FOR_TEST && (
-      <section ref={heroSectionRef} className="relative min-h-[100svh] flex items-end overflow-hidden lg:items-center">
+      <section
+        ref={heroSectionRef}
+        className="relative min-h-[100svh] flex items-end overflow-hidden lg:items-center"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
         <div className="absolute inset-0 bg-amber-300" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
