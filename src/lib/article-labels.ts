@@ -14,6 +14,8 @@ export function getFallbackArticleLabels(locale: Locale): ArticleLabelsData {
     backToNewsLabel:     t.home.news.cta,
     moreArticlesHeading: t.news.moreArticles,
     noArticlesMessage:   t.vacancies.noCurrent,
+    paginationItemLabel: locale === 'ru' ? 'статей' : locale === 'tm' ? 'makala' : 'articles',
+    paginationSummary:   locale === 'tm' ? '{from}-{to} / {total} {label}' : locale === 'ru' ? '{from}–{to} из {total} {label}' : '{from}–{to} of {total} {label}',
   }
 }
 
@@ -28,5 +30,7 @@ export function resolveArticleLabels(locale: Locale, raw: ArticleLabelsRaw): Art
     backToNewsLabel:     raw?.backToNewsLabel     || fallback.backToNewsLabel,
     moreArticlesHeading: raw?.moreArticlesHeading || fallback.moreArticlesHeading,
     noArticlesMessage:   raw?.noArticlesMessage   || fallback.noArticlesMessage,
+    paginationItemLabel: raw?.paginationItemLabel || fallback.paginationItemLabel,
+    paginationSummary:   raw?.paginationSummary   || fallback.paginationSummary,
   }
 }

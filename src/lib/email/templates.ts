@@ -187,8 +187,11 @@ function hdrNotify(title: string, subtitle: string): string {
   </tr>`;
 }
 
+const FALLBACK_RIGHTS = '© 2025 RAHATLYK. All rights reserved.'
+
 /** Confirmation email footer — deep water gradient + white text. */
-function ftr(contact: EmailContactInfo = FALLBACK_CONTACT): string {
+function ftr(contact: EmailContactInfo = FALLBACK_CONTACT, rights?: string): string {
+  const rightsLine = rights?.trim() ? rights : FALLBACK_RIGHTS
   return `
   <tr>
     <td style="${WATER_GRADIENT};padding:32px 44px 36px">
@@ -198,7 +201,7 @@ function ftr(contact: EmailContactInfo = FALLBACK_CONTACT): string {
         <a href="mailto:${escapeHtml(contact.email)}" style="color:rgba(255,255,255,0.8);text-decoration:none">${escapeHtml(contact.email)}</a>
         &nbsp;&middot;&nbsp;${escapeHtml(contact.phone)}
       </p>
-      <p style="margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.5px">© 2025 RAHATLYK. All rights reserved.</p>
+      <p style="margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.5px">${escapeHtml(rightsLine)}</p>
     </td>
   </tr>`;
 }
@@ -243,9 +246,10 @@ export interface ContactConfirmationData {
   locale:    EmailLocale;
   contact?:  EmailContactInfo;
   templates?: EmailTemplateConfig | null;
+  footerRights?: string;
 }
 
-export function contactConfirmation({ firstName, lastName, email, subject, message, locale, contact, templates }: ContactConfirmationData): { subject: string; html: string } {
+export function contactConfirmation({ firstName, lastName, email, subject, message, locale, contact, templates, footerRights }: ContactConfirmationData): { subject: string; html: string } {
   const fallback = emailI18n[locale].contactConfirm;
   const payload = templates?.contactEmail?.confirmation;
   const safeFN      = escapeHtml(firstName);
@@ -295,7 +299,7 @@ export function contactConfirmation({ firstName, lastName, email, subject, messa
         </td>
       </tr>
       ${divider()}
-      ${ftr(contact)}
+      ${ftr(contact, footerRights)}
     `),
   };
 }
@@ -377,9 +381,10 @@ export interface VacancyConfirmationData {
   locale:       EmailLocale;
   contact?:     EmailContactInfo;
   templates?:   EmailTemplateConfig | null;
+  footerRights?: string;
 }
 
-export function vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact, templates }: VacancyConfirmationData): { subject: string; html: string } {
+export function vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancyUrl, locale, contact, templates, footerRights }: VacancyConfirmationData): { subject: string; html: string } {
   const fallback = emailI18n[locale].vacancyConfirm;
   const payload = templates?.vacancyEmail?.confirmation;
   const safeFN    = escapeHtml(firstName);
@@ -430,7 +435,7 @@ export function vacancyConfirmation({ firstName, lastName, vacancyTitle, vacancy
         </td>
       </tr>
       ${divider()}
-      ${ftr(contact)}
+      ${ftr(contact, footerRights)}
     `),
   };
 }

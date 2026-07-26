@@ -2,7 +2,7 @@ import fs from 'fs'
 import { createRequire } from 'node:module'
 import path from 'path'
 import { getPayload } from 'payload'
-import { PRODUCT_CATEGORIES, PRODUCTS_SEED } from './lib/data/products-payload'
+import { ALL_PRODUCTS_SEED, PRODUCT_CATEGORIES } from './lib/data/products-payload'
 
 const require = createRequire(import.meta.url)
 const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
@@ -98,9 +98,9 @@ async function seedProducts() {
   }
 
   // ── 2 · Products ──────────────────────────────────────────────────
-  console.log('\nSeeding products...')
+  console.log(`\nSeeding ${ALL_PRODUCTS_SEED.length} products...`)
 
-  for (const product of PRODUCTS_SEED) {
+  for (const product of ALL_PRODUCTS_SEED) {
     // ── Upload photos ──────────────────────────────────────────────
     const photoIds: number[] = []
 

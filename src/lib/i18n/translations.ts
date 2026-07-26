@@ -206,6 +206,18 @@ export const translations = {
       company: 'Company',
       rights: '© 2025 RAHATLYK. All rights reserved.',
     },
+    notFound: {
+      title: 'Page Not Found',
+      message: "We couldn't find the page you were looking for. It may have been moved, or the link might be outdated.",
+      cta: 'Back to Home',
+    },
+    error: {
+      label: 'Error',
+      title: 'Something Went Wrong',
+      message: "We're sorry — something unexpected happened on our end. Please try again, or head back to the home page.",
+      retry: 'Try Again',
+      cta: 'Back to Home',
+    },
   },
 
   ru: {
@@ -413,6 +425,18 @@ export const translations = {
       company: 'Компания',
       rights: '© 2025 RAHATLYK. Все права защищены.',
     },
+    notFound: {
+      title: 'Страница не найдена',
+      message: 'Мы не смогли найти страницу, которую вы искали. Возможно, она была перемещена, или ссылка устарела.',
+      cta: 'На главную',
+    },
+    error: {
+      label: 'Ошибка',
+      title: 'Что-то пошло не так',
+      message: 'Извините — на нашей стороне произошла непредвиденная ошибка. Пожалуйста, попробуйте снова или вернитесь на главную страницу.',
+      retry: 'Попробовать снова',
+      cta: 'На главную',
+    },
   },
 
   tm: {
@@ -619,6 +643,18 @@ export const translations = {
       quickLinks: 'Çalt baglantylar',
       company: 'Kompaniýa',
       rights: '© 2025 RAHATLYK. Ähli hukuklar goragly.',
+    },
+    notFound: {
+      title: 'Sahypa Tapylmady',
+      message: 'Gözlän sahypaňyzy tapyp bilmedik. Ol üýtgedilen bolmagy ýa-da salgysy köne bolmagy mümkin.',
+      cta: 'Baş sahypa',
+    },
+    error: {
+      label: 'Näsazlyk',
+      title: 'Näsazlyk Ýüze Çykdy',
+      message: 'Bagyşlaň — bizde garaşylmadyk näsazlyk ýüze çykdy. Gaýtadan synanyşyň ýa-da baş sahypa dolanyň.',
+      retry: 'Gaýtadan synanyş',
+      cta: 'Baş sahypa',
     },
   },
 };

@@ -13,6 +13,7 @@
     "seed:horizontal-scroll": "npx tsx src/seed-horizontal-scroll.ts",
     "seed:product-lines": "npx tsx src/seed-product-lines.ts",
     "seed:home-cta-banner": "npx tsx src/seed-home-cta-banner.ts",
+    "seed:home-brand-statement": "npx tsx src/seed-home-brand-statement.ts",
     "seed:products": "npx tsx src/seed-products.ts",
     "seed:news": "npx tsx src/seed-news.ts",
     "seed:vacancies": "npx tsx src/seed-vacancies.ts",
@@ -27,8 +28,12 @@
     "seed:product-labels": "npx tsx src/seed-product-detail-labels.ts",
     "seed:email-templates": "npx tsx src/seed-email-templates.ts",
     "seed:navigation-labels": "npx tsx src/seed-navigation-labels.ts",
+    "seed:footer": "npx tsx src/seed-footer.ts",
+    "seed:not-found-page": "npx tsx src/seed-not-found-page.ts",
+    "seed:error-page": "npx tsx src/seed-error-page.ts",
     "seed-product-detail-labels": "npx tsx src/seed-product-detail-labels.ts",
-    "seed:about-all": "npx tsx src/seed-about-hero.ts && npx tsx src/seed-about-who-we-are.ts && npx tsx src/seed-about-our-story.ts && npx tsx src/seed-about-numbers.ts && npx tsx src/seed-about-final-section.ts"
+    "seed:about-all": "npx tsx src/seed-about-hero.ts && npx tsx src/seed-about-who-we-are.ts && npx tsx src/seed-about-our-story.ts && npx tsx src/seed-about-numbers.ts && npx tsx src/seed-about-final-section.ts",
+    "remove:extra-products": "npx tsx src/remove-extra-products.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.1",

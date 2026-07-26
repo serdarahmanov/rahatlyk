@@ -22,6 +22,7 @@
 html {
   scroll-behavior: auto;
   scrollbar-gutter: stable;
+  scrollbar-color: #0c3a52 rgba(12, 58, 82, 0.08);
 }
 
 body {
@@ -139,19 +140,34 @@ body {
   animation: ripple 2.5s ease-out infinite;
 }
 
+/* ---- Image loading shimmer (product/vacancy/article cards) ---- */
+.img-shimmer {
+  overflow: hidden;
+  background: #eef0f2;
+}
+
+.img-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
 /* ---- Scrollbar ---- */
 ::-webkit-scrollbar {
   width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #f0e8d8;
+  background: rgba(12, 58, 82, 0.08);
 }
 ::-webkit-scrollbar-thumb {
-  background: #c8ad88;
+  background: #0c3a52;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #524030;
+  background: #051a2c;
 }
 
 /* ---- Navbar scrolled shadow ---- */
@@ -462,10 +478,7 @@ body {
 }
 
 .about-mosaic-grain {
-  opacity: 0.04;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 300px 300px;
+  display: none;
 }
 
 .about-mosaic-row {
@@ -586,10 +599,13 @@ body {
   display: inline-flex;
   align-items: baseline;
   justify-content: center;
+  min-width: 4ch;
   color: #fff;
   font-size: clamp(64px, 8vw, 110px);
   font-weight: 400;
+  font-variant-numeric: tabular-nums;
   line-height: 0.95;
+  text-align: center;
 }
 
 .about-mosaic-stat strong i {

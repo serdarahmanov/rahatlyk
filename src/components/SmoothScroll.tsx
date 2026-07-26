@@ -57,8 +57,9 @@ export default function SmoothScroll() {
         lenisInstance = lenis;
       }
 
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      import('gsap/ScrollTrigger').then(async ({ ScrollTrigger }) => {
         if (cancelled) return;
+        gsap.registerPlugin(ScrollTrigger);
         ScrollTrigger.config({ ignoreMobileResize: true });
         scrollTriggerUpdate = () => ScrollTrigger.update();
         refreshScrollTrigger = () => ScrollTrigger.refresh();
@@ -74,6 +75,14 @@ export default function SmoothScroll() {
         // pinned, which visibly shifted them. The safe-area padding on the pinned
         // sections is what keeps their content clear of the notch/Dynamic Island.
         if (isTouchDevice) {
+          // normalizeScroll() uses the Observer plugin internally — it must be
+          // registered explicitly (registering ScrollTrigger alone isn't enough)
+          // or Observer's internal gsap-core reference is unbound, which throws
+          // "Cannot read properties of undefined (reading 'utils')" from within
+          // GSAP's own Observer.js the moment normalizeScroll() runs.
+          const { Observer } = await import('gsap/Observer');
+          if (cancelled) return;
+          gsap.registerPlugin(Observer);
           ScrollTrigger.normalizeScroll(true);
         }
 

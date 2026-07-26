@@ -9,6 +9,7 @@ import { resolveVacancyLabels } from '@/lib/vacancy-labels'
 import type { VacancyFormStrings } from './VacancyDetailClient'
 import type { Locale } from '@/lib/i18n/translations'
 import {
+  getCachedNavigationLabels,
   getCachedVacancyDetail,
   getCachedVacancyStaticIDs,
 } from '@/lib/payload/cachedQueries'
@@ -131,6 +132,7 @@ export default async function VacancyDetailPage({ params }: Props) {
 
   const others = cached.others
   const labels = resolveVacancyLabels(locale, cached.vacancyLabels)
+  const navLabels = await getCachedNavigationLabels(locale).catch(() => null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const f: any = cached.forms
   const fe = f?.vacancyForm?.errors ?? {}
@@ -203,6 +205,7 @@ export default async function VacancyDetailPage({ params }: Props) {
       others={others.map(normalizeVacancy)}
       forms={forms}
       labels={labels}
+      navLabels={navLabels}
     />
   )
 }

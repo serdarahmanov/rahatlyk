@@ -80,13 +80,15 @@ export default function ContactPageClient({ hero, formLabels, formPlaceholders, 
   }, [formErrors]);
 
   const validateForm = () => {
+    const required = formMessages.errors.requiredFields;
+    const invalidEmail = formMessages.errors.emailInvalid;
     const errors: Record<string, string> = {};
-    if (!form.firstName.trim()) errors.firstName = 'First name is required';
-    if (!form.lastName.trim())  errors.lastName  = 'Last name is required';
-    if (!form.email.trim())     errors.email     = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = 'Please enter a valid email';
-    if (!form.subject.trim())   errors.subject   = 'Subject is required';
-    if (!form.message.trim())   errors.message   = 'Message is required';
+    if (!form.firstName.trim()) errors.firstName = required;
+    if (!form.lastName.trim())  errors.lastName  = required;
+    if (!form.email.trim())     errors.email     = required;
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = invalidEmail;
+    if (!form.subject.trim())   errors.subject   = required;
+    if (!form.message.trim())   errors.message   = required;
     return errors;
   };
 

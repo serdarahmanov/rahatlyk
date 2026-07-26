@@ -437,3 +437,57 @@ export const PRODUCTS_SEED: ProductSeedEntry[] = [
     volumes: ['10', '19'],
   },
 ]
+
+// ── Test-batch generator ─────────────────────────────────────────────
+// Produces extra product entries for pagination testing by re-labelling
+// copies of the real products above (new name/slug/date per copy) while
+// reusing the SAME photos/video/category/nutrition/volumes — no new media
+// files are required, since the seed script already dedupes uploads by
+// filename and will reuse the existing Media docs.
+
+function shiftDate(base: string, days: number): string {
+  const d = new Date(`${base}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
+function withSuffix(entry: ProductSeedEntry, suffix: string, dayOffset: number): ProductSeedEntry {
+  const suffixSlug = suffix.toLowerCase()
+  return {
+    ...entry,
+    nameEn: `${entry.nameEn} ${suffix}`,
+    slug: {
+      en: `${entry.slug.en}-${suffixSlug}`,
+      tm: `${entry.slug.tm}-${suffixSlug}`,
+      ru: `${entry.slug.ru}-${suffixSlug}`,
+    },
+    date: shiftDate(entry.date, dayOffset),
+    name: {
+      en: `${entry.name.en} ${suffix}`,
+      tm: `${entry.name.tm} ${suffix}`,
+      ru: `${entry.name.ru} ${suffix}`,
+    },
+  }
+}
+
+/** 21 extra test-batch products (roman-numeral suffixed copies) — brings the total to 30 for pagination testing. */
+export function buildTestBatchProducts(): ProductSeedEntry[] {
+  const batches: { suffix: string; count: number }[] = [
+    { suffix: 'II', count: 9 },
+    { suffix: 'III', count: 9 },
+    { suffix: 'IV', count: 3 },
+  ]
+
+  const result: ProductSeedEntry[] = []
+  let dayOffset = 1
+  for (const batch of batches) {
+    for (const entry of PRODUCTS_SEED.slice(0, batch.count)) {
+      result.push(withSuffix(entry, batch.suffix, dayOffset))
+      dayOffset += 1
+    }
+  }
+  return result
+}
+
+/** Real products + generated test batch — 30 total. Used by the seed script. */
+export const ALL_PRODUCTS_SEED: ProductSeedEntry[] = [...PRODUCTS_SEED, ...buildTestBatchProducts()]

@@ -11,6 +11,8 @@ export const OurCollection: GlobalConfig = {
     description: 'Manage the product collection carousel shown on the home page.',
   },
   fields: [
+    { name: 'sectionTag', type: 'text', localized: true, label: 'Section Tag' },
+    { name: 'exploreLabel', type: 'text', localized: true, label: 'Explore Button Label' },
     {
       name: 'items',
       type: 'array',

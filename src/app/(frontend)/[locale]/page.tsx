@@ -48,6 +48,10 @@ export default async function HomePage({ params }: Props) {
     : EMPTY_H_SCROLL
   const ctaBanner = data.ctaBanner ? normalizeHomeCtaBanner(data.ctaBanner) : EMPTY_CTA
   const hero = data.hero ? normalizeHomeHero(data.hero) : EMPTY_HERO
+  const brandHeading = data.brandStatement?.heading || null
+  const brandText = data.brandStatement?.text || null
+  const collectionSectionTag = data.collectionSectionTag || null
+  const collectionExploreLabel = data.collectionExploreLabel || null
 
   return (
     <HomeClient
@@ -55,6 +59,10 @@ export default async function HomePage({ params }: Props) {
       horizontalScroll={horizontalScroll}
       ctaBanner={ctaBanner}
       hero={hero}
+      collectionSectionTag={collectionSectionTag}
+      collectionExploreLabel={collectionExploreLabel}
+      brandHeading={brandHeading}
+      brandText={brandText}
     />
   )
 }

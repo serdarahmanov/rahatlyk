@@ -111,12 +111,25 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
   const [openMilestone, setOpenMilestone] = useState<number>(0);
   const [shouldLoadHeroVideo, setShouldLoadHeroVideo] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const [heroImageReady, setHeroImageReady] = useState(false);
   const [contentMediaReady, setContentMediaReady] = useState(false);
   const [activeHeroVideoUrl, setActiveHeroVideoUrl] = useState<string | null>(null);
   const [mosaicIndex, setMosaicIndex] = useState(0);
 
   const { locale } = useLanguage();
   const isFirstLocaleRef = useRef(true);
+
+  // Covers a client-side navigation (e.g. Link from another page) where the
+  // cover image isn't in the browser cache yet: without this, the <img> pops
+  // in abruptly once decoded, and until then the header's dark background
+  // shows through raw — reading as a jarring flash. Fading the image in only
+  // once it's actually ready turns that into a smooth reveal instead.
+  useEffect(() => {
+    const img = heroImageRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      setHeroImageReady(true);
+    }
+  }, []);
 
   // After a language switch, router.refresh() can shift element heights
   // (different text lengths per locale), invalidating ScrollTrigger's cached
@@ -395,27 +408,36 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           const video = videoScrubRef.current;
           const section = videoScrubSectionRef.current;
 
-          // Play/pause by checking actual rendered position (works during pin too)
-          const syncVideo = () => {
-            const { top, bottom } = section.getBoundingClientRect();
-            const visible = top < window.innerHeight && bottom > 0;
-            if (visible && video.paused) {
-              video.play().catch(() => {});
-            } else if (!visible && !video.paused) {
-              video.pause();
-              video.currentTime = 0;
-            }
-          };
-          window.addEventListener('scroll', syncVideo, { passive: true });
-          extraCleanup.push(() => window.removeEventListener('scroll', syncVideo));
+          const play = () => video.play().catch(() => {});
+          const pause = () => video.pause();
 
           // Pin ends exactly when para 2 (starting at y:2.5vh) reaches centre (y:0)
-          ScrollTrigger.create({
+          const pinTrigger = ScrollTrigger.create({
             trigger: section,
             start: 'top top',
             end: () => '+=' + section.offsetHeight * 2.5,
             pin: true,
             invalidateOnRefresh: true,
+          });
+
+          // Video covers the section's full on-screen lifetime, not just the
+          // pinned dwell: starts the moment the section begins entering the
+          // viewport (natural entry, before the pin engages) and stops only
+          // once it has fully scrolled out (natural exit, one viewport past
+          // where the pin releases). Driven by ScrollTrigger's rAF-batched
+          // scroll tracking instead of a raw scroll listener (avoids a
+          // forced layout read on every native scroll event). Video keeps
+          // its position across pause/resume (resumes where it left off)
+          // and loops on end via the `loop` attribute.
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top bottom',
+            end: () => pinTrigger.end + section.offsetHeight,
+            invalidateOnRefresh: true,
+            onEnter: play,
+            onEnterBack: play,
+            onLeave: pause,
+            onLeaveBack: pause,
           });
 
           const paras = Array.from(section.querySelectorAll<HTMLElement>('[data-video-para]'));
@@ -582,6 +604,7 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
                 src={data.hero.coverImage}
                 alt="About page hero"
                 fetchPriority="high"
+                onLoad={() => setHeroImageReady(true)}
                 className="h-full w-full object-cover object-center will-change-transform"
               />
             </picture>
@@ -610,7 +633,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             />
           )}
         </div>
-        <div className="absolute inset-0 z-[2] bg-black/35" />
         <div className="absolute inset-0 z-[3] flex items-end justify-start px-[clamp(18px,3.6vw,52px)] pb-[clamp(64px,10vh,120px)] text-left">
           <h1
             className="about-hero-title max-w-[16ch] text-[clamp(34px,5.8vw,78px)] font-light leading-[1.04] tracking-[-0.01em] text-white opacity-0"

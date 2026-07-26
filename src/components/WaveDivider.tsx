@@ -17,7 +17,7 @@ export default function WaveDivider({
   frontFill?: string
 }) {
   return (
-    <div className={`relative h-[140px] overflow-hidden sm:h-[180px] lg:h-[220px] ${className}`} aria-hidden="true">
+    <div className={`relative h-[140px] overflow-hidden pointer-events-none sm:h-[180px] lg:h-[220px] ${className}`} aria-hidden="true">
       <svg viewBox="0 0 1200 200" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
         <path d={WAVE_BACK_INITIAL} fill={backFill} opacity="0.62">
           <animate attributeName="d" dur="9s" repeatCount="indefinite" values={WAVE_BACK_VALUES} />

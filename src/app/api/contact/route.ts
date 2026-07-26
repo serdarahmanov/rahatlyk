@@ -4,7 +4,7 @@ import { getEmailTemplateConfig } from '@/lib/email/payloadTemplates';
 import { contactConfirmation, contactNotification, extractEmailContact } from '@/lib/email/templates';
 import type { EmailLocale } from '@/lib/email/i18n';
 import { getPayloadClient } from '@/lib/payload';
-import { getCachedContactInfo } from '@/lib/payload/cachedQueries';
+import { getCachedContactInfo, getCachedFooterData } from '@/lib/payload/cachedQueries';
 import { isSpam, sanitizeCsv } from '@/lib/spam-check';
 
 const VALID_LOCALES: EmailLocale[] = ['en', 'ru', 'tm'];
@@ -60,13 +60,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'messageTooLong' }, { status: 400 });
     }
 
-    const [rawContact, emailTemplates, notificationTemplates] = await Promise.all([
+    const [rawContact, emailTemplates, notificationTemplates, footerData] = await Promise.all([
       getCachedContactInfo().catch(() => null),
       getEmailTemplateConfig(locale),
       getEmailTemplateConfig('ru'),
+      getCachedFooterData(locale).catch(() => null),
     ])
     const contact         = extractEmailContact(rawContact, locale)
-    const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale, contact, templates: emailTemplates });
+    const footerRights    = typeof footerData?.rights === 'string' ? footerData.rights : undefined
+    const confirmation    = contactConfirmation({ firstName, lastName, email, subject, message, locale, contact, templates: emailTemplates, footerRights });
     const notification    = contactNotification({ firstName, lastName, email, phone, subject, message, locale: 'ru', contact, templates: notificationTemplates });
     const fromNoreply     = `"No-Reply Rahatlyk" <${process.env.NOREPLY_EMAIL}>`;
     const fromWebsite     = `"Website" <${process.env.WEBSITE_EMAIL}>`;

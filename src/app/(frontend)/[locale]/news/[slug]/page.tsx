@@ -10,7 +10,7 @@ import {
   truncateDescription,
 } from '@/lib/i18n/metadata'
 import { normalizeArticle } from '@/lib/payload-normalize'
-import { getCachedNewsDetail, getCachedNewsLocalizedSlugs, getCachedNewsStaticSlugs } from '@/lib/payload/cachedQueries'
+import { getCachedNavigationLabels, getCachedNewsDetail, getCachedNewsLocalizedSlugs, getCachedNewsStaticSlugs } from '@/lib/payload/cachedQueries'
 import { resolveArticleLabels } from '@/lib/article-labels'
 
 export async function generateStaticParams() {
@@ -95,6 +95,7 @@ export default async function ArticlePage({ params }: Props) {
   const normalizedArticle = normalizeArticle(article)
   const more = cached.related.map(normalizeArticle)
   const labels = resolveArticleLabels(locale, cached.labels)
+  const navLabels = await getCachedNavigationLabels(locale).catch(() => null)
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com'
   const articleUrl = buildAbsoluteUrl(siteUrl, buildCanonicalPath(locale, `/news/${normalizedArticle.slug}`))
@@ -140,7 +141,7 @@ export default async function ArticlePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <ArticleDetailClient key={normalizedArticle.id} article={normalizedArticle} more={more} labels={labels} />
+      <ArticleDetailClient key={normalizedArticle.id} article={normalizedArticle} more={more} labels={labels} navLabels={navLabels} />
     </>
   )
 }

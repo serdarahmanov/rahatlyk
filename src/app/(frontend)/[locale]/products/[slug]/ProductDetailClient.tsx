@@ -6,7 +6,13 @@ import Image from 'next/image'
 import ProductVisual from '@/components/ProductVisual'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
+import type { NavigationLabels } from '@/components/Navbar'
 import type { PayloadProduct, ProductDetailLabelsData } from '@/types/payload'
+
+function navLabel(labels: NavigationLabels | null | undefined, key: keyof NavigationLabels, fallback: string) {
+  const value = labels?.[key]
+  return typeof value === 'string' && value.trim() ? value : fallback
+}
 
 
 function RelatedProducts({ related, headingTemplate }: { related: PayloadProduct[]; headingTemplate: string | null }) {
@@ -77,9 +83,10 @@ interface Props {
   prevProduct: ProductNavItem | null
   nextProduct: ProductNavItem | null
   labels: ProductDetailLabelsData
+  navLabels?: NavigationLabels | null
 }
 
-export default function ProductDetailClient({ product, related, prevProduct, nextProduct, labels }: Props) {
+export default function ProductDetailClient({ product, related, prevProduct, nextProduct, labels, navLabels }: Props) {
   const { locale, t } = useLanguage()
   const [openPanel, setOpenPanel] = useState<AccordionKey>('' as AccordionKey)
   const [activePhoto, setActivePhoto] = useState(0)
@@ -228,9 +235,9 @@ export default function ProductDetailClient({ product, related, prevProduct, nex
       <section className="pt-28 pb-16 relative overflow-hidden bg-white border-b border-gray-200">
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
           <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
-            <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+            <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{navLabel(navLabels, 'home', t.nav.home)}</Link>
             <span>/</span>
-            <Link href={withLocale(locale, '/products')} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.products}</Link>
+            <Link href={withLocale(locale, '/products')} prefetch={false} className="hover:text-gray-700 transition-colors">{navLabel(navLabels, 'products', t.nav.products)}</Link>
             <span>/</span>
             <Link href={`${withLocale(locale, '/products')}?category=${product.category.slug}`} prefetch={false} className="hover:text-gray-700 transition-colors">{product.category.label}</Link>
             <span>/</span>

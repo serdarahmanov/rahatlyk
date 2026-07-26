@@ -15,11 +15,15 @@ import { AboutOurStory } from './src/globals/AboutOurStory'
 import { AboutWhoWeAre } from './src/globals/AboutWhoWeAre'
 import { ContactInfo } from './src/globals/ContactInfo'
 import { EmailTemplates } from './src/globals/EmailTemplates'
+import { ErrorPage } from './src/globals/ErrorPage'
+import { Footer } from './src/globals/Footer'
 import { SiteMetadata } from './src/globals/SiteMetadata'
 import { Forms } from './src/globals/Forms'
+import { HomeBrandStatement } from './src/globals/HomeBrandStatement'
 import { HomeCtaBanner } from './src/globals/HomeCtaBanner'
 import { HomeHero } from './src/globals/HomeHero'
 import { NavigationLabels } from './src/globals/NavigationLabels'
+import { NotFoundPage } from './src/globals/NotFoundPage'
 import { OurCollection } from './src/globals/OurCollection'
 import { ProductDetailLabels } from './src/globals/ProductDetailLabels'
 import { HomeStory } from './src/globals/HomeStory'
@@ -59,7 +63,7 @@ export default buildConfig({
       ],
     }),
   ],
-  globals: [SiteMetadata, ContactInfo, EmailTemplates, NavigationLabels, AboutPage, Forms, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutFinalSection, HomeHero, HorizontalScroll, OurCollection, HomeStory, HomeCtaBanner, ArticleLabels, ProductDetailLabels, VacancyLabels],
+  globals: [SiteMetadata, ContactInfo, EmailTemplates, NavigationLabels, Footer, NotFoundPage, ErrorPage, AboutPage, Forms, AboutHero, AboutWhoWeAre, AboutOurStory, AboutNumbers, AboutFinalSection, HomeHero, HorizontalScroll, OurCollection, HomeStory, HomeCtaBanner, HomeBrandStatement, ArticleLabels, ProductDetailLabels, VacancyLabels],
   collections: [Users, Media, ProductCategories, Products, ArticleCategories, Articles, VacancyDepartments, Vacancies, CVDocuments, ContactSubmissions, VacancyApplications],
   localization: {
     locales: [

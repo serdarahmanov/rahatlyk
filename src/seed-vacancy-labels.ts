@@ -12,6 +12,7 @@ const LABELS = {
     openPositions:       'open positions',
     noOpeningsMessage:   'No current openings in this category.',
     paginationItemLabel: 'positions',
+    paginationSummary:   '{from}–{to} of {total} {label}',
     perks: {
       title:        'Why Join RAHATLYK?',
       growthTitle:  'Career Growth',
@@ -39,6 +40,7 @@ const LABELS = {
     openPositions:       'открытых вакансий',
     noOpeningsMessage:   'В данной категории нет вакансий.',
     paginationItemLabel: 'вакансий',
+    paginationSummary:   '{from}–{to} из {total} {label}',
     perks: {
       title:        'Почему RAHATLYK?',
       growthTitle:  'Карьерный рост',
@@ -66,6 +68,7 @@ const LABELS = {
     openPositions:       'açyk iş orunlary',
     noOpeningsMessage:   'Bu kategoriýada boş iş orunlary ýok.',
     paginationItemLabel: 'iş orunlary',
+    paginationSummary:   '{from}-{to} / {total} {label}',
     perks: {
       title:        'Näme üçin RAHATLYK?',
       growthTitle:  'Karýera ösüşi',

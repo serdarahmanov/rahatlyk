@@ -4,8 +4,10 @@ import { notFound } from 'next/navigation';
 import '../../globals.css';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 import { getValidLocale, supportedLocales, defaultLocale } from '@/lib/i18n/locale';
-import { getCachedContactInfo, getCachedNavigationLabels, getCachedSiteMetadata } from '@/lib/payload/cachedQueries';
+import { getCachedContactInfo, getCachedErrorPage, getCachedFooterData, getCachedNavigationLabels, getCachedNotFoundPage, getCachedSiteMetadata } from '@/lib/payload/cachedQueries';
 import { ContactInfoProvider, type RawContactInfo } from '@/lib/contact-info/ContactInfoContext';
+import { NotFoundContentProvider } from '@/lib/not-found-content/NotFoundContentContext';
+import { ErrorContentProvider } from '@/lib/error-content/ErrorContentContext';
 import { SocialLinksProvider } from '@/lib/social-links/SocialLinksContext';
 import { buildLanguageAlternates, buildCanonicalPath } from '@/lib/i18n/metadata';
 import Navbar from '@/components/Navbar';
@@ -155,15 +157,27 @@ export default async function RootLayout({
   let navigationLabels: any = null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let siteMeta: any = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let footerData: any = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let notFoundData: any = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let errorData: any = null
   try {
-    const [contactInfoRaw, navigationLabelsRaw, siteMetaRaw] = await Promise.all([
+    const [contactInfoRaw, navigationLabelsRaw, siteMetaRaw, footerDataRaw, notFoundDataRaw, errorDataRaw] = await Promise.all([
       getCachedContactInfo(),
       getCachedNavigationLabels(locale),
       getCachedSiteMetadata(locale),
+      getCachedFooterData(locale),
+      getCachedNotFoundPage(),
+      getCachedErrorPage(),
     ])
     contactInfo = JSON.parse(JSON.stringify(contactInfoRaw)) as RawContactInfo
     navigationLabels = JSON.parse(JSON.stringify(navigationLabelsRaw))
     siteMeta = JSON.parse(JSON.stringify(siteMetaRaw))
+    footerData = JSON.parse(JSON.stringify(footerDataRaw))
+    notFoundData = JSON.parse(JSON.stringify(notFoundDataRaw))
+    errorData = JSON.parse(JSON.stringify(errorDataRaw))
   } catch {
     contactInfo = null
   }
@@ -213,6 +227,8 @@ export default async function RootLayout({
         />
         <LanguageProvider initialLocale={locale}>
           <ContactInfoProvider initialContactInfo={contactInfo}>
+          <NotFoundContentProvider raw={notFoundData}>
+          <ErrorContentProvider raw={errorData}>
           <SocialLinksProvider>
             <ScrollReset />
             <SmoothScroll />
@@ -221,8 +237,10 @@ export default async function RootLayout({
             <PageIntro />
             <Navbar labels={navigationLabels} />
             <main>{children}</main>
-            <Footer labels={navigationLabels} />
+            <Footer labels={navigationLabels} data={footerData} />
           </SocialLinksProvider>
+          </ErrorContentProvider>
+          </NotFoundContentProvider>
           </ContactInfoProvider>
         </LanguageProvider>
       </body>

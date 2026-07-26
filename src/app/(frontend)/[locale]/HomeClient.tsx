@@ -211,6 +211,18 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       const track = trackRef.current;
       gsap.set(track, { x: 0 });
 
+      // anticipatePin estimates scroll velocity to pre-engage the pin just
+      // before its start point, avoiding a flash right at the transition —
+      // but that estimate assumes native/inertia scrolling. Lenis (desktop-
+      // only, see SmoothScroll.tsx) drives ScrollTrigger.update() off its own
+      // already-eased scroll ticks instead, so the velocity GSAP sees on
+      // desktop isn't the real input, which showed up as a one-time snap
+      // right at pin engagement. Mobile has no Lenis in the mix — native
+      // scroll there gives anticipatePin a real velocity to work with, and
+      // removing it reintroduced the flash it's meant to prevent. So: on
+      // for touch devices, off for desktop.
+      const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
       ctx = gsap.context(() => {
         gsap.to(track, {
           x:    () => -(track.scrollWidth - window.innerWidth),
@@ -227,13 +239,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             // leaves exactly one smoothing layer instead of two competing ones.
             scrub:               true,
             invalidateOnRefresh: true,
-            // anticipatePin estimates scroll velocity to pre-engage the pin
-            // just before its start point, avoiding a flash right at the
-            // transition — but that estimate assumes native/inertia scrolling.
-            // Lenis (desktop-only) drives ScrollTrigger.update() off its own
-            // already-eased scroll ticks instead, so the velocity GSAP sees
-            // here isn't the real input — which showed up as a one-time
-            // snap right at pin engagement. Dropping it removes that mismatch.
+            anticipatePin:       isTouchDevice ? 1 : 0,
           },
         });
       });
@@ -811,7 +817,7 @@ const CollectionsSection = memo(function CollectionsSection({
         ref={textRef}
         className="
           absolute z-20 flex flex-col
-          top-[4%] left-0 right-0 items-center text-center px-6
+          top-[calc(env(safe-area-inset-top)+5rem)] left-0 right-0 items-center text-center px-6
           md:top-0 md:bottom-auto md:gap-5
           md:right-auto md:left-[5%] md:max-w-[280px] lg:left-[7%] lg:max-w-[320px] xl:left-[8%] xl:max-w-[360px]
           md:items-start md:text-left md:px-0
@@ -1031,11 +1037,19 @@ export default function HomeClient({
   horizontalScroll,
   ctaBanner,
   hero,
+  collectionSectionTag,
+  collectionExploreLabel,
+  brandHeading,
+  brandText,
 }: {
   lines: PayloadProductLine[]
   horizontalScroll: HorizontalScrollData
   ctaBanner: HomeCtaBannerData
   hero: HomeHeroData
+  collectionSectionTag?: string | null
+  collectionExploreLabel?: string | null
+  brandHeading?: string | null
+  brandText?: string | null
 }) {
   const { t, locale } = useLanguage();
 
@@ -1166,9 +1180,20 @@ export default function HomeClient({
     if (!heroRequiredImages.has(fileName)) return;
 
     heroReadyImagesRef.current.add(fileName);
+    const wasReady = heroImagesReadyRef.current;
     heroImagesReadyRef.current = [...heroRequiredImages].every((requiredFileName) =>
       heroReadyImagesRef.current.has(requiredFileName)
     );
+
+    // Lets the scroll-trigger/pin setup (which needs the hero section's
+    // final, image-settled layout to measure correctly) wait for this exact
+    // moment instead of measuring early and silently correcting itself later
+    // — that correction is invisible on the very first visit (still hidden
+    // behind the page-intro curtain) but visible as a jump on any later SPA
+    // navigation back to Home, where there's no curtain to hide it.
+    if (heroImagesReadyRef.current && !wasReady) {
+      window.dispatchEvent(new CustomEvent('home-hero-images-ready'));
+    }
 
     markHomeHeroReady();
   }, [heroRequiredImages, markHomeHeroReady]);
@@ -1320,9 +1345,10 @@ export default function HomeClient({
         setupHeroFade();
       }
 
-      const heroSection = heroSectionRef.current;
+      const setupHeroPin = () => {
+        const heroSection = heroSectionRef.current;
+        if (!heroSection || cancelled) return;
 
-      if (heroSection) {
         const layers = heroSection.querySelectorAll<HTMLElement>('[data-hero-parallax-layer]');
 
         const heroTimeline = gsap.timeline({
@@ -1364,6 +1390,33 @@ export default function HomeClient({
           ScrollTrigger.refresh();
           heroParallaxReadyRef.current = true;
           markHomeHeroReady();
+        });
+      };
+
+      // Measuring `heroSection.offsetHeight` for the pin before the hero
+      // images are actually loaded risks measuring a not-yet-settled layout,
+      // which the rAF refresh above then has to silently correct. On the
+      // very first visit that correction is hidden behind the page-intro
+      // curtain, but on a later SPA navigation back to Home there's no
+      // curtain — the correction shows up as a visible jump. Waiting for the
+      // same "images ready" signal the intro already relies on removes that
+      // gap: the pin is measured once, correctly, instead of twice.
+      if (heroImagesReadyRef.current) {
+        setupHeroPin();
+      } else {
+        const READY_CAP_MS = 8000;
+        const capTimer = window.setTimeout(() => {
+          window.removeEventListener('home-hero-images-ready', onImagesReady);
+          setupHeroPin();
+        }, READY_CAP_MS);
+        function onImagesReady() {
+          window.clearTimeout(capTimer);
+          setupHeroPin();
+        }
+        window.addEventListener('home-hero-images-ready', onImagesReady, { once: true });
+        cleanupFns.push(() => {
+          window.clearTimeout(capTimer);
+          window.removeEventListener('home-hero-images-ready', onImagesReady);
         });
       }
 
@@ -1408,7 +1461,7 @@ export default function HomeClient({
         className="relative min-h-[100svh] flex items-end overflow-hidden lg:items-center"
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
-        <div className="absolute inset-0 bg-amber-300" />
+        <div className="absolute inset-0 bg-white" />
         {heroImages.map((image, index) => {
           const isBottle = image.fileName === 'bottle.webp';
           const splash = HERO_SPLASH_PARALLAX[index % HERO_SPLASH_PARALLAX.length];
@@ -1492,9 +1545,15 @@ export default function HomeClient({
         <Link
           href={localizePublicHref(locale, hero.ctaHref || '/contact')}
           prefetch={false}
-          className="hidden sm:inline-flex absolute z-20 bottom-8 right-5 sm:right-8 lg:right-10 items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
+          className="hidden sm:inline-flex absolute z-20 bottom-8 right-5 sm:right-8 lg:right-10 items-center gap-1.5 overflow-hidden rounded-[3px] px-6 py-3 text-[11px] font-medium tracking-[0.06em] uppercase text-white transition-transform duration-300 hover:scale-105"
         >
-          <span>{hero.ctaLabel || t.home.hero.contactCta}</span>
+          <span className="pointer-events-none absolute inset-0">
+            <span className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
+            <span className="water-blob-1 absolute -top-[50%] -left-[15%] w-[65%] h-[160%] rounded-full bg-[#38c8f5] blur-[14px]" />
+            <span className="water-blob-2 absolute -top-[40%] left-[35%] w-[55%] h-[150%] rounded-full bg-[#d4f2ff] blur-[12px]" />
+            <span className="water-blob-3 absolute top-[10%] -right-[20%] w-[55%] h-[140%] rounded-full bg-[#2a9fd8] blur-[13px]" />
+          </span>
+          <span className="relative z-10">{hero.ctaLabel || t.home.hero.contactCta}</span>
         </Link>
       </section>
       )}
@@ -1502,19 +1561,19 @@ export default function HomeClient({
       {/* ══════════════════════════════════════════
           BRAND STATEMENT
       ══════════════════════════════════════════ */}
-      <div className={`relative z-20 ${DISABLE_HOME_HERO_FOR_TEST ? '' : '-mt-[10svh]'}`}>
+      <div className={`relative z-20 pointer-events-none ${DISABLE_HOME_HERO_FOR_TEST ? '' : '-mt-[10svh]'}`}>
         <WaveDivider />
 
-        <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
+        <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 pointer-events-auto sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
           <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-start">
-            <div className="sm:pt-[0.2em] text-center lg:text-left">
+            <div className="sm:pt-[0.2em] sm:pr-8 text-center lg:pr-20 lg:text-left">
               <span
                 ref={brandLabelRef}
                 className="block text-4xl font-light tracking-normal text-white uppercase sm:text-5xl lg:text-6xl"
                 style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 500, overflow: 'hidden', paddingBottom: '0.1em' }}
               >
-                RAHATLYK
+                {brandHeading || 'RAHATLYK'}
               </span>
             </div>
             <div className="min-w-0">
@@ -1524,7 +1583,7 @@ export default function HomeClient({
                 style={{ fontFamily: 'var(--font-heading), sans-serif' }}
               >
                 {(() => {
-                  const text = t.home.brand.text;
+                  const text = brandText || t.home.brand.text;
                   return text.split(/(\s+)/).map((part, index) => {
                     if (/^\s+$/.test(part)) return part;
                     return (
@@ -1561,8 +1620,8 @@ export default function HomeClient({
       ══════════════════════════════════════════ */}
       <CollectionsSection
         lines={lines}
-        sectionTag={t.home.categories.sectionTag}
-        exploreLabel={t.home.categories.explore}
+        sectionTag={collectionSectionTag || t.home.categories.sectionTag}
+        exploreLabel={collectionExploreLabel || t.home.categories.explore}
         viewportHeight={homeViewportHeight}
       />
 

@@ -7,6 +7,9 @@ import { PRODUCT_LINES } from './lib/data/product-lines'
 const require = createRequire(import.meta.url)
 const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
 
+const SECTION_TAG = { en: 'Our Collection', ru: 'Наша коллекция', tm: 'Biziň kolleksiýamyz' } as const
+const EXPLORE_LABEL = { en: 'Explore', ru: 'Подробнее', tm: 'Giňişleýin' } as const
+
 const MIME_BY_EXT: Record<string, string> = {
   '.avif': 'image/avif',
   '.jpg': 'image/jpeg',
@@ -85,6 +88,8 @@ async function seedProductLines() {
     slug: 'our-collection',
     locale: 'en',
     data: {
+      sectionTag: SECTION_TAG.en,
+      exploreLabel: EXPLORE_LABEL.en,
       items: PRODUCT_LINES.map((line) => ({
         key: line.key,
         name: line.name.en,
@@ -108,6 +113,8 @@ async function seedProductLines() {
       slug: 'our-collection',
       locale,
       data: {
+        sectionTag: SECTION_TAG[locale],
+        exploreLabel: EXPLORE_LABEL[locale],
         items: PRODUCT_LINES.map((line, index) => ({
           ...(itemIds[index] !== undefined ? { id: itemIds[index] } : {}),
           key: line.key,

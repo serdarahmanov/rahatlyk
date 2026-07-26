@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import { formatDate } from '@/lib/formatDate'
 import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
+import ImageWithShimmer from '@/components/ImageWithShimmer'
 import { lexicalToPlainText } from '@/lib/lexical-serialize'
 import Pagination from '@/components/Pagination'
 import type { ArticleLabelsData, PayloadArticle, PayloadCategory, PayloadResult } from '@/types/payload'
@@ -105,7 +105,7 @@ function NewsCard({
       <div className="relative overflow-hidden rounded-sm" style={{ paddingBottom: '62%' }}>
         <div className="absolute inset-0" style={{ zIndex: 1 }}>
           {imgs[current] && (
-            <Image
+            <ImageWithShimmer
               src={imgs[current]}
               alt={article.title}
               fill
@@ -122,7 +122,7 @@ function NewsCard({
             style={{ zIndex: 2 }}
             onAnimationEnd={onAnimEnd}
           >
-            <Image
+            <ImageWithShimmer
               src={imgs[incoming]}
               alt=""
               fill
@@ -296,7 +296,8 @@ export default function NewsClient({ categories, featured, result, category, lab
               totalDocs={result.totalDocs}
               limit={result.limit}
               onChange={handlePageChange}
-              label="articles"
+              label={labels.paginationItemLabel}
+              template={labels.paginationSummary}
             />
           </div>
         </div>

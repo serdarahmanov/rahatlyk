@@ -15,6 +15,15 @@ export const ProductDetailLabels: GlobalConfig = {
     { name: 'filterAllLabel',      type: 'text', localized: true, label: 'All filter label' },
     { name: 'noProductsMessage',   type: 'text', localized: true, label: 'No products message' },
     { name: 'paginationItemLabel', type: 'text', localized: true, label: 'Pagination item label' },
+    {
+      name: 'paginationSummary',
+      type: 'text',
+      localized: true,
+      label: 'Pagination summary text',
+      admin: {
+        description: 'Tokens: {from} {to} {total} {label} — e.g. "{from}–{to} of {total} {label}". Controls word order per locale.',
+      },
+    },
     { name: 'sizeLabel',           type: 'text', localized: true, label: 'Size label' },
     { name: 'nutritionLabel',      type: 'text', localized: true, label: 'Nutrition accordion label' },
     { name: 'aboutLabel',          type: 'text', localized: true, label: 'About section heading' },

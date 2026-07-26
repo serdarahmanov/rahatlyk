@@ -7,13 +7,20 @@ interface Props {
   limit: number;
   onChange: (page: number) => void;
   label?: string;
+  /** Summary text template. Tokens: {from} {to} {total} {label}. Defaults to "{from}–{to} of {total} {label}". */
+  template?: string;
 }
 
-export default function Pagination({ page, totalPages, totalDocs, limit, onChange, label = 'items' }: Props) {
+export default function Pagination({ page, totalPages, totalDocs, limit, onChange, label = 'items', template = '{from}–{to} of {total} {label}' }: Props) {
   if (totalPages <= 1) return null;
 
   const from = (page - 1) * limit + 1;
   const to = Math.min(page * limit, totalDocs);
+  const summary = template
+    .replace('{from}', String(from))
+    .replace('{to}', String(to))
+    .replace('{total}', String(totalDocs))
+    .replace('{label}', label);
 
   const go = (n: number) => {
     onChange(n);
@@ -35,7 +42,7 @@ export default function Pagination({ page, totalPages, totalDocs, limit, onChang
   return (
     <div className="mt-16 pt-8 border-t border-slate-100 flex flex-col items-center gap-3">
       <p className="text-[11px] text-slate-400 font-light tracking-wide">
-        {from}&ndash;{to} of {totalDocs} {label}
+        {summary}
       </p>
 
       <div className="flex items-center">

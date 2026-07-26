@@ -20,6 +20,7 @@ type VacancyLabelsRaw = {
   openPositions?: string | null
   noOpeningsMessage?: string | null
   paginationItemLabel?: string | null
+  paginationSummary?: string | null
   perks?: VacancyPerksRaw
   postedLabel?: string | null
   tabOverview?: string | null
@@ -40,6 +41,7 @@ export function getFallbackVacancyLabels(locale: Locale): VacancyLabelsData {
     openPositions:       t.vacancies.openPositions,
     noOpeningsMessage:   t.vacancies.noCurrent,
     paginationItemLabel: locale === 'ru' ? 'вакансий' : locale === 'tm' ? 'iş orunlary' : 'positions',
+    paginationSummary:   locale === 'tm' ? '{from}-{to} / {total} {label}' : locale === 'ru' ? '{from}–{to} из {total} {label}' : '{from}–{to} of {total} {label}',
     perks: {
       title:        t.vacancies.perks.title,
       growthTitle:  t.vacancies.perks.growth,
@@ -73,6 +75,7 @@ export function resolveVacancyLabels(locale: Locale, raw: VacancyLabelsRaw): Vac
     openPositions:       raw?.openPositions       || fallback.openPositions,
     noOpeningsMessage:   raw?.noOpeningsMessage   || fallback.noOpeningsMessage,
     paginationItemLabel: raw?.paginationItemLabel || fallback.paginationItemLabel,
+    paginationSummary:   raw?.paginationSummary   || fallback.paginationSummary,
     perks: {
       title:        rp?.title        || fp.title,
       growthTitle:  rp?.growthTitle  || fp.growthTitle,

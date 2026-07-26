@@ -19,5 +19,15 @@ export const ArticleLabels: GlobalConfig = {
     { name: 'backToNewsLabel', type: 'text', localized: true, label: 'Back to news button label' },
     { name: 'moreArticlesHeading', type: 'text', localized: true, label: 'More articles section heading' },
     { name: 'noArticlesMessage', type: 'text', localized: true, label: 'Empty state message' },
+    { name: 'paginationItemLabel', type: 'text', localized: true, label: 'Pagination item label' },
+    {
+      name: 'paginationSummary',
+      type: 'text',
+      localized: true,
+      label: 'Pagination summary text',
+      admin: {
+        description: 'Tokens: {from} {to} {total} {label} — e.g. "{from}–{to} of {total} {label}". Controls word order per locale.',
+      },
+    },
   ],
 }

@@ -9,9 +9,12 @@ import {
   articleLabelsTag,
   contactInfoTag,
   contactTag,
+  errorPageTag,
+  footerTag,
   homeTag,
   newsListTag,
   navigationLabelsTag,
+  notFoundTag,
   productLabelsTag,
   productsTag,
   siteMetadataTag,
@@ -145,6 +148,19 @@ export const revalidateContactInfoGlobal = globalHook((locale) => ({
   ],
 }))
 
+// No `paths` — this content can appear at literally any URL (via the
+// catch-all not-found route), so there's no fixed set of pages to revalidate.
+// Only the underlying cached data fetch needs busting.
+export const revalidateNotFoundGlobal = globalHook(() => ({
+  tags: [notFoundTag()],
+}))
+
+// Same reasoning as revalidateNotFoundGlobal — this can render on any page
+// that throws, so there's no fixed path list, just the cached data fetch.
+export const revalidateErrorPageGlobal = globalHook(() => ({
+  tags: [errorPageTag()],
+}))
+
 export const revalidateNavigationLabelsGlobal = globalHook((locale) => ({
   paths: [
     publicPath(locale),
@@ -158,6 +174,21 @@ export const revalidateNavigationLabelsGlobal = globalHook((locale) => ({
     publicPath(locale, '/vacancies/[id]'),
   ],
   tags: [navigationLabelsTag(locale)],
+}))
+
+export const revalidateFooterGlobal = globalHook((locale) => ({
+  paths: [
+    publicPath(locale),
+    publicPath(locale, '/about'),
+    publicPath(locale, '/contact'),
+    publicPath(locale, '/products'),
+    publicPath(locale, '/products/[slug]'),
+    publicPath(locale, '/news'),
+    publicPath(locale, '/news/[slug]'),
+    publicPath(locale, '/vacancies'),
+    publicPath(locale, '/vacancies/[id]'),
+  ],
+  tags: [footerTag(locale)],
 }))
 
 export const revalidateProductChange: CollectionAfterChangeHook<Entity> = async ({ doc, operation }) => {

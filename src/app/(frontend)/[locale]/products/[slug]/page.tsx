@@ -7,6 +7,7 @@ import { normalizeProduct } from '@/lib/payload-normalize'
 import type { ProductDetailLabelsData } from '@/types/payload'
 import { resolveProductLabels } from '@/lib/product-labels'
 import {
+  getCachedNavigationLabels,
   getCachedProductDetail,
   getCachedProductLocalizedSlugs,
   getCachedProductStaticSlugs,
@@ -97,6 +98,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const labelsRaw = cached.labels
 
   const labels: ProductDetailLabelsData = resolveProductLabels(locale, labelsRaw)
+  const navLabels = await getCachedNavigationLabels(locale).catch(() => null)
 
   const normalizedProduct = normalizeProduct(product)
   const related = cached.related.map(normalizeProduct)
@@ -151,6 +153,7 @@ export default async function ProductDetailPage({ params }: Props) {
         prevProduct={prevProduct}
         nextProduct={nextProduct}
         labels={labels}
+        navLabels={navLabels}
       />
     </>
   )

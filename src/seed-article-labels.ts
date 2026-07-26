@@ -14,6 +14,8 @@ const LABELS = {
     backToNewsLabel: 'View All News',
     moreArticlesHeading: 'More Articles',
     noArticlesMessage: 'No articles in this category.',
+    paginationItemLabel: 'articles',
+    paginationSummary: '{from}–{to} of {total} {label}',
   },
   tm: {
     homeSectionTag: 'Soňky habarlar',
@@ -24,6 +26,8 @@ const LABELS = {
     backToNewsLabel: 'Ähli habarlary görüň',
     moreArticlesHeading: 'Has köp makala',
     noArticlesMessage: 'Bu kategoriýada makala ýok.',
+    paginationItemLabel: 'makala',
+    paginationSummary: '{from}-{to} / {total} {label}',
   },
   ru: {
     homeSectionTag: 'Последние новости',
@@ -34,6 +38,8 @@ const LABELS = {
     backToNewsLabel: 'Все новости',
     moreArticlesHeading: 'Ещё статьи',
     noArticlesMessage: 'В этой категории пока нет статей.',
+    paginationItemLabel: 'статей',
+    paginationSummary: '{from}–{to} из {total} {label}',
   },
 } as const
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import ImageWithShimmer from './ImageWithShimmer';
 
 type ProductVisualPhoto = string | { url: string };
 
@@ -49,11 +50,11 @@ export default function ProductVisual({ product, size = 'sm', className = '' }: 
     return (
       <div className="relative w-full h-full group/photo">
         {src && (
-          <Image
+          <ImageWithShimmer
             src={src}
             alt={product.name}
             fill
-            className={`object-cover object-center transition-opacity duration-500 ${hasHover ? 'group-hover/photo:opacity-0' : ''}`}
+            className={`object-cover object-center ${hasHover ? 'group-hover/photo:opacity-0' : ''}`}
             sizes="(max-width: 640px) 200px, 320px"
           />
         )}

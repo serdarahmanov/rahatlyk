@@ -7,9 +7,12 @@ import {
   CACHE_REVALIDATE_SECONDS,
   contactInfoTag,
   contactTag,
+  errorPageTag,
+  footerTag,
   homeTag,
   newsListTag,
   navigationLabelsTag,
+  notFoundTag,
   productLabelsTag,
   productsTag,
   siteMetadataTag,
@@ -35,7 +38,7 @@ export function getCachedHomeData(locale: Locale) {
     [homeTag(locale)],
     async () => {
       const payload = await getPayloadClient()
-      const [collection, articles, horizontalScroll, story, ctaBanner, hero, articleLabels] = await Promise.allSettled([
+      const [collection, articles, horizontalScroll, story, ctaBanner, hero, articleLabels, brandStatement] = await Promise.allSettled([
         payload.findGlobal({ slug: 'our-collection', locale, depth: 1 }),
         payload.find({ collection: 'articles', depth: 1, locale, limit: 5, sort: '-date' }),
         payload.findGlobal({ slug: 'horizontal-scroll', locale, depth: 1 }),
@@ -43,6 +46,7 @@ export function getCachedHomeData(locale: Locale) {
         payload.findGlobal({ slug: 'home-cta-banner', locale, depth: 1 }),
         payload.findGlobal({ slug: 'home-hero', locale, depth: 1 }),
         payload.findGlobal({ slug: 'article-labels', locale, depth: 0 }),
+        payload.findGlobal({ slug: 'home-brand-statement' as never, locale, depth: 0 }),
       ])
 
       const collectionItems = collection.status === 'fulfilled' && Array.isArray(collection.value?.items)
@@ -51,12 +55,17 @@ export function getCachedHomeData(locale: Locale) {
 
       return {
         lines: collectionItems,
+        collectionSectionTag: collection.status === 'fulfilled' ? collection.value?.sectionTag ?? null : null,
+        collectionExploreLabel: collection.status === 'fulfilled' ? collection.value?.exploreLabel ?? null : null,
         articles: articles.status === 'fulfilled' ? articles.value.docs : [],
         horizontalScroll: horizontalScroll.status === 'fulfilled' ? horizontalScroll.value : null,
         story: story.status === 'fulfilled' ? story.value : null,
         ctaBanner: ctaBanner.status === 'fulfilled' ? ctaBanner.value : null,
         hero: hero.status === 'fulfilled' ? hero.value : null,
         articleLabels: articleLabels.status === 'fulfilled' ? articleLabels.value : null,
+        brandStatement: brandStatement.status === 'fulfilled'
+          ? brandStatement.value as { heading?: string | null; text?: string | null } | null
+          : null,
       }
     },
   )
@@ -285,7 +294,7 @@ export function getCachedNewsPage(
           ...(categoryID === undefined ? {} : { category: { equals: categoryID } }),
           featured: { not_equals: true },
         },
-        select: { id: true, title: true, category: true, date: true, featured: true, images: true },
+        select: { id: true, slug: true, title: true, category: true, date: true, featured: true, images: true },
       })
     },
   )
@@ -460,6 +469,24 @@ export function getCachedNavigationLabels(locale: Locale) {
   )
 }
 
+export interface FooterGlobalData {
+  tagline?: string | null
+  quickLinksLabel?: string | null
+  companyLabel?: string | null
+  rights?: string | null
+}
+
+export function getCachedFooterData(locale: Locale) {
+  return cachedQuery(
+    ['payload', 'footer', locale],
+    [footerTag(locale)],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({ slug: 'footer' as never, locale, depth: 0 }) as Promise<FooterGlobalData>
+    },
+  )
+}
+
 export function getCachedContactInfo() {
   return cachedQuery(
     ['payload', 'contact-info', 'all-locales'],
@@ -471,6 +498,56 @@ export function getCachedContactInfo() {
         locale: 'all',
         depth: 1,
       })
+    },
+  )
+}
+
+export interface RawLocalizedText {
+  en?: string | null
+  ru?: string | null
+  tm?: string | null
+}
+
+export interface NotFoundPageGlobalData {
+  title?: RawLocalizedText | null
+  message?: RawLocalizedText | null
+  ctaLabel?: RawLocalizedText | null
+}
+
+export function getCachedNotFoundPage() {
+  return cachedQuery(
+    ['payload', 'not-found-page', 'all-locales'],
+    [notFoundTag()],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({
+        slug: 'not-found-page' as never,
+        locale: 'all',
+        depth: 0,
+      }) as Promise<NotFoundPageGlobalData>
+    },
+  )
+}
+
+export interface ErrorPageGlobalData {
+  label?: RawLocalizedText | null
+  title?: RawLocalizedText | null
+  message?: RawLocalizedText | null
+  retryLabel?: RawLocalizedText | null
+  ctaLabel?: RawLocalizedText | null
+}
+
+export function getCachedErrorPage() {
+  return cachedQuery(
+    ['payload', 'error-page', 'all-locales'],
+    [errorPageTag()],
+    async () => {
+      const payload = await getPayloadClient()
+      return payload.findGlobal({
+        slug: 'error-page' as never,
+        locale: 'all',
+        depth: 0,
+      }) as Promise<ErrorPageGlobalData>
     },
   )
 }

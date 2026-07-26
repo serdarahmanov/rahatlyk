@@ -116,6 +116,8 @@ export interface Config {
     'contact-info': ContactInfo;
     'email-templates': EmailTemplate;
     'navigation-labels': NavigationLabel;
+    footer: Footer;
+    'not-found-page': NotFoundPage;
     'about-page': AboutPage;
     forms: Form;
     'about-hero': AboutHero;
@@ -128,6 +130,7 @@ export interface Config {
     'our-collection': OurCollection;
     'home-story': HomeStory;
     'home-cta-banner': HomeCtaBanner;
+    'home-brand-statement': HomeBrandStatement;
     'article-labels': ArticleLabel;
     'product-detail-labels': ProductDetailLabel;
     'vacancy-labels': VacancyLabel;
@@ -137,6 +140,8 @@ export interface Config {
     'contact-info': ContactInfoSelect<false> | ContactInfoSelect<true>;
     'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
     'navigation-labels': NavigationLabelsSelect<false> | NavigationLabelsSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    'not-found-page': NotFoundPageSelect<false> | NotFoundPageSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'about-hero': AboutHeroSelect<false> | AboutHeroSelect<true>;
@@ -149,6 +154,7 @@ export interface Config {
     'our-collection': OurCollectionSelect<false> | OurCollectionSelect<true>;
     'home-story': HomeStorySelect<false> | HomeStorySelect<true>;
     'home-cta-banner': HomeCtaBannerSelect<false> | HomeCtaBannerSelect<true>;
+    'home-brand-statement': HomeBrandStatementSelect<false> | HomeBrandStatementSelect<true>;
     'article-labels': ArticleLabelsSelect<false> | ArticleLabelsSelect<true>;
     'product-detail-labels': ProductDetailLabelsSelect<false> | ProductDetailLabelsSelect<true>;
     'vacancy-labels': VacancyLabelsSelect<false> | VacancyLabelsSelect<true>;
@@ -1282,6 +1288,41 @@ export interface NavigationLabel {
   createdAt?: string | null;
 }
 /**
+ * Localized footer tagline, column headings, and copyright line. Shown on every page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  /**
+   * e.g. "Premium beverages from the heart of Turkmenistan"
+   */
+  tagline?: string | null;
+  quickLinksLabel?: string | null;
+  companyLabel?: string | null;
+  /**
+   * e.g. "© 2025 RAHATLYK. All rights reserved." — update the year annually.
+   */
+  rights?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Shown whenever a visitor hits a page that no longer exists.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "not-found-page".
+ */
+export interface NotFoundPage {
+  id: number;
+  title?: string | null;
+  message?: string | null;
+  ctaLabel?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-page".
  */
@@ -1614,6 +1655,8 @@ export interface HorizontalScroll {
  */
 export interface OurCollection {
   id: number;
+  sectionTag?: string | null;
+  exploreLabel?: string | null;
   items?:
     | {
         key: string;
@@ -1665,6 +1708,19 @@ export interface HomeCtaBanner {
   createdAt?: string | null;
 }
 /**
+ * Localized paragraph shown under the RAHATLYK wordmark in the brand statement section.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-brand-statement".
+ */
+export interface HomeBrandStatement {
+  id: number;
+  heading?: string | null;
+  text?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Localized section names and button labels for news listing, detail, and home article sections.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1680,6 +1736,11 @@ export interface ArticleLabel {
   backToNewsLabel?: string | null;
   moreArticlesHeading?: string | null;
   noArticlesMessage?: string | null;
+  paginationItemLabel?: string | null;
+  /**
+   * Tokens: {from} {to} {total} {label} — e.g. "{from}–{to} of {total} {label}". Controls word order per locale.
+   */
+  paginationSummary?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1695,6 +1756,10 @@ export interface ProductDetailLabel {
   filterAllLabel?: string | null;
   noProductsMessage?: string | null;
   paginationItemLabel?: string | null;
+  /**
+   * Tokens: {from} {to} {total} {label} — e.g. "{from}–{to} of {total} {label}". Controls word order per locale.
+   */
+  paginationSummary?: string | null;
   sizeLabel?: string | null;
   nutritionLabel?: string | null;
   aboutLabel?: string | null;
@@ -1721,6 +1786,10 @@ export interface VacancyLabel {
   openPositions?: string | null;
   noOpeningsMessage?: string | null;
   paginationItemLabel?: string | null;
+  /**
+   * Tokens: {from} {to} {total} {label} — e.g. "{from}–{to} of {total} {label}". Controls word order per locale.
+   */
+  paginationSummary?: string | null;
   perks?: {
     title?: string | null;
     growthTitle?: string | null;
@@ -1930,6 +1999,31 @@ export interface NavigationLabelsSelect<T extends boolean = true> {
   news?: T;
   vacancies?: T;
   contact?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  tagline?: T;
+  quickLinksLabel?: T;
+  companyLabel?: T;
+  rights?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "not-found-page_select".
+ */
+export interface NotFoundPageSelect<T extends boolean = true> {
+  title?: T;
+  message?: T;
+  ctaLabel?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2256,6 +2350,8 @@ export interface HorizontalScrollSelect<T extends boolean = true> {
  * via the `definition` "our-collection_select".
  */
 export interface OurCollectionSelect<T extends boolean = true> {
+  sectionTag?: T;
+  exploreLabel?: T;
   items?:
     | T
     | {
@@ -2301,6 +2397,17 @@ export interface HomeCtaBannerSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-brand-statement_select".
+ */
+export interface HomeBrandStatementSelect<T extends boolean = true> {
+  heading?: T;
+  text?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "article-labels_select".
  */
 export interface ArticleLabelsSelect<T extends boolean = true> {
@@ -2312,6 +2419,8 @@ export interface ArticleLabelsSelect<T extends boolean = true> {
   backToNewsLabel?: T;
   moreArticlesHeading?: T;
   noArticlesMessage?: T;
+  paginationItemLabel?: T;
+  paginationSummary?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2325,6 +2434,7 @@ export interface ProductDetailLabelsSelect<T extends boolean = true> {
   filterAllLabel?: T;
   noProductsMessage?: T;
   paginationItemLabel?: T;
+  paginationSummary?: T;
   sizeLabel?: T;
   nutritionLabel?: T;
   aboutLabel?: T;
@@ -2346,6 +2456,7 @@ export interface VacancyLabelsSelect<T extends boolean = true> {
   openPositions?: T;
   noOpeningsMessage?: T;
   paginationItemLabel?: T;
+  paginationSummary?: T;
   perks?:
     | T
     | {

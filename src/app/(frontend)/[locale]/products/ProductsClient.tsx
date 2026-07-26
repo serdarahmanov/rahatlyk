@@ -86,17 +86,17 @@ export default function ProductsClient({ categories, result, category, labels }:
                   <ProductVisual product={product} size="sm" className="w-full h-full" />
                 </div>
                 <div className="px-3 pt-3 pb-4">
-                  <p className="text-brand-400 text-[10px] uppercase tracking-wider mb-1.5">{product.category.label}</p>
+                  <p className="text-[#0c3a52] text-[10px] uppercase tracking-wider mb-1.5">{product.category.label}</p>
                   <h3 className="font-medium text-brand-950 text-[17px] leading-tight mb-1.5 group-hover:text-brand-700 transition-colors duration-200">
                     {product.name}
                   </h3>
                   <div className="min-w-0">
                     {product.volumes.length > 1 ? (
-                      <p className="text-xs font-light text-brand-400 truncate">
+                      <p className="text-xs font-light text-[#0c3a52] truncate">
                         {product.volumes.map((v) => v.value.replace(' L', '')).join(' · ')}{' L'}
                       </p>
                     ) : (
-                      <p className="text-xs font-light text-brand-400">{product.volumes[0]?.value} L</p>
+                      <p className="text-xs font-light text-[#0c3a52]">{product.volumes[0]?.value} L</p>
                     )}
                   </div>
                 </div>
@@ -111,6 +111,7 @@ export default function ProductsClient({ categories, result, category, labels }:
             limit={result.limit}
             onChange={handlePageChange}
             label={labels.paginationItemLabel}
+            template={labels.paginationSummary}
           />
         </div>
       </section>

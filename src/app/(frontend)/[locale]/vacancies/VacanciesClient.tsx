@@ -1,12 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import EmptyState from '@/components/EmptyState'
 import FilterBar from '@/components/FilterBar'
+import ImageWithShimmer from '@/components/ImageWithShimmer'
 import Pagination from '@/components/Pagination'
 import type { PayloadCategory, PayloadVacancy, PayloadResult, VacancyLabelsData } from '@/types/payload'
 
@@ -204,7 +204,7 @@ export default function VacanciesClient({ departments, result, department, label
                       style={job.imageUrl ? undefined : { background: `linear-gradient(135deg, ${acc.bg1}, ${acc.bg2})` }}
                     >
                       {job.imageUrl ? (
-                        <Image
+                        <ImageWithShimmer
                           src={job.imageUrl}
                           alt={job.title}
                           fill
@@ -267,6 +267,7 @@ export default function VacanciesClient({ departments, result, department, label
             limit={result.limit}
             onChange={handlePageChange}
             label={labels.paginationItemLabel}
+            template={labels.paginationSummary}
           />
         </div>
       </section>

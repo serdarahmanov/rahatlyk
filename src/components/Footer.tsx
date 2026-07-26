@@ -8,12 +8,24 @@ import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
 import { withLocale } from '@/lib/i18n/locale';
 import type { NavigationLabels } from './Navbar';
 
+export interface FooterData {
+  tagline?: string | null;
+  quickLinksLabel?: string | null;
+  companyLabel?: string | null;
+  rights?: string | null;
+}
+
 function navLabel(labels: NavigationLabels | null | undefined, key: keyof NavigationLabels, fallback: string) {
   const value = labels?.[key];
   return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
-export default function Footer({ labels }: { labels?: NavigationLabels | null }) {
+function footerText(data: FooterData | null | undefined, key: keyof FooterData, fallback: string) {
+  const value = data?.[key];
+  return typeof value === 'string' && value.trim() ? value : fallback;
+}
+
+export default function Footer({ labels, data }: { labels?: NavigationLabels | null; data?: FooterData | null }) {
   const { locale, t } = useLanguage();
   const contactInfo = useContactInfo();
   const social = useSocialLinks();
@@ -54,7 +66,7 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
               </span>
             </Link>
             <p className="text-black text-sm leading-relaxed max-w-xs mb-7">
-              {t.footer.tagline}
+              {footerText(data, 'tagline', t.footer.tagline)}
             </p>
 
             {/* Social icons */}
@@ -79,7 +91,7 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
           {/* ── Quick links ── */}
           <div>
             <h4 className="font-bold text-[10px] tracking-[0.2em] uppercase text-black mb-2">
-              {t.footer.quickLinks}
+              {footerText(data, 'quickLinksLabel', t.footer.quickLinks)}
             </h4>
             <span className="mb-5 block h-[2px] w-6 bg-black" />
             <ul className="space-y-3">
@@ -100,7 +112,7 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
           {/* ── Company + contact ── */}
           <div>
             <h4 className="font-bold text-[10px] tracking-[0.2em] uppercase text-black mb-2">
-              {t.footer.company}
+              {footerText(data, 'companyLabel', t.footer.company)}
             </h4>
             <span className="mb-5 block h-[2px] w-6 bg-black" />
             <ul className="space-y-3">
@@ -115,7 +127,7 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
                   </Link>
                 </li>
               ))}
-              <li className="pt-4 space-y-1.5 border-t border-cyan-200 mt-1">
+              <li className="pt-4 space-y-1.5 border-t border-black mt-1">
                 {contactInfo.phones.map(p => (
                   <p key={p.number} className="text-black text-sm">{p.number}</p>
                 ))}
@@ -129,7 +141,7 @@ export default function Footer({ labels }: { labels?: NavigationLabels | null })
         </div>
         {/* ── Copyright row ── */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-black text-xs">{t.footer.rights}</p>
+          <p className="text-black text-xs">{footerText(data, 'rights', t.footer.rights)}</p>
         </div>
       </div>
 

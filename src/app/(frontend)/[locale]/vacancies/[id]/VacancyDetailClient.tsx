@@ -6,7 +6,13 @@ import Image from 'next/image'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import { formatDate } from '@/lib/formatDate'
+import type { NavigationLabels } from '@/components/Navbar'
 import type { PayloadVacancy, VacancyLabelsData } from '@/types/payload'
+
+function navLabel(labels: NavigationLabels | null | undefined, key: keyof NavigationLabels, fallback: string) {
+  const value = labels?.[key]
+  return typeof value === 'string' && value.trim() ? value : fallback
+}
 
 export interface VacancyFormStrings {
   commonFields: {
@@ -72,9 +78,10 @@ interface Props {
   others: PayloadVacancy[]
   forms: VacancyFormStrings
   labels: VacancyLabelsData
+  navLabels?: NavigationLabels | null
 }
 
-export default function VacancyDetailClient({ vacancy, others, forms, labels }: Props) {
+export default function VacancyDetailClient({ vacancy, others, forms, labels, navLabels }: Props) {
   const cl = forms.commonFields.labels
   const cp = forms.commonFields.placeholders
   const vl = forms.vacancyForm.labels
@@ -144,14 +151,15 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
   const cfg = DEPT_CONFIG[vacancy.department.slug] ?? DEPT_CONFIG['Production']
 
   const validateApplyForm = () => {
+    const ve = forms.vacancyForm.errors
     const errors: Record<string, string> = {}
-    if (!applyForm.firstName.trim()) errors.firstName = 'First name is required'
-    if (!applyForm.lastName.trim()) errors.lastName = 'Last name is required'
-    if (!applyForm.email.trim()) errors.email = 'Email is required'
-    else if (!/\S+@\S+\.\S+/.test(applyForm.email)) errors.email = 'Please enter a valid email'
-    if (!applyForm.dateOfBirth) errors.dateOfBirth = 'Date of birth is required'
-    if (!cvFile) errors.cv = 'Please upload your CV'
-    else if (cvFile.size > 2 * 1024 * 1024) errors.cv = 'CV file must be under 2 MB'
+    if (!applyForm.firstName.trim()) errors.firstName = ve.requiredFields
+    if (!applyForm.lastName.trim()) errors.lastName = ve.requiredFields
+    if (!applyForm.email.trim()) errors.email = ve.requiredFields
+    else if (!/\S+@\S+\.\S+/.test(applyForm.email)) errors.email = ve.emailInvalid
+    if (!applyForm.dateOfBirth) errors.dateOfBirth = ve.requiredFields
+    if (!cvFile) errors.cv = ve.cvRequired
+    else if (cvFile.size > 2 * 1024 * 1024) errors.cv = ve.cvTooLarge
     return errors
   }
 
@@ -279,9 +287,9 @@ export default function VacancyDetailClient({ vacancy, others, forms, labels }: 
       <section className="bg-white pt-32 pb-12 border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 lg:px-10" ref={heroRef}>
           <nav className="flex items-center gap-2 text-slate-400 text-xs mb-8">
-            <Link href={withLocale(locale)} prefetch={false} className="hover:text-brand-700 transition-colors">{t.nav.home}</Link>
+            <Link href={withLocale(locale)} prefetch={false} className="hover:text-brand-700 transition-colors">{navLabel(navLabels, 'home', t.nav.home)}</Link>
             <span>/</span>
-            <Link href={withLocale(locale, '/vacancies')} prefetch={false} className="hover:text-brand-700 transition-colors">{t.nav.vacancies}</Link>
+            <Link href={withLocale(locale, '/vacancies')} prefetch={false} className="hover:text-brand-700 transition-colors">{navLabel(navLabels, 'vacancies', t.nav.vacancies)}</Link>
             <span>/</span>
             <Link href={`${withLocale(locale, '/vacancies')}?department=${encodeURIComponent(vacancy.department.slug)}`} prefetch={false} className="hover:text-brand-700 transition-colors">{vacancy.department.label}</Link>
             <span>/</span>

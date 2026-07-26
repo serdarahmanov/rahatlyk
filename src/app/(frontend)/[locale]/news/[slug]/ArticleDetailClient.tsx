@@ -8,8 +8,14 @@ import { gsap } from 'gsap'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { withLocale } from '@/lib/i18n/locale'
 import { formatDate } from '@/lib/formatDate'
+import type { NavigationLabels } from '@/components/Navbar'
 import type { ArticleLabelsData, PayloadArticle } from '@/types/payload'
 import { LexicalContent } from '@/lib/lexical-serialize'
+
+function navLabel(labels: NavigationLabels | null | undefined, key: keyof NavigationLabels, fallback: string) {
+  const value = labels?.[key]
+  return typeof value === 'string' && value.trim() ? value : fallback
+}
 
 function RelatedCard({ article, labels }: { article: PayloadArticle; labels: ArticleLabelsData }) {
   const router = useRouter()
@@ -138,9 +144,10 @@ interface Props {
   article: PayloadArticle
   more: PayloadArticle[]
   labels: ArticleLabelsData
+  navLabels?: NavigationLabels | null
 }
 
-export default function ArticleDetailClient({ article, more, labels }: Props) {
+export default function ArticleDetailClient({ article, more, labels, navLabels }: Props) {
   const { t, locale } = useLanguage()
 
   const imgs = article.images.map(i => i.url).filter(Boolean)
@@ -222,9 +229,9 @@ export default function ArticleDetailClient({ article, more, labels }: Props) {
       <div className="sm:hidden pt-24 pb-16 px-5">
 
         <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-6">
-          <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+          <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{navLabel(navLabels, 'home', t.nav.home)}</Link>
           <span>/</span>
-          <Link href={withLocale(locale, '/news')} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
+          <Link href={withLocale(locale, '/news')} prefetch={false} className="hover:text-gray-700 transition-colors">{navLabel(navLabels, 'news', t.nav.news)}</Link>
           <span>/</span>
           <Link
             href={`${withLocale(locale, '/news')}?category=${encodeURIComponent(article.category.slug)}`}
@@ -352,9 +359,9 @@ export default function ArticleDetailClient({ article, more, labels }: Props) {
           <div className="flex-none flex flex-col" ref={infoRef}>
 
             <nav className="flex flex-wrap items-center gap-2 text-gray-400 text-xs mb-8">
-              <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.home}</Link>
+              <Link href={withLocale(locale)} prefetch={false} className="hover:text-gray-700 transition-colors">{navLabel(navLabels, 'home', t.nav.home)}</Link>
               <span>/</span>
-              <Link href={withLocale(locale, '/news')} prefetch={false} className="hover:text-gray-700 transition-colors">{t.nav.news}</Link>
+              <Link href={withLocale(locale, '/news')} prefetch={false} className="hover:text-gray-700 transition-colors">{navLabel(navLabels, 'news', t.nav.news)}</Link>
               <span>/</span>
               <Link
                 href={`${withLocale(locale, '/news')}?category=${encodeURIComponent(article.category.slug)}`}

@@ -18,6 +18,15 @@ export const VacancyLabels: GlobalConfig = {
     { name: 'noOpeningsMessage',   type: 'text', localized: true, label: 'No openings message' },
     { name: 'paginationItemLabel', type: 'text', localized: true, label: 'Pagination item label' },
     {
+      name: 'paginationSummary',
+      type: 'text',
+      localized: true,
+      label: 'Pagination summary text',
+      admin: {
+        description: 'Tokens: {from} {to} {total} {label} — e.g. "{from}–{to} of {total} {label}". Controls word order per locale.',
+      },
+    },
+    {
       name: 'perks',
       type: 'group',
       label: 'Why Join RAHATLYK?',

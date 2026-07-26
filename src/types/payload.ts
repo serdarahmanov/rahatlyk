@@ -129,6 +129,8 @@ export type ArticleLabelsData = {
   backToNewsLabel:     string
   moreArticlesHeading: string
   noArticlesMessage:   string
+  paginationItemLabel: string
+  paginationSummary:   string
 }
 
 export type ProductLabelsData = {
@@ -136,6 +138,7 @@ export type ProductLabelsData = {
   filterAllLabel:      string
   noProductsMessage:   string
   paginationItemLabel: string
+  paginationSummary:   string
   sizeLabel:           string
   nutritionLabel:      string
   aboutLabel:          string
@@ -153,6 +156,7 @@ export type VacancyLabelsData = {
   openPositions:       string
   noOpeningsMessage:   string
   paginationItemLabel: string
+  paginationSummary:   string
   perks: {
     title:        string
     growthTitle:  string
