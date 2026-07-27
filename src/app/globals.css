@@ -659,6 +659,15 @@ body {
     row-gap: 28px;
   }
 
+  .about-mosaic-stat {
+    padding: 0 clamp(12px, 4vw, 28px);
+  }
+
+  .about-mosaic-stat strong {
+    min-width: 3ch;
+    font-size: clamp(32px, 11vw, 52px);
+  }
+
   .about-mosaic-stat + .about-mosaic-stat {
     border-left: 0;
   }

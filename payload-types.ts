@@ -118,6 +118,7 @@ export interface Config {
     'navigation-labels': NavigationLabel;
     footer: Footer;
     'not-found-page': NotFoundPage;
+    'error-page': ErrorPage;
     'about-page': AboutPage;
     forms: Form;
     'about-hero': AboutHero;
@@ -142,6 +143,7 @@ export interface Config {
     'navigation-labels': NavigationLabelsSelect<false> | NavigationLabelsSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'not-found-page': NotFoundPageSelect<false> | NotFoundPageSelect<true>;
+    'error-page': ErrorPageSelect<false> | ErrorPageSelect<true>;
     'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'about-hero': AboutHeroSelect<false> | AboutHeroSelect<true>;
@@ -1323,6 +1325,22 @@ export interface NotFoundPage {
   createdAt?: string | null;
 }
 /**
+ * Shown whenever an unexpected error happens while rendering a page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "error-page".
+ */
+export interface ErrorPage {
+  id: number;
+  label?: string | null;
+  title?: string | null;
+  message?: string | null;
+  retryLabel?: string | null;
+  ctaLabel?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "about-page".
  */
@@ -2023,6 +2041,20 @@ export interface FooterSelect<T extends boolean = true> {
 export interface NotFoundPageSelect<T extends boolean = true> {
   title?: T;
   message?: T;
+  ctaLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "error-page_select".
+ */
+export interface ErrorPageSelect<T extends boolean = true> {
+  label?: T;
+  title?: T;
+  message?: T;
+  retryLabel?: T;
   ctaLabel?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -83,7 +83,7 @@ export default function SmoothScroll() {
           const { Observer } = await import('gsap/Observer');
           if (cancelled) return;
           gsap.registerPlugin(Observer);
-          ScrollTrigger.normalizeScroll(true);
+          ScrollTrigger.normalizeScroll({ allowNestedScroll: true });
         }
 
         requestAnimationFrame(() => {
