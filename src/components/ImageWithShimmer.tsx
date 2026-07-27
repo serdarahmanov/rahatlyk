@@ -22,6 +22,7 @@ export default function ImageWithShimmer({ className = '', onLoad, ...props }: P
       {!loaded && <div className="img-shimmer pointer-events-none absolute inset-0" aria-hidden="true" />}
       <Image
         {...props}
+        alt={props.alt}
         ref={imgRef}
         className={`${className} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={(event) => {

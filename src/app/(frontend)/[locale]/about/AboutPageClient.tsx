@@ -111,25 +111,12 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
   const [openMilestone, setOpenMilestone] = useState<number>(0);
   const [shouldLoadHeroVideo, setShouldLoadHeroVideo] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
-  const [heroImageReady, setHeroImageReady] = useState(false);
   const [contentMediaReady, setContentMediaReady] = useState(false);
   const [activeHeroVideoUrl, setActiveHeroVideoUrl] = useState<string | null>(null);
   const [mosaicIndex, setMosaicIndex] = useState(0);
 
   const { locale } = useLanguage();
   const isFirstLocaleRef = useRef(true);
-
-  // Covers a client-side navigation (e.g. Link from another page) where the
-  // cover image isn't in the browser cache yet: without this, the <img> pops
-  // in abruptly once decoded, and until then the header's dark background
-  // shows through raw — reading as a jarring flash. Fading the image in only
-  // once it's actually ready turns that into a smooth reveal instead.
-  useEffect(() => {
-    const img = heroImageRef.current;
-    if (img && img.complete && img.naturalWidth > 0) {
-      setHeroImageReady(true);
-    }
-  }, []);
 
   // After a language switch, router.refresh() can shift element heights
   // (different text lengths per locale), invalidating ScrollTrigger's cached
@@ -604,7 +591,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
                 src={data.hero.coverImage}
                 alt="About page hero"
                 fetchPriority="high"
-                onLoad={() => setHeroImageReady(true)}
                 className="h-full w-full object-cover object-center will-change-transform"
               />
             </picture>

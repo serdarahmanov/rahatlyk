@@ -127,6 +127,7 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
         opacity: showHeaderPanel ? 1 : 0,
         transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
         transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1)',
+        willChange: 'transform, opacity',
       }}
     />
 
@@ -151,6 +152,7 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
           transform: showHeaderPanel ? 'translateY(0)' : 'translateY(-100%)',
           borderColor: showHeaderPanel ? 'rgba(0,0,0,0.14)' : 'rgba(0,0,0,0)',
           transition: 'opacity 420ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1), border-color 420ms ease',
+          willChange: 'transform, opacity',
         }}
       />
 
