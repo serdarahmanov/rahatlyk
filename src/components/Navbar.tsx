@@ -34,7 +34,12 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
   const [langOpen,       setLangOpen]       = useState(false);
   // introComplete drives header opacity — owned entirely by React so
   // no external imperative writes can desync virtual DOM vs real DOM
-  const prevScrollY = useRef(0);
+  // Tracks the scrollY at the last point a direction was actually accepted —
+  // not the previous frame's y. Comparing frame-to-frame breaks on a slow,
+  // deliberate scroll (each frame only moves a couple px, never clearing a
+  // threshold), so instead small movements accumulate against this anchor
+  // until they add up to a real gesture.
+  const lastDirectionY = useRef(0);
   const langRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t } = useLanguage();
   const contactInfo = useContactInfo();
@@ -42,20 +47,40 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
 
   useEffect(() => {
     let ticking = false;
+    // Asymmetric on purpose: hide quickly on the way down, but require a
+    // clearer upward gesture before revealing again. Mobile Safari's address
+    // bar shifts scrollY by a few px on its own once scrolling settles (no
+    // user input involved) — HIDE_THRESHOLD alone would still be low enough
+    // for that noise to falsely reveal the header, so SHOW_THRESHOLD is kept
+    // well above what that settle correction produces.
+    const HIDE_THRESHOLD = 8;
+    const SHOW_THRESHOLD = 16;
+    const SHOW_HEADER_AT = 80;
+
+    lastDirectionY.current = window.scrollY;
 
     const syncScrollState = () => {
       ticking = false;
-      const y = window.scrollY;
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastDirectionY.current;
       setScrolled(y > 1);
+
       // Direction: treat near-top as "up" so header never hides at page top
-      if (y < 80) {
+      if (y < SHOW_HEADER_AT) {
         setScrolledUp(true);
-      } else if (y > prevScrollY.current) {
-        setScrolledUp(false); // scrolling down
-      } else {
-        setScrolledUp(true);  // scrolling up
+        lastDirectionY.current = y;
+        return;
       }
-      prevScrollY.current = y;
+
+      if (delta >= HIDE_THRESHOLD) {
+        setScrolledUp(false); // scrolling down
+        lastDirectionY.current = y;
+      } else if (delta <= -SHOW_THRESHOLD) {
+        setScrolledUp(true);  // scrolling up
+        lastDirectionY.current = y;
+      }
+      // else: within the dead zone — leave lastDirectionY as-is so small
+      // movements keep accumulating instead of resetting every frame.
     };
 
     // Coalesce to one state check per animation frame — native scroll events
