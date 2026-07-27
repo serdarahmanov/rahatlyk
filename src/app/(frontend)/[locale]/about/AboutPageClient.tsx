@@ -856,15 +856,15 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
               </picture>
             </div>
           )}
-          <div className="absolute inset-0 bg-white/50" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-[clamp(18px,3.6vw,52px)] text-center text-[#141618]">
+          <div className="absolute inset-0 bg-[#04192e]/35" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-[clamp(18px,3.6vw,52px)] text-center text-white">
             <h2
               className="max-w-[20ch] text-[clamp(32px,5vw,72px)] font-light leading-[1.06] tracking-[-0.01em]"
               style={headingStyle}
             >
               {data.finalSection.heading}
             </h2>
-            <p className="mt-[clamp(14px,2vw,24px)] max-w-[44ch] text-[clamp(14px,1.4vw,18px)] font-medium leading-[1.5] text-[#141618]/85">
+            <p className="mt-[clamp(14px,2vw,24px)] max-w-[44ch] text-[clamp(14px,1.4vw,18px)] font-medium leading-[1.5] text-white/85">
               {data.finalSection.body}
             </p>
           </div>
