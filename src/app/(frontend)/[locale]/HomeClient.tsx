@@ -101,46 +101,6 @@ function pauseVideo(video: HTMLVideoElement | null) {
   video.pause();
 }
 
-function splitWordsIntoSpans(el: HTMLElement, displayText?: string): {
-  spans: HTMLElement[];
-  restore: () => void;
-} {
-  const text  = displayText ?? (el.textContent ?? '');
-  const words = text.trim().split(/\s+/).filter(Boolean);
-
-  while (el.firstChild) el.removeChild(el.firstChild);
-
-  const spans: HTMLElement[] = [];
-
-  words.forEach((word, i) => {
-    const mask = document.createElement('span');
-    mask.style.display       = 'inline-block';
-    mask.style.overflow      = 'hidden';
-    mask.style.verticalAlign = 'bottom';
-    mask.style.paddingBottom = '0.2em';
-    mask.style.marginBottom  = '-0.2em';
-
-    const inner = document.createElement('span');
-    inner.style.display = 'inline-block';
-    inner.textContent   = word;
-
-    mask.appendChild(inner);
-    el.appendChild(mask);
-
-    if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
-
-    spans.push(inner);
-  });
-
-  return {
-    spans,
-    restore: () => {
-      while (el.firstChild) el.removeChild(el.firstChild);
-      el.textContent = text;
-    },
-  };
-}
-
 /* ── Pinned horizontal-scroll section ────────────────────────────── */
 const HorizontalScrollSection = memo(function HorizontalScrollSection({
   data,
@@ -1075,6 +1035,10 @@ export default function HomeClient({
   const heroTitle       = hero.title       || t.home.hero.title;
   const heroTitleAccent = hero.titleAccent || t.home.hero.titleAccent;
   const heroSubtitle    = hero.subtitle    || t.home.hero.subtitle;
+  const brandHeadingText = brandHeading || 'RAHATLYK';
+  const brandHeadingWords = brandHeadingText.trim().split(/\s+/).filter(Boolean);
+  const brandHeadingFirstWord = brandHeadingWords[0] ?? '';
+  const brandHeadingRestWords = brandHeadingWords.slice(1).join(' ');
   const heroMobileBottleSrc = getHeroAssetSet(hero).mobileBottleSrc;
   const [heroImages, setHeroImages] = useState<HeroImageAsset[]>([]);
   const [heroRequiredImages, setHeroRequiredImages] = useState<Set<string>>(() => new Set());
@@ -1430,9 +1394,15 @@ export default function HomeClient({
           once: true,
           onEnter: () => {
             const tl = gsap.timeline();
-            const { spans: lSpans, restore: lRestore } = splitWordsIntoSpans(labelEl);
+            // Mask spans are permanent, JSX-rendered markup (like .brand-text-word
+            // below) — GSAP only animates the already-existing inner spans, it never
+            // builds/tears down DOM. An earlier version rebuilt these imperatively via
+            // JS and flattened them back to plain text on completion, which caused a
+            // visible snap: the mask's padding trick made that line slightly taller
+            // while masked, so restoring to plain text abruptly shrank it.
+            const labelWords = labelEl.querySelectorAll<HTMLElement>('.brand-label-word');
             gsap.set(labelEl, { opacity: 1 });
-            tl.fromTo(lSpans, { yPercent: 115 }, { yPercent: 0, duration: 0.8, ease: 'power4.out', onComplete: lRestore });
+            tl.fromTo(labelWords, { yPercent: 115 }, { yPercent: 0, duration: 0.8, ease: 'power4.out' });
             const textWords = textEl.querySelectorAll<HTMLElement>('.brand-text-word');
             gsap.set(textEl, { opacity: 1 });
             tl.fromTo(textWords, { yPercent: 115 }, { yPercent: 0, duration: 0.7, stagger: 0.035, ease: 'power4.out' }, 0.15);
@@ -1525,9 +1495,13 @@ export default function HomeClient({
             </div>
           );
         })}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-2/5 bg-gradient-to-t from-white via-white/60 to-transparent sm:hidden"
+        />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-20 sm:pb-20 lg:pb-0">
           <div id="hero-content" className="max-w-2xl">
-            <div className="text-5xl sm:text-6xl lg:text-7xl font-light text-black leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
+            <div className="text-4xl sm:text-6xl lg:text-7xl font-light text-black leading-[1.06] tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading), sans-serif' }}>
               <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
                 <div ref={titleLine1Ref}>{hero.title || t.home.hero.title}</div>
               </div>
@@ -1535,7 +1509,7 @@ export default function HomeClient({
                 <div ref={titleLine2Ref} className="text-black/75">{hero.titleAccent || t.home.hero.titleAccent}</div>
               </div>
             </div>
-            <div className="overflow-hidden pb-[0.18em] -mb-[0.18em]">
+            <div className="hidden sm:block overflow-hidden pb-[0.18em] -mb-[0.18em]">
               <p ref={heroSubRef} className="text-base sm:text-lg text-black/70 max-w-md mb-10 leading-relaxed">
                 {hero.subtitle || t.home.hero.subtitle}
               </p>
@@ -1567,13 +1541,28 @@ export default function HomeClient({
         <section ref={brandRef} className="relative z-30 -mt-px overflow-hidden bg-[#006bb6] pt-6 pb-20 pointer-events-auto sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-32">
           <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-start">
-            <div className="sm:pt-[0.2em] sm:pr-8 text-center lg:pr-20 lg:text-left">
+            <div className="sm:pt-[0.2em] sm:pr-8 text-left sm:text-center lg:pr-20 lg:text-left">
               <span
                 ref={brandLabelRef}
-                className="block text-4xl font-light tracking-normal text-white uppercase sm:text-5xl lg:text-6xl"
+                className="block text-4xl font-light tracking-normal text-white uppercase leading-[1.25] sm:text-5xl lg:text-6xl"
                 style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 500, overflow: 'hidden', paddingBottom: '0.1em' }}
               >
-                {brandHeading || 'RAHATLYK'}
+                <span className="block">
+                  <span className="inline-block overflow-hidden align-bottom pb-[0.12em] mb-[-0.12em]">
+                    <span className="brand-label-word inline-block">{brandHeadingFirstWord}</span>
+                  </span>
+                </span>
+                {brandHeadingRestWords && (
+                  <span className="block">
+                    {brandHeadingRestWords.split(/(\s+)/).map((part, index) => (
+                      /^\s+$/.test(part) ? part : (
+                        <span key={`${part}-${index}`} className="inline-block overflow-hidden align-bottom pb-[0.12em] mb-[-0.12em]">
+                          <span className="brand-label-word inline-block">{part}</span>
+                        </span>
+                      )
+                    ))}
+                  </span>
+                )}
               </span>
             </div>
             <div className="min-w-0">
