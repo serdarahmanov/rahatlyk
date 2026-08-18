@@ -4,8 +4,8 @@ import { getCachedContactInfo } from '@/lib/payload/cachedQueries'
 export async function GET() {
   try {
     const data = await getCachedContactInfo()
-    return NextResponse.json(data?.socialLinks ?? { instagramUrl: '', youtubeUrl: '', facebookUrl: '' })
+    return NextResponse.json(data?.socialLinks ?? { instagramUrl: '', youtubeUrl: '', facebookUrl: '', whatsappUrl: '', linkedinUrl: '' })
   } catch {
-    return NextResponse.json({ instagramUrl: '', youtubeUrl: '', facebookUrl: '' })
+    return NextResponse.json({ instagramUrl: '', youtubeUrl: '', facebookUrl: '', whatsappUrl: '', linkedinUrl: '' })
   }
 }

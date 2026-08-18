@@ -77,15 +77,14 @@ export function getCachedAboutData(locale: Locale) {
     [aboutTag(locale)],
     async () => {
       const payload = await getPayloadClient()
-      const [hero, whoWeAre, story, numbers, finalSection] = await Promise.all([
+      const [hero, whoWeAre, story, numbers] = await Promise.all([
         payload.findGlobal({ slug: 'about-hero', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-who-we-are', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-our-story', locale, depth: 1 }),
         payload.findGlobal({ slug: 'about-numbers', locale, depth: 1 }),
-        payload.findGlobal({ slug: 'about-final-section', locale, depth: 1 }),
       ])
 
-      return { hero, whoWeAre, story, numbers, finalSection }
+      return { hero, whoWeAre, story, numbers }
     },
   )
 }

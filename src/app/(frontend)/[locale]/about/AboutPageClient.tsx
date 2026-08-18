@@ -51,12 +51,6 @@ export type AboutPageData = {
     centerImage: string | null;
     rightImage: string | null;
   };
-  finalSection: {
-    image: string | null;
-    mobileImage: string | null;
-    heading: string;
-    body: string;
-  };
 };
 
 const headingStyle = { fontFamily: 'var(--font-heading), sans-serif' };
@@ -106,8 +100,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
   const videoScrubRef = useRef<HTMLVideoElement>(null);
   const mosaicSectionRef = useRef<HTMLElement>(null);
   const mosaicScrollerRef = useRef<HTMLDivElement>(null);
-  const lastPlxSectionRef = useRef<HTMLElement>(null);
-  const lastPlxMediaRef = useRef<HTMLDivElement>(null);
   const [openMilestone, setOpenMilestone] = useState<number>(0);
   const [shouldLoadHeroVideo, setShouldLoadHeroVideo] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
@@ -283,7 +275,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
           gsap.set('.body-word', { opacity: 1 });
           gsap.set('.about-clip', { clipPath: 'inset(0% 0% 0% 0%)' });
           gsap.set('[data-about-plx-strong]', { yPercent: 0 });
-          gsap.set('[data-last-plx-media]', { y: 0 });
           gsap.set('.about-mosaic-intro, .about-mosaic-track, .about-mosaic-card', { opacity: 1, x: 0, y: 0 });
           return;
         }
@@ -451,28 +442,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
               invalidateOnRefresh: true,
             });
           }
-        }
-
-        if (lastPlxSectionRef.current && lastPlxMediaRef.current) {
-          const section = lastPlxSectionRef.current;
-          const media = lastPlxMediaRef.current;
-          const travel = () => Math.max(media.offsetHeight - section.offsetHeight, 0);
-
-          gsap.fromTo(
-            media,
-            { y: () => -travel() },
-            {
-              y: 0,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: true,
-                invalidateOnRefresh: true,
-              },
-            }
-          );
         }
 
         gsap.utils.toArray<HTMLElement>('[data-count-to]').forEach((el) => {
@@ -834,41 +803,6 @@ export default function AboutPageClient({ data }: { data: AboutPageData }) {
             </div>
           </section>
         </div>
-
-
-        <section ref={lastPlxSectionRef} className="relative h-[100lvh] overflow-hidden">
-          {data.finalSection.image && (
-            <div
-              ref={lastPlxMediaRef}
-              data-last-plx-media
-              className="absolute inset-x-0 top-0 h-[128%] will-change-transform"
-            >
-              <picture className="absolute inset-0 block">
-                {data.finalSection.mobileImage && (
-                  <source media="(max-width: 767px)" srcSet={data.finalSection.mobileImage} />
-                )}
-                <img
-                  src={data.finalSection.image}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-full w-full object-cover object-center"
-                />
-              </picture>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-[#04192e]/35" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-[clamp(18px,3.6vw,52px)] text-center text-white">
-            <h2
-              className="max-w-[20ch] text-[clamp(32px,5vw,72px)] font-light leading-[1.06] tracking-[-0.01em]"
-              style={headingStyle}
-            >
-              {data.finalSection.heading}
-            </h2>
-            <p className="mt-[clamp(14px,2vw,24px)] max-w-[44ch] text-[clamp(14px,1.4vw,18px)] font-medium leading-[1.5] text-white/85">
-              {data.finalSection.body}
-            </p>
-          </div>
-        </section>
 
       </main>
 

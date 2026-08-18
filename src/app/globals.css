@@ -579,16 +579,18 @@ body {
 }
 
 .about-mosaic-stats-grid {
-  width: 100%;
+  width: min(100%, 1280px);
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   padding: clamp(26px, 4vw, 52px) 0;
 }
 
 .about-mosaic-stat {
+  min-width: 0;
   text-align: center;
-  padding: 0 clamp(32px, 5vw, 72px);
+  padding: 0 clamp(18px, 3vw, 48px);
 }
 
 .about-mosaic-stat + .about-mosaic-stat {
@@ -626,11 +628,11 @@ body {
 
 .about-mosaic-stats-line {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: clamp(36px, 7vh, 82px);
   width: 100%;
   margin-top: 0;
-  transform: translateX(-50%);
   color: #fff;
   font-size: clamp(28px, 4vw, 58px);
   font-weight: 400;

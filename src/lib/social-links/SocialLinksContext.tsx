@@ -7,9 +7,17 @@ export interface SocialLinks {
   instagramUrl: string
   youtubeUrl: string
   facebookUrl: string
+  whatsappUrl: string
+  linkedinUrl: string
 }
 
-const defaultLinks: SocialLinks = { instagramUrl: '', youtubeUrl: '', facebookUrl: '' }
+const defaultLinks: SocialLinks = {
+  instagramUrl: '',
+  youtubeUrl: '',
+  facebookUrl: '',
+  whatsappUrl: '',
+  linkedinUrl: '',
+}
 
 const SocialLinksContext = createContext<SocialLinks>(defaultLinks)
 

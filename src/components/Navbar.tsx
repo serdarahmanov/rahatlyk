@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
-import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
+import { FacebookIcon, InstagramIcon, LinkedinIcon, WhatsappIcon, YoutubeIcon } from '@/lib/social-icons';
 import { Locale } from '@/lib/i18n/translations';
 import { withLocale } from '@/lib/i18n/locale';
 
@@ -359,6 +359,16 @@ export default function Navbar({ labels }: { labels?: NavigationLabels | null })
           {social.facebookUrl && (
             <a href={social.facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-black/60 hover:text-black transition-colors duration-200">
               <FacebookIcon size={20} />
+            </a>
+          )}
+          {social.whatsappUrl && (
+            <a href={social.whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="text-black/60 hover:text-black transition-colors duration-200">
+              <WhatsappIcon size={20} />
+            </a>
+          )}
+          {social.linkedinUrl && (
+            <a href={social.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-black/60 hover:text-black transition-colors duration-200">
+              <LinkedinIcon size={20} />
             </a>
           )}
           {contactInfo.email && (

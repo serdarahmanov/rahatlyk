@@ -82,12 +82,6 @@ const FALLBACK: AboutPageData = {
     centerImage: null,
     rightImage: null,
   },
-  finalSection: {
-    image: null,
-    mobileImage: null,
-    heading: 'Every drop, a promise kept.',
-    body: 'From the first filtration to the final cap, Rahatlyk keeps quality in its own hands - every bottle, every time.',
-  },
 }
 
 function resolveAboutHeroImage(coverImage: { filename?: string | null; url?: string | null } | null | undefined) {
@@ -160,8 +154,6 @@ export default async function AboutPage({ params }: Props) {
     const storyRaw: any = cached.story
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const numbersRaw: any = cached.numbers
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const finalSectionRaw: any = cached.finalSection
 
     data = {
       hero: {
@@ -216,12 +208,6 @@ export default async function AboutPage({ params }: Props) {
         leftImage:   storyRaw?.leftImage?.url   || FALLBACK.mosaic.leftImage,
         centerImage: storyRaw?.centerImage?.url || FALLBACK.mosaic.centerImage,
         rightImage:  storyRaw?.rightImage?.url  || FALLBACK.mosaic.rightImage,
-      },
-      finalSection: {
-        image:       finalSectionRaw?.image?.url       || FALLBACK.finalSection.image,
-        mobileImage: finalSectionRaw?.mobileImage?.url || null,
-        heading:     finalSectionRaw?.heading          || FALLBACK.finalSection.heading,
-        body:        finalSectionRaw?.body             || FALLBACK.finalSection.body,
       },
     }
 

@@ -21,6 +21,8 @@ export interface RawContactInfo {
     instagramUrl?: string | null
     youtubeUrl?: string | null
     facebookUrl?: string | null
+    whatsappUrl?: string | null
+    linkedinUrl?: string | null
   } | null
 }
 
@@ -39,6 +41,8 @@ export interface ContactInfoData {
     instagramUrl: string
     youtubeUrl: string
     facebookUrl: string
+    whatsappUrl: string
+    linkedinUrl: string
   }
 }
 
@@ -48,7 +52,7 @@ const defaultInfo: ContactInfoData = {
   phones: [],
   address: '',
   workingHours: '',
-  socialLinks: { instagramUrl: '', youtubeUrl: '', facebookUrl: '' },
+  socialLinks: { instagramUrl: '', youtubeUrl: '', facebookUrl: '', whatsappUrl: '', linkedinUrl: '' },
 }
 
 const ContactInfoContext = createContext<ContactInfoData>(defaultInfo)
@@ -90,6 +94,8 @@ export function ContactInfoProvider({
       instagramUrl: raw?.socialLinks?.instagramUrl ?? '',
       youtubeUrl: raw?.socialLinks?.youtubeUrl ?? '',
       facebookUrl: raw?.socialLinks?.facebookUrl ?? '',
+      whatsappUrl: raw?.socialLinks?.whatsappUrl ?? '',
+      linkedinUrl: raw?.socialLinks?.linkedinUrl ?? '',
     },
   }
 

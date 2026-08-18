@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useContactInfo } from '@/lib/contact-info/ContactInfoContext';
 import { useSocialLinks } from '@/lib/social-links/SocialLinksContext';
-import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/lib/social-icons';
+import { FacebookIcon, InstagramIcon, LinkedinIcon, WhatsappIcon, YoutubeIcon } from '@/lib/social-icons';
 import { withLocale } from '@/lib/i18n/locale';
 import type { NavigationLabels } from './Navbar';
 
@@ -34,6 +34,8 @@ export default function Footer({ labels, data }: { labels?: NavigationLabels | n
     { label: 'Facebook',  href: social.facebookUrl,  icon: <FacebookIcon />  },
     { label: 'Instagram', href: social.instagramUrl, icon: <InstagramIcon /> },
     { label: 'YouTube',   href: social.youtubeUrl,   icon: <YoutubeIcon />   },
+    { label: 'WhatsApp',  href: social.whatsappUrl,  icon: <WhatsappIcon />  },
+    { label: 'LinkedIn',  href: social.linkedinUrl,  icon: <LinkedinIcon />  },
   ].filter(s => s.href);
 
   const quickLinks = [

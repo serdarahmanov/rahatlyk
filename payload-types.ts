@@ -1191,6 +1191,8 @@ export interface ContactInfo {
     instagramUrl?: string | null;
     youtubeUrl?: string | null;
     facebookUrl?: string | null;
+    whatsappUrl?: string | null;
+    linkedinUrl?: string | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1914,6 +1916,8 @@ export interface ContactInfoSelect<T extends boolean = true> {
         instagramUrl?: T;
         youtubeUrl?: T;
         facebookUrl?: T;
+        whatsappUrl?: T;
+        linkedinUrl?: T;
       };
   updatedAt?: T;
   createdAt?: T;

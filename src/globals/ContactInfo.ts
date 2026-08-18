@@ -36,6 +36,8 @@ export const ContactInfo: GlobalConfig = {
         { name: 'instagramUrl', type: 'text', label: 'Instagram URL' },
         { name: 'youtubeUrl', type: 'text', label: 'YouTube URL' },
         { name: 'facebookUrl', type: 'text', label: 'Facebook URL' },
+        { name: 'whatsappUrl', type: 'text', label: 'WhatsApp URL' },
+        { name: 'linkedinUrl', type: 'text', label: 'LinkedIn URL' },
       ],
     },
   ],

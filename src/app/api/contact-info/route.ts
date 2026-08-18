@@ -11,7 +11,7 @@ export async function GET() {
       phones: [],
       address: {},
       workingHours: {},
-      socialLinks: { instagramUrl: '', youtubeUrl: '', facebookUrl: '' },
+      socialLinks: { instagramUrl: '', youtubeUrl: '', facebookUrl: '', whatsappUrl: '', linkedinUrl: '' },
     })
   }
 }

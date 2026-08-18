@@ -34,6 +34,7 @@ import * as migration_20260701_150000_about_mobile_images from './20260701_15000
 import * as migration_20260711_131518 from './20260711_131518';
 import * as migration_20260719_170000_product_article_slugs from './20260719_170000_product_article_slugs';
 import * as migration_20260723_000000_home_hero_cta from './20260723_000000_home_hero_cta';
+import * as migration_20260818_000000_contact_social_links from './20260818_000000_contact_social_links';
 
 export const migrations = [
   {
@@ -215,5 +216,10 @@ export const migrations = [
     up: migration_20260723_000000_home_hero_cta.up,
     down: migration_20260723_000000_home_hero_cta.down,
     name: '20260723_000000_home_hero_cta',
+  },
+  {
+    up: migration_20260818_000000_contact_social_links.up,
+    down: migration_20260818_000000_contact_social_links.down,
+    name: '20260818_000000_contact_social_links',
   },
 ];

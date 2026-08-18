@@ -35,6 +35,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/favicon.ico',
-    '/((?!admin(?:/|$)|api(?:/|$)|_next(?:/|$)|media(?:/|$)|images(?:/|$)|fonts(?:/|$)|.*\\.[^/]+$).*)',
+    '/((?!admin(?:/|$)|api(?:/|$)|_next(?:/|$)|media(?:/|$)|images(?:/|$)|fonts(?:/|$)|.*\\.(?:ico|png|jpg|jpeg|webp|gif|svg|css|js|map|txt|xml|json|woff|woff2|ttf|otf|mp4|webm|pdf)$).*)',
   ],
 }
