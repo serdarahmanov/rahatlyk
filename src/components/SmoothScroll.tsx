@@ -64,28 +64,6 @@ export default function SmoothScroll() {
         scrollTriggerUpdate = () => ScrollTrigger.update();
         refreshScrollTrigger = () => ScrollTrigger.refresh();
 
-        // Only on touch devices, where Lenis is skipped (see above) — normalizeScroll
-        // is GSAP's own fix for mobile-browser scroll/viewport quirks, but it takes
-        // over scroll itself, so it must not run alongside Lenis, which is already
-        // doing that on desktop. Pins are measured once when they engage and then
-        // held fixed (ignoreMobileResize above stops ScrollTrigger from re-measuring
-        // every time the toolbar shows/hides) — a toolbar-driven refresh was tried
-        // here and removed again: it forced pins with a height-mutating refresh
-        // hook (e.g. CollectionsSection) to resize themselves while actively
-        // pinned, which visibly shifted them. The safe-area padding on the pinned
-        // sections is what keeps their content clear of the notch/Dynamic Island.
-        if (isTouchDevice) {
-          // normalizeScroll() uses the Observer plugin internally — it must be
-          // registered explicitly (registering ScrollTrigger alone isn't enough)
-          // or Observer's internal gsap-core reference is unbound, which throws
-          // "Cannot read properties of undefined (reading 'utils')" from within
-          // GSAP's own Observer.js the moment normalizeScroll() runs.
-          const { Observer } = await import('gsap/Observer');
-          if (cancelled) return;
-          gsap.registerPlugin(Observer);
-          ScrollTrigger.normalizeScroll({ allowNestedScroll: true });
-        }
-
         requestAnimationFrame(() => {
           if (cancelled) return;
           ScrollTrigger.refresh();
