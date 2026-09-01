@@ -1,19 +1,7 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  /* ── RAHATLYK — Black / Beige / White palette ── */
-  --color-brand-50:  #faf8f4;   /* warm off-white        */
-  --color-brand-100: #f0e8d8;   /* light cream / beige   */
-  --color-brand-200: #dfd0b8;   /* soft beige            */
-  --color-brand-300: #c8ad88;   /* warm tan              */
-  --color-brand-400: #a88e6a;   /* medium warm           */
-  --color-brand-500: #8a7256;   /* warm brown mid        */
-  --color-brand-600: #6e5a44;   /* dark warm             */
-  --color-brand-700: #524030;   /* dark brown            */
-  --color-brand-800: #382c22;   /* very dark warm        */
-  --color-brand-900: #1e1611;   /* near-black warm       */
-  --color-brand-950: #0f0b07;   /* almost black          */
-}
 
 * {
   box-sizing: border-box;
