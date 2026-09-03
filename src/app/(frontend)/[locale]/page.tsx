@@ -13,7 +13,7 @@ import type { HorizontalScrollData, HomeCtaBannerData, HomeHeroData } from '@/ty
 const EMPTY_H_SCROLL: HorizontalScrollData = {
   box1ImageUrl: null,
   box2ImageUrl: null, box2Tag: null, box2Headline: null,
-  box3ImageUrl: null, box4Text: null, box4ButtonLabel: null, box4ButtonHref: null,
+  box3ImageUrl: null, box4ImageUrl: null, box4Text: null, box4ButtonLabel: null, box4ButtonHref: null,
   box5VideoUrl: null, box5CoverImageUrl: null, box5Tag: null, box5Headline: null,
   box6ImageUrl: null, box6Tag: null, box6Headline: null, box6ButtonLabel: null, box6ButtonHref: null,
 }

@@ -263,6 +263,10 @@ export interface Product {
    */
   slug: string;
   tagline?: string | null;
+  /**
+   * Optional — schema.org Product brand name. Falls back to the Organization name (Site Metadata & JSON-LD), then "Rahatlyk Suw" if both are empty.
+   */
+  brandName?: string | null;
   date?: string | null;
   category: number | ProductCategory;
   description?: string | null;
@@ -795,6 +799,7 @@ export interface ProductsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   tagline?: T;
+  brandName?: T;
   date?: T;
   category?: T;
   description?: T;
@@ -1153,6 +1158,26 @@ export interface SiteMetadatum {
      * Defaults to RAHATLYK if empty.
      */
     name?: string | null;
+    /**
+     * Full registered company name, e.g. "Rahatlyk Suwy LLC". Omitted from JSON-LD if empty.
+     */
+    legalName?: string | null;
+    /**
+     * Short organization description for JSON-LD. Omitted if empty.
+     */
+    description?: string | null;
+    /**
+     * schema.org/PostalAddress streetAddress. Independent of the Contact Page address — omitted from JSON-LD if empty.
+     */
+    streetAddress?: string | null;
+    /**
+     * schema.org/PostalAddress addressLocality, e.g. "Ashgabat". Omitted if empty.
+     */
+    addressLocality?: string | null;
+    /**
+     * schema.org/PostalAddress addressCountry, e.g. "TM". Omitted if empty.
+     */
+    addressCountry?: string | null;
   };
   /**
    * schema.org/WebSite — used by Google to display your site name in search results instead of the URL.
@@ -1162,6 +1187,19 @@ export interface SiteMetadatum {
      * Defaults to RAHATLYK if empty.
      */
     name?: string | null;
+    /**
+     * schema.org/WebSite description — describes the website itself, separate from the Home page meta description. Falls back to the default site description if empty.
+     */
+    description?: string | null;
+    /**
+     * Other names people search the site by, e.g. "RAHATLYK", "Rahatlyk Suw". Defaults to RAHATLYK / Rahatlyk Suw if empty.
+     */
+    alternateNames?:
+      | {
+          value: string;
+          id?: string | null;
+        }[]
+      | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1641,9 +1679,10 @@ export interface HorizontalScroll {
     image?: (number | null) | Media;
   };
   /**
-   * The animated blue gradient background is static code. Manage the text and button here.
+   * Upload a background image for this CTA panel. Manage the text and button here.
    */
   box4?: {
+    image?: (number | null) | Media;
     text?: string | null;
     buttonLabel?: string | null;
     buttonHref?: string | null;
@@ -1883,11 +1922,23 @@ export interface SiteMetadataSelect<T extends boolean = true> {
     | T
     | {
         name?: T;
+        legalName?: T;
+        description?: T;
+        streetAddress?: T;
+        addressLocality?: T;
+        addressCountry?: T;
       };
   websiteJsonLd?:
     | T
     | {
         name?: T;
+        description?: T;
+        alternateNames?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2356,6 +2407,7 @@ export interface HorizontalScrollSelect<T extends boolean = true> {
   box4?:
     | T
     | {
+        image?: T;
         text?: T;
         buttonLabel?: T;
         buttonHref?: T;

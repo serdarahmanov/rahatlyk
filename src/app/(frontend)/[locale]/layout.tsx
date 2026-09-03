@@ -100,10 +100,11 @@ export async function generateMetadata({
   const title = siteMeta?.home?.title ?? SITE_TITLES[locale] ?? SITE_TITLES[defaultLocale]
   const description = siteMeta?.home?.description ?? SITE_DESCRIPTIONS[locale] ?? SITE_DESCRIPTIONS[defaultLocale]
   const homeOgImageUrl = resolveOgImage(siteMeta?.home?.ogImage)
+  const siteName = siteMeta?.websiteJsonLd?.name || 'Rahatlyk Suwy'
 
   return {
     metadataBase: new URL(siteUrl),
-    title: { default: title, template: `%s — RAHATLYK` },
+    title: { default: title, template: `%s — ${siteName}` },
     description,
     alternates: {
       canonical: buildCanonicalPath(locale),
@@ -120,7 +121,7 @@ export async function generateMetadata({
       title,
       description,
       url: buildCanonicalPath(locale),
-      siteName: 'Rahatlyk',
+      siteName,
       locale: OG_LOCALES[locale] ?? OG_LOCALES[defaultLocale],
       type: 'website',
       ...(homeOgImageUrl ? { images: [{ url: homeOgImageUrl }] } : {}),
@@ -186,20 +187,62 @@ export default async function RootLayout({
   const logoUrl = siteIconUrl(contactInfo)
   const orgName = siteMeta?.organizationJsonLd?.name || 'Rahatlyk'
   const siteName = siteMeta?.websiteJsonLd?.name || 'Rahatlyk'
+  const orgLegalName: string | undefined = siteMeta?.organizationJsonLd?.legalName || undefined
+  const orgDescription: string | undefined = siteMeta?.organizationJsonLd?.description || undefined
+  const orgStreetAddress: string | undefined = siteMeta?.organizationJsonLd?.streetAddress || undefined
+  const orgAddressLocality: string | undefined = siteMeta?.organizationJsonLd?.addressLocality || undefined
+  const orgAddressCountry: string | undefined = siteMeta?.organizationJsonLd?.addressCountry || undefined
+  const sameAs = [
+    contactInfo?.socialLinks?.facebookUrl,
+    contactInfo?.socialLinks?.instagramUrl,
+    contactInfo?.socialLinks?.linkedinUrl,
+  ].filter((url): url is string => Boolean(url))
+  const telephone = contactInfo?.phones?.[0]?.number || undefined
+  const hasAddress = Boolean(orgStreetAddress || orgAddressLocality || orgAddressCountry)
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: orgName,
     url: homeUrl,
     ...(logoUrl ? { logo: new URL('/api/site-icon', siteUrl).toString() } : {}),
+    ...(orgLegalName ? { legalName: orgLegalName } : {}),
+    ...(orgDescription ? { description: orgDescription } : {}),
+    ...(sameAs.length ? { sameAs } : {}),
+    ...(telephone ? {
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone,
+        contactType: 'customer service',
+        areaServed: 'TM',
+        availableLanguage: ['tk', 'ru', 'en'],
+      },
+    } : {}),
+    ...(hasAddress ? {
+      address: {
+        '@type': 'PostalAddress',
+        ...(orgStreetAddress ? { streetAddress: orgStreetAddress } : {}),
+        ...(orgAddressLocality ? { addressLocality: orgAddressLocality } : {}),
+        ...(orgAddressCountry ? { addressCountry: orgAddressCountry } : {}),
+      },
+    } : {}),
   }
 
+  const websiteDescription = siteMeta?.websiteJsonLd?.description ?? SITE_DESCRIPTIONS[locale] ?? SITE_DESCRIPTIONS[defaultLocale]
+  const alternateNames = (siteMeta?.websiteJsonLd?.alternateNames as { value?: string | null }[] | undefined ?? [])
+    .map((entry) => entry?.value)
+    .filter((value): value is string => Boolean(value))
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: siteName,
-    alternateName: ['RAHATLYK', 'Rahatlyk Suw'],
+    alternateName: alternateNames.length ? alternateNames : ['RAHATLYK', 'Rahatlyk Suw'],
     url: homeUrl,
+    inLanguage: ['tk', 'ru', 'en'],
+    ...(websiteDescription ? { description: websiteDescription } : {}),
+    publisher: {
+      '@type': 'Organization',
+      name: orgName,
+    },
   }
 
   return (

@@ -78,6 +78,11 @@ export const SiteMetadata: GlobalConfig = {
       admin: { description: 'schema.org/Organization — used by Google for Knowledge Panels and brand recognition.' },
       fields: [
         { name: 'name', type: 'text', label: 'Organization Name', admin: { description: 'Defaults to RAHATLYK if empty.' } },
+        { name: 'legalName', type: 'text', label: 'Legal Name', admin: { description: 'Full registered company name, e.g. "Rahatlyk Suwy LLC". Omitted from JSON-LD if empty.' } },
+        { name: 'description', type: 'textarea', label: 'Description', admin: { description: 'Short organization description for JSON-LD. Omitted if empty.' } },
+        { name: 'streetAddress', type: 'text', label: 'Street Address', admin: { description: 'schema.org/PostalAddress streetAddress. Independent of the Contact Page address — omitted from JSON-LD if empty.' } },
+        { name: 'addressLocality', type: 'text', label: 'City', admin: { description: 'schema.org/PostalAddress addressLocality, e.g. "Ashgabat". Omitted if empty.' } },
+        { name: 'addressCountry', type: 'text', label: 'Country Code', admin: { description: 'schema.org/PostalAddress addressCountry, e.g. "TM". Omitted if empty.' } },
       ],
     },
     {
@@ -87,6 +92,16 @@ export const SiteMetadata: GlobalConfig = {
       admin: { description: 'schema.org/WebSite — used by Google to display your site name in search results instead of the URL.' },
       fields: [
         { name: 'name', type: 'text', label: 'Site Name', admin: { description: 'Defaults to RAHATLYK if empty.' } },
+        { name: 'description', type: 'textarea', localized: true, label: 'Description', admin: { description: 'schema.org/WebSite description — describes the website itself, separate from the Home page meta description. Falls back to the default site description if empty.' } },
+        {
+          name: 'alternateNames',
+          type: 'array',
+          label: 'Alternate Names',
+          admin: { description: 'Other names people search the site by, e.g. "RAHATLYK", "Rahatlyk Suw". Defaults to RAHATLYK / Rahatlyk Suw if empty.' },
+          fields: [
+            { name: 'value', type: 'text', required: true, label: 'Name' },
+          ],
+        },
       ],
     },
   ],

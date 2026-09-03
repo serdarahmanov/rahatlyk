@@ -77,6 +77,7 @@ export type HorizontalScrollData = {
   box2Tag:         string | null
   box2Headline:    string | null
   box3ImageUrl:    string | null
+  box4ImageUrl:    string | null
   box4Text:        string | null
   box4ButtonLabel: string | null
   box4ButtonHref:  string | null

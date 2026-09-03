@@ -32,6 +32,14 @@ export const Products: CollectionConfig = {
       },
     },
     { name: 'tagline',         type: 'text',                      localized: true },
+    {
+      name: 'brandName',
+      type: 'text',
+      label: 'Brand Name',
+      admin: {
+        description: 'Optional — schema.org Product brand name. Falls back to the Organization name (Site Metadata & JSON-LD), then "Rahatlyk Suw" if both are empty.',
+      },
+    },
     { name: 'date',            type: 'date',
       admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'yyyy-MM-dd' } } },
     { name: 'category',        type: 'relationship', relationTo: 'product-categories' as const, required: true },

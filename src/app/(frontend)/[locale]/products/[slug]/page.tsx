@@ -11,6 +11,7 @@ import {
   getCachedProductDetail,
   getCachedProductLocalizedSlugs,
   getCachedProductStaticSlugs,
+  getCachedSiteMetadata,
 } from '@/lib/payload/cachedQueries'
 
 export async function generateStaticParams() {
@@ -99,6 +100,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const labels: ProductDetailLabelsData = resolveProductLabels(locale, labelsRaw)
   const navLabels = await getCachedNavigationLabels(locale).catch(() => null)
+  const siteMeta = await getCachedSiteMetadata(locale).catch(() => null)
 
   const normalizedProduct = normalizeProduct(product)
   const related = cached.related.map(normalizeProduct)
@@ -112,6 +114,8 @@ export default async function ProductDetailPage({ params }: Props) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com'
   const productImage = normalizedProduct.photos[0]?.url
   const productUrl = buildAbsoluteUrl(siteUrl, buildCanonicalPath(locale, `/products/${normalizedProduct.slug}`))
+  const orgName = siteMeta?.organizationJsonLd?.name || 'Rahatlyk'
+  const brandName = product.brandName || siteMeta?.organizationJsonLd?.name || 'Rahatlyk Suw'
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -122,7 +126,11 @@ export default async function ProductDetailPage({ params }: Props) {
     ...(productImage ? { image: [buildAbsoluteUrl(siteUrl, productImage)] } : {}),
     brand: {
       '@type': 'Brand',
-      name: 'Rahatlyk',
+      name: brandName,
+    },
+    manufacturer: {
+      '@type': 'Organization',
+      name: orgName,
     },
   }
 

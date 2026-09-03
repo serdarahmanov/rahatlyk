@@ -39,11 +39,12 @@ export const HorizontalScroll: GlobalConfig = {
     {
       type: 'group',
       name: 'box4',
-      label: 'Box 4 — CTA (Gradient Background — Static)',
+      label: 'Box 4 — CTA Image Panel',
       admin: {
-        description: 'The animated blue gradient background is static code. Manage the text and button here.',
+        description: 'Upload a background image for this CTA panel. Manage the text and button here.',
       },
       fields: [
+        { name: 'image',       type: 'relationship', relationTo: 'media' as const },
         { name: 'text',        type: 'text', localized: true },
         { name: 'buttonLabel', type: 'text', localized: true },
         { name: 'buttonHref',  type: 'text' },

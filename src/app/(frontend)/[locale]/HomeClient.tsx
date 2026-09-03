@@ -115,11 +115,17 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   const containerRef   = useRef<HTMLDivElement>(null);
   const trackRef       = useRef<HTMLDivElement>(null);
   const box5CoverImgRef = useRef<HTMLImageElement>(null);
+  const box5WrapperRef  = useRef<HTMLDivElement>(null);
+  const box6WrapperRef  = useRef<HTMLDivElement>(null);
   const isFirstDataRef = useRef(true);
   const [box5CoverReadyUrl, setBox5CoverReadyUrl] = useState<string | null>(null);
   const [stableBox5VideoUrl, setStableBox5VideoUrl] = useState<string | null>(() => data.box5VideoUrl ?? null);
+  const [usePinnedHorizontal, setUsePinnedHorizontal] = useState(true);
+  const [mobileRailIndex, setMobileRailIndex] = useState(0);
 
   const shouldLoadBox5Video = pageLoaded && (!data.box5CoverImageUrl || box5CoverReadyUrl === data.box5CoverImageUrl);
+  const mobileSnapClass = ' max-md:snap-start';
+  const mobileRailItemCount = 5;
 
   useEffect(() => {
     if (!stableBox5VideoUrl && data.box5VideoUrl) {
@@ -128,8 +134,68 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
     }
   }, [data.box5VideoUrl, stableBox5VideoUrl]);
 
+  useLayoutEffect(() => {
+    const media = window.matchMedia('(min-width: 768px)');
+    const update = () => setUsePinnedHorizontal(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
   useEffect(() => {
     return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-box5-video]'));
+  }, []);
+
+  const scrollMobileRail = useCallback((direction: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const nextIndex = Math.min(Math.max(mobileRailIndex + direction, 0), mobileRailItemCount - 1);
+    const target = track.children[nextIndex] as HTMLElement | undefined;
+    if (!target) return;
+
+    track.scrollTo({
+      left: target.offsetLeft - 16,
+      behavior: 'smooth',
+    });
+    setMobileRailIndex(nextIndex);
+  }, [mobileRailIndex]);
+
+  const handleMobileRailScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (!track || usePinnedHorizontal) return;
+
+    const children = Array.from(track.children).slice(0, mobileRailItemCount) as HTMLElement[];
+    const nextIndex = children.reduce((closestIndex, child, index) => {
+      const currentDistance = Math.abs(child.offsetLeft - 16 - track.scrollLeft);
+      const closest = children[closestIndex];
+      const closestDistance = closest ? Math.abs(closest.offsetLeft - 16 - track.scrollLeft) : Infinity;
+      return currentDistance < closestDistance ? index : closestIndex;
+    }, 0);
+
+    setMobileRailIndex(nextIndex);
+  }, [usePinnedHorizontal]);
+
+  // The water-blob glows are paused by default (see globals.css) and only
+  // animate while Box 5 is actually within/near the viewport — the track's
+  // horizontal position is GSAP-transformed, not scrolled, but
+  // IntersectionObserver still resolves the element's real post-transform
+  // bounding box, so this correctly tracks when the box scrolls into view.
+  useEffect(() => {
+    const el = box5WrapperRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.setAttribute('data-blobs-active', '');
+        } else {
+          el.removeAttribute('data-blobs-active');
+        }
+      },
+      { rootMargin: '20% 0px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -171,6 +237,21 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       const track = trackRef.current;
       gsap.set(track, { x: 0 });
 
+      if (!usePinnedHorizontal) {
+        track.style.willChange = 'auto';
+        return;
+      }
+
+      const getHorizontalDistance = () => {
+        const containerWidth = containerRef.current?.clientWidth ?? window.innerWidth;
+        const finalBox = box6WrapperRef.current;
+        const railPadding = 16;
+        if (!finalBox) return Math.max(track.scrollWidth - containerWidth, 0);
+
+        const finalBoxRight = finalBox.offsetLeft + finalBox.offsetWidth;
+        return Math.max(finalBoxRight + railPadding - containerWidth, 0);
+      };
+
       // anticipatePin estimates scroll velocity to pre-engage the pin just
       // before its start point, avoiding a flash right at the transition —
       // but that estimate assumes native/inertia scrolling. Lenis (desktop-
@@ -185,12 +266,12 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
 
       ctx = gsap.context(() => {
         gsap.to(track, {
-          x:    () => -(track.scrollWidth - window.innerWidth),
+          x:    () => -getHorizontalDistance(),
           ease: 'none',
           scrollTrigger: {
             trigger:             containerRef.current,
             start:               'top top',
-            end:                 () => `+=${track.scrollWidth - window.innerWidth}`,
+            end:                 () => `+=${getHorizontalDistance()}`,
             pin:                 true,
             // true (not a duration like 1) — Lenis already eases the scroll
             // position itself on desktop; a second, independent catch-up delay
@@ -230,32 +311,35 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
       removeResize?.();
       ctx?.revert();
     };
-  }, []);
+  }, [usePinnedHorizontal]);
 
   // viewportHeight is measured once per HomeClient mount (not module-level,
   // so a fresh SPA visit to Home re-measures instead of reusing a value from
   // a previous, possibly stale, visit) and re-applied whenever it changes.
   useEffect(() => {
     if (containerRef.current && viewportHeight) {
-      containerRef.current.style.height = `${viewportHeight}px`;
+      const header = document.querySelector('header');
+      const headerHeight = !usePinnedHorizontal && header ? header.offsetHeight : 0;
+      containerRef.current.style.height = `${Math.max(420, viewportHeight - headerHeight)}px`;
     }
-  }, [viewportHeight]);
+  }, [usePinnedHorizontal, viewportHeight]);
 
   return (
     <div
       ref={containerRef}
       data-debug-pin="horizontal-scroll"
-      className="overflow-hidden bg-white pb-7"
+      className="relative overflow-hidden bg-white pb-7 max-md:flex max-md:flex-col max-md:gap-3"
       style={{ height: '100svh', boxSizing: 'border-box', paddingTop: 'calc(1.75rem + env(safe-area-inset-top))' }}
     >
       <div
         ref={trackRef}
-        className="flex h-full gap-4 px-4"
-        style={{ willChange: 'transform' }}
+        className="flex h-full gap-4 px-4 max-md:h-auto max-md:min-h-0 max-md:flex-1 max-md:snap-x max-md:snap-mandatory max-md:scroll-px-4 max-md:overflow-x-auto max-md:scroll-smooth max-md:[-ms-overflow-style:none] max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden"
+        style={{ WebkitOverflowScrolling: 'touch', willChange: 'transform' }}
+        onScroll={handleMobileRailScroll}
       >
 
         {/* ── BOX 1 · Full-height portrait photo ────────────────── */}
-        <div className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[88vw] md:w-[42vw]">
+        <div className={`relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[88vw] md:w-[42vw]${mobileSnapClass}`}>
           {data.box1ImageUrl && (
             <Image
               src={data.box1ImageUrl}
@@ -270,7 +354,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
 
         {/* ── BOX 2 · Dark text panel ───────────────────────────── */}
         <div
-          className="relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl w-[80vw] md:w-[28vw]"
+          className={`relative h-full flex-shrink-0 bg-brand-950 flex flex-col justify-center overflow-hidden rounded-2xl w-[80vw] md:w-[28vw]${mobileSnapClass}`}
           style={{ padding: '0 4vw' }}
         >
           {data.box2ImageUrl && (
@@ -302,7 +386,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
         </div>
 
         {/* ── BOX 3 + BOX 4 · Product photo + CTA ──────────────── */}
-        <div className="relative h-full flex-shrink-0 flex flex-col gap-4 w-[85vw] md:w-[32vw]">
+        <div className={`relative h-full flex-shrink-0 flex flex-col gap-4 w-[85vw] md:w-[32vw]${mobileSnapClass}`}>
           <div className="relative overflow-hidden rounded-2xl bg-brand-100" style={{ flex: '1 1 60%' }}>
             {data.box3ImageUrl && (
               <Image
@@ -320,11 +404,19 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
             style={{ flex: '0 0 40%', padding: '0 3.5vw', background: '#0b2e4a' }}
           >
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
-              <div className="water-blob-1 absolute -top-[30%] -left-[20%] w-[70%] h-[100%] rounded-full bg-[#38c8f5] blur-[60px]" />
-              <div className="water-blob-2 absolute -top-[20%] left-[30%] w-[50%] h-[80%] rounded-full bg-[#d4f2ff] blur-[50px]" />
-              <div className="water-blob-3 absolute top-[30%] right-[-10%] w-[50%] h-[70%] rounded-full bg-[#2a9fd8] blur-[55px]" />
-              <div className="water-blob-5 absolute bottom-[-20%] left-[20%] w-[40%] h-[60%] rounded-full bg-[#a0e4fc] blur-[45px]" />
+              {data.box4ImageUrl ? (
+                <img
+                  src={data.box4ImageUrl}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover object-center"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0d3d60] via-[#0b2e4a] to-[#04192e]" />
+              )}
+              <div className="absolute inset-0 bg-[#04192e]/20" />
             </div>
             <div className="relative z-10 w-full">
               {data.box4Text && (
@@ -346,7 +438,7 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
         </div>
 
         {/* ── BOX 5 · Video with cover image ────────────────────── */}
-        <div className="relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[90vw] md:w-[52vw]">
+        <div ref={box5WrapperRef} className={`relative h-full flex-shrink-0 overflow-hidden rounded-2xl bg-brand-100 w-[90vw] md:w-[52vw]${mobileSnapClass}`}>
           {data.box5CoverImageUrl && (
             <img
               ref={box5CoverImgRef}
@@ -371,6 +463,11 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
               preload="auto"
               onCanPlay={(e) => { e.currentTarget.muted = true; void e.currentTarget.play().catch(() => undefined); }}
               className="absolute inset-0 w-full h-full object-cover"
+              // Its own promoted layer, isolated from the track's images —
+              // continuous frame decode shouldn't force recompositing the
+              // static images sharing the (now conditionally-promoted)
+              // track layer, and vice versa.
+              style={{ willChange: 'transform', transform: 'translateZ(0)' }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -395,7 +492,8 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
 
         {/* ── BOX 6 · Closing panel ─────────────────────────────── */}
         <div
-          className="relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl w-[80vw] md:w-[25vw]"
+          ref={box6WrapperRef}
+          className={`relative h-full flex-shrink-0 bg-brand-50 flex flex-col justify-center overflow-hidden rounded-2xl w-[80vw] md:w-[25vw]${mobileSnapClass}`}
           style={{ padding: '0 3.5vw' }}
         >
           {data.box6ImageUrl && (
@@ -435,7 +533,30 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-4" aria-hidden="true" />
+      </div>
+      <div className="flex items-center justify-end gap-2 px-4 md:hidden">
+        <button
+          type="button"
+          onClick={() => scrollMobileRail(-1)}
+          disabled={mobileRailIndex === 0}
+          aria-label="Previous panel"
+          className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11] disabled:opacity-30"
+        >
+          <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+            <path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollMobileRail(1)}
+          disabled={mobileRailIndex === mobileRailItemCount - 1}
+          aria-label="Next panel"
+          className="flex h-9 w-9 items-center justify-center rounded-md bg-black/[0.06] text-gray-700 transition-all duration-200 hover:bg-black/[0.11] disabled:opacity-30"
+        >
+          <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+            <path d="M4 2L9 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   );
@@ -790,17 +911,17 @@ const CollectionsSection = memo(function CollectionsSection({
         </div>
 
         <div className="flex flex-col w-full">
-          <div className="overflow-hidden mb-2 w-full md:w-[380px] lg:w-[420px] xl:w-[500px]">
+          <div className="mb-2 w-full md:w-[380px] lg:w-[420px] xl:w-[500px]">
             <h3 className="split-reveal break-normal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif', overflowWrap: 'normal' }}>
               {activeLine?.name ?? ''}
             </h3>
           </div>
-          <div className="overflow-hidden mb-4 w-full">
+          <div className="mb-4 w-full">
             <p className="reveal-block block text-black/55 text-xs lg:text-sm font-light tracking-wide">
               {activeLine?.description ?? ''}
             </p>
           </div>
-          <div className="overflow-hidden hidden md:block w-full">
+          <div className="hidden md:block w-full">
             <p className="split-reveal text-black text-xs lg:text-sm leading-snug">
               {activeLine?.body ?? ''}
             </p>

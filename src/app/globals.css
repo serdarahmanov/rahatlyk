@@ -214,6 +214,20 @@ body {
 .water-blob-stats-1 { animation: water-drift-2 4s ease-in-out infinite, water-pulse 2s ease-in-out infinite; --op-from: 0.45; --op-to: 0.65; }
 .water-blob-stats-2 { animation: water-drift-3 3.2s ease-in-out infinite 0.8s, water-pulse 1.8s ease-in-out infinite 0.5s; --op-from: 0.40; --op-to: 0.60; }
 
+/* Box 5 (horizontal-scroll) blobs only animate while that box is in view —
+   they sit next to an autoplaying video inside a pinned/scrubbed track, so
+   letting them run off-screen just burns GPU/paint budget for nothing. */
+.water-blob-1, .water-blob-2, .water-blob-3, .water-blob-4, .water-blob-5 {
+  animation-play-state: paused;
+}
+[data-blobs-active] .water-blob-1,
+[data-blobs-active] .water-blob-2,
+[data-blobs-active] .water-blob-3,
+[data-blobs-active] .water-blob-4,
+[data-blobs-active] .water-blob-5 {
+  animation-play-state: running;
+}
+
 /* ---- News card slideshow ---- */
 @keyframes news-slide-in {
   from { transform: translateX(100%); }
@@ -280,7 +294,14 @@ body {
   .filter-bar-pill-enter,
   .news-card-enter,
   .listing-card-enter,
-  .vacancy-perk-enter {
+  .vacancy-perk-enter,
+  .water-blob-1,
+  .water-blob-2,
+  .water-blob-3,
+  .water-blob-4,
+  .water-blob-5,
+  .water-blob-stats-1,
+  .water-blob-stats-2 {
     animation: none;
   }
 }

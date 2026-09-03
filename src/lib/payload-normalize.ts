@@ -138,6 +138,7 @@ export const normalizeHorizontalScroll = (raw: any): HorizontalScrollData => {
     box2Tag:         rawStr(b2.tag),
     box2Headline:    rawStr(b2.headline),
     box3ImageUrl:    rawMediaUrl(b3.image),
+    box4ImageUrl:    rawMediaUrl(b4.image),
     box4Text:        rawStr(b4.text),
     box4ButtonLabel: rawStr(b4.buttonLabel),
     box4ButtonHref:  rawStr(b4.buttonHref),

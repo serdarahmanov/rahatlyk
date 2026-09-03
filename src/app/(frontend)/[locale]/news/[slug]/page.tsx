@@ -10,7 +10,7 @@ import {
   truncateDescription,
 } from '@/lib/i18n/metadata'
 import { normalizeArticle } from '@/lib/payload-normalize'
-import { getCachedNavigationLabels, getCachedNewsDetail, getCachedNewsLocalizedSlugs, getCachedNewsStaticSlugs } from '@/lib/payload/cachedQueries'
+import { getCachedNavigationLabels, getCachedNewsDetail, getCachedNewsLocalizedSlugs, getCachedNewsStaticSlugs, getCachedSiteMetadata } from '@/lib/payload/cachedQueries'
 import { resolveArticleLabels } from '@/lib/article-labels'
 
 export async function generateStaticParams() {
@@ -96,11 +96,13 @@ export default async function ArticlePage({ params }: Props) {
   const more = cached.related.map(normalizeArticle)
   const labels = resolveArticleLabels(locale, cached.labels)
   const navLabels = await getCachedNavigationLabels(locale).catch(() => null)
+  const siteMeta = await getCachedSiteMetadata(locale).catch(() => null)
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rahatlyk.com'
   const articleUrl = buildAbsoluteUrl(siteUrl, buildCanonicalPath(locale, `/news/${normalizedArticle.slug}`))
   const articleImage = normalizedArticle.images[0]?.url
   const description = truncateDescription(extractLexicalText(normalizedArticle.body[0]?.text))
+  const orgName = siteMeta?.organizationJsonLd?.name || 'Rahatlyk'
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -113,11 +115,11 @@ export default async function ArticlePage({ params }: Props) {
     ...(articleImage ? { image: [buildAbsoluteUrl(siteUrl, articleImage)] } : {}),
     author: {
       '@type': 'Organization',
-      name: 'Rahatlyk',
+      name: orgName,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Rahatlyk',
+      name: orgName,
     },
   }
 
