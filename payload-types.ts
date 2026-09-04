@@ -1720,6 +1720,10 @@ export interface OurCollection {
     | {
         key: string;
         name: string;
+        /**
+         * Describes this collection image for accessibility and search. Falls back to the item name when empty.
+         */
+        imageAlt?: string | null;
         description: string;
         body: string;
         image?: (number | null) | Media;
@@ -2445,6 +2449,7 @@ export interface OurCollectionSelect<T extends boolean = true> {
     | {
         key?: T;
         name?: T;
+        imageAlt?: T;
         description?: T;
         body?: T;
         image?: T;

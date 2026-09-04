@@ -120,10 +120,11 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   const isFirstDataRef = useRef(true);
   const [box5CoverReadyUrl, setBox5CoverReadyUrl] = useState<string | null>(null);
   const [stableBox5VideoUrl, setStableBox5VideoUrl] = useState<string | null>(() => data.box5VideoUrl ?? null);
+  const [shouldPrepareBox5Video, setShouldPrepareBox5Video] = useState(false);
   const [usePinnedHorizontal, setUsePinnedHorizontal] = useState(true);
   const [mobileRailIndex, setMobileRailIndex] = useState(0);
 
-  const shouldLoadBox5Video = pageLoaded && (!data.box5CoverImageUrl || box5CoverReadyUrl === data.box5CoverImageUrl);
+  const shouldLoadBox5Video = shouldPrepareBox5Video && pageLoaded && (!data.box5CoverImageUrl || box5CoverReadyUrl === data.box5CoverImageUrl);
   const mobileSnapClass = ' max-md:snap-start';
   const mobileRailItemCount = 5;
 
@@ -145,6 +146,28 @@ const HorizontalScrollSection = memo(function HorizontalScrollSection({
   useEffect(() => {
     return () => pauseVideo(document.querySelector<HTMLVideoElement>('[data-box5-video]'));
   }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || shouldPrepareBox5Video) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      const id = requestAnimationFrame(() => setShouldPrepareBox5Video(true));
+      return () => cancelAnimationFrame(id);
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setShouldPrepareBox5Video(true);
+        observer.disconnect();
+      },
+      { rootMargin: '400px 0px', threshold: 0.01 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [shouldPrepareBox5Video]);
 
   const scrollMobileRail = useCallback((direction: 1 | -1) => {
     const track = trackRef.current;
@@ -577,12 +600,12 @@ const CollectionsSection = memo(function CollectionsSection({
   const { locale } = useLanguage();
   const sectionRef   = useRef<HTMLDivElement>(null);
   const bottleEls    = useRef<(HTMLDivElement | null)[]>([]);
+  const contentEls   = useRef<(HTMLDivElement | null)[]>([]);
+  const linkEls      = useRef<(HTMLAnchorElement | null)[]>([]);
   const animObj      = useRef({ pos: 0 });
-  const textRef      = useRef<HTMLDivElement>(null);
   const navRef       = useRef<HTMLDivElement>(null);
-  const pinProgressTrackRef = useRef<HTMLDivElement>(null);
-  const pinProgressRef = useRef<HTMLDivElement>(null);
   const isFirstRun   = useRef(true);
+  const collectionEnteredRef = useRef(false);
   const entranceMult = useRef(0);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [snapIndex, setSnapIndex] = useState(0);
@@ -608,16 +631,25 @@ const CollectionsSection = memo(function CollectionsSection({
     sectionRef.current.style.setProperty('--col-h', `${h}px`);
     sectionRef.current.style.setProperty('--bottle-h', `${bottleH}px`);
 
-    if (textRef.current) {
-      textRef.current.style.paddingTop = isMobile ? '' : `${Math.round(h * 0.12)}px`;
-    }
+    contentEls.current.forEach((el) => {
+      if (el) el.style.paddingTop = isMobile ? '' : `${Math.round(h * 0.12)}px`;
+    });
   }, [viewportHeight]);
 
   useLayoutEffect(() => {
-    if (textRef.current) textRef.current.style.opacity = '0';
+    contentEls.current.forEach((el, index) => {
+      if (!el) return;
+      el.style.opacity = index === 0 ? '1' : '0';
+      el.style.pointerEvents = index === 0 ? 'auto' : 'none';
+    });
+    linkEls.current.forEach((el, index) => {
+      if (!el) return;
+      el.style.opacity = index === 0 ? '1' : '0';
+      el.style.pointerEvents = index === 0 ? 'auto' : 'none';
+    });
     if (navRef.current) {
-      navRef.current.style.opacity  = '0';
-      navRef.current.style.transform = 'translateY(14px)';
+      navRef.current.style.opacity  = '1';
+      navRef.current.style.transform = 'translateY(0)';
     }
   }, []);
 
@@ -709,6 +741,38 @@ const CollectionsSection = memo(function CollectionsSection({
     });
   };
 
+  const applyActiveContent = useCallback((activeIndex: number, visible: boolean) => {
+    contentEls.current.forEach((el, index) => {
+      if (!el) return;
+      const isActive = index === activeIndex;
+      el.style.opacity = isActive && visible ? '1' : '0';
+      el.style.pointerEvents = isActive ? 'auto' : 'none';
+    });
+    linkEls.current.forEach((el, index) => {
+      if (!el) return;
+      const isActive = index === activeIndex;
+      el.style.opacity = isActive && visible ? '1' : '0';
+      el.style.pointerEvents = isActive ? 'auto' : 'none';
+    });
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        collectionEnteredRef.current = true;
+        applyActiveContent(snapIndex, true);
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [applyActiveContent, snapIndex]);
+
   useEffect(() => { applyProgress(0); }, []);
 
   useEffect(() => {
@@ -725,6 +789,7 @@ const CollectionsSection = memo(function CollectionsSection({
         start:   'top 60%',
         once:    true,
         onEnter: () => {
+          collectionEnteredRef.current = true;
           const tl = gsap.timeline();
           tl.to(entranceMult, {
             current:  1,
@@ -732,76 +797,38 @@ const CollectionsSection = memo(function CollectionsSection({
             ease:     'power2.out',
             onUpdate: () => applyProgress(animObj.current.pos),
           }, 0);
-          if (textRef.current) {
-            tl.to(textRef.current, { opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.15);
-          }
+          tl.call(() => applyActiveContent(animObj.current.pos, true), undefined, 0.15);
           if (navRef.current) {
             tl.to(navRef.current, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.35);
           }
         },
       });
 
-      const progressEl = pinProgressRef.current;
-      const progressTrackEl = pinProgressTrackRef.current;
-      const setPinProgress = progressEl
-        ? gsap.quickTo(progressEl, 'scaleY', {
-            duration: 0.2,
-            ease: 'power2.out',
-          })
-        : null;
-      const showPinProgress = (origin: 'top' | 'bottom') => {
-        if (!progressTrackEl?.isConnected) return;
-        gsap.set(progressTrackEl, { transformOrigin: origin });
-        gsap.to(progressTrackEl, { scaleY: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
-      };
-      const hidePinProgress = (origin: 'top' | 'bottom') => {
-        if (!progressTrackEl?.isConnected) return;
-        gsap.set(progressTrackEl, { transformOrigin: origin });
-        gsap.to(progressTrackEl, { scaleY: 0, duration: 0.3, ease: 'power2.in', overwrite: true });
-      };
-
-      const pin = ScrollTrigger.create({
-        trigger:          sectionRef.current!,
-        pin:              true,
-        start:            "top top",
-        end:              () => `+=${Math.round((sectionRef.current?.offsetHeight ?? 0) * 0.35)}`,
-        pinSpacing:       true,
-        invalidateOnRefresh: true,
-        onRefreshInit:    recalculateLayout,
-        onUpdate: (self) => { setPinProgress?.(self.progress); },
-        onRefresh: (self) => {
-          if (!progressEl?.isConnected) return;
-          gsap.set(progressEl, { scaleY: self.progress });
-        },
-        onEnter:      () => showPinProgress('top'),
-        onEnterBack:  () => showPinProgress('bottom'),
-        onLeave:      () => hidePinProgress('bottom'),
-        onLeaveBack:  () => hidePinProgress('top'),
-      });
-
-      cleanup = () => { pin.kill(); st.kill(); };
+      cleanup = () => { st.kill(); };
     };
     init();
     return () => {
       cancelled = true;
       cleanup?.();
     };
-  }, [recalculateLayout]);
+  }, [applyActiveContent, recalculateLayout]);
 
   useEffect(() => {
     if (isFirstRun.current) { isFirstRun.current = false; return; }
-    const el = textRef.current;
+    const el = contentEls.current[snapIndex];
     if (!el) return;
     import('gsap').then(({ gsap }) => {
+      applyActiveContent(snapIndex, true);
       const blocks = el.querySelectorAll<HTMLElement>('.reveal-block');
       gsap.fromTo(blocks, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.08, ease: 'power3.out', overwrite: 'auto' });
       const splitTargets = el.querySelectorAll<HTMLElement>('.split-reveal');
       gsap.fromTo(splitTargets, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.09, ease: 'power3.out', overwrite: 'auto' });
     });
-  }, [snapIndex]);
+  }, [applyActiveContent, snapIndex]);
 
   const goTo = useCallback(async (idx: number) => {
     if (idx < 0 || idx >= lines.length) return;
+    applyActiveContent(idx, collectionEnteredRef.current);
     setSnapIndex(idx);
     const { gsap } = await import('gsap');
     gsap.killTweensOf(animObj.current);
@@ -811,7 +838,7 @@ const CollectionsSection = memo(function CollectionsSection({
       ease:     'power3.inOut',
       onUpdate: () => applyProgress(animObj.current.pos),
     });
-  }, [lines.length]);
+  }, [applyActiveContent, lines.length]);
 
   const handleTouchStart = useCallback((event: ReactTouchEvent<HTMLDivElement>) => {
     if (window.innerWidth >= 768 || event.touches.length !== 1) {
@@ -845,101 +872,100 @@ const CollectionsSection = memo(function CollectionsSection({
     }
   }, [goTo, snapIndex]);
 
-  const activeLine = lines[snapIndex];
-
   return (
     <div
       ref={sectionRef}
       data-debug-pin="collections"
-      className="relative overflow-hidden bg-white"
+      className="relative mb-16 overflow-hidden bg-white sm:mb-20 lg:mb-24"
       style={{ touchAction: 'pan-y', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <div
-        ref={pinProgressTrackRef}
-        aria-hidden="true"
-        className="absolute top-[15%] bottom-[15%] left-2 md:left-4 z-40 w-[3px] overflow-hidden rounded-full bg-black/15"
-        style={{ transform: 'scaleY(0)', transformOrigin: 'top' }}
-      >
-        <div
-          ref={pinProgressRef}
-          className="h-full w-full rounded-full bg-black"
-          style={{ transform: 'scaleY(0)', transformOrigin: 'top' }}
-        />
-      </div>
+      <h2 className="sr-only">{sectionTag}</h2>
 
-      {lines.map((line, i) => (
-        <div
+      {lines.map((line, i) => {
+        const isActive = i === snapIndex;
+        return (
+        <article
           key={line.key}
-          ref={(el) => { bottleEls.current[i] = el; }}
-          className="absolute bottom-[18%] md:bottom-[8%] z-0"
-          style={{
-            left:            '50%',
-            height:          'var(--bottle-h, 480px)',
-            width:           'var(--bottle-h, 480px)',
-            display:         'flex',
-            justifyContent:  'center',
-            transformOrigin: 'bottom center',
-          }}
+          aria-labelledby={`collection-title-${line.key}`}
+          className="absolute inset-0"
         >
-          {line.imageUrl && (
-            <img
-              src={line.imageUrl}
-              alt={line.name}
-              loading="lazy"
-              style={{ width: 'auto', height: '100%', display: 'block' }}
-            />
-          )}
-        </div>
-      ))}
+          <div
+            ref={(el) => { bottleEls.current[i] = el; }}
+            className="absolute bottom-[18%] md:bottom-[8%] z-0"
+            style={{
+              left:            '50%',
+              height:          'var(--bottle-h, 480px)',
+              width:           'var(--bottle-h, 480px)',
+              display:         'flex',
+              justifyContent:  'center',
+              transformOrigin: 'bottom center',
+            }}
+          >
+            {line.imageUrl && (
+              <img
+                src={line.imageUrl}
+                alt={line.imageAlt || line.name}
+                loading="lazy"
+                style={{ width: 'auto', height: '100%', display: 'block' }}
+              />
+            )}
+          </div>
 
-      <div
-        ref={textRef}
-        className="
-          absolute z-20 flex flex-col
-          top-[calc(env(safe-area-inset-top)+5rem)] left-0 right-0 items-center text-center px-6
-          md:top-0 md:bottom-auto md:gap-5
-          md:right-auto md:left-[5%] md:max-w-[280px] lg:left-[7%] lg:max-w-[320px] xl:left-[8%] xl:max-w-[360px]
-          md:items-start md:text-left md:px-0
-        "
-      >
-        <div className="hidden md:block">
-          <span className="block text-[10px] font-medium tracking-[0.2em] uppercase text-black/40" style={{ fontWeight: 500 }}>
-            {sectionTag}
-          </span>
-        </div>
+          <div
+            ref={(el) => { contentEls.current[i] = el; }}
+            className="
+              absolute z-20 flex flex-col transition-opacity duration-300
+              top-[calc(env(safe-area-inset-top)+5rem)] left-0 right-0 items-center text-center px-6
+              md:top-0 md:bottom-auto md:gap-5
+              md:right-auto md:left-[5%] md:max-w-[280px] lg:left-[7%] lg:max-w-[320px] xl:left-[8%] xl:max-w-[360px]
+              md:items-start md:text-left md:px-0
+            "
+            style={{ opacity: isActive ? undefined : 0, pointerEvents: isActive ? 'auto' : 'none' }}
+          >
+            <div className="hidden md:block">
+              <span className="block text-[10px] font-medium tracking-[0.2em] uppercase text-black/40" style={{ fontWeight: 500 }}>
+                {sectionTag}
+              </span>
+            </div>
 
-        <div className="flex flex-col w-full">
-          <div className="mb-2 w-full md:w-[380px] lg:w-[420px] xl:w-[500px]">
-            <h3 className="split-reveal break-normal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif', overflowWrap: 'normal' }}>
-              {activeLine?.name ?? ''}
-            </h3>
+            <div className="flex flex-col w-full">
+              <div className="mb-2 w-full md:w-[380px] lg:w-[420px] xl:w-[500px]">
+                <h3 id={`collection-title-${line.key}`} className="split-reveal break-normal text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-black leading-tight" style={{ fontFamily: 'var(--font-heading), sans-serif', overflowWrap: 'normal' }}>
+                  {line.name}
+                </h3>
+              </div>
+              <div className="mb-4 w-full">
+                <p className="reveal-block block text-black/55 text-xs lg:text-sm font-light tracking-wide">
+                  {line.description}
+                </p>
+              </div>
+              <div className="hidden md:block w-full">
+                <p className="split-reveal text-black text-xs lg:text-sm leading-snug">
+                  {line.body}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="mb-4 w-full">
-            <p className="reveal-block block text-black/55 text-xs lg:text-sm font-light tracking-wide">
-              {activeLine?.description ?? ''}
-            </p>
-          </div>
-          <div className="hidden md:block w-full">
-            <p className="split-reveal text-black text-xs lg:text-sm leading-snug">
-              {activeLine?.body ?? ''}
-            </p>
-          </div>
-        </div>
-      </div>
+
+          <Link
+            ref={(el) => { linkEls.current[i] = el; }}
+            href={`${withLocale(locale, '/products')}?category=${line.key}`}
+            prefetch={false}
+            className="group absolute bottom-[calc(6%+1.75rem)] md:bottom-[5%] left-6 md:left-[5%] lg:left-[7%] xl:left-[8%] z-30 inline-flex items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] h-9 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
+            style={{ opacity: isActive ? undefined : 0, pointerEvents: isActive ? 'auto' : 'none' }}
+          >
+            <span>{exploreLabel}</span>
+            <svg className="group-hover:translate-x-1 transition-transform duration-200" width="13" height="13" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
+        </article>
+      )})}
 
       <div ref={navRef} className="absolute bottom-[6%] md:bottom-[5%] left-0 right-0 z-30 flex items-center justify-between px-6 md:px-[5%] lg:px-[7%] xl:px-[8%] pb-7 md:pb-0">
-        <Link
-          href={`${withLocale(locale, '/products')}?category=${activeLine?.key ?? ''}`}
-          prefetch={false}
-          className="group inline-flex items-center gap-1.5 rounded-[3px] border border-[#141618] bg-[#141618] h-9 px-5 text-[11px] font-medium tracking-[0.06em] uppercase text-[#FAFAF8] transition-colors duration-300 hover:border-[#ecfeff] hover:bg-[#ecfeff] hover:text-[#141618]"
-        >
-          <span>{exploreLabel}</span>
-          <svg className="group-hover:translate-x-1 transition-transform duration-200" width="13" height="13" viewBox="0 0 14 14" fill="none">
-            <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </Link>
+        <div aria-hidden="true" className="h-9 w-0" />
         <div className="flex items-center gap-5">
           <button onClick={() => goTo(snapIndex - 1)} disabled={snapIndex === 0} aria-label="Previous" className="hidden md:flex items-center justify-center w-9 h-9 rounded-md bg-black/[0.06] hover:bg-black/[0.11] text-gray-700 disabled:opacity-20 transition-all duration-200">
             <svg width="16" height="16" viewBox="0 0 12 12" fill="none"><path d="M8 2L3 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>

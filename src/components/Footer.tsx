@@ -55,10 +55,10 @@ export default function Footer({ labels, data }: { labels?: NavigationLabels | n
 
       {/* ── Main body ── */}
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-16 pb-12">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-0 gap-y-10 sm:gap-x-8 lg:gap-8">
 
           {/* ── Brand column ── */}
-          <div className="col-span-2 lg:col-span-2">
+          <div className="col-span-2 min-w-0 lg:col-span-2">
             <Link href={withLocale(locale)} prefetch={false} className="inline-flex mb-5">
               <span
                 className="text-2xl font-medium tracking-[0.2em] text-black"
@@ -67,7 +67,7 @@ export default function Footer({ labels, data }: { labels?: NavigationLabels | n
                 RAHATLYK
               </span>
             </Link>
-            <p className="text-black text-sm leading-relaxed max-w-xs mb-7">
+            <p className="text-black text-xs leading-relaxed max-w-xs mb-7 sm:text-sm">
               {footerText(data, 'tagline', t.footer.tagline)}
             </p>
 
@@ -91,18 +91,18 @@ export default function Footer({ labels, data }: { labels?: NavigationLabels | n
           </div>
 
           {/* ── Quick links ── */}
-          <div>
+          <div className="min-w-0">
             <h4 className="font-bold text-[10px] tracking-[0.2em] uppercase text-black mb-2">
               {footerText(data, 'quickLinksLabel', t.footer.quickLinks)}
             </h4>
             <span className="mb-5 block h-[2px] w-6 bg-black" />
-            <ul className="space-y-3">
+            <ul className="min-w-0 space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     prefetch={false}
-                    className="text-black hover:text-black/70 text-sm transition-colors duration-200"
+                    className="text-black hover:text-black/70 text-xs break-words transition-colors duration-200 sm:text-sm"
                   >
                     {link.label}
                   </Link>
@@ -112,29 +112,29 @@ export default function Footer({ labels, data }: { labels?: NavigationLabels | n
           </div>
 
           {/* ── Company + contact ── */}
-          <div>
+          <div className="min-w-0">
             <h4 className="font-bold text-[10px] tracking-[0.2em] uppercase text-black mb-2">
               {footerText(data, 'companyLabel', t.footer.company)}
             </h4>
             <span className="mb-5 block h-[2px] w-6 bg-black" />
-            <ul className="space-y-3">
+            <ul className="min-w-0 space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     prefetch={false}
-                    className="text-black hover:text-black/70 text-sm transition-colors duration-200"
+                    className="text-black hover:text-black/70 text-xs break-words transition-colors duration-200 sm:text-sm"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
-              <li className="pt-4 space-y-1.5 border-t border-black mt-1">
+              <li className="min-w-0 pt-4 space-y-1.5 border-t border-black mt-1">
                 {contactInfo.phones.map(p => (
-                  <p key={p.number} className="text-black text-sm">{p.number}</p>
+                  <p key={p.number} className="text-black text-xs break-words [overflow-wrap:anywhere] sm:text-sm">{p.number}</p>
                 ))}
                 {contactInfo.email && (
-                  <p className="text-black text-sm">{contactInfo.email}</p>
+                  <p className="text-black text-xs break-words [overflow-wrap:anywhere] sm:text-sm">{contactInfo.email}</p>
                 )}
               </li>
             </ul>

@@ -20,6 +20,15 @@ export const OurCollection: GlobalConfig = {
       fields: [
         { name: 'key', type: 'text', required: true, label: 'Key' },
         { name: 'name', type: 'text', required: true, localized: true },
+        {
+          name: 'imageAlt',
+          type: 'text',
+          localized: true,
+          label: 'Image Alt Text',
+          admin: {
+            description: 'Describes this collection image for accessibility and search. Falls back to the item name when empty.',
+          },
+        },
         { name: 'description', type: 'text', required: true, localized: true },
         { name: 'body', type: 'textarea', required: true, localized: true },
         { name: 'image', type: 'relationship', relationTo: 'media' as const },

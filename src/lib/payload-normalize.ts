@@ -51,6 +51,7 @@ type RawProductLine = {
   id?: string | null
   key: string
   name: string
+  imageAlt?: string | null
   description: string
   body?: string | null
   image?: number | Media | null
@@ -61,6 +62,7 @@ export const normalizeProductLine = (raw: RawProductLine, index = 0): PayloadPro
   id: itemID(raw.id, index),
   key: raw.key,
   name: raw.name,
+  imageAlt: raw.imageAlt ?? null,
   description: raw.description,
   body: raw.body ?? '',
   imageUrl: mediaURL(raw.image as number | Media | null | undefined) ?? null,

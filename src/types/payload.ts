@@ -16,6 +16,7 @@ export type PayloadProductLine = {
   id: string
   key: string
   name: string
+  imageAlt: string | null
   description: string
   body: string
   imageUrl: string | null

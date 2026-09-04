@@ -93,6 +93,7 @@ async function seedProductLines() {
       items: PRODUCT_LINES.map((line) => ({
         key: line.key,
         name: line.name.en,
+        imageAlt: line.name.en,
         description: line.description.en,
         body: line.body.en,
         ...(mediaIds.has(line.key) ? { image: mediaIds.get(line.key) } : {}),
@@ -119,6 +120,7 @@ async function seedProductLines() {
           ...(itemIds[index] !== undefined ? { id: itemIds[index] } : {}),
           key: line.key,
           name: line.name[locale],
+          imageAlt: line.name[locale],
           description: line.description[locale],
           body: line.body[locale],
           ...(mediaIds.has(line.key) ? { image: mediaIds.get(line.key) } : {}),
