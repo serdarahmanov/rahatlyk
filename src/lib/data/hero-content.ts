@@ -1,6 +1,6 @@
 /**
  * Current content for the Hero section.
- * Media files are uploaded to Payload Media by src/seed-hero.ts.
+ * Media files are uploaded to Payload Media by scripts/seed/seed-hero.ts.
  */
 export const HERO_CONTENT = {
   desktopPoster: {

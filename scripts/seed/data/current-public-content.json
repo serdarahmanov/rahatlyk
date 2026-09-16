@@ -1,0 +1,2488 @@
+{
+  "generatedAt": "2026-09-16T08:14:22.749Z",
+  "collections": {
+    "product-categories": [
+      {
+        "slug": "sarwan",
+        "label": {
+          "en": "Sarwan",
+          "tm": "Sarwan",
+          "ru": "Sarwan"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": {
+          "en": "Still Water 0.5L",
+          "tm": "0.5L Arassa Agyz Suwy",
+          "ru": "Питьевая вода 0,5 л"
+        },
+        "slug": {
+          "en": "still-water-0.5L",
+          "tm": "gazsyz-suw-0.5l",
+          "ru": "negazirovannaya-voda-0.5l"
+        },
+        "tagline": {
+          "en": "A practical choice for everyday life.",
+          "tm": "Gündelik durmuş üçin amatly saýlaw.",
+          "ru": "Практичный выбор на каждый день."
+        },
+        "brandName": "Sarwan",
+        "date": "2026-02-01T12:00:00.000Z",
+        "category": "sarwan",
+        "description": {
+          "en": "SARWAN 0.5 L",
+          "tm": "SARWAN 0.5 L",
+          "ru": "SARWAN 0.5 L"
+        },
+        "longDescription": {
+          "en": "Pure artesian drinking water made for everyday use. The convenient 0.5-litre format is ideal for work, travel and leisure.",
+          "tm": "Gündelik durmuş üçin döredilen arassa artezian agyz suwy. 0,5 L göwrümi işde, ýolda we dynç alyşda ýanyňyz bilen alyp gitmek üçin hödürlenýär.",
+          "ru": "Чистая артезианская питьевая вода для повседневного использования. Удобный формат 0,5 литра подходит для работы, поездок и отдыха."
+        },
+        "nutrition": [
+          {
+            "label": {
+              "en": "Bottle Volume",
+              "tm": "Göwrüm",
+              "ru": "Объём бутылки"
+            },
+            "value": {
+              "en": "0.5 litres",
+              "tm": "0.5 litr",
+              "ru": "0.5 литр"
+            }
+          },
+          {
+            "label": {
+              "en": "Pallet dimensions",
+              "tm": "Paddonyň ölçegi",
+              "ru": "Размер паллеты"
+            },
+            "value": {
+              "en": "120 × 80 cm",
+              "tm": "120 × 80 cm",
+              "ru": "120 × 80 см"
+            }
+          },
+          {
+            "label": {
+              "en": "Bottles per pallet",
+              "tm": "Bir paddonda",
+              "ru": "Бутылок на одном поддоне"
+            },
+            "value": {
+              "en": "240 bottles",
+              "tm": "240 çüýşe",
+              "ru": "240 бутылки"
+            }
+          },
+          {
+            "label": {
+              "en": "Loading configuration",
+              "tm": "Paddonyň ýerleşişi",
+              "ru": "Схема укладки"
+            },
+            "value": {
+              "en": "48 bottles x 5 layers",
+              "tm": "48 çüýşe × 5 gat",
+              "ru": "48 бутылок × 5 яруса"
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "value": "0.5"
+          }
+        ]
+      },
+      {
+        "name": {
+          "en": "Still Water 19L",
+          "tm": "19L Arassa Agyz Suwy",
+          "ru": "Питьевая вода 19 л"
+        },
+        "slug": {
+          "en": "still-water-19l",
+          "tm": "gazsyz-suw-19l",
+          "ru": "negazirovannaya-voda-19l"
+        },
+        "tagline": {
+          "en": "A practical choice for home and office.",
+          "tm": "Öý we iş ýeri üçin amatly saýlaw.",
+          "ru": "Практичный выбор для дома и офиса."
+        },
+        "brandName": "Sarwan",
+        "date": "2026-02-01T12:00:00.000Z",
+        "category": "sarwan",
+        "description": {
+          "en": "SARWAN 19 L",
+          "tm": "SARWAN 19 L",
+          "ru": "SARWAN 19 L"
+        },
+        "longDescription": {
+          "en": "Pure artesian drinking water made for everyday use. The 19-litre format is a practical solution for homes, offices and other places where a reliable supply of drinking water is needed.",
+          "tm": "Gündelik durmuş üçin döredilen arassa artezian içimlik suwy. 19 litrlik göwrümi öýlerde, iş ýerlerinde we köpçülikleýin ulanyşda amatly çözgüt hödürleýär.",
+          "ru": "Чистая артезианская питьевая вода для повседневного использования. Формат 19 литров — практичное решение для дома, офиса и других мест, где вода нужна регулярно."
+        },
+        "nutrition": [
+          {
+            "label": {
+              "en": "Bottle volume",
+              "tm": "Göwrüm",
+              "ru": "Объём бутылки"
+            },
+            "value": {
+              "en": "19 litres",
+              "tm": "19 litr",
+              "ru": "19 литр"
+            }
+          },
+          {
+            "label": {
+              "en": "Pallet dimensions",
+              "tm": "Paddonyň ölçegi",
+              "ru": "Размер паллеты"
+            },
+            "value": {
+              "en": "120 × 80 cm",
+              "tm": "120 × 80 cm",
+              "ru": "120 × 80 см"
+            }
+          },
+          {
+            "label": {
+              "en": "Bottles per pallet",
+              "tm": "Bir paddonda",
+              "ru": "Бутылок на одном поддоне"
+            },
+            "value": {
+              "en": "24 bottles",
+              "tm": "24 çüýşe",
+              "ru": "24 бутылки"
+            }
+          },
+          {
+            "label": {
+              "en": "Loading configuration",
+              "tm": "Paddonyň ýerleşişi",
+              "ru": "Схема укладки"
+            },
+            "value": {
+              "en": "8 bottles × 3 layers",
+              "tm": "8 çüýşe × 3 gat",
+              "ru": "8 бутылок × 3 яруса"
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "value": "19"
+          }
+        ]
+      }
+    ],
+    "article-categories": [
+      {
+        "slug": "sustainability",
+        "label": {
+          "en": "Sustainability",
+          "tm": "Durnuklylyk",
+          "ru": "Экология"
+        }
+      },
+      {
+        "slug": "product-updates",
+        "label": {
+          "en": "Product Updates",
+          "tm": "Önüm täzelikleri",
+          "ru": "Обновления продуктов"
+        }
+      },
+      {
+        "slug": "company-news",
+        "label": {
+          "en": "Company News",
+          "tm": "Kompaniýa habarlary",
+          "ru": "Новости компании"
+        }
+      }
+    ],
+    "articles": [
+      {
+        "title": {
+          "en": "SARWAN at Kids Expo 2026",
+          "tm": "SARWAN - Kids Expo 2026 sergisinde",
+          "ru": "SARWAN на Kids Expo 2026"
+        },
+        "slug": {
+          "en": "sarwan-at-kids-expo-2026",
+          "tm": "sarwan-kids-expo-2026-sergisinde",
+          "ru": "sarwan-na-kids-expo-2026"
+        },
+        "category": "company-news",
+        "date": "2026-08-22T12:00:00.000Z",
+        "featured": true,
+        "emoji": null,
+        "body": [
+          {
+            "text": {
+              "en": {
+                "root": {
+                  "type": "root",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "From August 19 to 22, Ashgabat hosted Kids Expo 2026 “Everything for Children”, where SARWAN made clean drinking water freely available to visitors throughout the exhibition.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    }
+                  ],
+                  "direction": null
+                }
+              },
+              "tm": {
+                "root": {
+                  "type": "root",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "19–22-nji awgust aralygynda Aşgabatda geçirilen Kids Expo 2026 «Çagalar üçin hemme zat» sergisinde SARWAN brendi myhmanlar üçin arassa agyz suwuny elýeterli etdi.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    }
+                  ],
+                  "direction": null
+                }
+              },
+              "ru": {
+                "root": {
+                  "type": "root",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "С 19 по 22 августа в Ашхабаде прошла выставка Kids Expo 2026 «Всё для детей», где бренд SARWAN сделал чистую питьевую воду доступной для посетителей выставки.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    }
+                  ],
+                  "direction": null
+                }
+              }
+            }
+          },
+          {
+            "text": {
+              "en": {
+                "root": {
+                  "type": "root",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "During the event, seven drinking water points were set up across the exhibition hall. Visitors could simply walk up to any SARWAN water point and enjoy drinking water free of charge. Volunteers were on hand to serve water and make the experience easy and comfortable for families and children.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "As part of the exhibition, SARWAN also organized Q&A video sessions with visitors, giving people an opportunity to learn more about the brand. Participants received special gifts from SARWAN.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Taking part in Kids Expo was an opportunity for SARWAN not only to introduce the brand and its new product, but also to connect directly with the people the brand is created for — families and everyday consumers.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "We also paid special attention to a more responsible approach to consumption. Special collection bins, prepared by SARWAN, were placed for used disposable plastic cups. This helped keep the exhibition area clean while encouraging visitors to think about responsible everyday habits.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "For SARWAN, Kids Expo was more than an exhibition. It was an opportunity to bring clean drinking water closer to families and make it a natural part of their day.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "SARWAN — clean water for every family.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    }
+                  ],
+                  "direction": null
+                }
+              },
+              "tm": {
+                "root": {
+                  "type": "root",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Serginiň dowamynda meýdançada jemi 7 sany suw nokady ýerleşdirildi. Myhmanlar islegine görä gelip, suwy mugt içip bildiler. SARWAN toparynyň meýletinçileri sergä gatnaşyjylara suw hödürlediler we her bir myhmanyň özüni rahat duýmagyna aýratyn üns berdiler.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Serginiň dowamynda SARWAN brendi bilen tanyşdyrmak maksady bilen sorag-jogap görnüşinde wideo düşürilişler hem geçirildi. Çärä gatnaşanlara ýörite sowgatlar gowşuryldy.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Bu başlangyç diňe bir SARWAN-yň täze önüm hökmünde tanalmagyna däl, eýsem maşgalalar üçin arassa agyz suwunyň elýeterliligine we daşky gurşawa jogapkärli çemeleşmä hem üns çekdi.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Bir gezeklik plastik stakanlaryň ýörite bellenen gaplara ýygnalmagy üçin SARWAN tarapyndan aýratyn zir-zibiller hem taýýarlanyldy. Şeýlelikde, suwdan peýdalanmak bilen birlikde arassaçylyk we galyndylary dogry ýygnamak meselesine hem üns berildi.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "SARWAN — her maşgala üçin arassa suw we gündelik durmuşda rahatlyk.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    }
+                  ],
+                  "direction": null
+                }
+              },
+              "ru": {
+                "root": {
+                  "type": "root",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "В течение выставки в зале было организовано 7 точек с питьевой водой. Посетители могли в любой момент подойти к точкам SARWAN и бесплатно выпить воду. Волонтёры помогали гостям и наливали воду всем желающим, создавая простой и удобный формат для семей и детей.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Во время выставки команда SARWAN также проводила съёмки в формате «вопрос–ответ», знакомя посетителей с брендом. Участники съёмок получили небольшие подарки от SARWAN.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Участие в Kids Expo стало для SARWAN возможностью не только представить бренд и новый продукт, но и напрямую познакомиться с людьми, для которых создаётся наша вода — семьями и посетителями выставки.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Особое внимание мы уделили экологичному подходу. Одноразовые пластиковые стаканчики собирались в специально подготовленные урны, изготовленные SARWAN для выставки. Это помогло сохранить пространство чистым и напомнить о простом, но важном принципе: ответственное потребление начинается с небольших повседневных действий.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "Для SARWAN участие в Kids Expo — это ещё один шаг к тому, чтобы чистая питьевая вода была рядом там, где люди проводят время вместе.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    },
+                    {
+                      "type": "paragraph",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                        {
+                          "mode": "normal",
+                          "text": "SARWAN — чистая вода для семьи.",
+                          "type": "text",
+                          "style": "",
+                          "detail": 0,
+                          "format": 0,
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "textStyle": "",
+                      "textFormat": 0
+                    }
+                  ],
+                  "direction": null
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "vacancy-departments": [
+      {
+        "slug": "logistics",
+        "label": {
+          "en": "Logistics",
+          "tm": "Logistika",
+          "ru": "Логистика"
+        }
+      },
+      {
+        "slug": "sales",
+        "label": {
+          "en": "Sales",
+          "tm": "Satuw",
+          "ru": "Продажи"
+        }
+      },
+      {
+        "slug": "finance",
+        "label": {
+          "en": "Finance & Accounting",
+          "tm": "Maliýe we Buhgalteriýa",
+          "ru": "Финансы и бухгалтерия"
+        }
+      },
+      {
+        "slug": "marketing",
+        "label": {
+          "en": "Marketing",
+          "tm": "Marketing",
+          "ru": "Маркетинг"
+        }
+      }
+    ],
+    "vacancies": [
+      {
+        "title": {
+          "en": "Warehouse & Distribution Supervisor",
+          "tm": "Ammar we Paýlaýyş Gözegçisi",
+          "ru": "Супервайзер склада и дистрибуции"
+        },
+        "department": "logistics",
+        "location": {
+          "en": "Ashgabat, Turkmenistan",
+          "tm": "Aşgabat, Türkmenistan",
+          "ru": "Ашхабад, Туркменистан"
+        },
+        "type": "fullTime",
+        "overview": {
+          "en": "We are looking for an experienced Warehouse & Distribution Supervisor to oversee all warehouse operations and outbound distribution for RAHATLYK. You will lead a team of warehouse staff, ensure product integrity, and manage inventory levels to support uninterrupted supply.",
+          "tm": "Biz RAHATLYK üçin ähli ammar amallaryna we çykýan paýlaýşa gözegçilik etmek üçin tejribeli Ammar we Paýlaýyş Gözegçisini gözleýäris. Siz ammar işgärlerinden ybarat toparyna ýolbaşçylyk edersiňiz, önüm bütinligini üpjün edersiňiz we üznüksiz üpjünçiligi goldamak üçin inwentar derejesini dolandyrarsyňyz.",
+          "ru": "Мы ищем опытного супервайзера склада и дистрибуции для надзора за всеми складскими операциями и исходящей дистрибуцией RAHATLYK. Вы будете руководить командой складских сотрудников, обеспечивать сохранность продукции и управлять запасами."
+        },
+        "responsibilities": [
+          {
+            "text": {
+              "en": "Supervise daily warehouse operations including receiving, storage and dispatch",
+              "tm": "Kabul etmegi, saklamagy we ugratmagy goşmak bilen gündelik ammar amallaryna gözegçilik etmek",
+              "ru": "Контролировать ежедневные складские операции, включая приёмку, хранение и отгрузку"
+            }
+          },
+          {
+            "text": {
+              "en": "Lead and motivate a team of warehouse operatives",
+              "tm": "Ammar işgärlerinden ybarat topara ýolbaşçylyk etmek we höweslendirmek",
+              "ru": "Руководить и мотивировать команду складских операторов"
+            }
+          },
+          {
+            "text": {
+              "en": "Conduct regular stock counts and inventory reconciliations",
+              "tm": "Yzygiderli inwentar sanawlaryny we utgaşdyrmalaryny geçirmek",
+              "ru": "Проводить регулярные инвентаризации и сверки запасов"
+            }
+          },
+          {
+            "text": {
+              "en": "Ensure compliance with health, safety and food storage standards",
+              "tm": "Saglyk, howpsuzlyk we azyk saklaýyş standartlary bilen laýyklygy üpjün etmek",
+              "ru": "Обеспечивать соблюдение норм охраны труда и стандартов хранения пищевой продукции"
+            }
+          },
+          {
+            "text": {
+              "en": "Coordinate with logistics and production teams for demand planning",
+              "tm": "Isleg meýilnamasyny düzmek üçin logistika we önümçilik toparlary bilen utgaşdyrmak",
+              "ru": "Координировать с командами логистики и производства для планирования спроса"
+            }
+          }
+        ],
+        "requirements": [
+          {
+            "text": {
+              "en": "Minimum 3 years of warehouse supervisory experience",
+              "tm": "Iň az 3 ýyl ammar gözegçilik tejribesi",
+              "ru": "Минимум 3 года опыта супервайзера склада"
+            }
+          },
+          {
+            "text": {
+              "en": "Strong knowledge of warehouse management principles and inventory control",
+              "tm": "Ammar dolandyryş prinsipleri we inwentar gözegçiligi barada güýçli bilim",
+              "ru": "Глубокое знание принципов управления складом и контроля запасов"
+            }
+          },
+          {
+            "text": {
+              "en": "Ability to lead and develop a team",
+              "tm": "Topar döretmek we ösdürmek başarnygy",
+              "ru": "Способность руководить командой и развивать её"
+            }
+          }
+        ],
+        "niceToHave": [
+          {
+            "text": {
+              "en": "Forklift licence or experience operating warehouse equipment",
+              "tm": "Wилочный погрузчик şahadatnamasy ýa-da ammar enjamlaryny dolandyrmak tejribesi",
+              "ru": "Права на управление погрузчиком или опыт работы со складским оборудованием"
+            }
+          },
+          {
+            "text": {
+              "en": "Experience with WMS (Warehouse Management System)",
+              "tm": "WMS (Ammar Dolandyryş Ulgamy) bilen tejribe",
+              "ru": "Опыт работы с WMS (системой управления складом)"
+            }
+          }
+        ],
+        "benefits": [
+          {
+            "text": {
+              "en": "Competitive salary with shift and weekend allowances",
+              "tm": "Nobatçylyk we dynç günleri ödeglikleri bolan bäsdeşlik ukyply aýlyk",
+              "ru": "Конкурентная заработная плата с надбавками за смены и выходные дни"
+            }
+          },
+          {
+            "text": {
+              "en": "Health insurance coverage",
+              "tm": "Saglyk ätiýaçlandyrmasy",
+              "ru": "Медицинское страхование"
+            }
+          },
+          {
+            "text": {
+              "en": "Uniform and personal protective equipment provided",
+              "tm": "Forma geýim we şahsy gorag enjamlary berilýär",
+              "ru": "Предоставляется форменная одежда и средства индивидуальной защиты"
+            }
+          },
+          {
+            "text": {
+              "en": "Monthly RAHATLYK product allowance",
+              "tm": "Aýlyk RAHATLYK önüm ödegligi",
+              "ru": "Ежемесячное пособие на продукцию RAHATLYK"
+            }
+          }
+        ],
+        "salary": "3500–5000 TMT",
+        "postedDate": "2026-06-07T00:00:00.000Z"
+      },
+      {
+        "title": {
+          "en": "Logistics Coordinator",
+          "tm": "Logistika Utgaşdyryjysy",
+          "ru": "Координатор логистики"
+        },
+        "department": "logistics",
+        "location": {
+          "en": "Ashgabat, Turkmenistan",
+          "tm": "Aşgabat, Türkmenistan",
+          "ru": "Ашхабад, Туркменистан"
+        },
+        "type": "fullTime",
+        "overview": {
+          "en": "RAHATLYK is looking for a Logistics Coordinator to ensure the smooth and efficient flow of products from our production facility to distribution points across the country. You will coordinate with carriers, manage delivery schedules, and maintain accurate inventory records.",
+          "tm": "RAHATLYK önümlerimiziň önümçilik desgamyzdan ýurt boýunça paýlaýyş nokatlaryna çenli arassa we netijeliligini üpjün etmek üçin Logistika Utgaşdyryjysyny gözleýär. Siz daşaýjylar bilen utgaşdyrar, eltip beriş tertiplerine dolandyrar we takyk inwentar ýazgylaryny saklarsyňyz.",
+          "ru": "RAHATLYK ищет координатора по логистике для обеспечения бесперебойного и эффективного движения продукции от нашего производственного предприятия до дистрибуторских точек по всей стране. Вы будете координировать работу с перевозчиками и управлять графиком доставки."
+        },
+        "responsibilities": [
+          {
+            "text": {
+              "en": "Plan and coordinate daily delivery routes and schedules",
+              "tm": "Gündelik eltip beriş ugurlaryny we tertiplerini meýilleşdirmek we utgaşdyrmak",
+              "ru": "Планировать и координировать ежедневные маршруты и графики доставки"
+            }
+          },
+          {
+            "text": {
+              "en": "Liaise with carriers, drivers and warehouse staff",
+              "tm": "Daşaýjylar, sürüjiler we ammar işgärleri bilen aragatnaşyk saklamak",
+              "ru": "Поддерживать связь с перевозчиками, водителями и складским персоналом"
+            }
+          },
+          {
+            "text": {
+              "en": "Track shipments and resolve delivery exceptions promptly",
+              "tm": "Ýüklemeleri yzarlamak we eltip beriş kadadan çykmalary çalt çözmek",
+              "ru": "Отслеживать отгрузки и оперативно устранять исключения при доставке"
+            }
+          },
+          {
+            "text": {
+              "en": "Maintain accurate shipping documentation and records",
+              "tm": "Takyk ýük resminamalaryny we ýazgylaryny saklamak",
+              "ru": "Вести точную транспортную документацию и записи"
+            }
+          },
+          {
+            "text": {
+              "en": "Optimise delivery costs while maintaining service levels",
+              "tm": "Hyzmat derejesini saklap, eltip beriş çykdajylaryny optimizirlemek",
+              "ru": "Оптимизировать расходы на доставку при сохранении уровня обслуживания"
+            }
+          }
+        ],
+        "requirements": [
+          {
+            "text": {
+              "en": "Minimum 2 years of experience in logistics or supply chain",
+              "tm": "Logistika ýa-da üpjünçilik zynjyrynda iň az 2 ýyl tejribe",
+              "ru": "Минимум 2 года опыта работы в логистике или управлении цепочками поставок"
+            }
+          },
+          {
+            "text": {
+              "en": "Good knowledge of local transport regulations and routes",
+              "tm": "Ýerli ulag düzgünnamalary we ugurlary barada gowy bilim",
+              "ru": "Хорошее знание местных транспортных правил и маршрутов"
+            }
+          },
+          {
+            "text": {
+              "en": "Strong organisational and problem-solving skills",
+              "tm": "Güýçli guramajylyk we mesele çözme başarnyklary",
+              "ru": "Сильные организационные навыки и навыки решения проблем"
+            }
+          }
+        ],
+        "niceToHave": [
+          {
+            "text": {
+              "en": "Experience with transport management software",
+              "tm": "Ulag dolandyryş programma üpjünçiligi bilen tejribe",
+              "ru": "Опыт работы с программным обеспечением для управления транспортом"
+            }
+          },
+          {
+            "text": {
+              "en": "Knowledge of cold chain logistics",
+              "tm": "Sowuk zynjyr logistikasy barada bilim",
+              "ru": "Знание логистики холодовой цепи"
+            }
+          }
+        ],
+        "benefits": [
+          {
+            "text": {
+              "en": "Competitive salary and shift allowances",
+              "tm": "Bäsdeşlik ukyply aýlyk we nobatçylyk ödeglikleri",
+              "ru": "Конкурентная заработная плата и надбавки за смены"
+            }
+          },
+          {
+            "text": {
+              "en": "Health insurance coverage",
+              "tm": "Saglyk ätiýaçlandyrmasy",
+              "ru": "Медицинское страхование"
+            }
+          },
+          {
+            "text": {
+              "en": "Paid annual leave and public holidays",
+              "tm": "Tölenýän ýyllyk rugsat we döwlet baýramlary",
+              "ru": "Оплачиваемый ежегодный отпуск и государственные праздники"
+            }
+          },
+          {
+            "text": {
+              "en": "Monthly RAHATLYK product allowance",
+              "tm": "Aýlyk RAHATLYK önüm ödegligi",
+              "ru": "Ежемесячное пособие на продукцию RAHATLYK"
+            }
+          }
+        ],
+        "salary": "3000–4500 TMT",
+        "postedDate": "2026-06-06T00:00:00.000Z"
+      }
+    ]
+  },
+  "globals": {
+    "site-metadata": {
+      "home": {
+        "title": {
+          "en": "RAHATLYK — Premium Beverages",
+          "tm": "RAHATLYK — Premium Içgiler",
+          "ru": "RAHATLYK — Премиальные Напитки"
+        },
+        "description": {
+          "en": "Pure. Natural. Life. Premium beverages from the heart of Turkmenistan — drinking water, mineral water, juices and more.",
+          "tm": "Arassa. Tebigy. Durmuş. Türkmenistanyň arassa tebigy çeşmelerinden öndürilen premium içgiler — içme suwy, mineral suw, şireler we ş.m.",
+          "ru": "Чистый. Натуральный. Жизнь. Премиальные напитки из чистейших природных источников Туркменистана — питьевая вода, минеральная вода, соки и другое."
+        },
+        "ogImage": null
+      },
+      "about": {
+        "title": {
+          "en": "About Us",
+          "tm": "Biz hakda",
+          "ru": "О компании"
+        },
+        "description": {
+          "en": "About RAHATLYK — our story, values, certifications and the team behind Turkmenistan's premium beverage brand.",
+          "tm": "RAHATLYK hakda — taryhymyz, gymmatlyklarymyz, şahadatnamalarymyz we Türkmenistanyň premium içgi brendiniň topary.",
+          "ru": "О компании RAHATLYK — наша история, ценности, сертификаты и команда за брендом премиальных напитков."
+        },
+        "ogImage": null
+      },
+      "products": {
+        "title": {
+          "en": "Products",
+          "tm": "Önümler",
+          "ru": "Продукты"
+        },
+        "description": {
+          "en": "Explore the full RAHATLYK range — drinking water, mineral water, juices, energy drinks, herbal tea and more.",
+          "tm": "RAHATLYK önümleriniň doly toplumyny açyň — içimlik suw, mineral suw, şireler, energetik içgiler, otly çaý we beýlekiler.",
+          "ru": "Откройте весь ассортимент RAHATLYK — питьевая вода, минеральная вода, соки, энергетики, травяной чай и другое."
+        },
+        "ogImage": null
+      },
+      "news": {
+        "title": {
+          "en": "News",
+          "tm": "Habarlar",
+          "ru": "Новости"
+        },
+        "description": {
+          "en": "Latest news and updates from RAHATLYK — product launches, company news and more.",
+          "tm": "RAHATLYK-dan iň soňky habarlar — önüm çykarylyşlary, kompaniýa täzelikleri we beýlekiler.",
+          "ru": "Последние новости RAHATLYK — запуски продуктов, новости компании и другое."
+        },
+        "ogImage": null
+      },
+      "vacancies": {
+        "title": {
+          "en": "Careers",
+          "tm": "Boş iş orunlary",
+          "ru": "Вакансии"
+        },
+        "description": {
+          "en": "Build your career at RAHATLYK. Browse open positions in production, sales, marketing, logistics and more.",
+          "tm": "RAHATLYK-da karýeraňyzy guruň. Önümçilik, satuw, marketing, logistika we beýleki ugurlarda açyk iş orunlaryny görüň.",
+          "ru": "Постройте карьеру в RAHATLYK. Откройте вакансии в производстве, продажах, маркетинге, логистике и других отделах."
+        },
+        "ogImage": null
+      },
+      "contact": {
+        "title": {
+          "en": "Contact",
+          "tm": "Habarlaşmak",
+          "ru": "Контакты"
+        },
+        "description": {
+          "en": "Get in touch with RAHATLYK. Send us a message and our team will respond as soon as possible.",
+          "tm": "RAHATLYK bilen habarlaşyň. Habar iberiň, toparymyz gysga wagtda jogap berer.",
+          "ru": "Свяжитесь с RAHATLYK. Отправьте сообщение, и наша команда ответит как можно скорее."
+        },
+        "ogImage": null
+      },
+      "organizationJsonLd": {
+        "name": "RAHATLYK",
+        "legalName": null,
+        "description": null,
+        "streetAddress": null,
+        "addressLocality": null,
+        "addressCountry": null
+      },
+      "websiteJsonLd": {
+        "name": "RAHATLYK",
+        "description": {
+          "en": null,
+          "tm": null,
+          "ru": null
+        },
+        "alternateNames": []
+      }
+    },
+    "contact-info": {
+      "sectionLabel": {
+        "en": " Contact Information",
+        "tm": "Habarlaşmak üçin",
+        "ru": "Контакты"
+      },
+      "email": "sarwan.drinks@rahatlyk.com",
+      "phones": [
+        {
+          "label": "Phone 1",
+          "number": "+993 63 400 800"
+        }
+      ],
+      "address": {
+        "en": "25/1, B. Annanov Street, Annau, Ashgabat, Turkmenistan",
+        "tm": "Türkmenistan, Aşgabat şäheri, Änew, B. Annanow köçesi, 25/1",
+        "ru": "Туркменистан, г. Ашхабад, г. Аннау, ул. Б. Аннанова, д. 25/1"
+      },
+      "workingHours": {
+        "en": "Mon-Fri : 10am-5pm",
+        "tm": "Duş–Anna: 10:00–17:00",
+        "ru": "Пн–Пт: 10:00–17:00"
+      },
+      "socialLinks": {
+        "instagramUrl": "https://www.instagram.com/sarwan.tm?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+        "youtubeUrl": null,
+        "facebookUrl": null,
+        "whatsappUrl": "https://wa.me/99363400800",
+        "linkedinUrl": null
+      }
+    },
+    "email-templates": {
+      "contactEmail": {
+        "confirmation": {
+          "subject": {
+            "en": "We received your message — RAHATLYK",
+            "tm": "Habaryňyzy aldyk — RAHATLYK",
+            "ru": "Мы получили ваше сообщение — RAHATLYK"
+          },
+          "preheader": {
+            "en": "We've received your message and will be in touch soon.",
+            "tm": "Habaryňyzy aldyk, gysga wagtda jogap bereris.",
+            "ru": "Мы получили ваше сообщение и скоро свяжемся с вами."
+          },
+          "title": {
+            "en": "Message Received",
+            "tm": "Habar Alyndy",
+            "ru": "Сообщение получено"
+          },
+          "subtitle": {
+            "en": "Thank you for reaching out to RAHATLYK.",
+            "tm": "RAHATLYK bilen habarlaşandygyňyz üçin sagboluň.",
+            "ru": "Благодарим за обращение в RAHATLYK."
+          },
+          "greeting": {
+            "en": "Hi <strong>{firstName} {lastName}</strong>,",
+            "tm": "Salam, <strong>{firstName} {lastName}</strong>,",
+            "ru": "Здравствуйте, <strong>{firstName} {lastName}</strong>,"
+          },
+          "intro": {
+            "en": "Thank you for contacting us. We've received your message and one of our team members will get back to you as soon as possible.",
+            "tm": "Bize ýüz tutandygyňyz üçin sagboluň. Habaryňyzy aldyk we toparymyzyň bir agzasy gysga wagtda size jogap berer.",
+            "ru": "Спасибо за обращение. Мы получили ваше сообщение, и один из наших специалистов свяжется с вами в ближайшее время."
+          },
+          "summaryHeading": {
+            "en": "Your Message Summary",
+            "tm": "Habar Jemi",
+            "ru": "Сводка вашего сообщения"
+          },
+          "subjectLabel": {
+            "en": "Subject",
+            "tm": "Tema",
+            "ru": "Тема"
+          },
+          "messageLabel": {
+            "en": "Message",
+            "tm": "Habar",
+            "ru": "Сообщение"
+          },
+          "whatNextHeading": {
+            "en": "What Happens Next",
+            "tm": "Mundan Soň Näme Bolar",
+            "ru": "Что происходит дальше"
+          },
+          "step1": {
+            "en": "Our team reviews your message within <strong>1 business day</strong>.",
+            "tm": "Toparymyz habatyňyzy <strong>1 iş gününiň</strong> dowamynda seredip çykar.",
+            "ru": "Наша команда рассмотрит ваше сообщение в течение <strong>1 рабочего дня</strong>."
+          },
+          "step2": {
+            "en": "We'll reply directly to <strong>{email}</strong> — be sure to check your inbox.",
+            "tm": "Jogabymyzy göni <strong>{email}</strong> adresinize ibereris — gelen gutularyňyzy barlaň.",
+            "ru": "Мы ответим напрямую на <strong>{email}</strong> — обязательно проверьте почту."
+          },
+          "step3": {
+            "en": "If your enquiry is urgent, call us at <strong>+993 12 000 000</strong>.",
+            "tm": "Sorawyňyz gyssagly bolsa, bize jaň ediň: <strong>+993 12 000 000</strong>.",
+            "ru": "Если вопрос срочный, позвоните нам: <strong>+993 12 000 000</strong>."
+          },
+          "ctaBtn": {
+            "en": "Visit Our Website →",
+            "tm": "Saýtymyzy Görmek →",
+            "ru": "Посетить наш сайт →"
+          }
+        },
+        "notification": {
+          "subject": {
+            "en": "[Contact Form] {subject} — {fullName}",
+            "tm": "[Habar Formy] {subject} — {fullName}",
+            "ru": "[Форма обратной связи] {subject} — {fullName}"
+          },
+          "title": {
+            "en": "New Contact Form Submission",
+            "tm": "Täze Habar Formy Doldurylyp Iberildi",
+            "ru": "Новая заявка с формы обратной связи"
+          },
+          "subtitle": {
+            "en": "From: {fullName} &lt;{email}&gt;",
+            "tm": "Kimden: {fullName} &lt;{email}&gt;",
+            "ru": "От: {fullName} &lt;{email}&gt;"
+          },
+          "firstNameLabel": {
+            "en": "First Name",
+            "tm": "Ady",
+            "ru": "Имя"
+          },
+          "lastNameLabel": {
+            "en": "Last Name",
+            "tm": "Familiýasy",
+            "ru": "Фамилия"
+          },
+          "emailLabel": {
+            "en": "Email",
+            "tm": "E-poçta",
+            "ru": "Эл. почта"
+          },
+          "phoneLabel": {
+            "en": "Phone",
+            "tm": "Telefon",
+            "ru": "Телефон"
+          },
+          "subjectLabel": {
+            "en": "Subject",
+            "tm": "Tema",
+            "ru": "Тема"
+          },
+          "messageHeading": {
+            "en": "Message",
+            "tm": "Habar",
+            "ru": "Сообщение"
+          },
+          "replyBtn": {
+            "en": "Reply to {firstName} →",
+            "tm": "{firstName}-a Jogap Beriň →",
+            "ru": "Ответить {firstName} →"
+          }
+        }
+      },
+      "vacancyEmail": {
+        "confirmation": {
+          "subject": {
+            "en": "Application received — {vacancyTitle} | RAHATLYK",
+            "tm": "Arza kabul edildi — {vacancyTitle} | RAHATLYK",
+            "ru": "Заявка получена — {vacancyTitle} | RAHATLYK"
+          },
+          "preheader": {
+            "en": "Your application for {vacancyTitle} at RAHATLYK has been received.",
+            "tm": "RAHATLYK-da {vacancyTitle} wezipesi üçin arzaňyz kabul edildi.",
+            "ru": "Ваша заявка на должность {vacancyTitle} в RAHATLYK получена."
+          },
+          "title": {
+            "en": "Application Received",
+            "tm": "Arza Kabul Edildi",
+            "ru": "Заявка получена"
+          },
+          "subtitle": {
+            "en": "Position: {vacancyTitle}",
+            "tm": "Wezipe: {vacancyTitle}",
+            "ru": "Должность: {vacancyTitle}"
+          },
+          "greeting": {
+            "en": "Hi <strong>{firstName} {lastName}</strong>,",
+            "tm": "Salam, <strong>{firstName} {lastName}</strong>,",
+            "ru": "Здравствуйте, <strong>{firstName} {lastName}</strong>,"
+          },
+          "intro": {
+            "en": "Thank you for your interest in joining RAHATLYK! We've received your application for the <strong style=\"color:#0e7490\">{vacancyTitle}</strong> position and our HR team will review your CV carefully.",
+            "tm": "RAHATLYK-a goşulmaga gyzyklanandygyňyz üçin sagboluň! <strong style=\"color:#0e7490\">{vacancyTitle}</strong> wezipesi üçin arzaňyzy aldyk we HR toparymyz rezýumäňizi üns bilen seredip çykar.",
+            "ru": "Спасибо за интерес к работе в RAHATLYK! Мы получили вашу заявку на должность <strong style=\"color:#0e7490\">{vacancyTitle}</strong> и наш HR-отдел внимательно изучит ваше резюме."
+          },
+          "appliedPositionHeading": {
+            "en": "Applied Position",
+            "tm": "Başvurylan Wezipe",
+            "ru": "Желаемая должность"
+          },
+          "positionLabel": {
+            "en": "Position",
+            "tm": "Wezipe",
+            "ru": "Должность"
+          },
+          "companyLabel": {
+            "en": "Company",
+            "tm": "Kompaniýa",
+            "ru": "Компания"
+          },
+          "locationLabel": {
+            "en": "Location",
+            "tm": "Ýerleşişi",
+            "ru": "Местоположение"
+          },
+          "companyValue": {
+            "en": "RAHATLYK — Pure. Natural. Life.",
+            "tm": "RAHATLYK — Arassa. Tebigy. Durmuş.",
+            "ru": "RAHATLYK — Чисто. Натурально. Жизнь."
+          },
+          "locationValue": {
+            "en": "Ashgabat, Turkmenistan",
+            "tm": "Aşgabat, Türkmenistan",
+            "ru": "Ашхабад, Туркменистан"
+          },
+          "whatNextHeading": {
+            "en": "What Happens Next",
+            "tm": "Mundan Soň Näme Bolar",
+            "ru": "Что происходит дальше"
+          },
+          "step1": {
+            "en": "Our HR team reviews your CV and cover letter within <strong>3–5 business days</strong>.",
+            "tm": "HR toparymyz rezýumäňizi <strong>3–5 iş gününiň</strong> dowamynda seredip çykar.",
+            "ru": "Наш HR-отдел рассмотрит ваше резюме и сопроводительное письмо в течение <strong>3–5 рабочих дней</strong>."
+          },
+          "step2": {
+            "en": "If you're shortlisted, we'll reach out to schedule an interview.",
+            "tm": "Saýlansaňyz, söhbetdeşlik üçin sizinle habarlaşarys.",
+            "ru": "Если вы пройдёте отбор, мы свяжемся с вами для собеседования."
+          },
+          "step3": {
+            "en": "Check your email regularly — we'll contact you at the address you provided.",
+            "tm": "E-poçtaňyzy yzygiderli barlaň — görkezilen adresinize habar ibereris.",
+            "ru": "Регулярно проверяйте почту — мы напишем на адрес, который вы указали."
+          },
+          "ctaBtn": {
+            "en": "View Other Openings →",
+            "tm": "Beýleki Wezipeleri Görmek →",
+            "ru": "Другие вакансии →"
+          }
+        },
+        "notification": {
+          "subject": {
+            "en": "[Application] {vacancyTitle} — {fullName}",
+            "tm": "[Arza] {vacancyTitle} — {fullName}",
+            "ru": "[Заявка] {vacancyTitle} — {fullName}"
+          },
+          "title": {
+            "en": "New Job Application",
+            "tm": "Täze Iş Arzasy",
+            "ru": "Новая заявка на вакансию"
+          },
+          "subtitle": {
+            "en": "Position: {vacancyTitle}",
+            "tm": "Wezipe: {vacancyTitle}",
+            "ru": "Должность: {vacancyTitle}"
+          },
+          "firstNameLabel": {
+            "en": "First Name",
+            "tm": "Ady",
+            "ru": "Имя"
+          },
+          "lastNameLabel": {
+            "en": "Last Name",
+            "tm": "Familiýasy",
+            "ru": "Фамилия"
+          },
+          "dobLabel": {
+            "en": "Date of Birth",
+            "tm": "Doglan senesi",
+            "ru": "Дата рождения"
+          },
+          "emailLabel": {
+            "en": "Email",
+            "tm": "E-poçta",
+            "ru": "Эл. почта"
+          },
+          "phoneLabel": {
+            "en": "Phone",
+            "tm": "Telefon",
+            "ru": "Телефон"
+          },
+          "positionLabel": {
+            "en": "Position",
+            "tm": "Wezipe",
+            "ru": "Должность"
+          },
+          "cvLabel": {
+            "en": "CV File",
+            "tm": "Rezýume faýly",
+            "ru": "Файл резюме"
+          },
+          "cvNote": {
+            "en": "(attached to HR email)",
+            "tm": "(HR e-poçtasyna goşuldy)",
+            "ru": "(прикреплено к письму HR)"
+          },
+          "coverHeading": {
+            "en": "Cover Letter",
+            "tm": "Üstki hat",
+            "ru": "Сопроводительное письмо"
+          },
+          "replyBtn": {
+            "en": "Reply to Applicant →",
+            "tm": "Dalaşgäre Jogap Beriň →",
+            "ru": "Ответить кандидату →"
+          }
+        }
+      }
+    },
+    "navigation-labels": {
+      "home": {
+        "en": "Home",
+        "tm": "Baş sahypa",
+        "ru": "Главная"
+      },
+      "products": {
+        "en": "Products",
+        "tm": "Önümler",
+        "ru": "Продукты"
+      },
+      "about": {
+        "en": "About Us",
+        "tm": "Biz hakda",
+        "ru": "О нас"
+      },
+      "news": {
+        "en": "News",
+        "tm": "Habarlar",
+        "ru": "Новости"
+      },
+      "vacancies": {
+        "en": "Vacancies",
+        "tm": "Boş iş orunlary",
+        "ru": "Вакансии"
+      },
+      "contact": {
+        "en": "Contact Us",
+        "tm": "Habarlaşmak",
+        "ru": "Контакты"
+      }
+    },
+    "footer": {
+      "tagline": {
+        "en": "When everything is simple!",
+        "tm": "Haçanda hemme zat ýönekeý bolanda!",
+        "ru": "Когда всё просто!"
+      },
+      "quickLinksLabel": {
+        "en": "Pages",
+        "tm": "Sahypalar",
+        "ru": "Страницы"
+      },
+      "companyLabel": {
+        "en": "Rahatlyk",
+        "tm": "Rahatlyk",
+        "ru": "Rahatlyk"
+      },
+      "rights": {
+        "en": "© 2025 RAHATLYK. All rights reserved.",
+        "tm": "© 2025 RAHATLYK. Ähli hukuklar goralandyr.",
+        "ru": "© 2025 RAHATLYK. Все права защищены."
+      }
+    },
+    "not-found-page": {
+      "title": {
+        "en": "Page Not Found",
+        "tm": "Sahypa Tapylmady",
+        "ru": "Страница не найдена"
+      },
+      "message": {
+        "en": "We couldn't find the page you were looking for. It may have been moved, or the link might be outdated.",
+        "tm": "Gözlän sahypaňyzy tapyp bilmedik. Ol üýtgedilen bolmagy ýa-da salgysy köne bolmagy mümkin.",
+        "ru": "Мы не смогли найти страницу, которую вы искали. Возможно, она была перемещена, или ссылка устарела."
+      },
+      "ctaLabel": {
+        "en": "Back to Home",
+        "tm": "Baş sahypa",
+        "ru": "На главную"
+      }
+    },
+    "error-page": {
+      "label": {
+        "en": "Error",
+        "tm": "Näsazlyk",
+        "ru": "Ошибка"
+      },
+      "title": {
+        "en": "Something Went Wrong",
+        "tm": "Näsazlyk Ýüze Çykdy",
+        "ru": "Что-то пошло не так"
+      },
+      "message": {
+        "en": "We're sorry — something unexpected happened on our end. Please try again, or head back to the home page.",
+        "tm": "Bagyşlaň — bizde garaşylmadyk näsazlyk ýüze çykdy. Gaýtadan synanyşyň ýa-da baş sahypa dolanyň.",
+        "ru": "Извините — на нашей стороне произошла непредвиденная ошибка. Пожалуйста, попробуйте снова или вернитесь на главную страницу."
+      },
+      "retryLabel": {
+        "en": "Try Again",
+        "tm": "Gaýtadan synanyş",
+        "ru": "Попробовать снова"
+      },
+      "ctaLabel": {
+        "en": "Back to Home",
+        "tm": "Baş sahypa",
+        "ru": "На главную"
+      }
+    },
+    "about-page": {
+      "hero": {
+        "title": {
+          "en": "Feel free to share your feedback and suggestions...",
+          "tm": "Pikiriňizi we teklipleriňizi paýlaşyp bilersiňiz...",
+          "ru": "Поделитесь своими отзывами и предложениями..."
+        },
+        "description": {
+          "en": "Your opinion and trust are very important to us. The RAHATLYK team is always ready to answer your questions and assist with your orders.",
+          "tm": "Siziň pikiriňiz we ynamyňyz biziň üçin möhümdir. RAHATLYK topary islendik soragyňyza jogap bermäge we sargytlar boýunça kömek etmäge hemişe taýýar.",
+          "ru": "Ваше мнение и доверие очень важны для нас. Команда RAHATLYK всегда готова ответить на любые ваши вопросы и помочь с оформлением заказа."
+        }
+      }
+    },
+    "forms": {
+      "commonFields": {
+        "labels": {
+          "firstName": {
+            "en": "First name",
+            "tm": "Ady",
+            "ru": "Имя"
+          },
+          "lastName": {
+            "en": "Last name",
+            "tm": "Familiýasy",
+            "ru": "Фамилия"
+          },
+          "email": {
+            "en": "Email",
+            "tm": "E-poçta",
+            "ru": "Эл. почта"
+          },
+          "phone": {
+            "en": "Phone",
+            "tm": "Telefon",
+            "ru": "Телефон"
+          }
+        },
+        "placeholders": {
+          "firstName": {
+            "en": "John",
+            "tm": "Aşyr",
+            "ru": "Иван"
+          },
+          "lastName": {
+            "en": "Smith",
+            "tm": "Orazow",
+            "ru": "Иванов"
+          },
+          "email": {
+            "en": "you@example.com",
+            "tm": "ashyr@mysal.com",
+            "ru": "ivan@example.com"
+          },
+          "phone": {
+            "en": "+993 ...",
+            "tm": "+993 ...",
+            "ru": "+993 ..."
+          }
+        }
+      },
+      "contactForm": {
+        "labels": {
+          "subject": {
+            "en": "Subject",
+            "tm": "Tema",
+            "ru": "Тема"
+          },
+          "message": {
+            "en": "Message",
+            "tm": "Habar",
+            "ru": "Сообщение"
+          },
+          "submitButton": {
+            "en": "Send",
+            "tm": "Ugratmak",
+            "ru": "Отправить"
+          }
+        },
+        "placeholders": {
+          "subject": {
+            "en": "What is this about?",
+            "tm": "Nädip kömek edip bileris?",
+            "ru": "Чем можем помочь?"
+          },
+          "message": {
+            "en": "Your message…",
+            "tm": "Habaryňyz…",
+            "ru": "Ваше сообщение…"
+          }
+        },
+        "messages": {
+          "success": {
+            "en": "Your message has been sent! We'll be in touch soon.",
+            "tm": "Habatyňyz iberildi! Ýakyn wagtda siziň bilen habarlaşarys.",
+            "ru": "Ваше сообщение отправлено! Мы свяжемся с вами в ближайшее время."
+          },
+          "error": {
+            "en": "Something went wrong. Please try again.",
+            "tm": "Näsazlyk ýüze çykdy. Gaýtadan synanyşyň.",
+            "ru": "Произошла ошибка. Пожалуйста, попробуйте ещё раз."
+          },
+          "sending": {
+            "en": "Sending…",
+            "tm": "Iberilýär…",
+            "ru": "Отправляется…"
+          },
+          "thankYou": {
+            "en": "Thanks {name} — we'll be in touch at {email}.",
+            "tm": "Sag boluň, {name} — {email} arkaly siziň bilen habarlaşarys.",
+            "ru": "Спасибо, {name} — мы свяжемся с вами по адресу {email}."
+          },
+          "whatHappensNext": {
+            "en": "What happens next",
+            "tm": "Mundan soň näme bolar",
+            "ru": "Что будет дальше"
+          },
+          "step1": {
+            "en": "Our team reviews your message within 1 business day.",
+            "tm": "Toparymyz habatyňyzy 1 iş günüň dowamynda gözden geçirer.",
+            "ru": "Наша команда рассмотрит ваше сообщение в течение 1 рабочего дня."
+          },
+          "step2": {
+            "en": "We'll reply directly to {email}.",
+            "tm": "{email} adresine göni jogap bereris.",
+            "ru": "Мы ответим напрямую на {email}."
+          },
+          "step3": {
+            "en": "For urgent enquiries call {phone}.",
+            "tm": "Gyssagly ýagdaýlarda {phone} belgä jaň ediň.",
+            "ru": "По срочным вопросам звоните {phone}."
+          },
+          "sendAnother": {
+            "en": "Send Another Message",
+            "tm": "Ýene bir habar iberiň",
+            "ru": "Отправить ещё одно сообщение"
+          }
+        },
+        "errors": {
+          "requiredFields": {
+            "en": "Name, email, subject and message are required.",
+            "tm": "At, e-poçta, tema we habar hökmandyr.",
+            "ru": "Имя, эл. почта, тема и сообщение обязательны."
+          },
+          "emailInvalid": {
+            "en": "Invalid email address.",
+            "tm": "Nädogry e-poçta salgysy.",
+            "ru": "Неверный адрес эл. почты."
+          },
+          "nameTooLong": {
+            "en": "Name is too long.",
+            "tm": "At gaty uzyn.",
+            "ru": "Имя слишком длинное."
+          },
+          "emailTooLong": {
+            "en": "Email address is too long.",
+            "tm": "E-poçta salgysy gaty uzyn.",
+            "ru": "Адрес эл. почты слишком длинный."
+          },
+          "phoneTooLong": {
+            "en": "Phone number is too long.",
+            "tm": "Telefon belgisi gaty uzyn.",
+            "ru": "Номер телефона слишком длинный."
+          },
+          "subjectTooLong": {
+            "en": "Subject must be under 200 characters.",
+            "tm": "Tema 200 harpdan az bolmaly.",
+            "ru": "Тема должна содержать не более 200 символов."
+          },
+          "messageTooLong": {
+            "en": "Message must be under 5 000 characters.",
+            "tm": "Habar 5 000 harpdan az bolmaly.",
+            "ru": "Сообщение должно содержать не более 5 000 символов."
+          },
+          "serverError": {
+            "en": "Failed to send message. Please try again later.",
+            "tm": "Habar iberip bolmady. Biraz soňra gaýtadan synanyşyň.",
+            "ru": "Не удалось отправить сообщение. Повторите попытку позже."
+          }
+        }
+      },
+      "vacancyForm": {
+        "labels": {
+          "formTitle": {
+            "en": "Apply for this Position",
+            "tm": "Bu wezipä arza bermek",
+            "ru": "Подать заявку на эту должность"
+          },
+          "applyButton": {
+            "en": "Apply for This Role",
+            "tm": "Bu wezipä arza bermek",
+            "ru": "Откликнуться"
+          },
+          "dateOfBirth": {
+            "en": "Date of birth",
+            "tm": "Doglan senesi",
+            "ru": "Дата рождения"
+          },
+          "cv": {
+            "en": "CV / Resume",
+            "tm": "Rezýume",
+            "ru": "Резюме"
+          },
+          "coverLetter": {
+            "en": "Cover letter",
+            "tm": "Ýüz tutma haty",
+            "ru": "Сопроводительное письмо"
+          },
+          "submitButton": {
+            "en": "Submit Application",
+            "tm": "Arza ibermek",
+            "ru": "Подать заявку"
+          }
+        },
+        "placeholders": {
+          "coverLetter": {
+            "en": "Tell us why you're a great fit…",
+            "tm": "Bu wezipä näme üçin laýyk gelýändigiňizi aýdyň…",
+            "ru": "Расскажите, почему вы подходите для этой должности…"
+          }
+        },
+        "upload": {
+          "clickToUpload": {
+            "en": "Click to upload",
+            "tm": "Ýüklemek üçin basyň",
+            "ru": "Нажмите для загрузки"
+          },
+          "dragAndDrop": {
+            "en": "or drag and drop",
+            "tm": "ýa-da süýräp goýuň",
+            "ru": "или перетащите файл"
+          },
+          "hint": {
+            "en": "PDF, DOC, DOCX — up to 2 MB",
+            "tm": "PDF, DOC, DOCX — 2 MB çenli",
+            "ru": "PDF, DOC, DOCX — до 2 МБ"
+          }
+        },
+        "messages": {
+          "successHeading": {
+            "en": "Application Submitted",
+            "tm": "Arza iberildi",
+            "ru": "Заявка отправлена"
+          },
+          "successThankYou": {
+            "en": "Thanks {name} — a confirmation has been sent to {email}.",
+            "tm": "Sag boluň, {name} — tassyklama {email} adresine iberildi.",
+            "ru": "Спасибо, {name} — подтверждение отправлено на {email}."
+          },
+          "whatHappensNext": {
+            "en": "What happens next",
+            "tm": "Mundan soň näme bolar",
+            "ru": "Что будет дальше"
+          },
+          "step1": {
+            "en": "Our HR team reviews your CV within 3–5 business days.",
+            "tm": "HR toparymyz rezýumäňizi 3–5 iş günüň dowamynda gözden geçirer.",
+            "ru": "Наш HR-отдел рассмотрит ваше резюме в течение 3–5 рабочих дней."
+          },
+          "step2": {
+            "en": "If shortlisted, we'll reach out to schedule an interview.",
+            "tm": "Dalaşgärler sanawyna girseniňiz, söhbetdeşlik bellemek üçin siziň bilen habarlaşarys.",
+            "ru": "Если вы войдёте в список кандидатов, мы свяжемся с вами для назначения собеседования."
+          },
+          "step3": {
+            "en": "Check {email} — that's where we'll contact you.",
+            "tm": "{email} adresini barlaň — biziň habarymyz şol ýere geler.",
+            "ru": "Следите за почтой {email} — мы напишем туда."
+          },
+          "submitting": {
+            "en": "Submitting…",
+            "tm": "Iberilýär…",
+            "ru": "Отправляется…"
+          },
+          "submitAnother": {
+            "en": "Submit Another Application",
+            "tm": "Ýene bir arza ibermek",
+            "ru": "Подать ещё одну заявку"
+          },
+          "error": {
+            "en": "Something went wrong. Please try again later.",
+            "tm": "Näsazlyk ýüze çykdy. Biraz soňra gaýtadan synanyşyň.",
+            "ru": "Произошла ошибка. Пожалуйста, попробуйте позже."
+          }
+        },
+        "errors": {
+          "requiredFields": {
+            "en": "Name, email, date of birth and vacancy are required.",
+            "tm": "At, e-poçta, doglan senesi we wezipe hökmandyr.",
+            "ru": "Имя, эл. почта, дата рождения и вакансия обязательны."
+          },
+          "emailInvalid": {
+            "en": "Invalid email address.",
+            "tm": "Nädogry e-poçta salgysy.",
+            "ru": "Неверный адрес эл. почты."
+          },
+          "vacancyInvalid": {
+            "en": "Invalid vacancy.",
+            "tm": "Nädogry wezipe.",
+            "ru": "Неверная вакансия."
+          },
+          "nameTooLong": {
+            "en": "Name is too long.",
+            "tm": "At gaty uzyn.",
+            "ru": "Имя слишком длинное."
+          },
+          "emailTooLong": {
+            "en": "Email address is too long.",
+            "tm": "E-poçta salgysy gaty uzyn.",
+            "ru": "Адрес эл. почты слишком длинный."
+          },
+          "phoneTooLong": {
+            "en": "Phone number is too long.",
+            "tm": "Telefon belgisi gaty uzyn.",
+            "ru": "Номер телефона слишком длинный."
+          },
+          "dobInvalid": {
+            "en": "Invalid date of birth.",
+            "tm": "Nädogry doglan senesi.",
+            "ru": "Неверная дата рождения."
+          },
+          "coverTooLong": {
+            "en": "Cover letter must be under 5 000 characters.",
+            "tm": "Ýüz tutma haty 5 000 harpdan az bolmaly.",
+            "ru": "Сопроводительное письмо не должно превышать 5 000 символов."
+          },
+          "cvRequired": {
+            "en": "CV file is required.",
+            "tm": "Rezýume faýly hökmandyr.",
+            "ru": "Файл резюме обязателен."
+          },
+          "cvTypeInvalid": {
+            "en": "CV must be a PDF, DOC or DOCX file.",
+            "tm": "Rezýume PDF, DOC ýa-da DOCX formatynda bolmaly.",
+            "ru": "Резюме должно быть в формате PDF, DOC или DOCX."
+          },
+          "cvTooLarge": {
+            "en": "CV file must be under 2 MB.",
+            "tm": "Rezýume faýlynyň ölçegi 2 MB-dan az bolmaly.",
+            "ru": "Размер файла резюме не должен превышать 2 МБ."
+          },
+          "cvContentMismatch": {
+            "en": "CV file content does not match its declared type.",
+            "tm": "Rezýume faýlynyň mazmuny onuň görnüşine laýyk gelmeýär.",
+            "ru": "Содержимое файла резюме не соответствует заявленному типу."
+          },
+          "serverError": {
+            "en": "Failed to submit application. Please try again later.",
+            "tm": "Arza iberip bolmady. Biraz soňra gaýtadan synanyşyň.",
+            "ru": "Не удалось отправить заявку. Повторите попытку позже."
+          }
+        }
+      }
+    },
+    "about-hero": {
+      "title": {
+        "en": "Rahatlyk — built on quality and trust.",
+        "tm": "Rahatlyk — hil we ynam esasynda döredildi.",
+        "ru": "Rahatlyk — создана на основе качества и доверия."
+      },
+      "accentWordIndex": {
+        "en": 1,
+        "tm": 1,
+        "ru": 1
+      }
+    },
+    "about-who-we-are": {
+      "statement": {
+        "text": {
+          "en": "The name Rahatlyk reflects our core idea! We strive to ensure that every product meets high standards of quality and becomes a choice people can trust.",
+          "tm": "Rahatlyk ady biziň esasy ýörelgämizi aňladýar! Biz her bir önümiň ýokary hilli, arassa we adamlaryň ynam bilen saýlap biljek derejesinde bolmagyna çalyşýarys.",
+          "ru": "Название Rahatlyk отражает нашу главную идею! Мы стремимся к тому, чтобы каждый наш продукт отвечал высоким требованиям качества и был выбором, которому можно доверять."
+        },
+        "accentWordIndex": {
+          "en": 3,
+          "tm": 1,
+          "ru": 2
+        }
+      },
+      "whoWeAre": {
+        "sectionTitle": {
+          "en": "Who we are",
+          "tm": "Biz kim",
+          "ru": "Кто мы"
+        },
+        "paragraph1": {
+          "en": "Rahatlyk Our goal is to create products for everyday life by combining modern production practices, strict quality control and a responsible approach to everything we do.",
+          "tm": "Rahatlyk Biziň maksadymyz adamlaryň gündelik durmuşynda zerur bolan içgileri döwrebap önümçilik, berk hil gözegçiligi we jogapkärçilikli çemeleşme esasynda öndürmekdir.",
+          "ru": "Rahatlyk Наша цель — создавать продукты для повседневной жизни людей, сочетая современные подходы к производству, строгий контроль качества и ответственное отношение к своей работе."
+        },
+        "paragraph2": {
+          "en": "One of the company’s key products today is Sarwan — pure artesian drinking water. As we grow, we aim to expand our product range and introduce new products designed to meet different consumer needs.",
+          "tm": "Häzirki wagtda kompaniýanyň esasy önümleriniň biri bolan Sarwan arassa artezian agyz suwydyr. Geljekde bolsa önüm görnüşlerimizi giňeldip, sarp edijileriň dürli isleglerine laýyk täze önümleri hödürlemegi maksat edinýäris.",
+          "ru": "Сегодня одним из ключевых продуктов компании является Sarwan — чистая артезианская питьевая вода. В дальнейшем мы планируем расширять ассортимент и создавать новые продукты, отвечающие различным потребностям потребителей."
+        },
+        "paragraph3": {
+          "en": "For us, production is about more than simply making products. Our goal is to create products people can choose with confidence and trust.",
+          "tm": "Biz üçin önümçiligiň esasy ölçegi diňe bir önüm öndürmek däl. Esasy maksat — adamlaryň ynam bilen saýlap biljek önümlerini döretmek.",
+          "ru": "Для нас производство — это не просто выпуск продукции. Наша главная задача — создавать продукты, которые люди могут выбирать с уверенностью и доверием."
+        }
+      }
+    },
+    "about-our-story": {
+      "sectionLabel": {
+        "en": "Our story",
+        "tm": "Biziň taryhymyz",
+        "ru": "Наша история"
+      },
+      "title": {
+        "en": "One bottling line. Six collections. Every step, closer to the people we serve.",
+        "tm": "Bir çüýşeleme ulgamy. Alty kolleksiýa. Her ädim, hyzmat edýän adamlara has ýakyn.",
+        "ru": "Одна линия розлива. Шесть коллекций. Каждый шаг — ближе к людям, которым мы служим."
+      },
+      "subtitle": {
+        "en": "Everything made in-house — from filtration to the final cap. Quality stays in our hands.",
+        "tm": "Hemme zat öz içinde öndürilýär — süzmekden ahyrky gapaça çenli. Hil elimizde galýar.",
+        "ru": "Всё производится внутри компании — от фильтрации до финальной крышки. Качество остаётся в наших руках."
+      },
+      "milestones": [
+        {
+          "year": "2003",
+          "isCurrent": false,
+          "title": {
+            "en": "The first drop",
+            "tm": "Ilkinji damja",
+            "ru": "Первая капля"
+          },
+          "body": {
+            "en": "Rahatlyk begins with one product and one goal: drinking water every family can rely on, bottled to a standard people can trust.",
+            "tm": "Rahatlyk bir önüm we bir maksat bilen başlaýar: her maşgalanyň ynamdar saýlap biljek agyz suwy, adamlaryň ynanyp biljek standartda çüýşelenýär.",
+            "ru": "Rahatlyk начинается с одного продукта и одной цели: питьевая вода, на которую может положиться каждая семья, разлитая по стандарту, которому доверяют люди."
+          }
+        },
+        {
+          "year": "2008",
+          "isCurrent": false,
+          "title": {
+            "en": "Minerals",
+            "tm": "Minerallar",
+            "ru": "Минеральная вода"
+          },
+          "body": {
+            "en": "Naturally balanced mineral water extends the line into everyday wellness and gives the brand a clearer production identity.",
+            "tm": "Tebigy deňagramly mineral suw her günki saglygy goraýşa çenli hyzmatlary giňeldýär we marka has aýdyň önümçilik şahsyýetini berýär.",
+            "ru": "Натурально сбалансированная минеральная вода расширяет линейку до повседневного здоровья и даёт бренду более чёткую производственную идентичность."
+          }
+        },
+        {
+          "year": "2013",
+          "isCurrent": false,
+          "title": {
+            "en": "Colour",
+            "tm": "Reňk",
+            "ru": "Цвет"
+          },
+          "body": {
+            "en": "Juices and soft drinks launch, bringing fruit, sparkle and seasonal flavour into the same in-house production culture.",
+            "tm": "Meywe şireleri we gazly içgiler ýola goýulýar, şol bir öz içindäki önümçilik medeniýetine meywe, köpürmek we möwsümleýin tagamy getirýär.",
+            "ru": "Запускаются соки и газированные напитки, принося фрукты, игристость и сезонный вкус в ту же внутреннюю производственную культуру."
+          }
+        },
+        {
+          "year": "2018",
+          "isCurrent": false,
+          "title": {
+            "en": "Energy & calm",
+            "tm": "Energiýa & asudalyk",
+            "ru": "Энергия & покой"
+          },
+          "body": {
+            "en": "Energy drinks for active days and herbal teas for slower evenings turn the collection into a full rhythm of daily refreshment.",
+            "tm": "Işjeň günler üçin energetika içgileri we has ýuwaş agşamlar üçin ot-çöp çaýlary kolleksiýany gündelik täzeleşmegiň doly ritmyna öwürýär.",
+            "ru": "Энергетические напитки для активных дней и травяные чаи для неспешных вечеров превращают коллекцию в полный ритм ежедневного освежения."
+          }
+        },
+        {
+          "year": "Now",
+          "isCurrent": true,
+          "title": {
+            "en": "Today",
+            "tm": "Şu gün",
+            "ru": "Сегодня"
+          },
+          "body": {
+            "en": "A modern production family with six beverage collections, tighter quality control and a platform that brings Rahatlyk directly to customers.",
+            "tm": "Alty içgi kolleksiýaly, has berk hil gözegçilikli we Rahatlyk müşderilere göni getirýän platforma bilen döwrebap önümçilik maşgalasy.",
+            "ru": "Современное производственное семейство с шестью коллекциями напитков, более строгим контролем качества и платформой, которая напрямую приносит Rahatlyk к покупателям."
+          }
+        }
+      ]
+    },
+    "about-numbers": {
+      "stats": [
+        {
+          "value": 4,
+          "suffix": "",
+          "label": {
+            "en": "sizes for every need and occasion",
+            "tm": "göwrümde, islendik ýagdaý we isleg üçin",
+            "ru": "объема — для любой ситуации и потребности"
+          }
+        },
+        {
+          "value": 100,
+          "suffix": "%",
+          "label": {
+            "en": "pure drinking water produced in Turkmenistan",
+            "tm": "Türkmenistanda öndürilen arassa agyz suwy",
+            "ru": "чистая питьевая вода, произведенная в Туркменистане"
+          }
+        },
+        {
+          "value": 0,
+          "suffix": "%",
+          "label": {
+            "en": "additives — only the natural purity of water",
+            "tm": "goşundy — diňe suwuň tebigy arassalygy we peýdasy",
+            "ru": "добавок — только природная чистота и польза воды"
+          }
+        },
+        {
+          "value": 5,
+          "suffix": "",
+          "label": {
+            "en": "strict quality control stages from source to bottle",
+            "tm": "gaplanmaga çenli hil gözegçiliginiň berk tapgyrlary",
+            "ru": "строгих этапов контроля качества от источника до бутылки"
+          }
+        }
+      ],
+      "tagline": {
+        "text": {
+          "en": "Rahatlyk",
+          "tm": "Rahatlyk ",
+          "ru": "Рахатлык"
+        },
+        "accentText": {
+          "en": " in every sip.",
+          "tm": "— her bir owurtda.",
+          "ru": " — в каждом глотке."
+        }
+      }
+    },
+    "about-final-section": {
+      "heading": {
+        "en": "Every drop, a promise kept.",
+        "tm": "Her damja - berjaý edilen wada.",
+        "ru": "Каждая капля - сдержанное обещание."
+      },
+      "body": {
+        "en": "From the first filtration to the final cap, Rahatlyk keeps quality in its own hands - every bottle, every time.",
+        "tm": "Ilkinji süzgüçden soňky gapaga çenli Rahatlyk hili öz elinde saklaýar - her çüýşe, her gezek.",
+        "ru": "От первой фильтрации до финальной крышки Rahatlyk держит качество в своих руках - каждая бутылка, каждый раз."
+      }
+    },
+    "home-hero": {
+      "title": {
+        "en": "From nature",
+        "tm": "Tebigatdan - ",
+        "ru": "От природы —"
+      },
+      "titleAccent": {
+        "en": "to everyday life!",
+        "tm": "Gündelik durmuşyňyza!",
+        "ru": "в вашу повседневную жизнь!"
+      },
+      "subtitle": {
+        "en": "Premium beverages crafted from the finest natural sources of Turkmenistan",
+        "tm": "Türkmenistanyň iň arassa tebigy çeşmelerinden öndürilen alkogolsyz içgiler!",
+        "ru": "Безалкогольные  напитки из лучших природных источников Туркменистана"
+      },
+      "ctaLabel": {
+        "en": null,
+        "tm": null,
+        "ru": ""
+      },
+      "ctaHref": null
+    },
+    "horizontal-scroll": {
+      "box1": {},
+      "box2": {
+        "tag": {
+          "en": "PURITY FROM NATURE",
+          "tm": "TEBIGATDAN GELÝÄN ARASSALYK",
+          "ru": "ЧИСТОТА, РОЖДЁННАЯ ПРИРОДОЙ"
+        },
+        "headline": {
+          "en": "Water from a natural source, with purity and a refreshing taste you can feel in every drop.",
+          "tm": "Tebigy çeşmeden gözbaş alyp, her damjasynda arassalygy we ýakymly tagamy duýup bolýan suw.",
+          "ru": "Вода из природного источника, в каждой капле которой ощущаются чистота и естественный вкус."
+        }
+      },
+      "box3": {},
+      "box4": {
+        "text": {
+          "en": "Discover how \"Rahatlyk Suwy\" E.S. began, how we continue to grow and the values that drive us forward.",
+          "tm": "Rahatlyk Suwy H.J.-niň nähili dörändigini, ösüş ýoluny we bizi öňe alyp barýan gymmatlyklary öwreniň.",
+          "ru": "Узнайте, как появилась \"Rahatlyk Suwy\" Х.О. , как мы развиваемся и какие ценности лежат в основе нашей работы."
+        },
+        "buttonLabel": {
+          "en": "OUR STORY",
+          "tm": "Biziň taryhymyz",
+          "ru": "НАША ИСТОРИЯ"
+        },
+        "buttonHref": "/about"
+      },
+      "box5": {
+        "tag": {
+          "en": "QUALITY IN EVERY DROP",
+          "tm": "HER DAMJADA HIL",
+          "ru": "КАЧЕСТВО В КАЖДОЙ КАПЛЕ"
+        },
+        "headline": {
+          "en": "The purity and quality of our water are carefully monitored throughout the production process.",
+          "tm": "Suwuň arassalygy we hili önümçiligiň her tapgyrynda üns merkezinde saklanýar.",
+          "ru": "Чистота и качество воды находятся под контролем на каждом этапе производства."
+        }
+      },
+      "box6": {
+        "tag": {
+          "en": "OUR PRODUCTS",
+          "tm": "ÖNÜMLERIMIZ BILEN TANYŞYŇ",
+          "ru": "НАШИ ПРОДУКТЫ"
+        },
+        "headline": {
+          "en": "Explore \"Rahatlyk SUWY\" E.S. products created to be part of your everyday life.",
+          "tm": "Gündelik durmuşyňyz üçin döredilen önümlerimizi öwreniň.",
+          "ru": "Познакомьтесь с продуктами \"Rahatlyk Suwy\" Х.О. созданными для повседневной жизни."
+        },
+        "buttonLabel": {
+          "en": "PRODUCTS",
+          "tm": "ÖNÜMLER",
+          "ru": "ПРОДУКТЫ"
+        },
+        "buttonHref": "/products"
+      }
+    },
+    "our-collection": {
+      "sectionTag": {
+        "en": "OUR PRODUCT",
+        "tm": "BIZIŇ ÖNÜMLERIMIZ",
+        "ru": "НАШ ПРОДУКТ"
+      },
+      "exploreLabel": {
+        "en": "ABOUT THE PRODUCT",
+        "tm": "ÖNÜMLER",
+        "ru": "О ПРОДУКТЕ"
+      },
+      "items": [
+        {
+          "key": "water",
+          "order": 0,
+          "name": {
+            "en": "SARWAN — 19L PURE DRINKING WATER",
+            "tm": "SARWAN — 19L ARASSA SUWY",
+            "ru": "SARWAN — 19Л ЧИСТАЯ ПИТЬЕВАЯ ВОДА"
+          },
+          "imageAlt": {
+            "en": null,
+            "tm": null,
+            "ru": null
+          },
+          "description": {
+            "en": "Pure drinking water from a natural artesian source.",
+            "tm": "Tebigy artezian çeşmeden alnan arassa we ýokary hilli agyz suwy.",
+            "ru": "Чистая питьевая вода из природного артезианского источника."
+          },
+          "body": {
+            "en": "Sarwan is made for everyday drinking, with careful attention to purity and quality at every stage of production.",
+            "tm": "Sarwan gündelik durmuş üçin döredilen arassa agyz suwydyr. Önümçiligiň her tapgyrynda hiline we arassalygyna aýratyn üns berilýär.",
+            "ru": "Sarwan создана для ежедневного употребления. На каждом этапе производства особое внимание уделяется чистоте воды и качеству продукта."
+          }
+        },
+        {
+          "key": "waters",
+          "order": 1,
+          "name": {
+            "en": "SARWAN — 0.5L PURE DRINKING WATER",
+            "tm": "SARWAN — 0.5L ARASSA SUWY",
+            "ru": "SARWAN — 0,5Л ЧИСТАЯ ПИТЬЕВАЯ ВОДА"
+          },
+          "imageAlt": {
+            "en": null,
+            "tm": null,
+            "ru": null
+          },
+          "description": {
+            "en": "Pure drinking water from a natural artesian source.",
+            "tm": "Tebigy artezian çeşmeden alnan arassa we ýokary hilli agyz suwy.",
+            "ru": "Чистая питьевая вода из природного артезианского источника."
+          },
+          "body": {
+            "en": "Sarwan is made for everyday drinking, with careful attention to purity and quality at every stage of production.",
+            "tm": "Sarwan gündelik durmuş üçin döredilen arassa agyz suwydyr. Önümçiligiň her tapgyrynda hiline we arassalygyna aýratyn üns berilýär.",
+            "ru": "Sarwan создана для ежедневного употребления. На каждом этапе производства особое внимание уделяется чистоте воды и качеству продукта."
+          }
+        }
+      ]
+    },
+    "home-story": {
+      "tag": {
+        "en": "Our Story",
+        "tm": "Biziň taryhymyz",
+        "ru": "Наша история"
+      },
+      "title": {
+        "en": "Born from the Heart of Turkmenistan",
+        "tm": "Türkmenistanyň kalbyndan doglan",
+        "ru": "Рождённый в сердце Туркменистана"
+      },
+      "text": {
+        "en": "For over two decades, RAHATLYK has been bringing the purest waters and most refreshing beverages to families across Central Asia. Our commitment to quality is matched only by our love for the land.",
+        "tm": "20 ýyldan gowrak wagt bäri RAHATLYK Merkezi Aziýadaky maşgalalara iň arassa suwlary we sergin içgileri hödürleýär.",
+        "ru": "Более двух десятилетий RAHATLYK поставляет чистейшую воду и освежающие напитки семьям по всей Центральной Азии. Наша преданность качеству безгранична."
+      }
+    },
+    "home-cta-banner": {
+      "title": {
+        "en": "A Taste That Feels Right",
+        "tm": "Rahatlygyňyza laýyk tagam",
+        "ru": "Вкус, который дарит комфорт"
+      },
+      "subtitle": {
+        "en": "Discover beverages made to be part of your everyday life. Quality, purity and great taste — in every Rahatlyk product.",
+        "tm": "Gündelik durmuşyňyza laýyk gelýän içgiler bilen tanyşyň. Hil, arassalyk we ýakymly tagam — Rahatlygyň her önüminde.",
+        "ru": "Откройте для себя напитки, созданные для вашей повседневной жизни. Качество, чистота и приятный вкус — в каждом продукте Rahatlyk."
+      },
+      "ctaLabel": {
+        "en": "About Us",
+        "tm": "Biz Hakda",
+        "ru": "О нас"
+      },
+      "ctaHref": "/about"
+    },
+    "home-brand-statement": {
+      "heading": {
+        "en": "\"RAHATLYK SUWY\" E.S.",
+        "tm": "\"RAHATLYK SUWY\" H.J.",
+        "ru": "\"RAHATLYK SUWY\" Х.О."
+      },
+      "text": {
+        "en": "Rahatlyk brings together the value of natural resources, modern production and high standards of quality. We create products designed to become a trusted part of everyday life — with purity, quality and care at their core.",
+        "tm": "Rahatlyk — tebigy baýlyklary, döwrebap önümçilik we ýokary hil ülňüleri bilen birleşdirýän kompaniýa. Biz adamlaryň gündelik durmuşyna arassalyk, hil we ynam getirýän önümleri döredýäris.",
+        "ru": "Rahatlyk — компания, которая объединяет природные ресурсы, современные технологии производства и высокие стандарты качества. Мы создаём продукты, которые становятся частью повседневной жизни людей, даря чистоту, качество и уверенность."
+      }
+    },
+    "article-labels": {
+      "homeSectionTag": {
+        "en": "Latest News",
+        "tm": "Soňky habarlar",
+        "ru": "Последние новости"
+      },
+      "pageTitle": {
+        "en": "News & Updates",
+        "tm": "Habarlar we Täzelikler",
+        "ru": "Новости и Обновления"
+      },
+      "filterAllLabel": {
+        "en": "All",
+        "tm": "Hemmesi",
+        "ru": "Все"
+      },
+      "featuredLabel": {
+        "en": "Featured",
+        "tm": "Öňe çykarylan",
+        "ru": "Главное"
+      },
+      "readArticleLabel": {
+        "en": "Read article",
+        "tm": "Makalany oka",
+        "ru": "Читать статью"
+      },
+      "backToNewsLabel": {
+        "en": "View All News",
+        "tm": "Ähli habarlary görüň",
+        "ru": "Все новости"
+      },
+      "moreArticlesHeading": {
+        "en": "More Articles",
+        "tm": "Has köp makala",
+        "ru": "Ещё статьи"
+      },
+      "noArticlesMessage": {
+        "en": "No articles in this category.",
+        "tm": "Bu kategoriýada makala ýok.",
+        "ru": "В этой категории пока нет статей."
+      },
+      "paginationItemLabel": {
+        "en": "articles",
+        "tm": "makala",
+        "ru": "статей"
+      },
+      "paginationSummary": {
+        "en": "{from}–{to} of {total} {label}",
+        "tm": "{from}-{to} / {total} {label}",
+        "ru": "{from}–{to} из {total} {label}"
+      }
+    },
+    "product-detail-labels": {
+      "listingTitle": {
+        "en": "Products",
+        "tm": "Önümler",
+        "ru": "Продукты"
+      },
+      "filterAllLabel": {
+        "en": "All",
+        "tm": "Hemmesi",
+        "ru": "Все"
+      },
+      "noProductsMessage": {
+        "en": "No products in this category.",
+        "tm": "Bu kategoriýada önüm ýok.",
+        "ru": "В этой категории пока нет продуктов."
+      },
+      "paginationItemLabel": {
+        "en": "products",
+        "tm": "önüm",
+        "ru": "продуктов"
+      },
+      "paginationSummary": {
+        "en": "{from}–{to} of {total} {label}",
+        "tm": "{total} {label}den {from}-{to}",
+        "ru": "{from}–{to} из {total} {label}"
+      },
+      "sizeLabel": {
+        "en": "Size",
+        "tm": "Göwrüm",
+        "ru": "Объём"
+      },
+      "nutritionLabel": {
+        "en": "Information",
+        "tm": "MAGLUMATLAR",
+        "ru": "Информация"
+      },
+      "aboutLabel": {
+        "en": "DETAILS",
+        "tm": "Barada",
+        "ru": "О продукте"
+      },
+      "relatedHeading": {
+        "en": "More in {category}",
+        "tm": "{category} boýunça has köp",
+        "ru": "Ещё в категории {category}"
+      },
+      "mineralLabel": {
+        "en": "SPECIFICATION",
+        "tm": "GÖRKEZIJI",
+        "ru": "ПАРАМЕТРЫ"
+      },
+      "perLitreLabel": {
+        "en": "DETAILS",
+        "tm": "MAGLUMAT",
+        "ru": "ЗНАЧЕНИЕ"
+      }
+    },
+    "vacancy-labels": {
+      "pageTitle": {
+        "en": "Build Your Career",
+        "tm": "Karýeraňyzy Guruň",
+        "ru": "Постройте Карьеру"
+      },
+      "filterAllLabel": {
+        "en": "All Departments",
+        "tm": "Ähli bölümler",
+        "ru": "Все отделы"
+      },
+      "openPosition": {
+        "en": "open position",
+        "tm": "açyk iş orny",
+        "ru": "открытая вакансия"
+      },
+      "openPositions": {
+        "en": "open positions",
+        "tm": "açyk iş orunlary",
+        "ru": "открытых вакансий"
+      },
+      "noOpeningsMessage": {
+        "en": "No current openings in this category.",
+        "tm": "Bu kategoriýada boş iş orunlary ýok.",
+        "ru": "В данной категории нет вакансий."
+      },
+      "paginationItemLabel": {
+        "en": "positions",
+        "tm": "iş orunlary",
+        "ru": "вакансий"
+      },
+      "paginationSummary": {
+        "en": "{from}–{to} of {total} {label}",
+        "tm": "{from}-{to} / {total} {label}",
+        "ru": "{from}–{to} из {total} {label}"
+      },
+      "perks": {
+        "title": {
+          "en": "Why Join RAHATLYK?",
+          "tm": "Näme üçin RAHATLYK?",
+          "ru": "Почему RAHATLYK?"
+        },
+        "growthTitle": {
+          "en": "Career Growth",
+          "tm": "Karýera ösüşi",
+          "ru": "Карьерный рост"
+        },
+        "growthDesc": {
+          "en": "Clear pathways and ongoing training",
+          "tm": "Yzygiderli ösüş ýollary",
+          "ru": "Чёткие пути развития"
+        },
+        "healthTitle": {
+          "en": "Health Benefits",
+          "tm": "Saglygy goraýyş",
+          "ru": "Медицинский пакет"
+        },
+        "healthDesc": {
+          "en": "Comprehensive medical coverage",
+          "tm": "Giň lukmançylyk ätiýaçlandyrmasy",
+          "ru": "Комплексное страхование"
+        },
+        "cultureTitle": {
+          "en": "Great Culture",
+          "tm": "Ajaýyp medeniýet",
+          "ru": "Отличная культура"
+        },
+        "cultureDesc": {
+          "en": "Collaborative, inclusive workplace",
+          "tm": "Hyzmatdaşlyk gurşawy",
+          "ru": "Инклюзивная среда"
+        },
+        "impactTitle": {
+          "en": "Real Impact",
+          "tm": "Hakyky täsir",
+          "ru": "Реальный результат"
+        },
+        "impactDesc": {
+          "en": "Work that matters to millions",
+          "tm": "Möhüm iş",
+          "ru": "Работа, которая важна"
+        }
+      },
+      "postedLabel": {
+        "en": "Posted",
+        "tm": "Çap edildi",
+        "ru": "Опубликовано"
+      },
+      "tabOverview": {
+        "en": "Overview",
+        "tm": "Gysgaça",
+        "ru": "Обзор"
+      },
+      "tabResponsibilities": {
+        "en": "Responsibilities",
+        "tm": "Borçlar",
+        "ru": "Обязанности"
+      },
+      "tabRequirements": {
+        "en": "Requirements",
+        "tm": "Talaplar",
+        "ru": "Требования"
+      },
+      "benefitsPerks": {
+        "en": "Benefits & Perks",
+        "tm": "Ýeňillikler",
+        "ru": "Льготы и привилегии"
+      },
+      "required": {
+        "en": "Required",
+        "tm": "Hökmany",
+        "ru": "Обязательно"
+      },
+      "niceToHave": {
+        "en": "Nice to Have",
+        "tm": "Isleg bildirilýän",
+        "ru": "Желательно"
+      },
+      "otherOpenings": {
+        "en": "Other Openings",
+        "tm": "Beýleki boş iş orunlary",
+        "ru": "Другие вакансии"
+      }
+    }
+  }
+}

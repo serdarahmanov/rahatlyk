@@ -14,7 +14,6 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Seed and migration scripts are dev-only utilities, not part of the app
-    "src/seed-*.ts",
     "src/migrations/**",
   ]),
 ]);

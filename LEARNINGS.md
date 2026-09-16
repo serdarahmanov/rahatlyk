@@ -35,7 +35,7 @@ Admin-managed labels are worth it on multilingual sites. Product detail labels, 
 
 The CMS model should match page ownership. The old `product-lines` collection was replaced by the `our-collection` global because the home collection section behaves like a curated homepage section, not a public product taxonomy. That is a useful lesson: not every repeated UI item needs to be a collection.
 
-Write idempotent seed scripts. This repo has many seed scripts for home, products, news, vacancies, labels, email templates, and About sections. Idempotency lets seeds be safely rerun during deployment and content model changes.
+Write idempotent seed scripts. This repo keeps its development/recovery seed scripts under scripts/seed/ for home, products, news, vacancies, labels, email templates, and About sections. Idempotency lets seeds be safely rerun during controlled data setup and content model changes.
 
 Treat migrations and seeds as separate responsibilities. Migrations define schema/data structure changes; seeds provide useful content. Mixing those responsibilities makes production changes harder to reason about.
 

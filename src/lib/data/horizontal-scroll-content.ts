@@ -1,6 +1,6 @@
 /**
  * Current content for the Horizontal Scroll section.
- * Media files are uploaded to Payload Media by src/seed-horizontal-scroll.ts.
+ * Media files are uploaded to Payload Media by scripts/seed/seed-horizontal-scroll.ts.
  */
 export const HORIZONTAL_SCROLL_CONTENT = {
   box1: {

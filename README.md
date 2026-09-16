@@ -11,7 +11,7 @@ The public site is localized in Turkmen, Russian, and English. Most page content
 | Framework | Next.js 15 App Router |
 | CMS | Payload CMS 3 |
 | Database | PostgreSQL |
-| Styling | Tailwind CSS v4 |
+| Styling | Tailwind CSS v3 |
 | Animation | GSAP, ScrollTrigger, Lenis |
 | Email | Nodemailer and Payload email adapter |
 | Media | Payload media uploads |
@@ -25,9 +25,9 @@ The public site is localized in Turkmen, Russian, and English. Most page content
 | `/:locale` | Home page |
 | `/:locale/about` | About page |
 | `/:locale/products` | Product listing |
-| `/:locale/products/:id` | Product detail |
+| `/:locale/products/:slug` | Product detail |
 | `/:locale/news` | News listing |
-| `/:locale/news/:id` | Article detail |
+| `/:locale/news/:slug` | Article detail |
 | `/:locale/vacancies` | Vacancy listing |
 | `/:locale/vacancies/:id` | Vacancy detail and application form |
 | `/:locale/contact` | Contact page and contact form |
@@ -61,7 +61,7 @@ The public site is localized in Turkmen, Russian, and English. Most page content
 | Group | Globals |
 | --- | --- |
 | Home | `home-hero`, `horizontal-scroll`, `our-collection`, `home-story`, `home-cta-banner` |
-| About | `about-hero`, `about-who-we-are`, `about-our-story`, `about-numbers`, `about-certificates`, `about-final-section` |
+| About | `about-hero`, `about-who-we-are`, `about-our-story`, `about-numbers`, `about-final-section` |
 | Contact Page | `about-page` / Contact Hero, `forms`, `contact-info` |
 | Article | `article-labels` |
 | Products | `product-detail-labels` |
@@ -73,6 +73,7 @@ Notes:
 - The old `site-settings` global was merged into `contact-info`.
 - The old About Mosaic global was removed; its images now live inside `about-our-story`.
 - Product, article, and vacancy listing/detail labels are CMS-managed.
+- The certificate section component is currently not connected to a CMS global or rendered by the About page.
 - Home hero, home CTA, about hero, and about final section support mobile-specific media with desktop fallbacks.
 - The site icon is managed in `contact-info` and served through `/api/site-icon`.
 
@@ -108,7 +109,9 @@ npm run dev
 
 Open:
 
-- Site: `http://localhost:3000/tm`
+- Site: `http://localhost:3000` (default Turkmen locale)
+- Russian site: `http://localhost:3000/ru`
+- English site: `http://localhost:3000/en`
 - Admin: `http://localhost:3000/admin`
 
 For browser-level checks, install the Chromium browser used by Playwright:
@@ -178,26 +181,16 @@ Cache-Control: public, max-age=31536000, immutable
 
 ## Seeding
 
-Seed scripts are idempotent. Run them from the environment that has access to the target database and source media files.
+Seed scripts are stored under `scripts/seed/` and are idempotent. They are development/recovery-only tooling and are not required by the production standalone runtime. Run them only from an approved environment with access to the target database and source media files.
 
-Common seed commands:
+The canonical current-content workflow is:
 
 ```bash
-npm run seed:home-hero
-npm run seed:horizontal-scroll
-npm run seed:home-story
-npm run seed:home-cta-banner
-npm run seed:product-lines
-npm run seed:products
-npm run seed:news
-npm run seed:vacancies
-npm run seed:vacancy-images
-npm run seed:about-all
-npm run seed:about-final-section
-npm run seed:article-labels
-npm run seed:product-labels
-npm run seed:vacancy-labels
+npm run seed:export-current-content
+SEED_TARGET=local npm run seed:current-content
 ```
+
+The export captures current public text and relationships, excludes media and private/admin collections, and writes `scripts/seed/data/current-public-content.json`. The importer refuses to run unless `SEED_TARGET=local` is set. Media must be uploaded separately in the target environment.
 
 Important media behavior:
 
@@ -215,16 +208,19 @@ Important media behavior:
 - Linux filesystems are case-sensitive. Keep source media filenames and folder names exact.
 - Do not delete Payload's upload directory during deployment.
 - If using local Payload uploads on the VPS, keep the media directory persistent across releases.
-- Run seeds on the VPS or against the production database only when the correct env vars are loaded.
+- Do not run seed scripts on the VPS or against the production database. Use them only for a local or disposable database.
 - After running seeds, make sure revalidation succeeds or rebuild/restart the app.
-- With `output: 'standalone'`, run the deployed `server.js` from the standalone output and serve it behind Nginx/PM2.
+- With `output: 'standalone'`, run the deployed `server.js` from the standalone output as the `rahatlyk.service` systemd unit and serve it behind Nginx.
 
 ## Verification
 
 ```bash
 npx tsc --noEmit
+npm run lint
 npm run build
 npx playwright install chromium
 ```
+
+The production build requires a reachable PostgreSQL database and valid Payload environment variables.
 
 Known lint/build warnings should be resolved before deployment. If `.next` cache produces stale generated pages, delete `.next` and rebuild.
