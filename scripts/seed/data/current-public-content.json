@@ -1,5 +1,211 @@
 {
-  "generatedAt": "2026-09-16T08:14:22.749Z",
+  "generatedAt": "2026-09-16T10:33:16.493Z",
+  "media": [
+    {
+      "filename": "1.webp",
+      "path": "media/1.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 1"
+    },
+    {
+      "filename": "10.webp",
+      "path": "media/10.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 10"
+    },
+    {
+      "filename": "11.webp",
+      "path": "media/11.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 11"
+    },
+    {
+      "filename": "12.webp",
+      "path": "media/12.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 12"
+    },
+    {
+      "filename": "13.webp",
+      "path": "media/13.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 13"
+    },
+    {
+      "filename": "14.webp",
+      "path": "media/14.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 14"
+    },
+    {
+      "filename": "15.webp",
+      "path": "media/15.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 15"
+    },
+    {
+      "filename": "2.webp",
+      "path": "media/2.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 2"
+    },
+    {
+      "filename": "3.webp",
+      "path": "media/3.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 3"
+    },
+    {
+      "filename": "4.webp",
+      "path": "media/4.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 4"
+    },
+    {
+      "filename": "5.webp",
+      "path": "media/5.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 5"
+    },
+    {
+      "filename": "6.webp",
+      "path": "media/6.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 6"
+    },
+    {
+      "filename": "7.webp",
+      "path": "media/7.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 7"
+    },
+    {
+      "filename": "8.webp",
+      "path": "media/8.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 8"
+    },
+    {
+      "filename": "9.webp",
+      "path": "media/9.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero parallax image 9"
+    },
+    {
+      "filename": "about-mosaic-left.webp",
+      "path": "media/about-mosaic-left.webp",
+      "mimetype": "image/webp",
+      "alt": "about-mosaic-left"
+    },
+    {
+      "filename": "about-mosaic-right.webp",
+      "path": "media/about-mosaic-right.webp",
+      "mimetype": "image/webp",
+      "alt": "about-mosaic-right"
+    },
+    {
+      "filename": "bottle-mobile.webp",
+      "path": "media/bottle-mobile.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero mobile bottle image"
+    },
+    {
+      "filename": "bottle.webp",
+      "path": "media/bottle.webp",
+      "mimetype": "image/webp",
+      "alt": "Home hero bottle image"
+    },
+    {
+      "filename": "box-5-video-cover.webp",
+      "path": "media/box-5-video-cover.webp",
+      "mimetype": "image/webp",
+      "alt": "Friends sharing drinks at an outdoor table"
+    },
+    {
+      "filename": "box-5-video-optimized-721.mp4",
+      "path": "media/box-5-video-optimized-721.mp4",
+      "mimetype": "video/mp4",
+      "alt": "box-5-video-optimized-720"
+    },
+    {
+      "filename": "imgae-mobile.webp",
+      "path": "media/imgae-mobile.webp",
+      "mimetype": "image/webp",
+      "alt": "imgae-mobile"
+    },
+    {
+      "filename": "our-story-about-page.mp4",
+      "path": "media/our-story-about-page.mp4",
+      "mimetype": "video/mp4",
+      "alt": "our-story-about-page"
+    },
+    {
+      "filename": "pexels-aeppli-1929563 copy.webp",
+      "path": "media/pexels-aeppli-1929563 copy.webp",
+      "mimetype": "image/webp",
+      "alt": "pexels-aeppli-1929563 copy"
+    },
+    {
+      "filename": "photo-1.webp",
+      "path": "media/photo-1.webp",
+      "mimetype": "image/webp",
+      "alt": "photo-1"
+    },
+    {
+      "filename": "photo-4.webp",
+      "path": "media/photo-4.webp",
+      "mimetype": "image/webp",
+      "alt": "Home CTA background image"
+    },
+    {
+      "filename": "Rahatlyk-abnout-hero-desktop.webp",
+      "path": "media/Rahatlyk-abnout-hero-desktop.webp",
+      "mimetype": "image/webp",
+      "alt": "About page hero desktop cover image"
+    },
+    {
+      "filename": "Rahatlyk-abnout-hero-mobile.webp",
+      "path": "media/Rahatlyk-abnout-hero-mobile.webp",
+      "mimetype": "image/webp",
+      "alt": "About page hero mobile cover image"
+    },
+    {
+      "filename": "rahatlyk-suw-about-sarwan-2.webp",
+      "path": "media/rahatlyk-suw-about-sarwan-2.webp",
+      "mimetype": "image/webp",
+      "alt": "rahatlyk-suw-about-sarwan-2"
+    },
+    {
+      "filename": "rahatlyk-suw-sarwan-19L-home-2.webp",
+      "path": "media/rahatlyk-suw-sarwan-19L-home-2.webp",
+      "mimetype": "image/webp",
+      "alt": "rahatlyk-suw-sarwan-19L-home-2"
+    },
+    {
+      "filename": "rahatlyk-suw-sarwan-home-horizontal-1.webp",
+      "path": "media/rahatlyk-suw-sarwan-home-horizontal-1.webp",
+      "mimetype": "image/webp",
+      "alt": "rahatlyk-suw-sarwan-home-horizontal-1"
+    },
+    {
+      "filename": "site-icon.webp",
+      "path": "media/site-icon.webp",
+      "mimetype": "image/webp",
+      "alt": "site-icon"
+    },
+    {
+      "filename": "vacancy image (2)-1.webp",
+      "path": "media/vacancy image (2)-1.webp",
+      "mimetype": "image/webp",
+      "alt": "vacancy image (2)"
+    },
+    {
+      "filename": "vacancy image (3) copy.webp",
+      "path": "media/vacancy image (3) copy.webp",
+      "mimetype": "image/webp",
+      "alt": "vacancy image (3) "
+    }
+  ],
   "collections": {
     "product-categories": [
       {
@@ -43,6 +249,7 @@
         },
         "nutrition": [
           {
+            "id": "6a998d2afb5d8104e3d06bd7",
             "label": {
               "en": "Bottle Volume",
               "tm": "Göwrüm",
@@ -55,6 +262,7 @@
             }
           },
           {
+            "id": "6a998d36fb5d8104e3d06bd9",
             "label": {
               "en": "Pallet dimensions",
               "tm": "Paddonyň ölçegi",
@@ -67,6 +275,7 @@
             }
           },
           {
+            "id": "6a998d3ffb5d8104e3d06bdb",
             "label": {
               "en": "Bottles per pallet",
               "tm": "Bir paddonda",
@@ -79,6 +288,7 @@
             }
           },
           {
+            "id": "6a998d4afb5d8104e3d06bdd",
             "label": {
               "en": "Loading configuration",
               "tm": "Paddonyň ýerleşişi",
@@ -93,9 +303,12 @@
         ],
         "volumes": [
           {
+            "id": "6a998d56fb5d8104e3d06bdf",
             "value": "0.5"
           }
-        ]
+        ],
+        "photos": [],
+        "video": null
       },
       {
         "name": {
@@ -128,6 +341,7 @@
         },
         "nutrition": [
           {
+            "id": "6a660730c125723460996237",
             "label": {
               "en": "Bottle volume",
               "tm": "Göwrüm",
@@ -140,6 +354,7 @@
             }
           },
           {
+            "id": "6a660730c125723460996238",
             "label": {
               "en": "Pallet dimensions",
               "tm": "Paddonyň ölçegi",
@@ -152,6 +367,7 @@
             }
           },
           {
+            "id": "6a660730c125723460996239",
             "label": {
               "en": "Bottles per pallet",
               "tm": "Bir paddonda",
@@ -164,6 +380,7 @@
             }
           },
           {
+            "id": "6a660730c12572346099623a",
             "label": {
               "en": "Loading configuration",
               "tm": "Paddonyň ýerleşişi",
@@ -178,9 +395,12 @@
         ],
         "volumes": [
           {
+            "id": "6a660730c125723460996240",
             "value": "19"
           }
-        ]
+        ],
+        "photos": [],
+        "video": null
       }
     ],
     "article-categories": [
@@ -225,8 +445,10 @@
         "date": "2026-08-22T12:00:00.000Z",
         "featured": true,
         "emoji": null,
+        "images": [],
         "body": [
           {
+            "id": "6a998f00fb5d8104e3d06be1",
             "text": {
               "en": {
                 "root": {
@@ -324,6 +546,7 @@
             }
           },
           {
+            "id": "6a998f0afb5d8104e3d06be3",
             "text": {
               "en": {
                 "root": {
@@ -758,6 +981,7 @@
         },
         "responsibilities": [
           {
+            "id": "6a32b60b94d4190f70a12bfa",
             "text": {
               "en": "Supervise daily warehouse operations including receiving, storage and dispatch",
               "tm": "Kabul etmegi, saklamagy we ugratmagy goşmak bilen gündelik ammar amallaryna gözegçilik etmek",
@@ -765,6 +989,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bfb",
             "text": {
               "en": "Lead and motivate a team of warehouse operatives",
               "tm": "Ammar işgärlerinden ybarat topara ýolbaşçylyk etmek we höweslendirmek",
@@ -772,6 +997,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bfc",
             "text": {
               "en": "Conduct regular stock counts and inventory reconciliations",
               "tm": "Yzygiderli inwentar sanawlaryny we utgaşdyrmalaryny geçirmek",
@@ -779,6 +1005,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bfd",
             "text": {
               "en": "Ensure compliance with health, safety and food storage standards",
               "tm": "Saglyk, howpsuzlyk we azyk saklaýyş standartlary bilen laýyklygy üpjün etmek",
@@ -786,6 +1013,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bfe",
             "text": {
               "en": "Coordinate with logistics and production teams for demand planning",
               "tm": "Isleg meýilnamasyny düzmek üçin logistika we önümçilik toparlary bilen utgaşdyrmak",
@@ -795,6 +1023,7 @@
         ],
         "requirements": [
           {
+            "id": "6a32b60b94d4190f70a12bff",
             "text": {
               "en": "Minimum 3 years of warehouse supervisory experience",
               "tm": "Iň az 3 ýyl ammar gözegçilik tejribesi",
@@ -802,6 +1031,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12c00",
             "text": {
               "en": "Strong knowledge of warehouse management principles and inventory control",
               "tm": "Ammar dolandyryş prinsipleri we inwentar gözegçiligi barada güýçli bilim",
@@ -809,6 +1039,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12c01",
             "text": {
               "en": "Ability to lead and develop a team",
               "tm": "Topar döretmek we ösdürmek başarnygy",
@@ -818,6 +1049,7 @@
         ],
         "niceToHave": [
           {
+            "id": "6a32b60b94d4190f70a12c02",
             "text": {
               "en": "Forklift licence or experience operating warehouse equipment",
               "tm": "Wилочный погрузчик şahadatnamasy ýa-da ammar enjamlaryny dolandyrmak tejribesi",
@@ -825,6 +1057,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12c03",
             "text": {
               "en": "Experience with WMS (Warehouse Management System)",
               "tm": "WMS (Ammar Dolandyryş Ulgamy) bilen tejribe",
@@ -834,6 +1067,7 @@
         ],
         "benefits": [
           {
+            "id": "6a32b60b94d4190f70a12c04",
             "text": {
               "en": "Competitive salary with shift and weekend allowances",
               "tm": "Nobatçylyk we dynç günleri ödeglikleri bolan bäsdeşlik ukyply aýlyk",
@@ -841,6 +1075,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12c05",
             "text": {
               "en": "Health insurance coverage",
               "tm": "Saglyk ätiýaçlandyrmasy",
@@ -848,6 +1083,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12c06",
             "text": {
               "en": "Uniform and personal protective equipment provided",
               "tm": "Forma geýim we şahsy gorag enjamlary berilýär",
@@ -855,6 +1091,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12c07",
             "text": {
               "en": "Monthly RAHATLYK product allowance",
               "tm": "Aýlyk RAHATLYK önüm ödegligi",
@@ -862,6 +1099,9 @@
             }
           }
         ],
+        "image": {
+          "__seedMedia": "vacancy image (2)-1.webp"
+        },
         "salary": "3500–5000 TMT",
         "postedDate": "2026-06-07T00:00:00.000Z"
       },
@@ -885,6 +1125,7 @@
         },
         "responsibilities": [
           {
+            "id": "6a32b60b94d4190f70a12bec",
             "text": {
               "en": "Plan and coordinate daily delivery routes and schedules",
               "tm": "Gündelik eltip beriş ugurlaryny we tertiplerini meýilleşdirmek we utgaşdyrmak",
@@ -892,6 +1133,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bed",
             "text": {
               "en": "Liaise with carriers, drivers and warehouse staff",
               "tm": "Daşaýjylar, sürüjiler we ammar işgärleri bilen aragatnaşyk saklamak",
@@ -899,6 +1141,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bee",
             "text": {
               "en": "Track shipments and resolve delivery exceptions promptly",
               "tm": "Ýüklemeleri yzarlamak we eltip beriş kadadan çykmalary çalt çözmek",
@@ -906,6 +1149,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bef",
             "text": {
               "en": "Maintain accurate shipping documentation and records",
               "tm": "Takyk ýük resminamalaryny we ýazgylaryny saklamak",
@@ -913,6 +1157,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf0",
             "text": {
               "en": "Optimise delivery costs while maintaining service levels",
               "tm": "Hyzmat derejesini saklap, eltip beriş çykdajylaryny optimizirlemek",
@@ -922,6 +1167,7 @@
         ],
         "requirements": [
           {
+            "id": "6a32b60b94d4190f70a12bf1",
             "text": {
               "en": "Minimum 2 years of experience in logistics or supply chain",
               "tm": "Logistika ýa-da üpjünçilik zynjyrynda iň az 2 ýyl tejribe",
@@ -929,6 +1175,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf2",
             "text": {
               "en": "Good knowledge of local transport regulations and routes",
               "tm": "Ýerli ulag düzgünnamalary we ugurlary barada gowy bilim",
@@ -936,6 +1183,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf3",
             "text": {
               "en": "Strong organisational and problem-solving skills",
               "tm": "Güýçli guramajylyk we mesele çözme başarnyklary",
@@ -945,6 +1193,7 @@
         ],
         "niceToHave": [
           {
+            "id": "6a32b60b94d4190f70a12bf4",
             "text": {
               "en": "Experience with transport management software",
               "tm": "Ulag dolandyryş programma üpjünçiligi bilen tejribe",
@@ -952,6 +1201,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf5",
             "text": {
               "en": "Knowledge of cold chain logistics",
               "tm": "Sowuk zynjyr logistikasy barada bilim",
@@ -961,6 +1211,7 @@
         ],
         "benefits": [
           {
+            "id": "6a32b60b94d4190f70a12bf6",
             "text": {
               "en": "Competitive salary and shift allowances",
               "tm": "Bäsdeşlik ukyply aýlyk we nobatçylyk ödeglikleri",
@@ -968,6 +1219,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf7",
             "text": {
               "en": "Health insurance coverage",
               "tm": "Saglyk ätiýaçlandyrmasy",
@@ -975,6 +1227,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf8",
             "text": {
               "en": "Paid annual leave and public holidays",
               "tm": "Tölenýän ýyllyk rugsat we döwlet baýramlary",
@@ -982,6 +1235,7 @@
             }
           },
           {
+            "id": "6a32b60b94d4190f70a12bf9",
             "text": {
               "en": "Monthly RAHATLYK product allowance",
               "tm": "Aýlyk RAHATLYK önüm ödegligi",
@@ -989,6 +1243,9 @@
             }
           }
         ],
+        "image": {
+          "__seedMedia": "vacancy image (3) copy.webp"
+        },
         "salary": "3000–4500 TMT",
         "postedDate": "2026-06-06T00:00:00.000Z"
       }
@@ -1093,6 +1350,9 @@
       }
     },
     "contact-info": {
+      "siteIcon": {
+        "__seedMedia": "site-icon.webp"
+      },
       "sectionLabel": {
         "en": " Contact Information",
         "tm": "Habarlaşmak üçin",
@@ -1101,6 +1361,7 @@
       "email": "sarwan.drinks@rahatlyk.com",
       "phones": [
         {
+          "id": "6a3171b727345b519b6720a0",
           "label": "Phone 1",
           "number": "+993 63 400 800"
         }
@@ -1860,6 +2121,14 @@
       }
     },
     "about-hero": {
+      "coverImage": {
+        "__seedMedia": "Rahatlyk-abnout-hero-desktop.webp"
+      },
+      "mobileCoverImage": {
+        "__seedMedia": "Rahatlyk-abnout-hero-mobile.webp"
+      },
+      "heroVideo": null,
+      "mobileHeroVideo": null,
       "title": {
         "en": "Rahatlyk — built on quality and trust.",
         "tm": "Rahatlyk — hil we ynam esasynda döredildi.",
@@ -1905,6 +2174,10 @@
           "tm": "Biz üçin önümçiligiň esasy ölçegi diňe bir önüm öndürmek däl. Esasy maksat — adamlaryň ynam bilen saýlap biljek önümlerini döretmek.",
           "ru": "Для нас производство — это не просто выпуск продукции. Наша главная задача — создавать продукты, которые люди могут выбирать с уверенностью и доверием."
         }
+      },
+      "fullViewportImage": null,
+      "backgroundVideo": {
+        "__seedMedia": "our-story-about-page.mp4"
       }
     },
     "about-our-story": {
@@ -1923,8 +2196,18 @@
         "tm": "Hemme zat öz içinde öndürilýär — süzmekden ahyrky gapaça çenli. Hil elimizde galýar.",
         "ru": "Всё производится внутри компании — от фильтрации до финальной крышки. Качество остаётся в наших руках."
       },
+      "leftImage": {
+        "__seedMedia": "about-mosaic-left.webp"
+      },
+      "rightImage": {
+        "__seedMedia": "rahatlyk-suw-about-sarwan-2.webp"
+      },
+      "centerImage": {
+        "__seedMedia": "about-mosaic-right.webp"
+      },
       "milestones": [
         {
+          "id": "6a429aa0b32ed1aab027b592",
           "year": "2003",
           "isCurrent": false,
           "title": {
@@ -1939,6 +2222,7 @@
           }
         },
         {
+          "id": "6a429aa0b32ed1aab027b593",
           "year": "2008",
           "isCurrent": false,
           "title": {
@@ -1953,6 +2237,7 @@
           }
         },
         {
+          "id": "6a429aa0b32ed1aab027b594",
           "year": "2013",
           "isCurrent": false,
           "title": {
@@ -1967,6 +2252,7 @@
           }
         },
         {
+          "id": "6a429aa0b32ed1aab027b595",
           "year": "2018",
           "isCurrent": false,
           "title": {
@@ -1981,6 +2267,7 @@
           }
         },
         {
+          "id": "6a429aa0b32ed1aab027b596",
           "year": "Now",
           "isCurrent": true,
           "title": {
@@ -1999,6 +2286,7 @@
     "about-numbers": {
       "stats": [
         {
+          "id": "6a35330b4f0ad7d8e0f4a9b0",
           "value": 4,
           "suffix": "",
           "label": {
@@ -2008,6 +2296,7 @@
           }
         },
         {
+          "id": "6a35330b4f0ad7d8e0f4a9b1",
           "value": 100,
           "suffix": "%",
           "label": {
@@ -2017,6 +2306,7 @@
           }
         },
         {
+          "id": "6a35330b4f0ad7d8e0f4a9b2",
           "value": 0,
           "suffix": "%",
           "label": {
@@ -2026,6 +2316,7 @@
           }
         },
         {
+          "id": "6a35330b4f0ad7d8e0f4a9b3",
           "value": 5,
           "suffix": "",
           "label": {
@@ -2049,6 +2340,10 @@
       }
     },
     "about-final-section": {
+      "image": {
+        "__seedMedia": "photo-1.webp"
+      },
+      "mobileImage": null,
       "heading": {
         "en": "Every drop, a promise kept.",
         "tm": "Her damja - berjaý edilen wada.",
@@ -2061,6 +2356,121 @@
       }
     },
     "home-hero": {
+      "poster": null,
+      "mobilePoster": null,
+      "parallaxImages": [
+        {
+          "id": "6a5cea43b2ecca5278634906",
+          "fileName": "1.webp",
+          "image": {
+            "__seedMedia": "1.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634907",
+          "fileName": "2.webp",
+          "image": {
+            "__seedMedia": "2.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634908",
+          "fileName": "3.webp",
+          "image": {
+            "__seedMedia": "3.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634909",
+          "fileName": "4.webp",
+          "image": {
+            "__seedMedia": "4.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca527863490a",
+          "fileName": "5.webp",
+          "image": {
+            "__seedMedia": "5.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca527863490b",
+          "fileName": "6.webp",
+          "image": {
+            "__seedMedia": "6.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca527863490c",
+          "fileName": "7.webp",
+          "image": {
+            "__seedMedia": "7.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca527863490d",
+          "fileName": "8.webp",
+          "image": {
+            "__seedMedia": "8.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca527863490e",
+          "fileName": "9.webp",
+          "image": {
+            "__seedMedia": "9.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca527863490f",
+          "fileName": "10.webp",
+          "image": {
+            "__seedMedia": "10.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634910",
+          "fileName": "11.webp",
+          "image": {
+            "__seedMedia": "11.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634911",
+          "fileName": "12.webp",
+          "image": {
+            "__seedMedia": "12.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634912",
+          "fileName": "13.webp",
+          "image": {
+            "__seedMedia": "13.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634913",
+          "fileName": "14.webp",
+          "image": {
+            "__seedMedia": "14.webp"
+          }
+        },
+        {
+          "id": "6a5cea43b2ecca5278634914",
+          "fileName": "15.webp",
+          "image": {
+            "__seedMedia": "15.webp"
+          }
+        }
+      ],
+      "bottleImage": {
+        "__seedMedia": "bottle.webp"
+      },
+      "mobileBottleImage": {
+        "__seedMedia": "bottle-mobile.webp"
+      },
       "title": {
         "en": "From nature",
         "tm": "Tebigatdan - ",
@@ -2084,8 +2494,13 @@
       "ctaHref": null
     },
     "horizontal-scroll": {
-      "box1": {},
+      "box1": {
+        "image": {
+          "__seedMedia": "rahatlyk-suw-sarwan-home-horizontal-1.webp"
+        }
+      },
       "box2": {
+        "image": null,
         "tag": {
           "en": "PURITY FROM NATURE",
           "tm": "TEBIGATDAN GELÝÄN ARASSALYK",
@@ -2097,8 +2512,13 @@
           "ru": "Вода из природного источника, в каждой капле которой ощущаются чистота и естественный вкус."
         }
       },
-      "box3": {},
+      "box3": {
+        "image": {
+          "__seedMedia": "rahatlyk-suw-sarwan-19L-home-2.webp"
+        }
+      },
       "box4": {
+        "image": null,
         "text": {
           "en": "Discover how \"Rahatlyk Suwy\" E.S. began, how we continue to grow and the values that drive us forward.",
           "tm": "Rahatlyk Suwy H.J.-niň nähili dörändigini, ösüş ýoluny we bizi öňe alyp barýan gymmatlyklary öwreniň.",
@@ -2112,6 +2532,12 @@
         "buttonHref": "/about"
       },
       "box5": {
+        "video": {
+          "__seedMedia": "box-5-video-optimized-721.mp4"
+        },
+        "coverImage": {
+          "__seedMedia": "box-5-video-cover.webp"
+        },
         "tag": {
           "en": "QUALITY IN EVERY DROP",
           "tm": "HER DAMJADA HIL",
@@ -2124,6 +2550,7 @@
         }
       },
       "box6": {
+        "image": null,
         "tag": {
           "en": "OUR PRODUCTS",
           "tm": "ÖNÜMLERIMIZ BILEN TANYŞYŇ",
@@ -2155,7 +2582,9 @@
       },
       "items": [
         {
+          "id": "6a6640cf76818a665002727a",
           "key": "water",
+          "image": null,
           "order": 0,
           "name": {
             "en": "SARWAN — 19L PURE DRINKING WATER",
@@ -2179,7 +2608,9 @@
           }
         },
         {
+          "id": "6a6640cf76818a665002727b",
           "key": "waters",
+          "image": null,
           "order": 1,
           "name": {
             "en": "SARWAN — 0.5L PURE DRINKING WATER",
@@ -2205,6 +2636,9 @@
       ]
     },
     "home-story": {
+      "image": {
+        "__seedMedia": "pexels-aeppli-1929563 copy.webp"
+      },
       "tag": {
         "en": "Our Story",
         "tm": "Biziň taryhymyz",
@@ -2222,6 +2656,12 @@
       }
     },
     "home-cta-banner": {
+      "image": {
+        "__seedMedia": "photo-4.webp"
+      },
+      "mobileImage": {
+        "__seedMedia": "imgae-mobile.webp"
+      },
       "title": {
         "en": "A Taste That Feels Right",
         "tm": "Rahatlygyňyza laýyk tagam",

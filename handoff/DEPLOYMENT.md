@@ -1,6 +1,8 @@
 # Rahatlyk Website - Deployment Guide
 
-This is the standard fresh-deployment procedure for the Rahatlyk VPS setup. A fresh deployment can replace application files, restore the database, and synchronize uploaded files. It is a controlled change, not a routine code-only update.
+This is the deployment procedure for the Rahatlyk VPS setup. The normal release preserves the currently deployed PostgreSQL database: it synchronizes the new standalone application, restarts the service, and lets Payload `prodMigrations` apply only new migrations.
+
+The normal release path is: sync the approved Windows source into the WSL build workspace, build the standalone application, copy the standalone output and assets to the VPS, and restart the systemd service. Payload `prodMigrations` runs pending migrations during `server.js` startup. Content snapshots are separate from schema migrations and are used only for fresh local/disposable databases or an explicitly approved content restore.
 
 For a normal code-only release, use the build and application-file steps but do not overwrite the production database, media/, or cv/ unless explicitly intended.
 
@@ -8,7 +10,6 @@ For a normal code-only release, use the build and application-file steps but do 
 
 - SSH access to ubuntu@216.250.12.102.
 - Access to the active source repository and WSL build environment.
-- Docker running locally if a local PostgreSQL dump is required.
 - Production environment file at /opt/rahatlyk/.env on the VPS.
 - A recent backup of the database, media/, cv/, and .env.
 - An approved deployment window and rollback point.
@@ -54,124 +55,48 @@ The output must contain:
 
 Run this check again after any Windows-to-WSL sync. Changing the VPS runtime environment cannot repair a wrong NEXT_PUBLIC_SITE_URL already compiled into browser JavaScript.
 
-## Fresh deployment procedure
+## Schema migration workflow
 
-### 1. Confirm source and back up production
+The repository must contain `package.json`, `payload.config.ts`, `src/migrations/`, and the source files imported by the Payload config when migrations are created or checked locally. Production uses Payload `prodMigrations`, so the migration registry is bundled into the standalone server at build time and does not need to be copied separately to `/opt/rahatlyk`.
 
-Confirm the active source path, database source, and target. On the VPS, create a dated backup directory and ensure it is writable by the deployment user:
+When a collection, global, field, relationship, or field type changes:
 
-    ssh ubuntu@216.250.12.102
-    sudo mkdir -p /opt/backups/rahatlyk-fresh-before-YYYYMMDD_HHMM
-    sudo chown -R ubuntu:ubuntu /opt/backups/rahatlyk-fresh-before-YYYYMMDD_HHMM
+1. Make the configuration change locally.
+2. Generate a migration with `npm run db:migrate:create -- change-name`.
+3. Review the generated migration and `src/migrations/index.ts`.
+4. Run `npm run db:migrate:status` against a disposable database.
+5. Commit the migration and configuration changes together.
+6. Build and deploy the matching application revision.
+7. Restart `rahatlyk.service`; Payload runs pending production migrations while `server.js` starts.
 
-Back up:
+Payload records completed migrations, so startup applies only migrations missing from the deployment database. Back up the database first. Never use `migrate:fresh`, `migrate:reset`, or `migrate:refresh` on production.
 
-- /opt/rahatlyk/.env
-- /opt/rahatlyk/media/
-- /opt/rahatlyk/cv/
-- a PostgreSQL dump of rahatlyk-website-db
+The committed `20260916_091702_baseline` migration is intended for a new empty database. The existing production database was historically created with Payload push mode and may contain the schema while lacking this migration-history entry. Verify `npm run db:migrate:status` before the first migration-based release; if the baseline shows `No` on an already-populated matching database, do not run it blindly. Complete a one-time approved migration-history baseline procedure, then use normal pending-migration runs for all later releases.
 
-Record and verify the backup directory before clearing or restoring anything.
+The current VPS database has completed that one-time reconciliation: `payload_migrations` contains `20260916_091702_baseline` with batch `1`. Future standalone deployments should therefore skip the baseline and apply only newer registered migrations at startup.
 
-The currently verified backup set is /opt/backups/rahatlyk-live-20260916_074721. New backups should use a new timestamped folder and should not overwrite this verified restore point until the replacement has been checked.
+## Standard deployment using the current VPS database
 
-### 2. Build from the approved source
+Use this path for all normal releases:
 
-After confirming the source folder:
-
-    cd ~/projects/sarwan
-    grep NEXT_PUBLIC_SITE_URL .env.local
-    rm -rf node_modules .next
-    npm ci
-    npm run lint
-    npm run build
-
-Expect successful compilation and generated standalone output. If the build needs database access, confirm PostgreSQL is reachable before treating a failure as an application issue.
-
-### 3. Create and verify the database dump
-
-For the local Docker PostgreSQL setup:
-
-    cd "C:\Users\90549\Desktop\Projects\sarwan"
-    docker exec rahatlyk-postgres pg_dump -U rahatlyk -d rahatlyk-website-db -Fc --no-owner -f /tmp/rahatlyk.dump
-    docker cp rahatlyk-postgres:/tmp/rahatlyk.dump .\rahatlyk.dump
-
-In WSL:
-
-    file rahatlyk.dump
-
-It should identify a PostgreSQL custom database dump. Do not use PowerShell output redirection directly on pg_dump for this workflow.
-
-### 4. Upload the dump and prepare the VPS
-
-    scp ~/projects/sarwan/rahatlyk.dump ubuntu@216.250.12.102:/tmp/rahatlyk.dump
-    ssh ubuntu@216.250.12.102
-    sudo systemctl stop rahatlyk
-
-Before clearing anything, verify that the backup from step 1 exists. Preserve /opt/rahatlyk/.env.
-
-### 5. Restore the database
-
-If DATABASE_URI is quoted in the production .env, extract it without quotes:
-
-    DB_URL=$(grep '^DATABASE_URI=' /opt/rahatlyk/.env | cut -d= -f2- | tr -d "'\"")
-
-For a full fresh restore:
-
-    sudo -u postgres psql -d "rahatlyk-website-db" -c "DROP SCHEMA public CASCADE;"
-    sudo -u postgres psql -d "rahatlyk-website-db" -c "CREATE SCHEMA public AUTHORIZATION rahatlyk;"
-    sudo -u postgres psql -d "rahatlyk-website-db" -c "GRANT ALL ON SCHEMA public TO rahatlyk;"
-    sudo -u postgres psql -d "rahatlyk-website-db" -c "GRANT ALL ON SCHEMA public TO public;"
-    pg_restore --no-owner --no-acl --dbname="$DB_URL" /tmp/rahatlyk.dump
-
-Do not use pg_restore --clean against a schema with different ownership history; it can produce must-be-owner errors.
-
-### 6. Copy the standalone build and assets
-
-From WSL:
-
-    cd ~/projects/sarwan
-    rsync -avz --progress .next/standalone/ ubuntu@216.250.12.102:/opt/rahatlyk/
-    rsync -avz --delete --progress .next/static/ ubuntu@216.250.12.102:/opt/rahatlyk/.next/static/
-    rsync -avz --delete --progress public/ ubuntu@216.250.12.102:/opt/rahatlyk/public/
-
-Only synchronize media/ and cv/ when the local copies are intentionally the source of truth:
-
-    rsync -avz --delete --progress media/ ubuntu@216.250.12.102:/opt/rahatlyk/media/
-    rsync -avz --delete --progress cv/ ubuntu@216.250.12.102:/opt/rahatlyk/cv/
-
-The --delete option removes destination files not present in the source. Do not use it for routine code-only deployments if the VPS may contain newer uploads.
-
-### 7. Restart and verify
-
-    ssh ubuntu@216.250.12.102
-    sudo chown -R ubuntu:ubuntu /opt/rahatlyk
-    sudo systemctl restart rahatlyk
-    sudo systemctl status rahatlyk -l --no-pager
-    sudo ss -ltnp | grep 3000
-    curl -I http://localhost:3000
-    curl -I https://rahatlyk.com
-
-To confirm which unit file systemd is using:
-
-    sudo systemctl show rahatlyk.service -p FragmentPath
-    sudo systemctl cat rahatlyk.service
-
-Browser checks must cover all three locales, admin login, forms, images, videos, and the site icon. Check for localhost URLs, mixed-content errors, chunk errors, and media 404s.
-
-If the service fails:
-
-    sudo journalctl -u rahatlyk -n 100 --no-pager
-    sudo journalctl -u rahatlyk -f
+1. Sync the approved Windows source into the WSL build workspace.
+2. Re-check `NEXT_PUBLIC_SITE_URL` in the synced `.env.local`.
+3. Run `npm ci` when dependencies changed, then run `npm run build`.
+4. Copy `.next/standalone/` and `.next/static/` to `/opt/rahatlyk`. The VPS `public/` folder is preserved when its contents have not changed; synchronize `public/` only when the release changes public assets, and do not use `--delete` for routine deployments.
+5. Preserve `/opt/rahatlyk/.env`, `/opt/rahatlyk/media/`, `/opt/rahatlyk/cv/`, and the production database.
+6. Restart `rahatlyk.service`.
+7. Payload runs bundled `prodMigrations` while `server.js` starts. Only migrations not recorded in `payload_migrations` are applied.
+8. Check `journalctl -u rahatlyk` for migration and startup errors, then perform the browser checks.
 
 ## Routine code-only deployment
 
 1. Confirm rollback availability.
-2. Build from the approved source with the correct NEXT_PUBLIC_SITE_URL.
-3. Copy .next/standalone, .next/static, and public/.
-4. Do not overwrite /opt/rahatlyk/.env, media/, cv/, or the database.
-5. Restart rahatlyk.service.
-6. Run the browser and log checks above.
+2. Sync the approved Windows source into the WSL build workspace.
+3. Build from the same approved source with the correct NEXT_PUBLIC_SITE_URL.
+4. Copy `.next/standalone/` and `.next/static/`. Copy `public/` only when public assets changed; otherwise preserve the existing VPS folder.
+5. Do not overwrite /opt/rahatlyk/.env, media/, cv/, or the database.
+6. Restart rahatlyk.service; startup runs pending `prodMigrations`.
+7. Confirm migration/startup output in `journalctl`, then run the browser and log checks above.
 
 ## Rollback
 

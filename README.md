@@ -155,6 +155,33 @@ Remove-Item -Recurse -Force .next
 npm run build
 ```
 
+## Database schema migrations
+
+PostgreSQL schema changes are managed by committed Payload migrations. The project uses `push: false`, so a new collection, global, field, relationship, or field-type change must be represented by a migration before it is used outside development.
+
+Install dependencies, make the Payload configuration change, and generate the migration from the project root:
+
+```bash
+npm ci
+npm run db:migrate:create -- my-change-name
+```
+
+Review the generated files in `src/migrations/` and ensure the migration is registered in `src/migrations/index.ts`. Commit both the migration file and the updated index. Check pending migrations with:
+
+```bash
+npm run db:migrate:status
+```
+
+Apply pending migrations to a database with:
+
+```bash
+npm run db:migrate
+```
+
+Payload runs migrations in order and records which ones have already run, so deployment only applies missing migrations. In production, `prodMigrations` loads the committed migration registry during `server.js` startup; the standalone build carries the migration code and does not require `src/migrations/` to be copied separately. Always back up a production database before applying migrations. Do not use `migrate:fresh`, `migrate:reset`, or `migrate:refresh` against production.
+
+The committed `20260916_091702_baseline` migration is the initial schema for a new empty database. If an older database was created with Payload `push` and already contains this schema, do not run the baseline migration against it blindly. First compare the database schema with the baseline and perform a one-time approved migration-history baseline procedure; after that, future migrations can be applied normally with `npm run db:migrate`.
+
 ## Cache And Revalidation
 
 Server data uses `unstable_cache` with locale-specific tags. Payload hooks call `/api/revalidate` after collection/global changes.
@@ -183,14 +210,15 @@ Cache-Control: public, max-age=31536000, immutable
 
 Seed scripts are stored under `scripts/seed/` and are idempotent. They are development/recovery-only tooling and are not required by the production standalone runtime. Run them only from an approved environment with access to the target database and source media files.
 
-The canonical current-content workflow is:
+For a fresh clone and empty database, the content-import workflow is:
 
 ```bash
-npm run seed:export-current-content
+npm ci
+npm run db:migrate
 SEED_TARGET=local npm run seed:current-content
 ```
 
-The export captures current public text and relationships, excludes media and private/admin collections, and writes `scripts/seed/data/current-public-content.json`. The importer refuses to run unless `SEED_TARGET=local` is set. Media must be uploaded separately in the target environment.
+Use the committed snapshot instead of exporting from the empty target database. To refresh content after editing the source database, run `npm run seed:export-current-content` against that authorized source, review and commit the snapshot, then import it into the target. Copy the referenced `media/` files to the target. The export captures current public text and relationships, excludes private/admin collections, and writes `scripts/seed/data/current-public-content.json`. The importer refuses to run unless `SEED_TARGET=local` is set.
 
 Important media behavior:
 
@@ -209,6 +237,7 @@ Important media behavior:
 - Do not delete Payload's upload directory during deployment.
 - If using local Payload uploads on the VPS, keep the media directory persistent across releases.
 - Do not run seed scripts on the VPS or against the production database. Use them only for a local or disposable database.
+- Do not use a content seed as a schema migration. On the VPS, deploy the rebuilt standalone output and restart the service; `prodMigrations` applies pending schema migrations during `server.js` startup. Do not import the content snapshot on the VPS unless a controlled content restore is explicitly intended.
 - After running seeds, make sure revalidation succeeds or rebuild/restart the app.
 - With `output: 'standalone'`, run the deployed `server.js` from the standalone output as the `rahatlyk.service` systemd unit and serve it behind Nginx.
 

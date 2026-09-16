@@ -39,6 +39,20 @@ Write idempotent seed scripts. This repo keeps its development/recovery seed scr
 
 Treat migrations and seeds as separate responsibilities. Migrations define schema/data structure changes; seeds provide useful content. Mixing those responsibilities makes production changes harder to reason about.
 
+### Media imports must be idempotent
+
+Payload upload collections create a new media document and file when `payload.create` receives a file. Re-running a seed is not automatically deduplicated. When a file with the same name already exists on disk, Payload may rename the new upload with a numeric suffix such as `1-1.webp`, `1-2.webp`, or `image-1.webp`, which makes exact filename matching unreliable. Payload documents `filePath` for Local API uploads and `overwriteExistingFiles` for replacing a file during an update, but neither option by itself makes repeated create operations idempotent: [Payload Uploads](https://payloadcms.com/docs/upload/overview) and [Payload Local API](https://payloadcms.com/docs/local-api/overview).
+
+The seed importer in `scripts/seed/seed-current-public-content.ts` now resolves each media reference before importing content and reuses an existing Media document using these checks, in order:
+
+1. Stable `alt` value when present.
+2. Exact filename or a Payload-style numeric filename variant.
+3. SHA-256 file-content match when the stored file is available.
+
+Only media that cannot be matched is uploaded. For a first import into an empty database with files already present in the media directory, the importer creates the record with `filePath` and immediately updates it with `overwriteExistingFiles: true`, following Payload's Local API upload behavior. This keeps canonical names such as `1.webp` instead of allowing a disk collision to produce `1-1.webp`. The reused Payload ID is then placed into collection and global relationships, so repeated imports do not create new media rows.
+
+This was verified on the local `rahatlyk_baseline_test` database. The database was recreated, the committed baseline migration was run, and the updated content was imported while the media directory already contained files. The first clean import produced 34 media records with canonical filenames; `1.webp` existed and no `1-1.webp` variant was created. A second import reused all media and the count remained 34. The test also showed that revalidation warnings are expected when the Next.js server is stopped; they do not prevent the seed database writes from succeeding.
+
 ## Caching And Revalidation Lessons
 
 URL-based locales made caching practical. Earlier locale state outside the URL would have made cached pages ambiguous. The current `withLocale`, `getValidLocale`, middleware, and `[locale]` routes make cache keys, canonical URLs, and sitemap entries deterministic.

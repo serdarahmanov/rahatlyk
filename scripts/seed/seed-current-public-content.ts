@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fs from 'node:fs'
+import crypto from 'node:crypto'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { getPayload } from 'payload'
@@ -7,20 +8,95 @@ import { getPayload } from 'payload'
 const require = createRequire(import.meta.url)
 const { loadEnvConfig } = require('@next/env') as typeof import('@next/env')
 loadEnvConfig(process.cwd())
+process.env.PAYLOAD_SEED_MODE = 'true'
 
 const { default: config } = await import('../../payload.config')
 const payload = await getPayload({ config })
-
-if (process.env.SEED_TARGET !== 'local') {
-  throw new Error('Refusing to seed. Set SEED_TARGET=local when targeting a local or disposable database.')
-}
 
 type Locale = 'en' | 'tm' | 'ru'
 const locales: Locale[] = ['en', 'tm', 'ru']
 const snapshotPath = path.resolve('scripts/seed/data/current-public-content.json')
 const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8')) as {
+  media?: Array<{ filename: string; path: string; mimetype: string; alt: string }>
   collections: Record<string, any[]>
   globals: Record<string, any>
+}
+
+const projectRoot = path.resolve('.')
+const mediaRoot = path.resolve(projectRoot, 'media')
+const mediaIDs = new Map<string, number | string>()
+
+function escapedRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function resolveMedia(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((item) => resolveMedia(item))
+  if (!value || typeof value !== 'object') return value
+
+  const record = value as Record<string, unknown>
+  if (typeof record.__seedMedia === 'string') {
+    const id = mediaIDs.get(record.__seedMedia)
+    if (id === undefined) throw new Error(`Media was not imported: ${record.__seedMedia}`)
+    return id
+  }
+
+  const result: Record<string, unknown> = {}
+  for (const [key, child] of Object.entries(record)) result[key] = resolveMedia(child)
+  return result
+}
+
+async function importMedia() {
+  for (const media of snapshot.media ?? []) {
+    const filePath = path.resolve(projectRoot, media.path)
+    const mediaRootPrefix = `${mediaRoot}${path.sep}`
+    if (!filePath.startsWith(mediaRootPrefix) && filePath !== mediaRoot) {
+      throw new Error(`Media path is outside the media directory: ${media.path}`)
+    }
+    if (!fs.existsSync(filePath)) throw new Error(`Media file does not exist: ${filePath}`)
+
+    const data = fs.readFileSync(filePath)
+    const sourceHash = crypto.createHash('sha256').update(data).digest('hex')
+    const existing = await payload.find({
+      collection: 'media',
+      limit: 1000,
+      overrideAccess: true,
+    })
+
+    const extension = path.extname(media.filename)
+    const stem = media.filename.slice(0, -extension.length)
+    const payloadRenamedFilename = new RegExp(`^${escapedRegExp(stem)}-\\d+${escapedRegExp(extension)}$`, 'i')
+    const matchingMedia = existing.docs.find((doc: any) => {
+      if (media.alt && doc.alt === media.alt) return true
+      if (doc.filename === media.filename || payloadRenamedFilename.test(doc.filename)) return true
+      const storedPath = path.resolve(mediaRoot, doc.filename)
+      if (!fs.existsSync(storedPath)) return false
+      const storedHash = crypto.createHash('sha256').update(fs.readFileSync(storedPath)).digest('hex')
+      return storedHash === sourceHash
+    })
+    if (matchingMedia) {
+      mediaIDs.set(media.filename, matchingMedia.id)
+      console.log(`[reused] media by content: ${media.filename} -> ${matchingMedia.filename}`)
+      continue
+    }
+
+    const created = await payload.create({
+      collection: 'media',
+      data: { alt: media.alt || media.filename },
+      filePath,
+      overrideAccess: true,
+    })
+    const normalized = await payload.update({
+      collection: 'media',
+      id: created.id,
+      data: { alt: media.alt || media.filename },
+      filePath,
+      overwriteExistingFiles: true,
+      overrideAccess: true,
+    })
+    mediaIDs.set(media.filename, normalized.id)
+    console.log(`[created] media: ${media.filename}`)
+  }
 }
 
 function localize(value: unknown, locale: Locale): unknown {
@@ -52,7 +128,7 @@ async function findBySlug(collection: string, slug: string | undefined) {
 }
 
 async function upsertLocalizedCollection(collection: string, rawDoc: any, relationMaps: Record<string, Map<string, number>>) {
-  const base = localize(rawDoc, 'en') as Record<string, any>
+  const base = resolveMedia(localize(rawDoc, 'en')) as Record<string, any>
   const existing = base.slug
     ? await findBySlug(collection, base.slug)
     : (await payload.find({
@@ -70,7 +146,7 @@ async function upsertLocalizedCollection(collection: string, rawDoc: any, relati
   const id = existing?.id
   if (id) {
     for (const locale of locales) {
-      const data = localize(rawDoc, locale) as Record<string, any>
+      const data = resolveMedia(localize(rawDoc, locale)) as Record<string, any>
       if (relationKey && typeof data[relationKey] === 'string') data[relationKey] = relationMaps[relationKey]?.get(data[relationKey])
       await payload.update({ collection: collection as any, id, locale, data, overrideAccess: true })
     }
@@ -80,7 +156,7 @@ async function upsertLocalizedCollection(collection: string, rawDoc: any, relati
 
   const created = await payload.create({ collection: collection as any, locale: 'en', data: base, overrideAccess: true })
   for (const locale of locales.slice(1)) {
-    const data = localize(rawDoc, locale) as Record<string, any>
+    const data = resolveMedia(localize(rawDoc, locale)) as Record<string, any>
     if (relationKey && typeof data[relationKey] === 'string') data[relationKey] = relationMaps[relationKey]?.get(data[relationKey])
     await payload.update({ collection: collection as any, id: created.id, locale, data, overrideAccess: true })
   }
@@ -119,15 +195,33 @@ async function main() {
 
   for (const [slug, rawGlobal] of Object.entries(snapshot.globals)) {
     for (const locale of locales) {
-      await payload.updateGlobal({ slug: slug as any, locale, data: localize(rawGlobal, locale) as any, overrideAccess: true })
+      const localized = localize(rawGlobal, locale)
+      await payload.updateGlobal({ slug: slug as any, locale, data: resolveMedia(localized) as any, overrideAccess: true })
     }
     console.log(`[updated] global: ${slug}`)
   }
 
-  console.log('Current public text/content imported. Media was intentionally skipped.')
+  console.log('Current public text/content and referenced media imported.')
 }
 
-main().catch((error) => {
+async function run() {
+  try {
+    if (process.env.SEED_TARGET !== 'local') {
+      throw new Error('Refusing to seed. Set SEED_TARGET=local when targeting a local or disposable database.')
+    }
+    await importMedia()
+    await main()
+  } finally {
+    const pool = payload.db?.pool
+    try {
+      await payload.destroy()
+    } finally {
+      void pool?.end().catch(() => undefined)
+    }
+  }
+}
+
+run().then(() => process.exit(0)).catch((error) => {
   console.error(error)
   process.exit(1)
 })

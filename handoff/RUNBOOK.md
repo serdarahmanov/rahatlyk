@@ -47,6 +47,21 @@ If an admin save succeeds but the public page is stale:
 4. Revalidate or restart using the approved operational procedure.
 5. Do not immediately reseed content; stale cache is not evidence that the database write failed.
 
+## Schema changes and releases
+
+Schema changes are delivered through committed Payload migrations in `src/migrations/`. A content seed does not create tables or fields. When the repository introduces a new collection, global, field, relationship, or field-type change:
+
+1. Generate and review the migration locally with `npm run db:migrate:create -- change-name`.
+2. Commit the migration, its registration in `src/migrations/index.ts`, and the matching Payload configuration.
+3. Build and deploy the same repository revision.
+4. Restart `rahatlyk.service`; Payload `prodMigrations` runs pending migrations while `server.js` starts.
+
+The standalone build bundles the registered migrations through `payload.config.ts`; migration files do not need to be copied separately to `/opt/rahatlyk`. Use `npm run db:migrate:status` and `npm run db:migrate` only from a full repository/build workspace. Never run `migrate:fresh`, `migrate:reset`, or `migrate:refresh` against production.
+
+For an existing database created historically with Payload push mode, the database schema and migration history may not agree. Check `npm run db:migrate:status` before the first migration-based deployment. If the initial baseline is pending while its tables already exist, stop and perform the approved one-time migration-history baseline procedure; do not execute the full baseline against the populated database.
+
+The current VPS database has been reconciled: `payload_migrations` contains `20260916_091702_baseline` with batch `1`. Future standalone releases skip that baseline and apply only newer migrations during service startup.
+
 ## Database and file backups
 
 Back up these items together:
@@ -104,10 +119,6 @@ Payload metadata and filesystem files must agree in filename and location. Verif
 ### curl -I reports a media 404 but the browser loads it
 
 Some media handlers do not implement HEAD exactly like GET. A HEAD-only 404 is not conclusive. Test the real browser URL or use a GET request before diagnosing a missing file.
-
-### PostgreSQL restore reports ownership errors
-
-Do not use pg_restore --clean against a schema with a different owner history. Drop and recreate the public schema, then restore with --no-owner --no-acl as described in DEPLOYMENT.md.
 
 ### Database URL appears malformed or connects as the wrong user
 

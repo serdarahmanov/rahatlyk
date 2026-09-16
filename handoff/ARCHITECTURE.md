@@ -66,7 +66,6 @@ Important folders and files:
 | next.config.ts | Next.js standalone output, image, headers, and media tracing configuration |
 | package.json | Commands and dependency versions |
 | README.md | Developer setup and project-level reference |
-| rahatlyk.dump | Local PostgreSQL dump when present; handle as sensitive data |
 
 The supplied deployment PDF references an older Windows path (C:\Users\90549\Desktop\wavy music\sarwan) and an older WSL copy (~/projects/sarwan). Confirm the active source path before every deployment; do not assume the older path is still the source of truth.
 

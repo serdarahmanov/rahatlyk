@@ -41,6 +41,7 @@ import { Users } from './src/collections/Users'
 import { VacancyApplications } from './src/collections/VacancyApplications'
 import { VacancyDepartments } from './src/collections/VacancyDepartments'
 import { Vacancies } from './src/collections/Vacancies'
+import { migrations } from './src/migrations'
 
 setDefaultResultOrder('ipv4first')
 
@@ -77,12 +78,15 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI ?? process.env.DATABASE_URL,
-    },
+       },
+        prodMigrations: migrations,
+        push: false,
   }),
   editor: lexicalEditor(),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.NOREPLY_EMAIL ?? '',
     defaultFromName: 'Rahatlyk',
+    skipVerify: process.env.PAYLOAD_SEED_MODE === 'true',
     transport: nodemailer.createTransport({
       service: 'gmail',
       auth: {
